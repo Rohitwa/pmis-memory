@@ -120,6 +120,20 @@ def _call_model(pages: List[Dict], hp: Dict) -> str:
     prompt = _build_prompt(pages)
     cloud_ok = bool(hp.get("humanize_use_cloud", True))
 
+    # Tier 1: Claude Haiku 4.5 for prose quality. 1–2 calls/day → ~$0.01/day.
+    # Requires ANTHROPIC_API_KEY. Gated by the narrator_use_claude flag.
+    if cloud_ok and bool(hp.get("narrator_use_claude", True)):
+        anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+        if anthropic_key:
+            text = _call_anthropic(
+                prompt, anthropic_key,
+                model=hp.get("narrator_model_claude", "claude-haiku-4-5-20251001"),
+                timeout_s=45,
+            )
+            if text:
+                return text
+
+    # Tier 2: Gemini Flash — existing cheap cloud path.
     from sync.humanizer import _resolve_gemini_key, _call_gemini, _call_ollama
     api_key = _resolve_gemini_key()
     if cloud_ok and api_key:
@@ -131,12 +145,47 @@ def _call_model(pages: List[Dict], hp: Dict) -> str:
         if text:
             return text
 
+    # Tier 3: local Ollama qwen — offline last resort.
     text = _call_ollama(
         prompt,
         model=hp.get("humanize_model_local", "qwen2.5:7b"),
         timeout_s=90,
     )
     return text or ""
+
+
+def _call_anthropic(prompt: str, api_key: str, *,
+                    model: str = "claude-haiku-4-5-20251001",
+                    timeout_s: int = 45) -> str:
+    """Call Anthropic Messages API. Returns the concatenated text blocks or ''
+    on any failure — caller falls through to the next provider."""
+    try:
+        import httpx
+        resp = httpx.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "max_tokens": 1200,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=timeout_s,
+        )
+        if resp.status_code != 200:
+            logger.warning("anthropic %s returned %d: %s",
+                           model, resp.status_code, resp.text[:200])
+            return ""
+        data = resp.json()
+        blocks = data.get("content") or []
+        parts = [b.get("text", "") for b in blocks if b.get("type") == "text"]
+        return "".join(parts).strip()
+    except Exception as e:
+        logger.warning("anthropic call failed: %s", e)
+        return ""
 
 
 def _build_prompt(pages: List[Dict]) -> str:

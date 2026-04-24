@@ -125,12 +125,24 @@ class ProblemStatementComposer:
     def compose(
         self,
         deliverable_id: str,
-        use_llm: bool = True,
+        use_llm: Optional[bool] = None,
         include_activity: bool = True,
     ) -> ComposerBundle:
+        """Compose a problem_statement.md for a deliverable.
+
+        `use_llm` resolution:
+          - None (default)  → read hp `meta_composer_use_llm` (default: False).
+            Deterministic template is the system-wide default since the
+            `_template_fallback` covers all 6 sections and is reproducible.
+          - True            → force the meta-LLM call regardless of config.
+          - False           → force template regardless of config.
+        """
         deliverable = self.db.get_deliverable(deliverable_id)
         if not deliverable:
             raise ValueError(f"deliverable_not_found: {deliverable_id}")
+
+        if use_llm is None:
+            use_llm = bool(self.hp.get("meta_composer_use_llm", False))
 
         brief = self._get_brief(deliverable_id)
         latest_segment = self._get_latest_segment() if include_activity else None
