@@ -291,10 +291,11 @@ class DailyActivityMerger:
         return clusters
 
     def _extract_pattern(self, cluster: List[Dict]) -> Optional[str]:
-        """Produce a knowledge anchor from a cluster. Deterministic by
-        default (Track D.6); LLM path opt-in via hp.activity_merge_use_llm."""
-        if self.hp.get("activity_merge_use_llm", False):
-            return self._llm_extract_pattern(cluster)
+        """Produce a knowledge anchor from a cluster via OpenAI, with a
+        deterministic fallback if the OpenAI call fails."""
+        text = self._llm_extract_pattern(cluster)
+        if text:
+            return text
         return self._deterministic_extract_pattern(cluster)
 
     def _deterministic_extract_pattern(self, cluster: List[Dict]) -> str:
@@ -350,7 +351,8 @@ class DailyActivityMerger:
         return anchor[:300]
 
     def _llm_extract_pattern(self, cluster: List[Dict]) -> Optional[str]:
-        """Legacy LLM path — kept behind hp.activity_merge_use_llm."""
+        """OpenAI gpt-4o-mini call. Returns '' on failure so the caller
+        falls back to the deterministic extractor."""
         total_duration = sum(s.get("duration_secs", 10) for s in cluster)
         duration_mins = total_duration / 60.0
 
@@ -369,19 +371,36 @@ class DailyActivityMerger:
 
         try:
             import httpx
-            model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
+            key = os.environ.get("OPENAI_API_KEY", "").strip()
+            if not key:
+                return ""
+            base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+            model = self.hp.get("openai_chat_model", "gpt-4o-mini")
             resp = httpx.post(
-                "http://localhost:11434/api/generate",
-                json={"model": model, "prompt": prompt, "stream": False},
-                timeout=30,
+                f"{base}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "max_tokens": 400,
+                    "temperature": 0.3,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=45.0,
             )
-            if resp.status_code == 200:
-                return resp.json().get("response", "").strip()[:500]
-        except Exception:
-            pass
-
-        # Fallback when LLM unreachable — borrow the deterministic output.
-        return self._deterministic_extract_pattern(cluster)
+            if resp.status_code != 200:
+                logger.warning("openai %s returned %d", model, resp.status_code)
+                return ""
+            data = resp.json()
+            choices = data.get("choices") or []
+            if not choices:
+                return ""
+            return (choices[0].get("message", {}).get("content") or "").strip()[:500]
+        except Exception as e:
+            logger.warning("openai call failed: %s", e)
+            return ""
 
     def _semantic_match(self, text: str) -> Tuple[Optional[str], Optional[str]]:
         """Find the best matching CTX in the knowledge tree via semantic search."""

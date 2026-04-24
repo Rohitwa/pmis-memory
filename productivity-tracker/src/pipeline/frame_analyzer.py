@@ -1,8 +1,9 @@
 """
-Frame analyzer — sends batches of screenshots to a vision model.
+Frame analyzer — sends batches of screenshots to OpenAI vision.
 
-Provider order is configurable via settings.yaml `llm.provider_order`.
-Default: OpenAI gpt-4o-mini first, Ollama qwen2.5vl:3b/7b as fallback.
+Single provider: OpenAI `gpt-4o-mini`. Ollama vision path removed.
+Empty extraction is returned when the OpenAI call fails, and the
+segment-level synthesizer will render from whatever text is present.
 """
 
 import asyncio
@@ -20,23 +21,12 @@ logger = logging.getLogger("tracker.frame_analyzer")
 
 
 class FrameAnalyzer:
-    """Analyzes screenshot frames with OpenAI → Ollama fallback."""
+    """Analyzes screenshot frames with OpenAI gpt-4o-mini vision."""
 
     def __init__(self, config: dict):
-        llm_config = config.get("llm", {})
-        self.provider_order = llm_config.get("provider_order", ["openai", "ollama"])
-
         openai_config = config.get("openai", {})
         self.openai_model = openai_config.get("vision_model", "gpt-4o-mini")
         self.openai_timeout = openai_config.get("timeout", 45)
-
-        ollama_config = config.get("ollama", {})
-        self.ollama_vision_enabled = ollama_config.get("vision_enabled", False)
-        self.ollama_model = ollama_config.get("vision_model", "qwen2.5vl:3b")
-        self.ollama_fallback_model = ollama_config.get("vision_fallback", "qwen2.5vl:7b")
-        self.ollama_base_url = ollama_config.get("base_url", "http://localhost:11434")
-        self.ollama_timeout = ollama_config.get("timeout", 60)
-        self.ollama_keep_alive = ollama_config.get("keep_alive", "0")
 
     async def analyze_batch(self, frames: list[dict]) -> list[dict]:
         """
@@ -62,19 +52,11 @@ class FrameAnalyzer:
 
         prompt = FRAME_BATCH_PROMPT.format(count=len(images_b64))
 
-        for provider in self.provider_order:
-            if provider == "openai":
-                result = await self._call_openai(prompt, images_b64)
-            elif provider == "ollama":
-                result = await self._call_ollama_chain(prompt, images_b64)
-            else:
-                logger.warning(f"Unknown provider {provider!r}, skipping")
-                continue
+        result = await self._call_openai(prompt, images_b64)
+        if result is not None:
+            return self._parse_result(result, len(frames))
 
-            if result is not None:
-                return self._parse_result(result, len(frames))
-
-        logger.error("All vision providers failed for frame batch")
+        logger.error("OpenAI vision call failed for frame batch")
         return [{"text": "", "app": "unknown", "task": "unknown"}] * len(frames)
 
     async def _call_openai(self, prompt: str, images: list[str]) -> str | None:
@@ -108,46 +90,6 @@ class FrameAnalyzer:
             return response.choices[0].message.content
         except Exception as e:
             logger.warning(f"OpenAI vision call failed ({self.openai_model}): {e}")
-            return None
-
-    async def _call_ollama_chain(self, prompt: str, images: list[str]) -> str | None:
-        """Try primary Ollama model, then fallback model. Skips entirely when disabled."""
-        if not self.ollama_vision_enabled:
-            logger.info("Ollama vision disabled (ollama.vision_enabled=false) — skipping")
-            return None
-        for model in [self.ollama_model, self.ollama_fallback_model]:
-            result = await self._call_ollama(model, prompt, images)
-            if result is not None:
-                return result
-        return None
-
-    async def _call_ollama(self, model: str, prompt: str, images: list[str]) -> str | None:
-        """Call Ollama vision API with images."""
-        try:
-            async with httpx.AsyncClient(timeout=self.ollama_timeout) as client:
-                response = await client.post(
-                    f"{self.ollama_base_url}/api/generate",
-                    json={
-                        "model": model,
-                        "prompt": prompt,
-                        "images": images,
-                        "stream": False,
-                        "keep_alive": self.ollama_keep_alive,
-                        "options": {
-                            "temperature": 0.1,
-                            "num_predict": 500,
-                        },
-                    },
-                )
-
-                if response.status_code == 200:
-                    return response.json().get("response", "")
-                else:
-                    logger.warning(f"Ollama {model} returned {response.status_code}")
-                    return None
-
-        except Exception as e:
-            logger.warning(f"Ollama {model} call failed: {e}")
             return None
 
     def _parse_result(self, text: str, expected_count: int) -> list[dict]:

@@ -55,14 +55,10 @@ class TestClassifyMedium:
 
 
 class TestDeterministicSynthesis:
-    def test_default_is_deterministic_no_llm(self, classifier):
-        """use_llm flag must default to False — no network call on synth."""
-        assert classifier.use_llm is False
-
-    def test_flag_enables_llm_path(self, config):
-        cfg = {**config, "llm": {**config["llm"], "use_llm_segment_synthesis": True}}
-        cls = ContextClassifier(cfg)
-        assert cls.use_llm is True
+    def test_use_llm_hardwired_true(self, classifier):
+        """use_llm is always True after the OpenAI-only refactor; deterministic
+        synthesis is now a failure fallback inside classify_segment, not a flag."""
+        assert classifier.use_llm is True
 
     def test_worker_majority_vote(self, classifier):
         """Majority of frame.worker_type decides segment worker."""

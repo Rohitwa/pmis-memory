@@ -66,8 +66,11 @@ embedding_dimensions: 1536                 # OpenAI fallback dim
 local_embedding_model: nomic-embed-text    # local via Ollama (use_local=true)
 local_embedding_dimensions: 768            # local dim — matches stored vectors
 use_local: true
-consolidation_model: claude-sonnet-4-20250514
-consolidation_model_local: qwen2.5:14b
+# Unified LLM provider: OpenAI `gpt-4o-mini`. All recurring paths (Birth,
+# Restructure, narrator, humanizer, page_builder, activity_merge,
+# manual_project, meta_composer) route through the same model. Each has a
+# deterministic fallback that fires only when the OpenAI call fails.
+openai_chat_model: gpt-4o-mini
 consolidation_max_tokens: 2048
 
 # Birth-pass warm-start: when an orphan cluster's centroid is already
@@ -85,30 +88,13 @@ birth_warm_start_threshold: 0.15
 restructure_duplicate_threshold: 0.08
 restructure_reparent_gain: 0.15
 
-# Meta-LLM problem statement composer (Phase 3.5):
-# Template rendering is the default — the _template_fallback covers all 6
-# sections deterministically and is reproducible. Flip to true only if
-# you want LLM polish (costs tokens, non-deterministic).
-# Callers can still pass use_llm=True explicitly to override per-call.
-meta_composer_use_llm: false
-
-# Sync page builder title/summary generation:
-# Deterministic by default — picks most-common window as title and
-# dedupes/ranks segment summaries for the body. Flip to true to route
-# through Ollama qwen2.5:14b (matches legacy behavior, costs latency).
-page_builder_use_llm: false
-
-# Daily activity merge (consolidation pass 6) knowledge-anchor extraction:
-# Deterministic by default — dedupes segment summaries by 40-char prefix
-# and prefers outcome-verb-led summaries. Flip to true to route through
-# Ollama qwen2.5:14b (matches legacy behavior).
-activity_merge_use_llm: false
-
-# Manual per-project daily report (Phase 4):
-# Deterministic by default — regex-classifies segment summary sentences
-# into Accomplishments / Decisions / Open items, dedupes, caps at 5 per
-# section. Flip to true to regenerate via LLM (matches legacy behavior).
-manual_project_use_llm: false
+# LLM-on everywhere. Every module hits OpenAI gpt-4o-mini by default.
+# The deterministic templates remain in-code as failure fallbacks only —
+# they render when an OpenAI call fails or returns empty text.
+meta_composer_use_llm: true
+page_builder_use_llm: true
+activity_merge_use_llm: true
+manual_project_use_llm: true
 dedup_semantic_threshold: 0.05
 dedup_temporal_threshold_hours: 2
 dedup_source_overlap_threshold: 0.8
@@ -188,17 +174,9 @@ dream_proposal_ttl_days: 3           # proposed tag expires → archived 'stale'
 
 # ── Phase B — outcome-shaped rewrite of work_page summaries ────────
 humanize_auto_on_sync: true          # rewrite salient pages after every sync
-humanize_use_cloud: true             # prefer Gemini (needs GOOGLE_API_KEY)
-humanize_model_cloud: gemini-2.5-flash
-humanize_model_local: qwen2.5:7b     # offline fallback
 
 # ── Phase C — narrative composer ──────────────────────────────────
 narrate_auto_on_sync: true           # compose 1-4 journal stories each sync
-# Narrator model dispatch: try Claude Haiku 4.5 first for prose quality
-# (1-2 calls/day so cost is ~$0.01/day at Haiku pricing), then Gemini Flash,
-# then local qwen2.5:7b. Requires ANTHROPIC_API_KEY when narrator_use_claude.
-narrator_use_claude: true
-narrator_model_claude: claude-haiku-4-5-20251001
 
 # Goals page: how many trailing days of work_pages + narratives to render.
 # 0 = today only. Default 30 shows ~last-month view (handy after a backfill);

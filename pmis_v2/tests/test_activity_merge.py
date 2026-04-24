@@ -29,32 +29,39 @@ def merger():
 
 
 class TestDispatch:
-    def test_default_is_deterministic(self, merger):
+    def test_openai_success_used(self, merger, monkeypatch):
+        monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+        cluster = [_seg("Drafted CISO outreach email")]
+        mock_resp = MagicMock(status_code=200)
+        mock_resp.json.return_value = {
+            "choices": [{"message": {"content": "OpenAI anchor text"}}]
+        }
+        with patch("httpx.post", return_value=mock_resp) as mock_post:
+            out = merger._extract_pattern(cluster)
+        mock_post.assert_called_once()
+        assert out == "OpenAI anchor text"
+
+    def test_openai_empty_falls_back_to_deterministic(self, merger, monkeypatch):
+        monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+        cluster = [_seg("Drafted CISO outreach email")]
+        mock_resp = MagicMock(status_code=200)
+        mock_resp.json.return_value = {"choices": []}
+        with patch("httpx.post", return_value=mock_resp):
+            out = merger._extract_pattern(cluster)
+        assert out and "Drafted CISO outreach email" in out
+
+    def test_no_api_key_falls_back_to_deterministic(self, merger):
         cluster = [_seg("Drafted CISO outreach email")]
         with patch("httpx.post") as mock_post:
             out = merger._extract_pattern(cluster)
-        mock_post.assert_not_called()
+        mock_post.assert_not_called()  # short-circuit on missing key
         assert out and "Drafted CISO outreach email" in out
 
-    def test_flag_true_routes_to_ollama(self):
-        db = MagicMock()
-        m = DailyActivityMerger(db, hyperparams={"activity_merge_use_llm": True})
-        cluster = [_seg("anything")]
-
-        mock_resp = MagicMock(status_code=200)
-        mock_resp.json.return_value = {"response": "LLM-generated anchor text"}
-        with patch("httpx.post", return_value=mock_resp) as mock_post:
-            out = m._extract_pattern(cluster)
-        mock_post.assert_called_once()
-        assert out == "LLM-generated anchor text"
-
-    def test_llm_failure_falls_back_to_deterministic(self):
-        db = MagicMock()
-        m = DailyActivityMerger(db, hyperparams={"activity_merge_use_llm": True})
+    def test_llm_failure_falls_back_to_deterministic(self, merger, monkeypatch):
+        monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
         cluster = [_seg("Reviewed a PR")]
-
         with patch("httpx.post", side_effect=Exception("network")):
-            out = m._extract_pattern(cluster)
+            out = merger._extract_pattern(cluster)
         assert out and "Reviewed a PR" in out
 
 

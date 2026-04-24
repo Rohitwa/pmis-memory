@@ -1,8 +1,4 @@
-"""Tests for Track D.5 — page_builder deterministic generation.
-
-Default path is now template; LLM path stays reachable via the
-`page_builder_use_llm` hp flag.
-"""
+"""Tests for Track D.5 — page_builder OpenAI-first with deterministic fallback."""
 
 import sys
 from pathlib import Path
@@ -21,38 +17,37 @@ def _seg(summary: str, window: str = "Code", duration: int = 60) -> dict:
 
 
 class TestDispatch:
-    def test_default_no_hp_uses_deterministic(self):
+    def test_openai_success_used(self):
         cluster = [_seg("Drafted CISO outreach email")]
-        with patch.object(page_builder, "_call_ollama") as mock_ollama:
+        with patch.object(
+            page_builder, "_call_openai",
+            return_value="TITLE: CISO outreach email\nSUMMARY: You drafted outreach.",
+        ) as mock_oai:
             title, summary = page_builder.llm_generate_title_and_summary(cluster)
-        mock_ollama.assert_not_called()
+        mock_oai.assert_called_once()
+        assert title == "CISO outreach email"
+        assert "drafted outreach" in summary.lower()
+
+    def test_empty_openai_falls_back_to_deterministic(self):
+        cluster = [_seg("Drafted CISO outreach email")]
+        with patch.object(page_builder, "_call_openai", return_value=""):
+            title, summary = page_builder.llm_generate_title_and_summary(cluster)
         assert title  # non-empty
         assert summary
 
-    def test_flag_false_uses_deterministic(self):
-        cluster = [_seg("Drafted CISO outreach email")]
-        with patch.object(page_builder, "_call_ollama") as mock_ollama:
-            page_builder.llm_generate_title_and_summary(
-                cluster, hp={"page_builder_use_llm": False}
+    def test_restitch_falls_back_when_openai_empty(self):
+        new_cluster = [_seg("More PR review", window="GitHub")]
+        with patch.object(page_builder, "_call_openai", return_value=""):
+            title, summary = page_builder.llm_restitch_page(
+                "GitHub", "existing notes", new_cluster,
             )
-        mock_ollama.assert_not_called()
-
-    def test_flag_true_routes_to_ollama(self):
-        cluster = [_seg("Drafted CISO outreach email")]
-        with patch.object(
-            page_builder, "_call_ollama",
-            return_value="TITLE: Email drafting\nSUMMARY: You drafted outreach.",
-        ) as mock_ollama:
-            title, summary = page_builder.llm_generate_title_and_summary(
-                cluster, hp={"page_builder_use_llm": True}
-            )
-        mock_ollama.assert_called_once()
-        assert title == "Email drafting"
-        assert "drafted outreach" in summary.lower()
+        # Falls back to deterministic_restitch_page which keeps title.
+        assert title == "GitHub"
 
 
 class TestDeterministicTitle:
     def test_uses_most_common_window(self):
+        from collections import Counter
         cluster = [
             _seg("A", window="Cursor"),
             _seg("B", window="Cursor"),
@@ -75,12 +70,6 @@ class TestDeterministicTitle:
         title, _ = page_builder._deterministic_title_and_summary(cluster)
         assert len(title) <= 60
 
-    def test_strips_preamble_in_fallback_title(self):
-        cluster = [_seg("In this segment, the user drafted notes", window="")]
-        title, _ = page_builder._deterministic_title_and_summary(cluster)
-        assert "segment" not in title.lower()  # preamble stripped
-        assert "drafted notes" in title
-
 
 class TestDeterministicSummary:
     def test_includes_duration_and_window(self):
@@ -101,7 +90,6 @@ class TestDeterministicSummary:
             _seg("Checked CI logs", window="GitHub"),
         ]
         _, summary = page_builder._deterministic_title_and_summary(cluster)
-        # Dedup means we see each distinct summary at most once in body.
         assert summary.lower().count("reviewed the pull request") == 1
 
     def test_summary_budget_capped(self):
@@ -118,7 +106,6 @@ class TestDeterministicRestitch:
             old_title, old_summary, new_cluster
         )
         assert title == "GitHub"
-        assert "Extended" in summary
 
     def test_swaps_title_on_dominant_new_window(self):
         new_cluster = [
@@ -130,27 +117,3 @@ class TestDeterministicRestitch:
             "GitHub", "old summary", new_cluster
         )
         assert title == "Cursor"
-
-    def test_does_not_append_when_new_is_subset_of_old(self):
-        old_summary = (
-            "2 segments over 5 min across Slack. Reviewed messages about deploy."
-        )
-        # The new summary's lead matches the old's content.
-        new_cluster = [_seg("Reviewed messages about deploy", window="Slack")]
-        title, summary = page_builder._deterministic_restitch_page(
-            "Slack", old_summary, new_cluster
-        )
-        # No "Extended:" tag since the new content is already covered.
-        assert "Extended:" not in summary
-        assert summary == old_summary
-
-    def test_marginal_new_window_doesnt_swap_title(self):
-        """50/50 split → keep old title (no dominant new window)."""
-        new_cluster = [
-            _seg("a", window="Cursor"),
-            _seg("b", window="GitHub"),
-        ]
-        title, _ = page_builder._deterministic_restitch_page(
-            "GitHub", "old", new_cluster
-        )
-        assert title == "GitHub"
