@@ -59,6 +59,7 @@ class ProductivityTracker:
         self._paused = False
         self._current_segment_id = None
         self._frame_buffer = []
+        self._skipped_duplicate_frames = 0
 
     async def start(self):
         """Start the tracking loop."""
@@ -192,6 +193,18 @@ class ProductivityTracker:
                 )
                 self._frame_buffer = []
 
+            # 5b. Skip near-duplicate frames within the same segment. Saves
+            # VLM cost when the user is on a static screen. New-segment
+            # boundary always analyzes (baseline for the new context).
+            if not needs_new and self.segmenter.should_skip_frame(screenshot_path):
+                self._skipped_duplicate_frames += 1
+                if self._skipped_duplicate_frames % 25 == 0:
+                    logger.info(
+                        f"Frame dedup: {self._skipped_duplicate_frames} near-duplicates skipped so far"
+                    )
+                await asyncio.sleep(current_interval)
+                continue
+
             # 6. Detect keyboard/mouse activity for this frame
             input_state = self.input_monitor.get_activity_since_last_check()
 
@@ -206,6 +219,7 @@ class ProductivityTracker:
                 "has_mouse_activity": input_state["mouse"],
             }
             self._frame_buffer.append(frame)
+            self.segmenter.mark_frame_analyzed(screenshot_path)
 
             # 7. Batch analyze frames when buffer hits batch size
             batch_size = self.config["tracking"]["frame_batch_size"]

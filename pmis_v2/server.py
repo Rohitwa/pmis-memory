@@ -2337,11 +2337,13 @@ def _get_meta_composer():
 @app.post("/api/work/compose-problem")
 async def api_work_compose_problem(
     deliverable_id: str,
-    use_llm: bool = True,
+    use_llm: Optional[bool] = None,
     include_activity: bool = True,
 ):
-    """Phase 3.5 — Meta-LLM composes problem_statement.md for a deliverable.
-    Set use_llm=false for deterministic template fallback (fast + offline)."""
+    """Phase 3.5 — composes problem_statement.md for a deliverable.
+    Template rendering is the default (deterministic, fast, offline).
+    Pass use_llm=true to invoke the meta-LLM for prose polish; leave unset
+    to honor the system hp flag `meta_composer_use_llm` (default: false)."""
     if not deliverable_id:
         raise HTTPException(status_code=400, detail="deliverable_id required")
     try:

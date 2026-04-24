@@ -117,6 +117,117 @@ class TestSegmenter:
         assert sid.endswith("-0043")
 
 
+class TestFrameDedup:
+    def test_skip_returns_false_when_no_reference(self, segmenter):
+        """Before mark_frame_analyzed is called, skip must never fire —
+        otherwise the first frame of a new segment would be dropped."""
+        import numpy as np
+        with patch.object(
+            segmenter, "_load_image_gray",
+            return_value=np.zeros((180, 320), dtype=np.uint8),
+        ):
+            assert not segmenter.should_skip_frame("/tmp/t.jpg")
+
+    def test_skip_identical_frames(self, segmenter):
+        """Two identical frames after mark_frame_analyzed → skip."""
+        import numpy as np
+        frame = np.full((180, 320), 128, dtype=np.uint8)
+        with patch.object(segmenter, "_load_image_gray", return_value=frame):
+            segmenter.mark_frame_analyzed("/tmp/t1.jpg")
+            assert segmenter.should_skip_frame("/tmp/t2.jpg")
+
+    def test_no_skip_on_different_frames(self, segmenter):
+        """SSIM below skip_threshold (0.95) → do not skip."""
+        import numpy as np
+        a = np.zeros((180, 320), dtype=np.uint8)
+        b = np.full((180, 320), 255, dtype=np.uint8)
+
+        with patch.object(segmenter, "_load_image_gray", return_value=a):
+            segmenter.mark_frame_analyzed("/tmp/a.jpg")
+
+        with patch.object(segmenter, "_load_image_gray", return_value=b):
+            assert not segmenter.should_skip_frame("/tmp/b.jpg")
+
+    def test_new_segment_resets_skip_reference(self, segmenter):
+        """start_new_segment must clear the dedup reference so the first
+        frame of a new context is always analyzed."""
+        import numpy as np
+        frame = np.full((180, 320), 50, dtype=np.uint8)
+        with patch.object(segmenter, "_load_image_gray", return_value=frame):
+            segmenter.mark_frame_analyzed("/tmp/t.jpg")
+            assert segmenter._last_analyzed_image_array is not None
+            segmenter.start_new_segment({"bundle_id": "x", "title": "y"}, False)
+            assert segmenter._last_analyzed_image_array is None
+
+
+class TestDHash:
+    """Tests for the Tier-1 dHash pre-filter and rolling buffer."""
+
+    def _write_image(self, arr, path):
+        """Save a numpy grayscale array as PNG for dHash to read."""
+        from PIL import Image
+        Image.fromarray(arr).save(path)
+
+    def test_identical_images_same_hash(self, segmenter, tmp_path):
+        """dHash of two identical images must be equal (Hamming = 0)."""
+        import numpy as np
+        arr = (np.arange(9 * 8).reshape(8, 9) * 3).astype(np.uint8)
+        p1, p2 = tmp_path / "a.png", tmp_path / "b.png"
+        self._write_image(arr, p1)
+        self._write_image(arr, p2)
+        h1 = segmenter._compute_dhash(str(p1))
+        h2 = segmenter._compute_dhash(str(p2))
+        assert h1 == h2
+
+    def test_different_images_differ_above_threshold(self, segmenter, tmp_path):
+        """A checkerboard and a solid image must differ by >> skip threshold."""
+        import numpy as np
+        solid = np.full((8, 9), 128, dtype=np.uint8)
+        checker = np.zeros((8, 9), dtype=np.uint8)
+        checker[::2, ::2] = 255
+        checker[1::2, 1::2] = 255
+        p1, p2 = tmp_path / "solid.png", tmp_path / "check.png"
+        self._write_image(solid, p1)
+        self._write_image(checker, p2)
+        h1 = segmenter._compute_dhash(str(p1))
+        h2 = segmenter._compute_dhash(str(p2))
+        assert (h1 ^ h2).bit_count() > segmenter.dhash_skip_hamming
+
+    def test_tier1_dhash_catches_duplicate(self, segmenter, tmp_path):
+        """should_skip_frame must return True via dHash alone, without
+        needing SSIM (Tier 2 reference never set)."""
+        import numpy as np
+        arr = (np.arange(9 * 8).reshape(8, 9) * 3).astype(np.uint8)
+        p1, p2 = tmp_path / "a.png", tmp_path / "b.png"
+        self._write_image(arr, p1)
+        self._write_image(arr, p2)
+        # Only seed the dHash buffer, not _last_analyzed_image_array
+        h = segmenter._compute_dhash(str(p1))
+        segmenter._analyzed_dhashes.append(h)
+        assert segmenter.should_skip_frame(str(p2)) is True
+
+    def test_buffer_capacity_respected(self, segmenter, tmp_path):
+        """Rolling buffer must auto-evict at dhash_buffer_size."""
+        import numpy as np
+        for i in range(segmenter.dhash_buffer_size + 5):
+            arr = np.full((8, 9), i * 3 % 255, dtype=np.uint8)
+            p = tmp_path / f"f{i}.png"
+            self._write_image(arr, p)
+            segmenter.mark_frame_analyzed(str(p))
+        assert len(segmenter._analyzed_dhashes) == segmenter.dhash_buffer_size
+
+    def test_buffer_cleared_on_new_segment(self, segmenter, tmp_path):
+        """start_new_segment must clear the dHash buffer alongside SSIM ref."""
+        import numpy as np
+        arr = np.full((8, 9), 50, dtype=np.uint8)
+        p = tmp_path / "f.png"
+        self._write_image(arr, p)
+        segmenter.mark_frame_analyzed(str(p))
+        assert len(segmenter._analyzed_dhashes) == 1
+        segmenter.start_new_segment({"bundle_id": "x", "title": "y"}, False)
+        assert len(segmenter._analyzed_dhashes) == 0
+
+
 class TestSanitizeId:
     def test_spaces_replaced(self):
         assert " " not in sanitize_id("Product Development - Frontend")

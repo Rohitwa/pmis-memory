@@ -91,7 +91,8 @@ def run_sync(
         if match_id and match_dist < append_distance:
             page = db.get_work_page(match_id)
             new_title, new_summary = llm_restitch_page(
-                page["title"], page["summary"], cluster, model=model
+                page["title"], page["summary"], cluster,
+                model=model, hp=hyperparams,
             )
             new_emb = _blend_embeddings(
                 _read_page_embedding(page), centroid, page_weight=0.7
@@ -113,7 +114,9 @@ def run_sync(
                 len(cluster), match_id, match_dist,
             )
         else:
-            title, summary = llm_generate_title_and_summary(cluster, model=model)
+            title, summary = llm_generate_title_and_summary(
+                cluster, model=model, hp=hyperparams,
+            )
             page_id = db.create_work_page(
                 title=title,
                 summary=summary,

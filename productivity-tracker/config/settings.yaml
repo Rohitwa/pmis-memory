@@ -33,6 +33,12 @@ llm:
   # Valid entries: "openai", "ollama"
   provider_order: ["openai", "ollama"]
 
+  # Segment-level synthesis: deterministic by default (Track B). The tracker
+  # majority-votes worker_type from frames, maps app_name to medium, and
+  # templates the summary from deduped frame tasks. Set to true to restore
+  # the legacy LLM-driven synthesis path.
+  use_llm_segment_synthesis: false
+
 openai:
   # Vision analysis (cloud — tried first)
   vision_model: "gpt-4o-mini"

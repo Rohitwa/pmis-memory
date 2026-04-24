@@ -26,6 +26,7 @@ same date — mutual-exclusion is enforced at read time.
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 import logging
 import numpy as np
@@ -40,6 +41,36 @@ from consolidation.lock import consolidation_lock, LockBusy
 logger = logging.getLogger("pmis.manual_project")
 
 TRACKER_DB = os.path.expanduser("~/.productivity-tracker/tracker.db")
+
+# Regex patterns for deterministic extraction (Track D.3). Tuned against the
+# tracker's summary style. The outcome-verb list mirrors humanizer.py's
+# _GOOD_LEAD_VERBS for cross-module consistency.
+_SENTENCE_SPLIT = re.compile(r"[.!?](?:\s+|$)")
+_OUTCOME_LEAD_VERBS = frozenset({
+    "drafted", "wrote", "reviewed", "shipped", "fixed", "debugged",
+    "built", "created", "designed", "added", "removed", "refactored",
+    "committed", "merged", "pushed", "composed", "sent", "replied",
+    "deployed", "tested", "analyzed", "investigated", "resolved",
+    "renamed", "restructured", "integrated", "migrated", "documented",
+    "configured", "edited", "updated", "launched", "executed",
+    "prepared", "identified", "implemented", "deleted", "completed",
+    "finished", "delivered",
+})
+_ACCOMPLISHMENT_RE = re.compile(
+    r"\b(completed|finished|shipped|delivered|wrapped up|done with|"
+    r"accomplished|achieved)\b",
+    re.IGNORECASE,
+)
+_DECISION_RE = re.compile(
+    r"\b(decided|chose|agreed|rejected|resolved|picked|opted|"
+    r"settled on|committed to|concluded)\b",
+    re.IGNORECASE,
+)
+_OPEN_RE = re.compile(
+    r"\b(todo|fixme|bug|hack|need to|needs to|will do|pending|blocked|"
+    r"blocker|stuck on|waiting on|open question)\b",
+    re.IGNORECASE,
+)
 
 
 class ManualProjectConsolidator:
@@ -126,7 +157,8 @@ class ManualProjectConsolidator:
         target_date: str,
         segments: List[Dict[str, Any]],
     ) -> str:
-        """LLM writes structured markdown. Returns empty string if no segments."""
+        """Produce a structured markdown report. Deterministic by default
+        (Track D.3); LLM path opt-in via hp.manual_project_use_llm."""
         if not segments:
             return ""
 
@@ -138,6 +170,10 @@ class ManualProjectConsolidator:
         conn.close()
         project_name = row[0] if row else project_id
 
+        if not self.hp.get("manual_project_use_llm", False):
+            return self._deterministic_draft_summary(segments)
+
+        # Legacy LLM path
         descriptions: List[str] = []
         for s in segments[:60]:  # cap to keep prompt in bounds
             ts = (s.get("timestamp_start") or "")[11:16]  # HH:MM
@@ -168,12 +204,65 @@ class ManualProjectConsolidator:
             return self._call_anthropic(prompt)
         except Exception as e:
             logger.warning("Manual consolidation LLM failed: %s", e)
-            # Fallback: mechanical summary
-            return (
-                f"### Accomplishments\n"
-                + "\n".join(f"- {s['summary'][:120]}" for s in segments[:5])
-                + "\n### Decisions\n_None_\n### Open items\n_None_\n"
-            )
+            # Fallback to deterministic path instead of a mechanical dump.
+            return self._deterministic_draft_summary(segments)
+
+    def _deterministic_draft_summary(
+        self, segments: List[Dict[str, Any]]
+    ) -> str:
+        """Regex-based extraction into Accomplishments / Decisions / Open items.
+
+        Classifies sentences from each segment's summary using three pattern
+        sets. A sentence can land in multiple sections only if each classifier
+        fires independently — we dedupe within each section by 60-char
+        lowercased prefix to keep the bullets readable. Caps at 5 per section.
+        Sections with no matches render '_None_'."""
+        accomplishments: List[str] = []
+        decisions: List[str] = []
+        open_items: List[str] = []
+        seen_acc: set[str] = set()
+        seen_dec: set[str] = set()
+        seen_open: set[str] = set()
+
+        for seg in segments:
+            text = (seg.get("summary") or "").strip()
+            if not text:
+                continue
+            for sentence in _SENTENCE_SPLIT.split(text):
+                cleaned = sentence.strip().rstrip(".,;:")
+                if not cleaned:
+                    continue
+                lower = cleaned.lower()
+                first = cleaned.split()[0].lower().strip(",.;:") if cleaned.split() else ""
+
+                if first in _OUTCOME_LEAD_VERBS or _ACCOMPLISHMENT_RE.search(lower):
+                    key = lower[:60]
+                    if key not in seen_acc:
+                        seen_acc.add(key)
+                        accomplishments.append(cleaned)
+
+                if _DECISION_RE.search(lower):
+                    key = lower[:60]
+                    if key not in seen_dec:
+                        seen_dec.add(key)
+                        decisions.append(cleaned)
+
+                if _OPEN_RE.search(lower):
+                    key = lower[:60]
+                    if key not in seen_open:
+                        seen_open.add(key)
+                        open_items.append(cleaned)
+
+        def _bullets(items: List[str], cap: int = 5) -> str:
+            if not items:
+                return "_None_"
+            return "\n".join(f"- {s[:200]}" for s in items[:cap])
+
+        return (
+            f"### Accomplishments\n{_bullets(accomplishments)}\n\n"
+            f"### Decisions\n{_bullets(decisions)}\n\n"
+            f"### Open items\n{_bullets(open_items)}\n"
+        )
 
     # ------------------------------------------------------------------
     # Step 3: commit

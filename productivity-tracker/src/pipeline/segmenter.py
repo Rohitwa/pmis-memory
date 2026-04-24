@@ -5,6 +5,7 @@ A new segment starts when the work context changes.
 
 import logging
 import re
+from collections import deque
 from datetime import datetime, date
 
 import numpy as np
@@ -36,6 +37,12 @@ class TargetFrameSegmenter:
         self.ssim_threshold = config["segmentation"]["ssim_threshold"]
         self.skip_threshold = config["tracking"]["skip_similar_threshold"]
         self.min_segment_secs = config["segmentation"]["min_segment_secs"]
+        # dHash pre-filter (Tier 1). Catches obvious duplicates in ~1ms against
+        # a rolling buffer, short-circuiting the ~15ms SSIM path. Hamming
+        # distance is out of 64 bits; ≤5 ≈ >92% bit agreement.
+        tracking_cfg = config.get("tracking", {})
+        self.dhash_skip_hamming = tracking_cfg.get("dhash_skip_hamming", 5)
+        self.dhash_buffer_size = tracking_cfg.get("dhash_buffer_size", 10)
 
         # State
         self._counter = 0
@@ -44,6 +51,15 @@ class TargetFrameSegmenter:
         self._last_window_info = None
         self._last_image_array = None
         self._last_agent_state = None
+        # Separate reference for near-duplicate skip — only updated when a
+        # frame is actually queued for VLM analysis (via mark_frame_analyzed).
+        # Using _last_image_array here would break: should_start_new_segment
+        # overwrites it on every call, so skip SSIM would always be 1.0.
+        self._last_analyzed_image_array = None
+        # Rolling buffer of dHashes from the last N analyzed frames. Deque
+        # with maxlen so oldest entries auto-evict. Catches "tab-flipping"
+        # duplicates that a single-reference SSIM check misses.
+        self._analyzed_dhashes: deque = deque(maxlen=self.dhash_buffer_size)
 
     def load_last_segment_counter(self, max_counter_today: int = 0):
         """
@@ -108,15 +124,62 @@ class TargetFrameSegmenter:
         return needs_new
 
     def should_skip_frame(self, screenshot_path: str) -> bool:
-        """Check if frame is near-identical to previous (skip to save API cost)."""
+        """Two-tier near-duplicate detector.
+
+        Tier 1 (cheap, ~1ms): dHash Hamming distance vs a rolling buffer of
+        recent analyzed frames. Catches tab-flip cycles and static screens.
+        Tier 2 (fallback, ~15ms): SSIM vs the single last analyzed frame.
+        Catches perceptual duplicates dHash's 64-bit quantization misses.
+        """
+        # Tier 1: dHash against rolling buffer
+        current_hash = self._compute_dhash(screenshot_path)
+        if current_hash is not None and self._analyzed_dhashes:
+            for h in self._analyzed_dhashes:
+                if (current_hash ^ h).bit_count() <= self.dhash_skip_hamming:
+                    return True
+
+        # Tier 2: SSIM fallback for borderline cases dHash missed
         try:
             current_array = self._load_image_gray(screenshot_path)
-            if self._last_image_array is not None and current_array is not None:
-                score = ssim(self._last_image_array, current_array)
+            if self._last_analyzed_image_array is not None and current_array is not None:
+                score = ssim(self._last_analyzed_image_array, current_array)
                 return score > self.skip_threshold
         except Exception:
             pass
         return False
+
+    def mark_frame_analyzed(self, screenshot_path: str) -> None:
+        """Record this frame as the new skip reference. Call after queueing
+        a frame for VLM analysis so the next frame is compared against it.
+        Updates both the SSIM reference and the dHash rolling buffer."""
+        try:
+            current_array = self._load_image_gray(screenshot_path)
+            if current_array is not None:
+                self._last_analyzed_image_array = current_array
+        except Exception:
+            pass
+        current_hash = self._compute_dhash(screenshot_path)
+        if current_hash is not None:
+            self._analyzed_dhashes.append(current_hash)
+
+    def _compute_dhash(self, screenshot_path: str) -> int | None:
+        """64-bit difference hash: 9×8 grayscale, left-right pixel comparisons.
+        Each row yields 8 bits; 8 rows → 64 bits packed into an int.
+        Returns None if the image can't be loaded."""
+        try:
+            img = Image.open(screenshot_path).convert("L").resize((9, 8))
+            pixels = img.tobytes()
+            hash_val = 0
+            bit = 1
+            for row in range(8):
+                row_start = row * 9
+                for col in range(8):
+                    if pixels[row_start + col] > pixels[row_start + col + 1]:
+                        hash_val |= bit
+                    bit <<= 1
+            return hash_val
+        except Exception:
+            return None
 
     def start_new_segment(self, window_info: dict, agent_active: bool) -> str:
         """Create a new segment and return its ID."""
@@ -134,6 +197,10 @@ class TargetFrameSegmenter:
             "window_info": window_info,
             "agent_active": agent_active,
         }
+        # Reset dedup references so the first frame of a new segment always
+        # gets analyzed (establishes the baseline for this context).
+        self._last_analyzed_image_array = None
+        self._analyzed_dhashes.clear()
 
         logger.info(f"Started segment {segment_id}: {window_info.get('app_name', '?')}")
         return segment_id

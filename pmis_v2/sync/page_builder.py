@@ -1,19 +1,22 @@
 """Build and update work_pages from fresh tracker segments.
 
 Clustering is greedy cosine-distance (same algo family as daily_activity_merge).
-LLM summary calls hit local Ollama (qwen2.5:14b by default); failures fall
-back to a concatenation so the sync never crashes.
+Title + summary generation is deterministic by default (Track D.5) — a
+per-cluster rank-and-dedupe template. The LLM path is kept behind the
+`page_builder_use_llm` hp flag for rollback.
 
 Thresholds (cluster + append-vs-new decision) are owned by the runner and
 read from `hyperparameters.yaml`:
   sync_cluster_threshold  — within-sync greedy clustering
   sync_append_distance    — below this → append to existing page, else new
+  page_builder_use_llm    — if true, route title/summary through Ollama
 """
 
 from __future__ import annotations
 
 import logging
 import re
+from collections import Counter
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -109,6 +112,157 @@ def find_matching_page(
 
 
 def llm_generate_title_and_summary(
+    cluster: List[Dict],
+    model: str = "qwen2.5:14b",
+    hp: Optional[Dict] = None,
+) -> Tuple[str, str]:
+    """Generate (title, summary) for a cluster. Deterministic by default;
+    LLM path is opt-in via hp['page_builder_use_llm']. Kept under the old
+    `llm_*` name so runner import paths stay stable."""
+    if hp and hp.get("page_builder_use_llm", False):
+        return _llm_generate_title_and_summary(cluster, model)
+    return _deterministic_title_and_summary(cluster)
+
+
+def llm_restitch_page(
+    page_title: str,
+    page_summary: str,
+    new_cluster: List[Dict],
+    model: str = "qwen2.5:14b",
+    hp: Optional[Dict] = None,
+) -> Tuple[str, str]:
+    """Re-stitch an existing page when new activity extends it.
+    Deterministic by default; LLM path is opt-in via hp flag."""
+    if hp and hp.get("page_builder_use_llm", False):
+        return _llm_restitch_page(page_title, page_summary, new_cluster, model)
+    return _deterministic_restitch_page(page_title, page_summary, new_cluster)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Deterministic generation (Track D.5 default)
+# ─────────────────────────────────────────────────────────────────────
+
+def _deterministic_title_and_summary(
+    cluster: List[Dict],
+) -> Tuple[str, str]:
+    duration_mins = sum(s.get("duration_secs", 10) for s in cluster) / 60.0
+    return (
+        _deterministic_title(cluster),
+        _deterministic_summary(cluster, duration_mins),
+    )
+
+
+def _deterministic_title(cluster: List[Dict]) -> str:
+    """Most-common window name; fallback to the first informative summary."""
+    windows = Counter(
+        (s.get("window") or "").strip()
+        for s in cluster
+        if (s.get("window") or "").strip()
+    )
+    top = windows.most_common(1)
+    if top and top[0][0]:
+        return top[0][0][:60]
+
+    for seg in cluster:
+        raw = (seg.get("summary") or "").strip()
+        stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+        if stripped:
+            first_sentence = stripped.split(".", 1)[0]
+            return first_sentence[:60]
+    return "Activity cluster"
+
+
+def _deterministic_summary(cluster: List[Dict], duration_mins: float) -> str:
+    """Dedupe segment summaries by first-40-char prefix, keep top distinct
+    ones, prepend a duration + top-windows lead."""
+    seen: set[str] = set()
+    distinct: List[str] = []
+    for seg in cluster:
+        raw = (seg.get("summary") or "").strip()
+        if not raw:
+            continue
+        stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+        key = stripped.lower()[:40]
+        if key in seen:
+            continue
+        seen.add(key)
+        distinct.append(stripped)
+        if len(distinct) >= 3:
+            break
+
+    windows = Counter(
+        (s.get("window") or "").strip()
+        for s in cluster
+        if (s.get("window") or "").strip()
+    )
+    top_windows = [w for w, _ in windows.most_common(2) if w]
+
+    lead = f"{len(cluster)} segments over {duration_mins:.0f} min"
+    if top_windows:
+        lead += f" across {' and '.join(top_windows)}"
+    lead += "."
+
+    body_parts: List[str] = []
+    for item in distinct[:2]:
+        sentence = item.rstrip(".") + "."
+        body_parts.append(sentence)
+    body = " ".join(body_parts)
+
+    out = f"{lead} {body}".strip()
+    return out[:500]
+
+
+def _deterministic_restitch_page(
+    old_title: str,
+    old_summary: str,
+    new_cluster: List[Dict],
+) -> Tuple[str, str]:
+    """Keep old title unless the new cluster is dominated (≥70%) by a
+    window not already reflected in the title. Summary appends a
+    deduplicated hint of what's new."""
+    new_title_candidate, new_summary = _deterministic_title_and_summary(new_cluster)
+
+    windows = Counter(
+        (s.get("window") or "").strip()
+        for s in new_cluster
+        if (s.get("window") or "").strip()
+    )
+    title = old_title or new_title_candidate
+    if windows:
+        dom_window, dom_count = windows.most_common(1)[0]
+        if (
+            dom_window
+            and dom_count >= 0.7 * len(new_cluster)
+            and dom_window.lower() not in (old_title or "").lower()
+        ):
+            title = dom_window[:60]
+
+    # Dedupe against the existing summary: if every new segment's content
+    # is already mentioned in the old summary, don't append a noise line.
+    old_lower = (old_summary or "").lower()
+    if new_cluster:
+        all_covered = True
+        for seg in new_cluster:
+            raw = (seg.get("summary") or "").strip()
+            stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+            if not stripped:
+                continue
+            key = stripped.lower()[:50]
+            if key and key not in old_lower:
+                all_covered = False
+                break
+        if all_covered:
+            return title, old_summary
+
+    extended = f"{old_summary} (Extended: {new_summary[:200]})".strip()
+    return title, extended[:1000]
+
+
+# ─────────────────────────────────────────────────────────────────────
+# LLM generation (opt-in via page_builder_use_llm)
+# ─────────────────────────────────────────────────────────────────────
+
+def _llm_generate_title_and_summary(
     cluster: List[Dict], model: str = "qwen2.5:14b"
 ) -> Tuple[str, str]:
     """Ask local Ollama for (title, summary). Falls back on failure."""
@@ -139,7 +293,7 @@ def llm_generate_title_and_summary(
     return title, summary
 
 
-def llm_restitch_page(
+def _llm_restitch_page(
     page_title: str,
     page_summary: str,
     new_cluster: List[Dict],
