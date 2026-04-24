@@ -170,10 +170,6 @@ class ManualProjectConsolidator:
         conn.close()
         project_name = row[0] if row else project_id
 
-        if not self.hp.get("manual_project_use_llm", False):
-            return self._deterministic_draft_summary(segments)
-
-        # Legacy LLM path
         descriptions: List[str] = []
         for s in segments[:60]:  # cap to keep prompt in bounds
             ts = (s.get("timestamp_start") or "")[11:16]  # HH:MM
@@ -199,13 +195,13 @@ class ManualProjectConsolidator:
         )
 
         try:
-            if self.hp.get("use_local", True):
-                return self._call_ollama(prompt)
-            return self._call_anthropic(prompt)
+            text = self._call_openai(prompt)
+            if text:
+                return text
         except Exception as e:
-            logger.warning("Manual consolidation LLM failed: %s", e)
-            # Fallback to deterministic path instead of a mechanical dump.
-            return self._deterministic_draft_summary(segments)
+            logger.warning("Manual consolidation OpenAI failed: %s", e)
+        # Deterministic fallback when OpenAI is unreachable or empty.
+        return self._deterministic_draft_summary(segments)
 
     def _deterministic_draft_summary(
         self, segments: List[Dict[str, Any]]
@@ -429,39 +425,30 @@ class ManualProjectConsolidator:
         conn.close()
         return row[0] if row else None
 
-    def _call_ollama(self, prompt: str) -> str:
-        model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
+    def _call_openai(self, prompt: str) -> str:
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            return ""
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        model = self.hp.get("openai_chat_model", "gpt-4o-mini")
         max_tokens = self.hp.get("consolidation_max_tokens", 2048)
         resp = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"num_predict": max_tokens},
-            },
-            timeout=120.0,
-        )
-        resp.raise_for_status()
-        return resp.json().get("response", "").strip()
-
-    def _call_anthropic(self, prompt: str) -> str:
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        model = self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
-        max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        resp = httpx.post(
-            "https://api.anthropic.com/v1/messages",
+            f"{base}/chat/completions",
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {key}",
                 "Content-Type": "application/json",
             },
             json={
                 "model": model,
                 "max_tokens": max_tokens,
+                "temperature": 0.3,
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=120.0,
         )
         resp.raise_for_status()
-        return resp.json()["content"][0]["text"].strip()
+        data = resp.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return ""
+        return (choices[0].get("message", {}).get("content") or "").strip()

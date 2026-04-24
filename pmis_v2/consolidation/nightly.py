@@ -678,15 +678,14 @@ class NightlyConsolidation:
         prompt += "\nTopic label and summary:"
 
         try:
-            if self.hp.get("use_local", True):
-                raw = self._call_ollama(prompt)
-            else:
-                raw = self._call_anthropic(prompt)
-            return self._sanitize_summary(raw)
-        except Exception as e:
-            # Fallback: just concatenate first 3
-            combined = " | ".join(c[:80] for c in child_contents[:3])
-            return f"[Auto-Context] {combined}"
+            raw = self._call_openai(prompt)
+            if raw:
+                return self._sanitize_summary(raw)
+        except Exception:
+            pass
+        # Fallback when OpenAI is unreachable: just concatenate first 3 children.
+        combined = " | ".join(c[:80] for c in child_contents[:3])
+        return f"[Auto-Context] {combined}"
 
     @staticmethod
     def _sanitize_summary(text: str) -> str:
@@ -712,37 +711,37 @@ class NightlyConsolidation:
         cleaned = re.sub(r'  +', ' ', cleaned).strip()
         return cleaned
 
-    def _call_ollama(self, prompt: str) -> str:
-        model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
-        max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        response = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False,
-                  "options": {"num_predict": max_tokens}},
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
-
-    def _call_anthropic(self, prompt: str) -> str:
+    def _call_openai(self, prompt: str) -> str:
+        """OpenAI chat/completions. Honors OPENAI_BASE_URL. Returns '' on
+        any failure so callers can fall back to deterministic content."""
         import os
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        model = self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            return ""
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        model = self.hp.get("openai_chat_model", "gpt-4o-mini")
         max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        response = httpx.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": model,
-                "max_tokens": max_tokens,
-                "messages": [{"role": "user", "content": prompt}],
-            },
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["content"][0]["text"].strip()
+        try:
+            response = httpx.post(
+                f"{base}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "max_tokens": max_tokens,
+                    "temperature": 0.3,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=60.0,
+            )
+            if response.status_code != 200:
+                return ""
+            data = response.json()
+            choices = data.get("choices") or []
+            if not choices:
+                return ""
+            return (choices[0].get("message", {}).get("content") or "").strip()
+        except Exception:
+            return ""

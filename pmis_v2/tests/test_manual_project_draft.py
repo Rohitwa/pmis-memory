@@ -49,7 +49,7 @@ class TestDispatch:
         out = consolidator.draft_summary("p1", "2026-04-24", [])
         assert out == ""
 
-    def test_flag_true_routes_to_llm(self, tmp_path):
+    def test_openai_success_used(self, tmp_path):
         import sqlite3
         db_path = tmp_path / "t.db"
         conn = sqlite3.connect(db_path)
@@ -58,13 +58,26 @@ class TestDispatch:
         conn.commit()
         conn.close()
         db = MagicMock(); db.db_path = str(db_path)
-        c = ManualProjectConsolidator(
-            db, hyperparams={"manual_project_use_llm": True, "use_local": True},
-        )
-        with patch.object(c, "_call_ollama", return_value="### LLM output") as mock_llm:
+        c = ManualProjectConsolidator(db, hyperparams={})
+        with patch.object(c, "_call_openai", return_value="### OpenAI output") as mock_oai:
             out = c.draft_summary("p1", "2026-04-24", [_seg("x")])
-        mock_llm.assert_called_once()
-        assert out == "### LLM output"
+        mock_oai.assert_called_once()
+        assert out == "### OpenAI output"
+
+    def test_openai_empty_falls_back_to_deterministic(self, tmp_path):
+        import sqlite3
+        db_path = tmp_path / "t.db"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT)")
+        conn.execute("INSERT INTO projects VALUES ('p1', 'X')")
+        conn.commit()
+        conn.close()
+        db = MagicMock(); db.db_path = str(db_path)
+        c = ManualProjectConsolidator(db, hyperparams={})
+        with patch.object(c, "_call_openai", return_value=""):
+            out = c.draft_summary("p1", "2026-04-24", [_seg("Drafted outreach email")])
+        assert "Drafted outreach email" in out
+        assert "### Accomplishments" in out
 
 
 class TestAccomplishments:

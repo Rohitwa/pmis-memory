@@ -1,20 +1,20 @@
 """Build and update work_pages from fresh tracker segments.
 
 Clustering is greedy cosine-distance (same algo family as daily_activity_merge).
-Title + summary generation is deterministic by default (Track D.5) — a
-per-cluster rank-and-dedupe template. The LLM path is kept behind the
-`page_builder_use_llm` hp flag for rollback.
+Title + summary generation uses OpenAI `gpt-4o-mini` by default; the
+deterministic template acts as an exception-only fallback when the OpenAI
+call fails.
 
 Thresholds (cluster + append-vs-new decision) are owned by the runner and
 read from `hyperparameters.yaml`:
   sync_cluster_threshold  — within-sync greedy clustering
   sync_append_distance    — below this → append to existing page, else new
-  page_builder_use_llm    — if true, route title/summary through Ollama
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import re
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
@@ -113,29 +113,32 @@ def find_matching_page(
 
 def llm_generate_title_and_summary(
     cluster: List[Dict],
-    model: str = "qwen2.5:14b",
+    model: Optional[str] = None,
     hp: Optional[Dict] = None,
 ) -> Tuple[str, str]:
-    """Generate (title, summary) for a cluster. Deterministic by default;
-    LLM path is opt-in via hp['page_builder_use_llm']. Kept under the old
-    `llm_*` name so runner import paths stay stable."""
-    if hp and hp.get("page_builder_use_llm", False):
-        return _llm_generate_title_and_summary(cluster, model)
-    return _deterministic_title_and_summary(cluster)
+    """Generate (title, summary) for a cluster via OpenAI. Falls back to a
+    deterministic template if the OpenAI call fails."""
+    chat_model = model or (hp or {}).get("openai_chat_model", "gpt-4o-mini")
+    title, summary = _llm_generate_title_and_summary(cluster, chat_model)
+    if not title and not summary:
+        return _deterministic_title_and_summary(cluster)
+    return title, summary
 
 
 def llm_restitch_page(
     page_title: str,
     page_summary: str,
     new_cluster: List[Dict],
-    model: str = "qwen2.5:14b",
+    model: Optional[str] = None,
     hp: Optional[Dict] = None,
 ) -> Tuple[str, str]:
-    """Re-stitch an existing page when new activity extends it.
-    Deterministic by default; LLM path is opt-in via hp flag."""
-    if hp and hp.get("page_builder_use_llm", False):
-        return _llm_restitch_page(page_title, page_summary, new_cluster, model)
-    return _deterministic_restitch_page(page_title, page_summary, new_cluster)
+    """Re-stitch an existing page via OpenAI; deterministic fallback on failure."""
+    chat_model = model or (hp or {}).get("openai_chat_model", "gpt-4o-mini")
+    title, summary = _llm_restitch_page(page_title, page_summary, new_cluster, chat_model)
+    if title == page_title and summary == page_summary:
+        # _llm_restitch_page returns the inputs unchanged on failure.
+        return _deterministic_restitch_page(page_title, page_summary, new_cluster)
+    return title, summary
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -263,9 +266,10 @@ def _deterministic_restitch_page(
 # ─────────────────────────────────────────────────────────────────────
 
 def _llm_generate_title_and_summary(
-    cluster: List[Dict], model: str = "qwen2.5:14b"
+    cluster: List[Dict], model: str = "gpt-4o-mini"
 ) -> Tuple[str, str]:
-    """Ask local Ollama for (title, summary). Falls back on failure."""
+    """Ask OpenAI for (title, summary). Returns ('', '') on failure so the
+    public dispatcher can fall through to the deterministic template."""
     duration_mins = sum(s.get("duration_secs", 10) for s in cluster) / 60.0
     windows = list({s.get("window", "") for s in cluster if s.get("window")})[:5]
     descs = [s["summary"][:150] for s in cluster[:10]]
@@ -281,9 +285,9 @@ def _llm_generate_title_and_summary(
         "SUMMARY: <one paragraph, 2-3 sentences, outcome-shaped>"
     )
 
-    text = _call_ollama(prompt, model)
+    text = _call_openai(prompt, model=model, max_tokens=500, timeout_s=45)
     if not text:
-        return _fallback_title_and_summary(cluster, duration_mins)
+        return "", ""
 
     title, summary = _parse_title_summary(text)
     if not summary:
@@ -297,9 +301,10 @@ def _llm_restitch_page(
     page_title: str,
     page_summary: str,
     new_cluster: List[Dict],
-    model: str = "qwen2.5:14b",
+    model: str = "gpt-4o-mini",
 ) -> Tuple[str, str]:
-    """Regenerate title + summary when new activity extends an existing page."""
+    """Regenerate title + summary when new activity extends an existing page.
+    Returns the inputs unchanged on failure (caller detects and falls back)."""
     new_descs = [s["summary"][:150] for s in new_cluster[:10]]
 
     prompt = (
@@ -313,7 +318,7 @@ def _llm_restitch_page(
         "SUMMARY: <updated paragraph, 2-3 sentences, outcome-shaped, integrates new>"
     )
 
-    text = _call_ollama(prompt, model)
+    text = _call_openai(prompt, model=model, max_tokens=500, timeout_s=45)
     if not text:
         return page_title, page_summary
 
@@ -346,21 +351,41 @@ def _cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
     return 1.0 - float(np.dot(a, b) / denom)
 
 
-def _call_ollama(prompt: str, model: str, timeout_s: int = 60) -> str:
+def _call_openai(prompt: str, *, model: str = "gpt-4o-mini",
+                 max_tokens: int = 500, temperature: float = 0.3,
+                 timeout_s: int = 45) -> str:
+    """Unified chat/completions call. Returns '' on any failure."""
     try:
         import httpx
-
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            return ""
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
         resp = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False},
+            f"{base}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": [{"role": "user", "content": prompt}],
+            },
             timeout=timeout_s,
         )
         if resp.status_code != 200:
-            logger.warning("ollama %s returned %d", model, resp.status_code)
+            logger.warning("openai %s returned %d: %s",
+                           model, resp.status_code, resp.text[:200])
             return ""
-        return resp.json().get("response", "").strip()
+        data = resp.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return ""
+        return (choices[0].get("message", {}).get("content") or "").strip()
     except Exception as e:
-        logger.warning("ollama call failed: %s", e)
+        logger.warning("openai call failed: %s", e)
         return ""
 
 

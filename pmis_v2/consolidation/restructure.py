@@ -499,46 +499,40 @@ class Restructurer:
         return self._embedder
 
     def _call_llm(self, prompt: str) -> str:
-        if self.hp.get("use_local", True):
-            return self._call_ollama(prompt)
-        return self._call_anthropic(prompt)
+        return self._call_openai(prompt)
 
     def _llm_label(self) -> str:
-        if self.hp.get("use_local", True):
-            return f"llm_regen_{self.hp.get('consolidation_model_local', 'ollama')}"
-        return f"llm_regen_{self.hp.get('consolidation_model', 'claude')}"
+        return f"llm_regen_{self.hp.get('openai_chat_model', 'gpt-4o-mini')}"
 
-    def _call_ollama(self, prompt: str) -> str:
-        model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
+    def _call_openai(self, prompt: str) -> str:
+        """OpenAI chat/completions. Honors OPENAI_BASE_URL. Raises on
+        failure so _process_job's existing try/except records it."""
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            raise RuntimeError("OPENAI_API_KEY not set")
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        model = self.hp.get("openai_chat_model", "gpt-4o-mini")
         max_tokens = self.hp.get("consolidation_max_tokens", 2048)
         response = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False,
-                  "options": {"num_predict": max_tokens}},
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
-
-    def _call_anthropic(self, prompt: str) -> str:
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        model = self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
-        max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        response = httpx.post(
-            "https://api.anthropic.com/v1/messages",
+            f"{base}/chat/completions",
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {key}",
                 "Content-Type": "application/json",
             },
             json={
-                "model": model, "max_tokens": max_tokens,
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": 0.3,
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=60.0,
         )
         response.raise_for_status()
-        return response.json()["content"][0]["text"].strip()
+        data = response.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return ""
+        return (choices[0].get("message", {}).get("content") or "").strip()
 
     @staticmethod
     def _sanitize(text: str) -> str:
