@@ -1,17 +1,12 @@
 """Phase B — outcome-shaped rewrite of work_page summaries.
 
 The tracker's raw summaries describe motion ("browsed Chrome", "typed in
-terminal"). This module calls an LLM to rewrite them as outcomes, grounded
+terminal"). This module calls OpenAI to rewrite them as outcomes, grounded
 strictly in the given data — no fabrication.
 
-Primary model: Gemini 2.5 Flash (fast + cheap).
-  Requires env var GOOGLE_API_KEY or GEMINI_API_KEY.
-Fallback: local Ollama (qwen2.5:7b) — runs fully offline if Gemini is
-  unavailable or the user disables cloud calls via hyperparameters.yaml.
-
-NO vision here — only text inputs (title, summary, window, platform,
-duration). Phase B.2 will add frame-level reading via local qwen2.5-vl
-when we need the extra depth.
+Unified provider: OpenAI `gpt-4o-mini` (text only). Honors `OPENAI_BASE_URL`
+so a Cloudflare proxy deployment works without code changes. Claude, Gemini,
+and Ollama paths were removed in favor of a single provider.
 """
 
 from __future__ import annotations
@@ -63,22 +58,9 @@ def humanize_page(
 
     prompt = _build_prompt(page)
 
-    # Try Gemini first unless hp explicitly disables cloud.
-    cloud_ok = bool(hp.get("humanize_use_cloud", True))
-    api_key = _resolve_gemini_key()
-    model_used = ""
-    text = ""
-    if cloud_ok and api_key:
-        text = _call_gemini(prompt, api_key,
-                            model=hp.get("humanize_model_cloud", "gemini-2.5-flash"))
-        if text:
-            model_used = "gemini_flash"
-
-    if not text:
-        text = _call_ollama(prompt,
-                            model=hp.get("humanize_model_local", "qwen2.5:7b"))
-        if text:
-            model_used = "qwen_local"
+    model = hp.get("openai_chat_model", "gpt-4o-mini")
+    text = _call_openai(prompt, model=model, max_tokens=200, timeout_s=30)
+    model_used = f"openai_{model}" if text else ""
 
     if not text:
         return {"page_id": page["id"], "skipped": "llm_unavailable"}
@@ -149,34 +131,6 @@ def humanize_all(
     return counts
 
 
-def _resolve_gemini_key() -> Optional[str]:
-    """Find a Gemini API key without requiring it in chat or shell profile.
-
-    Lookup order:
-      1. GOOGLE_API_KEY env var
-      2. GEMINI_API_KEY env var
-      3. pmis_v2/data/.gemini_key file (mode 600 recommended)
-      4. ~/.config/pmis/gemini_key file
-    """
-    key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    if key:
-        return key.strip()
-
-    pmis_dir = Path(__file__).resolve().parent.parent
-    for candidate in (
-        pmis_dir / "data" / ".gemini_key",
-        Path.home() / ".config" / "pmis" / "gemini_key",
-    ):
-        try:
-            if candidate.is_file():
-                content = candidate.read_text(encoding="utf-8").strip()
-                if content:
-                    return content
-        except Exception:
-            continue
-    return None
-
-
 def _build_prompt(page: Dict) -> str:
     title = (page.get("title") or "").strip()
     summary = (page.get("summary") or "").strip()
@@ -203,60 +157,45 @@ def _build_prompt(page: Dict) -> str:
     )
 
 
-def _call_gemini(prompt: str, api_key: str,
-                 model: str = "gemini-2.5-flash",
-                 timeout_s: int = 20) -> str:
+def _call_openai(prompt: str, *,
+                 model: str = "gpt-4o-mini",
+                 max_tokens: int = 400,
+                 temperature: float = 0.3,
+                 timeout_s: int = 45) -> str:
+    """Unified chat/completions call. Honors OPENAI_BASE_URL so Cloudflare
+    proxy deployments work. Returns '' on any failure — caller treats
+    as LLM unavailable."""
     try:
         import httpx
-        url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/"
-            f"{model}:generateContent?key={api_key}"
-        )
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            return ""
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
         resp = httpx.post(
-            url,
+            f"{base}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
             json={
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.3,
-                    "maxOutputTokens": 400,
-                    # Gemini 2.5 models burn "thinking" tokens against the
-                    # same budget; zero it out for this tiny-output task.
-                    "thinkingConfig": {"thinkingBudget": 0},
-                },
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": [{"role": "user", "content": prompt}],
             },
             timeout=timeout_s,
         )
         if resp.status_code != 200:
-            logger.warning("gemini %s returned %d: %s",
+            logger.warning("openai %s returned %d: %s",
                            model, resp.status_code, resp.text[:200])
             return ""
         data = resp.json()
-        candidates = data.get("candidates") or []
-        if not candidates:
+        choices = data.get("choices") or []
+        if not choices:
             return ""
-        parts = candidates[0].get("content", {}).get("parts", [])
-        out = "".join(p.get("text", "") for p in parts).strip()
-        return out
+        return (choices[0].get("message", {}).get("content") or "").strip()
     except Exception as e:
-        logger.warning("gemini call failed: %s", e)
-        return ""
-
-
-def _call_ollama(prompt: str, model: str = "qwen2.5:7b",
-                 timeout_s: int = 60) -> str:
-    try:
-        import httpx
-        resp = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False,
-                  "options": {"temperature": 0.3, "num_predict": 120}},
-            timeout=timeout_s,
-        )
-        if resp.status_code != 200:
-            return ""
-        return (resp.json().get("response") or "").strip()
-    except Exception as e:
-        logger.warning("ollama call failed: %s", e)
+        logger.warning("openai call failed: %s", e)
         return ""
 
 

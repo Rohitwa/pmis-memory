@@ -276,8 +276,9 @@ class NightlyConsolidation:
 
     def _pass_birth(self) -> List[Dict[str, Any]]:
         """
-        When 3+ orphans cluster together, create a new Context node.
-        Uses LLM to generate the Context summary/name.
+        When 3+ orphans cluster together, attach them to an existing Context
+        if one is already close enough (warm-start, no LLM), else create a
+        new Context node (cold-start, LLM-named).
         """
         actions = []
         orphans = self.db.get_orphan_nodes()
@@ -286,29 +287,45 @@ class NightlyConsolidation:
         if len(orphans) < min_orphans:
             return actions
 
-        # Simple clustering: group by pairwise similarity
         clusters = self._cluster_orphans(orphans)
+        warm_start_threshold = self.hp.get("birth_warm_start_threshold", 0.15)
 
         for cluster in clusters:
             if len(cluster) < min_orphans:
                 continue
 
-            # Generate Context summary via LLM
-            contents = [o.get("content", "")[:200] for o in cluster]
-            summary = self._generate_context_summary(contents)
-
-            # Create the new Context node
-            # Use centroid of cluster embeddings
+            # Compute centroid first so we can warm-start against existing CTX.
             cluster_embeddings = []
             for o in cluster:
                 embs = self.db.get_embeddings(o["id"])
                 if embs.get("euclidean") is not None:
                     cluster_embeddings.append(embs["euclidean"])
-
             if not cluster_embeddings:
                 continue
-
             centroid = np.mean(cluster_embeddings, axis=0)
+
+            # Warm-start: if an existing Context is already close enough,
+            # attach the cluster to it and skip the LLM naming call entirely.
+            nearest_ctx, nearest_dist = self._find_nearest_context_by_embedding(centroid)
+            if nearest_ctx is not None and nearest_dist <= warm_start_threshold:
+                tree_id = nearest_ctx.get("tree_id") or ("auto_" + nearest_ctx["id"][:8])
+                for o in cluster:
+                    self.db.attach_to_parent(o["id"], nearest_ctx["id"], tree_id=tree_id)
+                action = {
+                    "action": "birth_warmstart_attach",
+                    "orphan_ids": [o["id"] for o in cluster],
+                    "attached_context_id": nearest_ctx["id"],
+                    "distance": float(nearest_dist),
+                    "summary": (nearest_ctx.get("content", "") or "")[:200],
+                }
+                actions.append(action)
+                self.actions_log.append(action)
+                continue
+
+            # Cold-start: LLM names a new Context.
+            contents = [o.get("content", "")[:200] for o in cluster]
+            summary = self._generate_context_summary(contents)
+
             hyp_coords = assign_hyperbolic_coords(
                 euclidean_embedding=centroid,
                 level="CTX",
@@ -346,6 +363,25 @@ class NightlyConsolidation:
             self.actions_log.append(action)
 
         return actions
+
+    def _find_nearest_context_by_embedding(
+        self, embedding: np.ndarray
+    ) -> tuple[Optional[Dict[str, Any]], float]:
+        """Linear-scan over all CTX nodes; return (nearest, distance).
+        Distance uses compute_raw_surprise — low value = high similarity.
+        Returns (None, inf) if no CTX has an embedding."""
+        best: Optional[Dict[str, Any]] = None
+        best_dist = float("inf")
+        for ctx in self.db.get_nodes_by_level("CTX"):
+            ctx_embs = self.db.get_embeddings(ctx["id"])
+            ctx_emb = ctx_embs.get("euclidean")
+            if ctx_emb is None:
+                continue
+            dist = compute_raw_surprise(embedding, ctx_emb)
+            if dist < best_dist:
+                best_dist = dist
+                best = ctx
+        return best, best_dist
 
     # -------------------------------------------------------------------
     # PASS 6: DAILY ACTIVITY MERGE
@@ -412,7 +448,7 @@ class NightlyConsolidation:
             changed_ids = set()
             for action in self.actions_log:
                 for key in ["new_context_id", "new_node_id", "node_id", "memory_node_id",
-                             "matched_ctx_id", "matched_sc_id"]:
+                             "matched_ctx_id", "matched_sc_id", "attached_context_id"]:
                     if action.get(key):
                         changed_ids.add(action[key])
                 for key in ["orphan_ids", "source_node_ids"]:
@@ -672,15 +708,14 @@ class NightlyConsolidation:
         prompt += "\nTopic label and summary:"
 
         try:
-            if self.hp.get("use_local", True):
-                raw = self._call_ollama(prompt)
-            else:
-                raw = self._call_anthropic(prompt)
-            return self._sanitize_summary(raw)
-        except Exception as e:
-            # Fallback: just concatenate first 3
-            combined = " | ".join(c[:80] for c in child_contents[:3])
-            return f"[Auto-Context] {combined}"
+            raw = self._call_openai(prompt)
+            if raw:
+                return self._sanitize_summary(raw)
+        except Exception:
+            pass
+        # Fallback when OpenAI is unreachable: just concatenate first 3 children.
+        combined = " | ".join(c[:80] for c in child_contents[:3])
+        return f"[Auto-Context] {combined}"
 
     @staticmethod
     def _sanitize_summary(text: str) -> str:
@@ -706,37 +741,37 @@ class NightlyConsolidation:
         cleaned = re.sub(r'  +', ' ', cleaned).strip()
         return cleaned
 
-    def _call_ollama(self, prompt: str) -> str:
-        model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
-        max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        response = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False,
-                  "options": {"num_predict": max_tokens}},
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
-
-    def _call_anthropic(self, prompt: str) -> str:
+    def _call_openai(self, prompt: str) -> str:
+        """OpenAI chat/completions. Honors OPENAI_BASE_URL. Returns '' on
+        any failure so callers can fall back to deterministic content."""
         import os
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        model = self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            return ""
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        model = self.hp.get("openai_chat_model", "gpt-4o-mini")
         max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        response = httpx.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": model,
-                "max_tokens": max_tokens,
-                "messages": [{"role": "user", "content": prompt}],
-            },
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["content"][0]["text"].strip()
+        try:
+            response = httpx.post(
+                f"{base}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "max_tokens": max_tokens,
+                    "temperature": 0.3,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=60.0,
+            )
+            if response.status_code != 200:
+                return ""
+            data = response.json()
+            choices = data.get("choices") or []
+            if not choices:
+                return ""
+            return (choices[0].get("message", {}).get("content") or "").strip()
+        except Exception:
+            return ""

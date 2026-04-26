@@ -66,9 +66,35 @@ embedding_dimensions: 1536                 # OpenAI fallback dim
 local_embedding_model: nomic-embed-text    # local via Ollama (use_local=true)
 local_embedding_dimensions: 768            # local dim — matches stored vectors
 use_local: true
-consolidation_model: claude-sonnet-4-20250514
-consolidation_model_local: qwen2.5:14b
+# Unified LLM provider: OpenAI `gpt-4o-mini`. All recurring paths (Birth,
+# Restructure, narrator, humanizer, page_builder, activity_merge,
+# manual_project, meta_composer) route through the same model. Each has a
+# deterministic fallback that fires only when the OpenAI call fails.
+openai_chat_model: gpt-4o-mini
 consolidation_max_tokens: 2048
+
+# Birth-pass warm-start: when an orphan cluster's centroid is already
+# within this surprise-distance of an existing Context, attach the cluster
+# to that Context instead of calling an LLM to name a new one.
+# compute_raw_surprise is a distance (lower = more similar). 0.15 ≈ cosine
+# similarity > 0.85 for nomic-embed-text vectors.
+birth_warm_start_threshold: 0.15
+
+# Restructure triage: structural fixes that skip the LLM rewrite.
+# duplicate_threshold: if a sibling anchor is this close, merge instead of
+#   rewriting (cosine similarity > ~0.92 for nomic vectors).
+# reparent_gain: if another Context is this much closer than the current
+#   parent, re-parent instead of rewriting. Too low → noisy parent churn.
+restructure_duplicate_threshold: 0.08
+restructure_reparent_gain: 0.15
+
+# LLM-on everywhere. Every module hits OpenAI gpt-4o-mini by default.
+# The deterministic templates remain in-code as failure fallbacks only —
+# they render when an OpenAI call fails or returns empty text.
+meta_composer_use_llm: true
+page_builder_use_llm: true
+activity_merge_use_llm: true
+manual_project_use_llm: true
 dedup_semantic_threshold: 0.05
 dedup_temporal_threshold_hours: 2
 dedup_source_overlap_threshold: 0.8
@@ -148,9 +174,6 @@ dream_proposal_ttl_days: 3           # proposed tag expires → archived 'stale'
 
 # ── Phase B — outcome-shaped rewrite of work_page summaries ────────
 humanize_auto_on_sync: true          # rewrite salient pages after every sync
-humanize_use_cloud: true             # prefer Gemini (needs GOOGLE_API_KEY)
-humanize_model_cloud: gemini-2.5-flash
-humanize_model_local: qwen2.5:7b     # offline fallback
 
 # ── Phase C — narrative composer ──────────────────────────────────
 narrate_auto_on_sync: true           # compose 1-4 journal stories each sync

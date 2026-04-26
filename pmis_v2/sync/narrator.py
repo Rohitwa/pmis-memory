@@ -5,9 +5,8 @@ Each narrative is a short journal entry with a heading and 2–4 bullets.
 Every bullet cites exactly one source page id so a bullet can always be
 traced back to the raw work_page it came from (prevents hallucination).
 
-Model: Gemini 2.5 Flash primary (keyfile via sync.humanizer._resolve_gemini_key),
-qwen2.5:7b fallback. thinkingBudget=0 so short-output calls don't get
-truncated.
+Unified provider: OpenAI `gpt-4o-mini` via `sync.humanizer._call_openai`.
+Claude, Gemini, Ollama paths were removed.
 
 Regeneration rule: wipe the day's narratives, then write the fresh set —
 simpler than diffing ordinals. Safe because narratives are derived data.
@@ -117,26 +116,15 @@ def compose_narratives_for_date(
 
 
 def _call_model(pages: List[Dict], hp: Dict) -> str:
+    from sync.humanizer import _call_openai
     prompt = _build_prompt(pages)
-    cloud_ok = bool(hp.get("humanize_use_cloud", True))
-
-    from sync.humanizer import _resolve_gemini_key, _call_gemini, _call_ollama
-    api_key = _resolve_gemini_key()
-    if cloud_ok and api_key:
-        text = _call_gemini(
-            prompt, api_key,
-            model=hp.get("humanize_model_cloud", "gemini-2.5-flash"),
-            timeout_s=45,
-        )
-        if text:
-            return text
-
-    text = _call_ollama(
+    return _call_openai(
         prompt,
-        model=hp.get("humanize_model_local", "qwen2.5:7b"),
-        timeout_s=90,
+        model=hp.get("openai_chat_model", "gpt-4o-mini"),
+        max_tokens=1400,
+        temperature=0.4,
+        timeout_s=60,
     )
-    return text or ""
 
 
 def _build_prompt(pages: List[Dict]) -> str:

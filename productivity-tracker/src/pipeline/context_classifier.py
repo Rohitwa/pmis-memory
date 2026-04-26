@@ -1,15 +1,17 @@
 """
-Context classifier — takes frame-level extractions and produces
-a summary + full text description for a completed segment.
+Context classifier — produces a summary + full text description for a
+completed segment.
 
-Provider order is configurable via settings.yaml `llm.provider_order`.
-Default: OpenAI gpt-4o-mini first, Ollama qwen2.5:3b as fallback.
+Primary path: OpenAI gpt-4o-mini synthesis. Falls back to deterministic
+template if OpenAI is unreachable or returns empty. Ollama path removed.
+
 No SC/CTX/ANC classification — memory structure forms at nightly consolidation.
 """
 
 import json
 import logging
 import os
+from collections import Counter
 
 import httpx
 
@@ -18,21 +20,30 @@ from src.pipeline.prompts import SEGMENT_SYNTHESIS_PROMPT
 logger = logging.getLogger("tracker.context_classifier")
 
 
+# Medium classification: app-name substring → category. Checked in order;
+# first match wins. Keep lowercase; classifier lowercases app name once.
+_MEDIUM_RULES: list[tuple[tuple[str, ...], str]] = [
+    (("chrome", "safari", "firefox", "arc", "brave", "edge"), "browser"),
+    (("terminal", "iterm", "warp", "alacritty", "kitty"), "terminal"),
+    (("code", "cursor", "xcode", "idea", "pycharm", "webstorm",
+      "vim", "emacs", "zed", "rubymine", "goland", "clion"), "ide"),
+    (("slack", "discord", "teams", "telegram", "whatsapp",
+      "messages", "signal", "zoom"), "chat"),
+    (("word", "excel", "powerpoint", "keynote", "numbers", "pages",
+      "notion", "docs", "sheets", "obsidian", "bear"), "office"),
+]
+
+
 class ContextClassifier:
-    """Classifies work segments with OpenAI → Ollama fallback."""
+    """Classifies work segments. Default deterministic; LLM behind a flag."""
 
     def __init__(self, config: dict):
-        llm_config = config.get("llm", {})
-        self.provider_order = llm_config.get("provider_order", ["openai", "ollama"])
-
         openai_config = config.get("openai", {})
         self.openai_model = openai_config.get("text_model", "gpt-4o-mini")
         self.openai_timeout = openai_config.get("timeout", 45)
-
-        ollama_config = config.get("ollama", {})
-        self.ollama_model = ollama_config.get("text_model", "qwen2.5:3b")
-        self.ollama_base_url = ollama_config.get("base_url", "http://localhost:11434")
-        self.ollama_timeout = ollama_config.get("timeout", 60)
+        # Track B legacy flag is retained but hardwired to True (OpenAI-only).
+        # If the OpenAI call fails we fall back to _deterministic_synthesis.
+        self.use_llm = True
 
     async def classify_segment(
         self,
@@ -51,7 +62,7 @@ class ContextClassifier:
             agent_active: Whether an agent was detected during this segment
 
         Returns:
-            dict with detailed_summary, full_text, worker, medium
+            dict with short_title, detailed_summary, full_text, worker, medium
         """
         duration = len(frame_results) * 10  # ~10s per frame
 
@@ -72,20 +83,12 @@ class ContextClassifier:
             frame_jsons=json.dumps(frame_summaries, indent=2),
         )
 
-        for provider in self.provider_order:
-            if provider == "openai":
-                text = await self._call_openai(prompt)
-            elif provider == "ollama":
-                text = await self._call_ollama(prompt)
-            else:
-                logger.warning(f"Unknown provider {provider!r}, skipping")
-                continue
+        text = await self._call_openai(prompt)
+        if text is not None:
+            return self._parse_result(text, agent_active)
 
-            if text is not None:
-                return self._parse_result(text, agent_active)
-
-        logger.error("All text providers failed for segment classification")
-        return self._fallback_result(frame_summaries, window_info, agent_active)
+        logger.warning("OpenAI text call failed; falling back to deterministic synthesis")
+        return self._deterministic_synthesis(frame_results, window_info, agent_active)
 
     async def _call_openai(self, prompt: str) -> str | None:
         """Call OpenAI chat completion for segment text. Returns None to trigger fallback."""
@@ -111,31 +114,6 @@ class ContextClassifier:
             return response.choices[0].message.content
         except Exception as e:
             logger.warning(f"OpenAI text call failed ({self.openai_model}): {e}")
-            return None
-
-    async def _call_ollama(self, prompt: str) -> str | None:
-        """Call local Ollama text model."""
-        try:
-            async with httpx.AsyncClient(timeout=self.ollama_timeout) as client:
-                response = await client.post(
-                    f"{self.ollama_base_url}/api/generate",
-                    json={
-                        "model": self.ollama_model,
-                        "prompt": prompt,
-                        "stream": False,
-                        "options": {
-                            "temperature": 0.1,
-                            "num_predict": 500,
-                        },
-                    },
-                )
-
-                if response.status_code == 200:
-                    return response.json().get("response", "")
-                logger.warning(f"Ollama {self.ollama_model} returned {response.status_code}")
-                return None
-        except Exception as e:
-            logger.warning(f"Ollama {self.ollama_model} call failed: {e}")
             return None
 
     def _parse_result(self, text: str, agent_active: bool) -> dict:
@@ -178,21 +156,99 @@ class ContextClassifier:
                 "medium": "other",
             }
 
-    def _fallback_result(self, frames: list[dict], window_info: dict, agent_active: bool) -> dict:
-        """Build result from raw frame data when all LLMs fail."""
-        tasks = [f.get("task", "") for f in frames if f.get("task")]
-        window = window_info.get("title", "Unknown")[:50]
+    def _deterministic_synthesis(
+        self,
+        frame_results: list[dict],
+        window_info: dict,
+        agent_active: bool,
+    ) -> dict:
+        """Build the segment result from frame data without any LLM call.
 
-        summary = f"Working in {window}"
-        if tasks:
-            summary = f"Working in {window}: {tasks[0][:80]}"
+        - worker: majority vote over frame.worker_type (per-frame classification
+          already done by the tracker using keyboard/mouse activity), with
+          agent_active as the fallback when no frames carry worker_type.
+        - medium: rule-based mapping from window_info.app_name to one of
+          {browser, terminal, ide, chat, office, other}.
+        - tasks: deduped by lowercased 80-char prefix to collapse near-identical
+          frame extractions.
+        - short_title: the most-frequent task (or window title if no tasks).
+        - detailed_summary: window title + top-3 unique tasks, joined.
+        - full_text: deduped raw_text concatenation, budget-capped.
+        """
+        # Worker: per-frame worker_type majority, else agent_active flag.
+        workers = [f.get("worker_type") for f in frame_results if f.get("worker_type")]
+        if workers:
+            worker = Counter(workers).most_common(1)[0][0]
+        else:
+            worker = "agent" if agent_active else "human"
 
-        full_text = ". ".join(t[:100] for t in tasks[:5]) if tasks else summary
+        # Medium: rule-based app-name mapping.
+        medium = _classify_medium(window_info.get("app_name", ""))
+
+        # Task dedup keyed on first-80-chars lowercased.
+        tasks_raw = [
+            (f.get("detailed_summary") or f.get("task") or "").strip()
+            for f in frame_results
+        ]
+        tasks_raw = [t for t in tasks_raw if t]
+        task_counts = Counter(t.lower()[:80] for t in tasks_raw)
+
+        seen: set[str] = set()
+        unique_tasks: list[str] = []
+        for t in tasks_raw:
+            key = t.lower()[:80]
+            if key not in seen:
+                seen.add(key)
+                unique_tasks.append(t)
+
+        window_title = (window_info.get("title") or "Unknown").strip()
+
+        # Short title: most-frequent task (representative form), else window.
+        if task_counts:
+            top_key = task_counts.most_common(1)[0][0]
+            short_title = next(
+                (t for t in unique_tasks if t.lower().startswith(top_key[:40])),
+                unique_tasks[0],
+            )[:80]
+        else:
+            short_title = (window_title or "Activity")[:80]
+
+        # Detailed summary: window + top-3 unique tasks.
+        if unique_tasks:
+            top3 = "; ".join(unique_tasks[:3])
+            detailed_summary = f"{window_title} — {top3}"[:400]
+        else:
+            detailed_summary = f"Activity in {window_title}"[:400]
+
+        # Full text: deduped raw_text across frames, budget-capped.
+        texts_seen: set[str] = set()
+        unique_texts: list[str] = []
+        for f in frame_results:
+            t = (f.get("raw_text") or "").strip()
+            if not t:
+                continue
+            key = t[:120]
+            if key in texts_seen:
+                continue
+            texts_seen.add(key)
+            unique_texts.append(t)
+        full_text = " | ".join(unique_texts)[:2000] or detailed_summary
 
         return {
-            "short_title": summary[:80],
-            "detailed_summary": summary,
+            "short_title": short_title,
+            "detailed_summary": detailed_summary,
             "full_text": full_text,
-            "worker": "agent" if agent_active else "human",
-            "medium": "other",
+            "worker": worker,
+            "medium": medium,
         }
+
+
+def _classify_medium(app_name: str) -> str:
+    """Map window app_name to one of: browser, terminal, ide, chat, office, other."""
+    app = (app_name or "").lower()
+    if not app:
+        return "other"
+    for keywords, category in _MEDIUM_RULES:
+        if any(k in app for k in keywords):
+            return category
+    return "other"

@@ -125,12 +125,24 @@ class ProblemStatementComposer:
     def compose(
         self,
         deliverable_id: str,
-        use_llm: bool = True,
+        use_llm: Optional[bool] = None,
         include_activity: bool = True,
     ) -> ComposerBundle:
+        """Compose a problem_statement.md for a deliverable.
+
+        `use_llm` resolution:
+          - None (default)  → read hp `meta_composer_use_llm` (default: False).
+            Deterministic template is the system-wide default since the
+            `_template_fallback` covers all 6 sections and is reproducible.
+          - True            → force the meta-LLM call regardless of config.
+          - False           → force template regardless of config.
+        """
         deliverable = self.db.get_deliverable(deliverable_id)
         if not deliverable:
             raise ValueError(f"deliverable_not_found: {deliverable_id}")
+
+        if use_llm is None:
+            use_llm = bool(self.hp.get("meta_composer_use_llm", False))
 
         brief = self._get_brief(deliverable_id)
         latest_segment = self._get_latest_segment() if include_activity else None
@@ -374,47 +386,31 @@ class ProblemStatementComposer:
     # ------------------------------------------------------------------
 
     def _llm_model_name(self) -> str:
-        if self.hp.get("use_local", True):
-            return self.hp.get("consolidation_model_local", "qwen2.5:14b")
-        return self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
+        return self.hp.get("openai_chat_model", "gpt-4o-mini")
 
     def _call_meta_llm(self, user_prompt: str) -> str:
-        if self.hp.get("use_local", True):
-            return self._call_ollama(user_prompt)
-        return self._call_anthropic(user_prompt)
+        return self._call_openai(user_prompt)
 
-    def _call_ollama(self, user_prompt: str) -> str:
-        model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
+    def _call_openai(self, user_prompt: str) -> str:
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            raise RuntimeError("OPENAI_API_KEY not set")
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        model = self.hp.get("openai_chat_model", "gpt-4o-mini")
         response = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": model,
-                "prompt": META_SYSTEM_PROMPT + "\n\n---\n\n" + user_prompt,
-                "stream": False,
-                "options": {"num_predict": self.max_tokens, "temperature": 0.3},
-            },
-            timeout=120.0,
-        )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
-
-    def _call_anthropic(self, user_prompt: str) -> str:
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        if not api_key:
-            raise RuntimeError("ANTHROPIC_API_KEY not set")
-        model = self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
-        response = httpx.post(
-            "https://api.anthropic.com/v1/messages",
+            f"{base}/chat/completions",
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {key}",
                 "Content-Type": "application/json",
             },
             json={
                 "model": model,
                 "max_tokens": self.max_tokens,
-                "system": META_SYSTEM_PROMPT,
-                "messages": [{"role": "user", "content": user_prompt}],
+                "temperature": 0.3,
+                "messages": [
+                    {"role": "system", "content": META_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
             },
             timeout=120.0,
         )

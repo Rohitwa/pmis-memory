@@ -1,0 +1,119 @@
+"""Tests for Track D.5 — page_builder OpenAI-first with deterministic fallback."""
+
+import sys
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from sync import page_builder  # noqa: E402
+
+
+def _seg(summary: str, window: str = "Code", duration: int = 60) -> dict:
+    return {"id": "s1", "summary": summary, "window": window,
+            "platform": "macOS", "duration_secs": duration, "worker": "human"}
+
+
+class TestDispatch:
+    def test_openai_success_used(self):
+        cluster = [_seg("Drafted CISO outreach email")]
+        with patch.object(
+            page_builder, "_call_openai",
+            return_value="TITLE: CISO outreach email\nSUMMARY: You drafted outreach.",
+        ) as mock_oai:
+            title, summary = page_builder.llm_generate_title_and_summary(cluster)
+        mock_oai.assert_called_once()
+        assert title == "CISO outreach email"
+        assert "drafted outreach" in summary.lower()
+
+    def test_empty_openai_falls_back_to_deterministic(self):
+        cluster = [_seg("Drafted CISO outreach email")]
+        with patch.object(page_builder, "_call_openai", return_value=""):
+            title, summary = page_builder.llm_generate_title_and_summary(cluster)
+        assert title  # non-empty
+        assert summary
+
+    def test_restitch_falls_back_when_openai_empty(self):
+        new_cluster = [_seg("More PR review", window="GitHub")]
+        with patch.object(page_builder, "_call_openai", return_value=""):
+            title, summary = page_builder.llm_restitch_page(
+                "GitHub", "existing notes", new_cluster,
+            )
+        # Falls back to deterministic_restitch_page which keeps title.
+        assert title == "GitHub"
+
+
+class TestDeterministicTitle:
+    def test_uses_most_common_window(self):
+        from collections import Counter
+        cluster = [
+            _seg("A", window="Cursor"),
+            _seg("B", window="Cursor"),
+            _seg("C", window="Chrome"),
+        ]
+        title, _ = page_builder._deterministic_title_and_summary(cluster)
+        assert title == "Cursor"
+
+    def test_falls_back_to_summary_when_no_windows(self):
+        cluster = [
+            _seg("Reviewed the project plan", window=""),
+            _seg("Checked the diagrams", window=""),
+        ]
+        title, _ = page_builder._deterministic_title_and_summary(cluster)
+        assert title.startswith("Reviewed the project plan")
+
+    def test_truncates_long_window_name(self):
+        long_win = "A" * 100
+        cluster = [_seg("x", window=long_win)]
+        title, _ = page_builder._deterministic_title_and_summary(cluster)
+        assert len(title) <= 60
+
+
+class TestDeterministicSummary:
+    def test_includes_duration_and_window(self):
+        cluster = [
+            _seg("Reviewed PR 42 for edge cases", window="GitHub", duration=600),
+            _seg("Checked CI logs for failures", window="GitHub", duration=600),
+        ]
+        _, summary = page_builder._deterministic_title_and_summary(cluster)
+        assert "GitHub" in summary
+        assert "min" in summary
+        assert "segments" in summary
+
+    def test_dedupes_similar_summaries(self):
+        cluster = [
+            _seg("Reviewed the pull request", window="GitHub"),
+            _seg("Reviewed the pull request", window="GitHub"),
+            _seg("Reviewed the pull request", window="GitHub"),
+            _seg("Checked CI logs", window="GitHub"),
+        ]
+        _, summary = page_builder._deterministic_title_and_summary(cluster)
+        assert summary.lower().count("reviewed the pull request") == 1
+
+    def test_summary_budget_capped(self):
+        cluster = [_seg("very long summary " * 100, window="X")]
+        _, summary = page_builder._deterministic_title_and_summary(cluster)
+        assert len(summary) <= 500
+
+
+class TestDeterministicRestitch:
+    def test_keeps_title_when_same_window(self):
+        old_title, old_summary = "GitHub", "Existing notes."
+        new_cluster = [_seg("More PR review", window="GitHub")]
+        title, summary = page_builder._deterministic_restitch_page(
+            old_title, old_summary, new_cluster
+        )
+        assert title == "GitHub"
+
+    def test_swaps_title_on_dominant_new_window(self):
+        new_cluster = [
+            _seg("a", window="Cursor"),
+            _seg("b", window="Cursor"),
+            _seg("c", window="Cursor"),
+        ]
+        title, _ = page_builder._deterministic_restitch_page(
+            "GitHub", "old summary", new_cluster
+        )
+        assert title == "Cursor"

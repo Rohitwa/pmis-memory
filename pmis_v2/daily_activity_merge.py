@@ -20,11 +20,13 @@ Usage:
 
 import sqlite3
 import os
+import re
 import sys
 import json
 import hashlib
 import logging
 import numpy as np
+from collections import Counter
 from datetime import datetime, date
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
@@ -35,6 +37,29 @@ sys.path.insert(0, str(PMIS_DIR))
 logger = logging.getLogger("pmis.activity_merge")
 
 TRACKER_DB = os.path.expanduser("~/.productivity-tracker/tracker.db")
+
+# Stripped from segment summaries before ranking — the tracker's LLM
+# produces boilerplate like "During the segment, ..." that dominates over
+# distinguishing content.
+_SUMMARY_PREAMBLE = re.compile(
+    r"^\s*(during|in|throughout|within)\s+(this|the)\s+"
+    r"(segment|work segment|period|time|session)[\s,:;.\-]*",
+    re.IGNORECASE,
+)
+
+# Lead verbs that signal an outcome (vs motion). Summaries starting with
+# one of these are preferred as the anchor line — they already read as
+# reusable insights. Kept in sync with sync/humanizer.py's good-verb set.
+_OUTCOME_LEAD_VERBS = frozenset({
+    "drafted", "wrote", "reviewed", "shipped", "fixed", "debugged",
+    "built", "created", "designed", "added", "removed", "refactored",
+    "committed", "merged", "pushed", "composed", "sent", "replied",
+    "deployed", "tested", "analyzed", "investigated", "resolved",
+    "renamed", "restructured", "integrated", "migrated", "documented",
+    "pitched", "presented", "planned", "configured", "edited", "updated",
+    "launched", "executed", "researched", "compared", "discussed",
+    "prepared", "identified", "monitored", "searched", "explored",
+})
 
 
 class DailyActivityMerger:
@@ -266,13 +291,73 @@ class DailyActivityMerger:
         return clusters
 
     def _extract_pattern(self, cluster: List[Dict]) -> Optional[str]:
-        """LLM extracts a knowledge summary from cluster of activity segments."""
+        """Produce a knowledge anchor from a cluster via OpenAI, with a
+        deterministic fallback if the OpenAI call fails."""
+        text = self._llm_extract_pattern(cluster)
+        if text:
+            return text
+        return self._deterministic_extract_pattern(cluster)
+
+    def _deterministic_extract_pattern(self, cluster: List[Dict]) -> str:
+        """Rank segment summaries, prefer outcome-verb leads, dedupe by
+        lowercased 40-char prefix. Returns the top 1–2 joined.
+
+        Single-signature clusters (all one unique preamble-stripped summary)
+        are skipped at run-time — this function assumes the caller already
+        filtered those. It still produces a string if it receives one.
+        """
+        # Dedupe distinct summaries (preamble-stripped)
+        seen: set[str] = set()
+        distinct: List[str] = []
+        for seg in cluster:
+            raw = (seg.get("summary") or "").strip()
+            if not raw:
+                continue
+            stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+            key = stripped.lower()[:40]
+            if key in seen:
+                continue
+            seen.add(key)
+            distinct.append(stripped)
+            if len(distinct) >= 5:
+                break
+
+        if not distinct:
+            # No usable summary text — describe the activity envelope.
+            windows = Counter(
+                (s.get("window") or "").strip()
+                for s in cluster
+                if (s.get("window") or "").strip()
+            )
+            top_win = windows.most_common(1)
+            return (
+                f"Activity in {top_win[0][0]}"
+                if top_win and top_win[0][0]
+                else "Activity segment"
+            )
+
+        def _score(text: str) -> Tuple[int, int]:
+            words = text.split()
+            lead = words[0].lower().strip(",.;:") if words else ""
+            return (1 if lead in _OUTCOME_LEAD_VERBS else 0, len(text))
+
+        ranked = sorted(distinct, key=_score, reverse=True)
+        primary = ranked[0].rstrip(".") + "."
+        if len(ranked) >= 2 and len(primary) < 180:
+            secondary = ranked[1].rstrip(".") + "."
+            anchor = f"{primary} {secondary}"
+        else:
+            anchor = primary
+        return anchor[:300]
+
+    def _llm_extract_pattern(self, cluster: List[Dict]) -> Optional[str]:
+        """OpenAI gpt-4o-mini call. Returns '' on failure so the caller
+        falls back to the deterministic extractor."""
         total_duration = sum(s.get("duration_secs", 10) for s in cluster)
         duration_mins = total_duration / 60.0
 
-        # Build description for LLM
         descriptions = [s["summary"][:150] for s in cluster[:10]]
-        windows = list(set(s["window"] for s in cluster if s.get("window")))[:5]
+        windows = list({s["window"] for s in cluster if s.get("window")})[:5]
 
         prompt = (
             f"These {len(cluster)} activity segments total {duration_mins:.1f} minutes.\n"
@@ -284,23 +369,38 @@ class DailyActivityMerger:
             "not the activity itself. No reference codes."
         )
 
-        # Try local LLM first
         try:
             import httpx
-            model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
+            key = os.environ.get("OPENAI_API_KEY", "").strip()
+            if not key:
+                return ""
+            base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+            model = self.hp.get("openai_chat_model", "gpt-4o-mini")
             resp = httpx.post(
-                "http://localhost:11434/api/generate",
-                json={"model": model, "prompt": prompt, "stream": False},
-                timeout=30,
+                f"{base}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "max_tokens": 400,
+                    "temperature": 0.3,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=45.0,
             )
-            if resp.status_code == 200:
-                return resp.json().get("response", "").strip()[:500]
-        except Exception:
-            pass
-
-        # Fallback: simple concatenation
-        top3 = [s["summary"][:80] for s in cluster[:3]]
-        return f"Activity pattern ({len(cluster)} segments, {duration_mins:.0f} min): {'. '.join(top3)}"
+            if resp.status_code != 200:
+                logger.warning("openai %s returned %d", model, resp.status_code)
+                return ""
+            data = resp.json()
+            choices = data.get("choices") or []
+            if not choices:
+                return ""
+            return (choices[0].get("message", {}).get("content") or "").strip()[:500]
+        except Exception as e:
+            logger.warning("openai call failed: %s", e)
+            return ""
 
     def _semantic_match(self, text: str) -> Tuple[Optional[str], Optional[str]]:
         """Find the best matching CTX in the knowledge tree via semantic search."""

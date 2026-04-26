@@ -15,14 +15,22 @@ red-flag threshold.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import httpx
 
+from core.surprise import compute_raw_surprise
+
 logger = logging.getLogger("pmis.restructure")
+
+# Triage decision shape: either a string ("content") meaning "fall through to
+# LLM rewrite" or a tuple like ("merge", target_id) / ("reparent", new_id,
+# old_id) meaning the issue is structural and can be fixed without an LLM.
+TriageDecision = Union[str, Tuple]
 
 
 class Restructurer:
@@ -120,6 +128,24 @@ class Restructurer:
             return {"action": "restructure_skipped", "node_id": node_id,
                     "reason": "node_deleted"}
 
+        # Metadata triage: can this be fixed structurally without an LLM?
+        # Only applies to anchors — contexts have no parents to re-home to.
+        decision = self._triage(node, scope)
+        if isinstance(decision, tuple):
+            kind = decision[0]
+            if kind == "merge":
+                _, target_id = decision
+                return self._handle_merge(
+                    node, target_id, queue_id, job.get("reason", "")
+                )
+            if kind == "reparent":
+                _, new_parent_id, old_parent_id = decision
+                return self._handle_reparent(
+                    node, new_parent_id, old_parent_id, queue_id,
+                    job.get("reason", ""),
+                )
+
+        # Fall through to LLM rewrite (content-quality complaint).
         before = node.get("content") or ""
         prompt_ctx = self._build_context(node, scope)
         prompt = self._anchor_prompt(prompt_ctx) if scope == "anchor" \
@@ -148,6 +174,165 @@ class Restructurer:
             "before_chars": len(before),
             "after_chars": len(new_content),
             "applied_by": self._llm_label(),
+        }
+
+    # -----------------------------------------------------------------
+    # Triage: structural fixes that don't need an LLM
+    # -----------------------------------------------------------------
+
+    def _triage(self, node: Dict[str, Any], scope: str) -> TriageDecision:
+        """Decide whether this node's negative feedback is a structural issue
+        (merge/reparent) or a content-quality issue (LLM rewrite).
+
+        Returns:
+          ("merge", winner_sibling_id)               — near-duplicate of sibling
+          ("reparent", new_parent_id, old_parent_id) — another CTX is a better fit
+          "content"                                  — fall through to LLM rewrite
+        """
+        if scope != "anchor":
+            return "content"
+
+        embs = self.db.get_embeddings(node["id"])
+        node_emb = embs.get("euclidean")
+        if node_emb is None:
+            return "content"
+
+        parents = self.db.get_parents(node["id"])
+        parent = parents[0] if parents else None
+        if parent is None:
+            return "content"
+
+        # 1. Near-duplicate of a sibling? Prefer merge — cheapest fix.
+        dup_thresh = float(self.hp.get("restructure_duplicate_threshold", 0.08))
+        winner, dup_dist = self._find_nearest_sibling(
+            node_id=node["id"], parent_id=parent["id"], query_emb=node_emb,
+        )
+        if winner is not None and dup_dist <= dup_thresh:
+            return ("merge", winner["id"])
+
+        # 2. Wrong parent? Check if another CTX is substantially closer.
+        parent_embs = self.db.get_embeddings(parent["id"])
+        parent_emb = parent_embs.get("euclidean")
+        if parent_emb is not None:
+            current_dist = compute_raw_surprise(node_emb, parent_emb)
+            best_other, best_other_dist = self._find_best_other_context(
+                node_emb, exclude_id=parent["id"],
+            )
+            gain_thresh = float(self.hp.get("restructure_reparent_gain", 0.15))
+            if best_other is not None and (current_dist - best_other_dist) >= gain_thresh:
+                return ("reparent", best_other["id"], parent["id"])
+
+        return "content"
+
+    def _find_nearest_sibling(
+        self, *, node_id: str, parent_id: str, query_emb,
+    ) -> Tuple[Optional[Dict[str, Any]], float]:
+        best: Optional[Dict[str, Any]] = None
+        best_dist = float("inf")
+        for sib in self.db.get_children(parent_id):
+            if sib["id"] == node_id:
+                continue
+            if sib.get("is_deleted"):
+                continue
+            sib_embs = self.db.get_embeddings(sib["id"])
+            sib_emb = sib_embs.get("euclidean")
+            if sib_emb is None:
+                continue
+            dist = compute_raw_surprise(query_emb, sib_emb)
+            if dist < best_dist:
+                best_dist = dist
+                best = sib
+        return best, best_dist
+
+    def _find_best_other_context(
+        self, query_emb, *, exclude_id: str,
+    ) -> Tuple[Optional[Dict[str, Any]], float]:
+        best: Optional[Dict[str, Any]] = None
+        best_dist = float("inf")
+        for ctx in self.db.get_nodes_by_level("CTX"):
+            if ctx["id"] == exclude_id or ctx.get("is_deleted"):
+                continue
+            ctx_embs = self.db.get_embeddings(ctx["id"])
+            ctx_emb = ctx_embs.get("euclidean")
+            if ctx_emb is None:
+                continue
+            dist = compute_raw_surprise(query_emb, ctx_emb)
+            if dist < best_dist:
+                best_dist = dist
+                best = ctx
+        return best, best_dist
+
+    def _handle_merge(
+        self, node: Dict[str, Any], target_id: str,
+        queue_id: Optional[int], trigger_reason: str,
+    ) -> Dict[str, Any]:
+        """Absorb node into target sibling, then soft-delete node.
+        Reuses db.merge_into_parent which does exactly this (the "parent"
+        label is a misnomer — it just appends content + soft-deletes)."""
+        self.db.merge_into_parent(child_id=node["id"], parent_id=target_id)
+        self._mark_processed(queue_id, "done")
+        return {
+            "action": "restructure_merge",
+            "node_id": node["id"],
+            "merged_into": target_id,
+            "trigger_reason": trigger_reason,
+            "applied_by": "triage_merge",
+        }
+
+    def _handle_reparent(
+        self, node: Dict[str, Any], new_parent_id: str, old_parent_id: str,
+        queue_id: Optional[int], trigger_reason: str,
+    ) -> Dict[str, Any]:
+        """Detach from old parent, attach to new parent. No LLM; structural only."""
+        with self.db._connect() as conn:
+            # Drop old child_of relation(s).
+            conn.execute(
+                "DELETE FROM relations "
+                "WHERE source_id = ? AND target_id = ? AND relation_type = 'child_of'",
+                (node["id"], old_parent_id),
+            )
+            # Prune old parent from parent_ids array.
+            row = conn.execute(
+                "SELECT parent_ids FROM memory_nodes WHERE id = ?", (node["id"],)
+            ).fetchone()
+            if row:
+                try:
+                    parents = json.loads(row["parent_ids"] or "[]")
+                except (TypeError, ValueError):
+                    parents = []
+                parents = [p for p in parents if p != old_parent_id]
+                conn.execute(
+                    "UPDATE memory_nodes SET parent_ids = ?, last_modified = datetime('now') "
+                    "WHERE id = ?",
+                    (json.dumps(parents), node["id"]),
+                )
+
+        # Derive tree_id from any existing child_of relation on the new parent
+        # so the re-homed node joins the right tree.
+        tree_id = "default"
+        with self.db._connect() as conn:
+            row = conn.execute(
+                "SELECT tree_id FROM relations WHERE target_id = ? "
+                "AND relation_type = 'child_of' LIMIT 1",
+                (new_parent_id,),
+            ).fetchone()
+            if row and row["tree_id"]:
+                tree_id = row["tree_id"]
+
+        self.db.attach_to_parent(node["id"], new_parent_id, tree_id=tree_id)
+        # Refresh the old parent's stats too — it lost a child.
+        try:
+            self.db._refresh_context_stats(old_parent_id)
+        except Exception:
+            pass
+        self._mark_processed(queue_id, "done")
+        return {
+            "action": "restructure_reparent",
+            "node_id": node["id"],
+            "old_parent_id": old_parent_id,
+            "new_parent_id": new_parent_id,
+            "trigger_reason": trigger_reason,
+            "applied_by": "triage_reparent",
         }
 
     # -----------------------------------------------------------------
@@ -314,46 +499,40 @@ class Restructurer:
         return self._embedder
 
     def _call_llm(self, prompt: str) -> str:
-        if self.hp.get("use_local", True):
-            return self._call_ollama(prompt)
-        return self._call_anthropic(prompt)
+        return self._call_openai(prompt)
 
     def _llm_label(self) -> str:
-        if self.hp.get("use_local", True):
-            return f"llm_regen_{self.hp.get('consolidation_model_local', 'ollama')}"
-        return f"llm_regen_{self.hp.get('consolidation_model', 'claude')}"
+        return f"llm_regen_{self.hp.get('openai_chat_model', 'gpt-4o-mini')}"
 
-    def _call_ollama(self, prompt: str) -> str:
-        model = self.hp.get("consolidation_model_local", "qwen2.5:14b")
+    def _call_openai(self, prompt: str) -> str:
+        """OpenAI chat/completions. Honors OPENAI_BASE_URL. Raises on
+        failure so _process_job's existing try/except records it."""
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            raise RuntimeError("OPENAI_API_KEY not set")
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        model = self.hp.get("openai_chat_model", "gpt-4o-mini")
         max_tokens = self.hp.get("consolidation_max_tokens", 2048)
         response = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False,
-                  "options": {"num_predict": max_tokens}},
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
-
-    def _call_anthropic(self, prompt: str) -> str:
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        model = self.hp.get("consolidation_model", "claude-sonnet-4-20250514")
-        max_tokens = self.hp.get("consolidation_max_tokens", 2048)
-        response = httpx.post(
-            "https://api.anthropic.com/v1/messages",
+            f"{base}/chat/completions",
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {key}",
                 "Content-Type": "application/json",
             },
             json={
-                "model": model, "max_tokens": max_tokens,
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": 0.3,
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=60.0,
         )
         response.raise_for_status()
-        return response.json()["content"][0]["text"].strip()
+        data = response.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return ""
+        return (choices[0].get("message", {}).get("content") or "").strip()
 
     @staticmethod
     def _sanitize(text: str) -> str:

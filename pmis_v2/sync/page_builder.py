@@ -1,8 +1,9 @@
 """Build and update work_pages from fresh tracker segments.
 
 Clustering is greedy cosine-distance (same algo family as daily_activity_merge).
-LLM summary calls hit local Ollama (qwen2.5:14b by default); failures fall
-back to a concatenation so the sync never crashes.
+Title + summary generation uses OpenAI `gpt-4o-mini` by default; the
+deterministic template acts as an exception-only fallback when the OpenAI
+call fails.
 
 Thresholds (cluster + append-vs-new decision) are owned by the runner and
 read from `hyperparameters.yaml`:
@@ -13,7 +14,9 @@ read from `hyperparameters.yaml`:
 from __future__ import annotations
 
 import logging
+import os
 import re
+from collections import Counter
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -109,9 +112,164 @@ def find_matching_page(
 
 
 def llm_generate_title_and_summary(
-    cluster: List[Dict], model: str = "qwen2.5:14b"
+    cluster: List[Dict],
+    model: Optional[str] = None,
+    hp: Optional[Dict] = None,
 ) -> Tuple[str, str]:
-    """Ask local Ollama for (title, summary). Falls back on failure."""
+    """Generate (title, summary) for a cluster via OpenAI. Falls back to a
+    deterministic template if the OpenAI call fails."""
+    chat_model = model or (hp or {}).get("openai_chat_model", "gpt-4o-mini")
+    title, summary = _llm_generate_title_and_summary(cluster, chat_model)
+    if not title and not summary:
+        return _deterministic_title_and_summary(cluster)
+    return title, summary
+
+
+def llm_restitch_page(
+    page_title: str,
+    page_summary: str,
+    new_cluster: List[Dict],
+    model: Optional[str] = None,
+    hp: Optional[Dict] = None,
+) -> Tuple[str, str]:
+    """Re-stitch an existing page via OpenAI; deterministic fallback on failure."""
+    chat_model = model or (hp or {}).get("openai_chat_model", "gpt-4o-mini")
+    title, summary = _llm_restitch_page(page_title, page_summary, new_cluster, chat_model)
+    if title == page_title and summary == page_summary:
+        # _llm_restitch_page returns the inputs unchanged on failure.
+        return _deterministic_restitch_page(page_title, page_summary, new_cluster)
+    return title, summary
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Deterministic generation (Track D.5 default)
+# ─────────────────────────────────────────────────────────────────────
+
+def _deterministic_title_and_summary(
+    cluster: List[Dict],
+) -> Tuple[str, str]:
+    duration_mins = sum(s.get("duration_secs", 10) for s in cluster) / 60.0
+    return (
+        _deterministic_title(cluster),
+        _deterministic_summary(cluster, duration_mins),
+    )
+
+
+def _deterministic_title(cluster: List[Dict]) -> str:
+    """Most-common window name; fallback to the first informative summary."""
+    windows = Counter(
+        (s.get("window") or "").strip()
+        for s in cluster
+        if (s.get("window") or "").strip()
+    )
+    top = windows.most_common(1)
+    if top and top[0][0]:
+        return top[0][0][:60]
+
+    for seg in cluster:
+        raw = (seg.get("summary") or "").strip()
+        stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+        if stripped:
+            first_sentence = stripped.split(".", 1)[0]
+            return first_sentence[:60]
+    return "Activity cluster"
+
+
+def _deterministic_summary(cluster: List[Dict], duration_mins: float) -> str:
+    """Dedupe segment summaries by first-40-char prefix, keep top distinct
+    ones, prepend a duration + top-windows lead."""
+    seen: set[str] = set()
+    distinct: List[str] = []
+    for seg in cluster:
+        raw = (seg.get("summary") or "").strip()
+        if not raw:
+            continue
+        stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+        key = stripped.lower()[:40]
+        if key in seen:
+            continue
+        seen.add(key)
+        distinct.append(stripped)
+        if len(distinct) >= 3:
+            break
+
+    windows = Counter(
+        (s.get("window") or "").strip()
+        for s in cluster
+        if (s.get("window") or "").strip()
+    )
+    top_windows = [w for w, _ in windows.most_common(2) if w]
+
+    lead = f"{len(cluster)} segments over {duration_mins:.0f} min"
+    if top_windows:
+        lead += f" across {' and '.join(top_windows)}"
+    lead += "."
+
+    body_parts: List[str] = []
+    for item in distinct[:2]:
+        sentence = item.rstrip(".") + "."
+        body_parts.append(sentence)
+    body = " ".join(body_parts)
+
+    out = f"{lead} {body}".strip()
+    return out[:500]
+
+
+def _deterministic_restitch_page(
+    old_title: str,
+    old_summary: str,
+    new_cluster: List[Dict],
+) -> Tuple[str, str]:
+    """Keep old title unless the new cluster is dominated (≥70%) by a
+    window not already reflected in the title. Summary appends a
+    deduplicated hint of what's new."""
+    new_title_candidate, new_summary = _deterministic_title_and_summary(new_cluster)
+
+    windows = Counter(
+        (s.get("window") or "").strip()
+        for s in new_cluster
+        if (s.get("window") or "").strip()
+    )
+    title = old_title or new_title_candidate
+    if windows:
+        dom_window, dom_count = windows.most_common(1)[0]
+        if (
+            dom_window
+            and dom_count >= 0.7 * len(new_cluster)
+            and dom_window.lower() not in (old_title or "").lower()
+        ):
+            title = dom_window[:60]
+
+    # Dedupe against the existing summary: if every new segment's content
+    # is already mentioned in the old summary, don't append a noise line.
+    old_lower = (old_summary or "").lower()
+    if new_cluster:
+        all_covered = True
+        for seg in new_cluster:
+            raw = (seg.get("summary") or "").strip()
+            stripped = _SUMMARY_PREAMBLE.sub("", raw).strip() or raw
+            if not stripped:
+                continue
+            key = stripped.lower()[:50]
+            if key and key not in old_lower:
+                all_covered = False
+                break
+        if all_covered:
+            return title, old_summary
+
+    extended = f"{old_summary} (Extended: {new_summary[:200]})".strip()
+    return title, extended[:1000]
+
+
+# ─────────────────────────────────────────────────────────────────────
+# LLM generation (opt-in via page_builder_use_llm)
+# ─────────────────────────────────────────────────────────────────────
+
+def _llm_generate_title_and_summary(
+    cluster: List[Dict], model: str = "gpt-4o-mini"
+) -> Tuple[str, str]:
+    """Ask OpenAI for (title, summary). Returns ('', '') on failure so the
+    public dispatcher can fall through to the deterministic template."""
     duration_mins = sum(s.get("duration_secs", 10) for s in cluster) / 60.0
     windows = list({s.get("window", "") for s in cluster if s.get("window")})[:5]
     descs = [s["summary"][:150] for s in cluster[:10]]
@@ -127,9 +285,9 @@ def llm_generate_title_and_summary(
         "SUMMARY: <one paragraph, 2-3 sentences, outcome-shaped>"
     )
 
-    text = _call_ollama(prompt, model)
+    text = _call_openai(prompt, model=model, max_tokens=500, timeout_s=45)
     if not text:
-        return _fallback_title_and_summary(cluster, duration_mins)
+        return "", ""
 
     title, summary = _parse_title_summary(text)
     if not summary:
@@ -139,13 +297,14 @@ def llm_generate_title_and_summary(
     return title, summary
 
 
-def llm_restitch_page(
+def _llm_restitch_page(
     page_title: str,
     page_summary: str,
     new_cluster: List[Dict],
-    model: str = "qwen2.5:14b",
+    model: str = "gpt-4o-mini",
 ) -> Tuple[str, str]:
-    """Regenerate title + summary when new activity extends an existing page."""
+    """Regenerate title + summary when new activity extends an existing page.
+    Returns the inputs unchanged on failure (caller detects and falls back)."""
     new_descs = [s["summary"][:150] for s in new_cluster[:10]]
 
     prompt = (
@@ -159,7 +318,7 @@ def llm_restitch_page(
         "SUMMARY: <updated paragraph, 2-3 sentences, outcome-shaped, integrates new>"
     )
 
-    text = _call_ollama(prompt, model)
+    text = _call_openai(prompt, model=model, max_tokens=500, timeout_s=45)
     if not text:
         return page_title, page_summary
 
@@ -192,21 +351,41 @@ def _cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
     return 1.0 - float(np.dot(a, b) / denom)
 
 
-def _call_ollama(prompt: str, model: str, timeout_s: int = 60) -> str:
+def _call_openai(prompt: str, *, model: str = "gpt-4o-mini",
+                 max_tokens: int = 500, temperature: float = 0.3,
+                 timeout_s: int = 45) -> str:
+    """Unified chat/completions call. Returns '' on any failure."""
     try:
         import httpx
-
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+        if not key:
+            return ""
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
         resp = httpx.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False},
+            f"{base}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": [{"role": "user", "content": prompt}],
+            },
             timeout=timeout_s,
         )
         if resp.status_code != 200:
-            logger.warning("ollama %s returned %d", model, resp.status_code)
+            logger.warning("openai %s returned %d: %s",
+                           model, resp.status_code, resp.text[:200])
             return ""
-        return resp.json().get("response", "").strip()
+        data = resp.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return ""
+        return (choices[0].get("message", {}).get("content") or "").strip()
     except Exception as e:
-        logger.warning("ollama call failed: %s", e)
+        logger.warning("openai call failed: %s", e)
         return ""
 
 
