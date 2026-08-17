@@ -101,13 +101,13 @@
 
   figure { margin: 0 0 16px; }
   .diagram {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--surface);
-    overflow-x: auto;
-    padding: 10px 6px 2px;
+    width: calc(100vw - 48px);
+    max-width: 1140px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
   }
-  .diagram svg { display: block; min-width: 1000px; width: 100%; height: auto; color: var(--ink); }
+  .diagram svg { display: block; width: 100%; height: auto; color: var(--ink); }
 
   svg .grp { fill: none; stroke: currentColor; stroke-opacity: 0.28; stroke-dasharray: 3 4; }
   svg .box { fill: var(--surface); stroke: currentColor; stroke-width: 1.3; }
