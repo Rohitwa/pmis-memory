@@ -57,7 +57,7 @@
     margin: 0;
     padding: 48px 20px 80px;
   }
-  main { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 38px; }
+  main { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 38px; }
 
   header { text-align: center; }
   header h1 {
@@ -107,59 +107,59 @@
     margin: 0 0 6px;
   }
 
-  /* journey bar */
-  .journey { display: flex; align-items: stretch; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
-  .jstep {
-    flex: 1;
-    min-width: 128px;
+  /* top cost comparison */
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cmpcard {
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 12px 10px 10px;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px 16px;
     text-align: center;
   }
-  .jnum {
-    display: inline-block;
+  body[data-model="hq"] .cmp-hq, body:not([data-model]) .cmp-hq { border-color: var(--accent); }
+  body[data-model="cloud"] .cmp-cloud { border-color: var(--accent); }
+  .cmpcard h3 { font-family: var(--font-display); font-size: 18px; font-weight: 650; margin: 0 0 10px; }
+  .cmp-big { font-family: var(--font-mono); font-size: 21px; font-weight: 700; color: var(--accent); }
+  .cmp-big small { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .cmp-5yr { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .cmp-5yr b { color: var(--ink); }
+
+  /* timeline */
+  .tl { position: relative; padding-left: 44px; display: flex; flex-direction: column; gap: 16px; }
+  .tl::before {
+    content: "";
+    position: absolute;
+    left: 15px; top: 10px; bottom: 24px;
+    width: 2px;
+    background: var(--line);
+  }
+  .tlitem { position: relative; }
+  .tlnum {
+    position: absolute;
+    left: -44px; top: 12px;
+    width: 32px; height: 32px; line-height: 32px;
+    border-radius: 50%;
     background: var(--accent);
     color: #FFF;
     font-family: var(--font-mono);
     font-weight: 700;
-    font-size: 12px;
-    width: 22px; height: 22px; line-height: 22px;
-    border-radius: 50%;
-    margin-bottom: 6px;
+    font-size: 14px;
+    text-align: center;
   }
-  .jname { font-family: var(--font-display); font-weight: 650; font-size: 15.5px; line-height: 1.15; }
-  .jdur { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .jcost { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: var(--accent); margin-top: 6px; }
-  .jarrow { align-self: center; color: var(--muted); font-size: 16px; flex: none; }
-
-  /* phase cards */
-  .phase { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
-  .phead { display: flex; align-items: baseline; gap: 12px; padding: 14px 18px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-  .pnum {
-    font-family: var(--font-mono); font-weight: 700; font-size: 12px;
-    background: var(--accent); color: #FFF;
-    width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%;
-    flex: none; align-self: center;
+  .tlcard {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 18px 14px;
   }
-  .phead h3 { font-family: var(--font-display); font-size: 19px; font-weight: 650; margin: 0; }
-  .pdur { font-size: 12.5px; color: var(--muted); }
-  .pcost { margin-left: auto; font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--accent); white-space: nowrap; }
+  .tlhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 9px; }
+  .tlhead h3 { font-family: var(--font-display); font-size: 18.5px; font-weight: 650; margin: 0; }
+  .tldur { font-size: 12.5px; color: var(--muted); }
+  .tlcost { margin-left: auto; font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--accent); white-space: nowrap; }
 
-  .strip { padding: 10px 18px 2px; }
-  .strip svg { display: block; width: 100%; height: auto; color: var(--ink); }
-  svg .icon { stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  svg .icon-b { stroke: var(--party2); }
-  svg .slabel { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
-  svg .sflow { stroke: currentColor; stroke-width: 1.6; fill: none; opacity: 0.6; }
-  svg .sfill { fill: var(--accent); stroke: var(--accent); stroke-width: 1.5; }
-
-  .cwhere { padding: 8px 18px 12px; border-bottom: 1px solid var(--line); }
-  .cw-t { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
-  .cbar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--row-alt); }
+  .cbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--row-alt); }
   .cbar span { background: var(--accent); }
-  .ck { margin: 7px 0 0; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+  .ck { margin: 6px 0 10px; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
   .ck b { color: var(--ink); font-weight: 600; }
   .ck i {
     display: inline-block; width: 9px; height: 9px; border-radius: 2px;
@@ -167,21 +167,17 @@
   }
   .ck i:first-child { margin-left: 0; }
 
-  .lanes { display: grid; grid-template-columns: 1fr 1fr; }
-  .lane { padding: 12px 18px 14px; }
-  .lane + .lane { border-left: 1px solid var(--line); }
-  .ltag {
-    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase;
-    font-weight: 700; margin: 0 0 8px; display: inline-block; padding: 3px 10px; border-radius: 999px;
+  .who { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; }
+  .wtag {
+    flex: none;
+    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    min-width: 76px; text-align: center;
   }
-  .lane-y .ltag { color: var(--accent); background: var(--accent-soft); }
-  .lane-b .ltag { color: var(--party2); background: var(--party2-soft); }
-  .lane ul { margin: 0; padding: 0; list-style: none; }
-  .lane li { font-size: 13.5px; margin-bottom: 7px; display: flex; gap: 8px; align-items: flex-start; }
-  .ib { flex: none; width: 15px; height: 15px; margin-top: 2px; stroke-width: 1.3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .lane-y .ib { stroke: var(--accent); }
-  .lane-b .ib { stroke: var(--party2); }
-  .pnote { font-size: 12px; color: var(--muted); padding: 0 18px 12px; margin: 0; }
+  .who-y .wtag { color: var(--accent); background: var(--accent-soft); }
+  .who-b .wtag { color: var(--party2); background: var(--party2-soft); }
+  .wtxt { font-size: 13.5px; }
+  .tlnote { font-size: 11.5px; color: var(--muted); margin: 7px 0 0; }
 
   .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
   table { border-collapse: collapse; width: 100%; min-width: 720px; }
@@ -223,324 +219,122 @@
     </div>
   </header>
 
-  <!-- ============ JOURNEY ============ -->
+  <!-- ============ COST COMPARISON ============ -->
   <section>
-    <p class="kicker">The engagement at a glance</p>
-    <div class="journey">
-      <div class="jstep"><span class="jnum">1</span><div class="jname">Pilot</div><div class="jdur">2 weeks</div><div class="jcost">₹5 L</div></div>
-      <div class="jarrow">→</div>
-      <div class="jstep"><span class="jnum">2</span><div class="jname">Software development</div><div class="jdur">6–8 weeks</div><div class="jcost">₹75 L</div></div>
-      <div class="jarrow">→</div>
-      <div class="jstep"><span class="jnum">3</span><div class="jname">Hardware deployment</div><div class="jdur"><span class="only-hq">6–8 weeks</span><span class="only-cloud">3–4 weeks</span></div><div class="jcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></div></div>
-      <div class="jarrow">→</div>
-      <div class="jstep"><span class="jnum">4</span><div class="jname">Mass deployment</div><div class="jdur">4–6 months</div><div class="jcost"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></div></div>
-      <div class="jarrow">→</div>
-      <div class="jstep"><span class="jnum">5</span><div class="jname">O&amp;M</div><div class="jdur">ongoing ↻</div><div class="jcost"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></div></div>
+    <p class="kicker">The two models, side by side</p>
+    <div class="cmp">
+      <div class="cmpcard cmp-hq">
+        <h3>Self-hosted HQ Model</h3>
+        <div class="cmp-big">₹2.9 Cr <small>one-time</small> + ₹9.1 L<small>/month</small></div>
+        <p class="cmp-5yr">≈ <b>₹8.4 Cr</b> over 5 years</p>
+      </div>
+      <div class="cmpcard cmp-cloud">
+        <h3>Cloud Bridge Model</h3>
+        <div class="cmp-big">₹2.5 Cr <small>one-time</small> + ₹13 L<small>/month</small></div>
+        <p class="cmp-5yr">≈ <b>₹10.3 Cr</b> over 5 years</p>
+      </div>
     </div>
   </section>
 
-  <!-- ============ PHASES ============ -->
-  <section style="display:flex; flex-direction:column; gap:16px;">
-    <p class="kicker" style="margin-bottom:-8px">Phase by phase — what happens, where the money goes, who does what</p>
+  <!-- ============ PHASES: TIMELINE ============ -->
+  <section>
+    <p class="kicker">Phase by phase</p>
+    <h2>Where the money goes, and who does what</h2>
 
-    <!-- ================ PHASE 1 ================ -->
-    <div class="phase">
-      <div class="phead"><span class="pnum">1</span><h3>Pilot</h3><span class="pdur">2 weeks · 2 stores · minimal stack</span><span class="pcost">₹5 L</span></div>
+    <div class="tl">
 
-      <div class="strip">
-        <svg viewBox="0 0 860 78" role="img" aria-label="Two stores connect to a minimal pilot rig, two weeks of tuning follow, ending in an accuracy report.">
-          <g class="icon" transform="translate(96,26) scale(1.7)"><path d="M-11,-2 L-9,-8 H-1 L1,-2 M-10,-2 V6 H0 V-2"/><path d="M3,-2 L5,-8 H13 L15,-2 M4,-2 V6 H14 V-2"/></g>
-          <text class="slabel" x="100" y="66" text-anchor="middle">2 stores</text>
-          <path class="sflow" d="M188,32 H262" marker-end="url(#pa1)"/>
-          <g class="icon" transform="translate(315,26) scale(1.7)"><rect x="-10" y="-8" width="20" height="6" rx="1.5"/><rect x="-10" y="1" width="20" height="6" rx="1.5"/><circle cx="-6.5" cy="-5" r=".8"/><circle cx="-6.5" cy="4" r=".8"/></g>
-          <text class="slabel" x="315" y="66" text-anchor="middle"><tspan class="only-hq">minimal rig at HQ</tspan><tspan class="only-cloud">small cloud setup</tspan></text>
-          <path class="sflow" d="M402,32 H476" marker-end="url(#pa1)"/>
-          <g class="icon" transform="translate(530,26) scale(1.7)"><path d="M-9,-4 H9 M-9,4 H9"/><circle cx="-3" cy="-4" r="2.2"/><circle cx="3" cy="4" r="2.2"/></g>
-          <text class="slabel" x="530" y="66" text-anchor="middle">2 weeks of tuning</text>
-          <path class="sflow" d="M616,32 H690" marker-end="url(#pa1)"/>
-          <g class="icon" transform="translate(748,26) scale(1.7)"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-3.5,-1 L-1,1.8 L3.8,-3.5"/></g>
-          <text class="slabel" x="748" y="66" text-anchor="middle">accuracy report</text>
-          <defs><marker id="pa1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-        </svg>
-      </div>
-
-      <div class="cwhere">
-        <p class="cw-t">Where the ₹5 L goes</p>
-        <div class="cbar"><span style="width:80%"></span><span style="width:20%; opacity:.45"></span></div>
-        <p class="ck"><i></i><b>Pilot engineering &amp; tuning</b> ₹4 L<i style="opacity:.45"></i><b>Field &amp; travel</b> ₹1 L &nbsp;·&nbsp; pilot hardware billed on actuals (<span class="only-hq">one GPU workstation</span><span class="only-cloud">cloud GPU + 2 bridge units</span>)</p>
-      </div>
-
-      <div class="lanes">
-        <div class="lane lane-y">
-          <p class="ltag">YantrAI</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M5,4 L2,7 L5,10 M9,4 L12,7 L9,10"/></svg>Minimal gateway + analytics running on 2 stores</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M2,4 H12 M2,10 H12"/><circle cx="5" cy="4" r="1.6"/><circle cx="9" cy="10" r="1.6"/></svg>Tune counting accuracy and night-alert false alarms</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2" width="8" height="10" rx="1"/><path d="M5,6 H9 M5,8.5 H9"/></svg>Short pilot report: measured accuracy vs targets</li>
-          </ul>
-        </div>
-        <div class="lane lane-b">
-          <p class="ltag">Baxy</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="5" cy="5" r="2.5"/><path d="M7,7 L12,12 M10,10 L12,8"/></svg>2 pilot stores: access and permissions</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="7" cy="4.5" r="2.2"/><path d="M2.5,12 a4.5,4.5 0 0 1 9,0"/></svg>Field installation and store coordination</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M2,6 a7,7 0 0 1 10,0 M4,8.5 a4.2,4.2 0 0 1 6,0"/><circle cx="7" cy="11" r="1"/></svg>Broadband / SIMs at pilot stores</li>
-          </ul>
+      <!-- PHASE 1 -->
+      <div class="tlitem">
+        <span class="tlnum">1</span>
+        <div class="tlcard">
+          <div class="tlhead"><h3>Pilot</h3><span class="tldur">2 weeks · 2 stores · minimal stack</span><span class="tlcost">₹5 L</span></div>
+          <div class="cbar"><span style="width:80%"></span><span style="width:20%; opacity:.45"></span></div>
+          <p class="ck"><i></i><b>Pilot engineering &amp; tuning</b> ₹4 L<i style="opacity:.45"></i><b>Field &amp; travel</b> ₹1 L &nbsp;·&nbsp; hardware on actuals (<span class="only-hq">one GPU workstation</span><span class="only-cloud">cloud GPU + 2 bridge units</span>)</p>
+          <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Minimal pilot build · accuracy &amp; night-alert tuning · pilot report</span></div>
+          <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">2 stores with access · field installation · broadband / SIMs</span></div>
         </div>
       </div>
-    </div>
 
-    <!-- ================ PHASE 2 ================ -->
-    <div class="phase">
-      <div class="phead"><span class="pnum">2</span><h3>Software development</h3><span class="pdur">6–8 weeks · AI-assisted build</span><span class="pcost">₹75 L</span></div>
-
-      <div class="strip">
-        <svg viewBox="0 0 860 78" role="img" aria-label="Four modules — gateway, AI pipeline, dashboards, fleet tools — assemble into one platform.">
-          <g class="icon" transform="translate(80,26) scale(1.6)"><path d="M-4,-6 L-9,0 L-4,6 M4,-6 L9,0 L4,6"/></g>
-          <text class="slabel" x="80" y="66" text-anchor="middle">gateway</text>
-          <text class="slabel" x="152" y="38" text-anchor="middle" font-size="15">+</text>
-          <g class="icon" transform="translate(225,26) scale(1.6)"><rect x="-6" y="-6" width="12" height="12" rx="2"/><path d="M-6,-2.5 H-9 M-6,2.5 H-9 M6,-2.5 H9 M6,2.5 H9 M-2.5,-6 V-9 M2.5,-6 V-9 M-2.5,6 V9 M2.5,6 V9"/></g>
-          <text class="slabel" x="225" y="66" text-anchor="middle">AI pipeline</text>
-          <text class="slabel" x="297" y="38" text-anchor="middle" font-size="15">+</text>
-          <g class="icon" transform="translate(370,26) scale(1.6)"><rect x="-9" y="-7" width="18" height="11" rx="1.5"/><path d="M0,4 V7 M-5,7 H5"/></g>
-          <text class="slabel" x="370" y="66" text-anchor="middle">dashboards</text>
-          <text class="slabel" x="442" y="38" text-anchor="middle" font-size="15">+</text>
-          <g class="icon" transform="translate(515,26) scale(1.6)"><rect x="-8" y="-8" width="7" height="7"/><rect x="1" y="-8" width="7" height="7"/><rect x="-8" y="1" width="7" height="7"/><rect x="1" y="1" width="7" height="7"/></g>
-          <text class="slabel" x="515" y="66" text-anchor="middle">fleet tools</text>
-          <path class="sflow" d="M580,32 H650" marker-end="url(#pa2)"/>
-          <rect class="icon" x="675" y="8" width="150" height="44" rx="8"/>
-          <text class="slabel" x="750" y="30" text-anchor="middle" fill="var(--accent)" font-weight="bold">ONE PLATFORM</text>
-          <text class="slabel" x="750" y="44" text-anchor="middle"><tspan class="only-hq">deployed at HQ</tspan><tspan class="only-cloud">deployed in cloud</tspan></text>
-          <defs><marker id="pa2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-        </svg>
-      </div>
-
-      <div class="cwhere">
-        <p class="cw-t">Where the ₹75 L goes</p>
-        <div class="cbar"><span style="width:80%"></span><span style="width:13.3%; opacity:.55"></span><span style="width:6.7%; opacity:.3"></span></div>
-        <p class="ck"><i></i><b>Platform engineering</b> ₹60 L<i style="opacity:.55"></i><b>Testing &amp; hardening</b> ₹10 L<i style="opacity:.3"></i><b>Docs &amp; training</b> ₹5 L</p>
-      </div>
-
-      <div class="lanes">
-        <div class="lane lane-y">
-          <p class="ltag">YantrAI</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M5,4 L2,7 L5,10 M9,4 L12,7 L9,10"/></svg>Full platform: gateway, stream router, AI pipeline</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="2" y="2.5" width="10" height="8" rx="1"/><path d="M4,5 H7 M4,7 H6 M5,12.5 H9 M7,10.5 V12.5"/></svg>Live dashboards + alert console</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="2.5" y="2.5" width="4" height="4"/><rect x="7.5" y="2.5" width="4" height="4"/><rect x="2.5" y="7.5" width="4" height="4"/><rect x="7.5" y="7.5" width="4" height="4"/></svg>Fleet tooling: provisioning, health, config push</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M7,1.5 V5 M4,3 L7,5 L10,3"/><rect x="3" y="6" width="8" height="6" rx="1"/></svg><span class="only-hq">Deploy target: the HQ servers</span><span class="only-cloud">Deploy target: the cloud, incl. bridge software</span></li>
-          </ul>
-        </div>
-        <div class="lane lane-b">
-          <p class="ltag">Baxy</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2" width="8" height="10" rx="1"/><path d="M5,6 H9 M5,8.5 H9"/></svg>Requirements and store operating rules</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2.5" width="8" height="9.5" rx="1"/><path d="M4.8,7 L6.3,8.6 L9.2,5.5"/></svg>User acceptance testing</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5"/><path d="M4.5,7 L6.3,8.8 L9.5,5.5"/></svg>Phase sign-offs</li>
-          </ul>
+      <!-- PHASE 2 -->
+      <div class="tlitem">
+        <span class="tlnum">2</span>
+        <div class="tlcard">
+          <div class="tlhead"><h3>Software development</h3><span class="tldur">6–8 weeks · AI-assisted build</span><span class="tlcost">₹75 L</span></div>
+          <div class="cbar"><span style="width:80%"></span><span style="width:13.3%; opacity:.55"></span><span style="width:6.7%; opacity:.3"></span></div>
+          <p class="ck"><i></i><b>Platform engineering</b> ₹60 L<i style="opacity:.55"></i><b>Testing &amp; hardening</b> ₹10 L<i style="opacity:.3"></i><b>Docs &amp; training</b> ₹5 L</p>
+          <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Gateway · stream router · AI pipeline · dashboards · fleet tooling — <span class="only-hq">deployed at HQ</span><span class="only-cloud">deployed in cloud, incl. bridge software</span></span></div>
+          <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Requirements · user acceptance testing · sign-off</span></div>
+          <p class="tlnote">Same software serves both models — only where it is deployed changes.</p>
         </div>
       </div>
-      <p class="pnote">Same software serves both models — only where it is deployed changes.</p>
-    </div>
 
-    <!-- ================ PHASE 3 ================ -->
-    <div class="phase">
-      <div class="phead"><span class="pnum">3</span><h3>Hardware deployment</h3>
-        <span class="pdur"><span class="only-hq">6–8 weeks · HQ build-out</span><span class="only-cloud">3–4 weeks · devices + cloud setup</span></span>
-        <span class="pcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></span>
-      </div>
-
-      <div class="strip only-hq">
-        <svg viewBox="0 0 860 78" role="img" aria-label="GPUs, server racks and leased lines come together into a ready HQ server room.">
-          <g class="icon" transform="translate(120,26) scale(1.7)"><rect x="-6" y="-6" width="12" height="12" rx="2"/><path d="M-6,-2.5 H-9 M-6,2.5 H-9 M6,-2.5 H9 M6,2.5 H9 M-2.5,-6 V-9 M2.5,-6 V-9 M-2.5,6 V9 M2.5,6 V9"/></g>
-          <text class="slabel" x="120" y="66" text-anchor="middle">20 GPUs</text>
-          <text class="slabel" x="212" y="38" text-anchor="middle" font-size="15">+</text>
-          <g class="icon" transform="translate(305,26) scale(1.7)"><rect x="-10" y="-8" width="20" height="6" rx="1.5"/><rect x="-10" y="1" width="20" height="6" rx="1.5"/><circle cx="-6.5" cy="-5" r=".8"/><circle cx="-6.5" cy="4" r=".8"/></g>
-          <text class="slabel" x="305" y="66" text-anchor="middle">servers + racks</text>
-          <text class="slabel" x="397" y="38" text-anchor="middle" font-size="15">+</text>
-          <g class="icon" transform="translate(490,26) scale(1.7)"><circle cx="-6" cy="0" r="2"/><path d="M-4,0 H9"/></g>
-          <text class="slabel" x="490" y="66" text-anchor="middle">dual leased lines</text>
-          <path class="sflow" d="M575,32 H645" marker-end="url(#pa3)"/>
-          <g class="icon" transform="translate(720,26) scale(1.7)"><rect x="-8" y="-9" width="16" height="18" rx="2"/><path d="M-4,-4 H4 M-4,0 H4 M-4,4 H4"/></g>
-          <text class="slabel" x="720" y="66" text-anchor="middle">HQ ready</text>
-          <defs><marker id="pa3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-        </svg>
-      </div>
-      <div class="strip only-cloud">
-        <svg viewBox="0 0 860 78" role="img" aria-label="Two thousand bridge devices and a cloud environment come together, ready for rollout.">
-          <g class="icon" transform="translate(150,26) scale(1.7)"><path d="M-8,-6 H8 M-8,-1 H8 M-8,4 H8"/></g>
-          <text class="slabel" x="150" y="66" text-anchor="middle">2,000 bridge devices</text>
-          <text class="slabel" x="280" y="38" text-anchor="middle" font-size="15">+</text>
-          <g class="icon" transform="translate(420,26) scale(1.7)"><path d="M-10,5 a5.5,5.5 0 0 1 1.4,-10.8 a6.4,6.4 0 0 1 12.3,-1.4 a4.6,4.6 0 0 1 2.3,12.2 z"/></g>
-          <text class="slabel" x="420" y="66" text-anchor="middle">cloud environment</text>
-          <path class="sflow" d="M520,32 H600" marker-end="url(#pa3c)"/>
-          <g class="icon" transform="translate(690,26) scale(1.7)"><circle r="8"/><path d="M-3.5,0 L-1,2.6 L4,-2.6"/></g>
-          <text class="slabel" x="690" y="66" text-anchor="middle">ready to roll out</text>
-          <defs><marker id="pa3c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-        </svg>
-      </div>
-
-      <div class="cwhere only-hq">
-        <p class="cw-t">Where the ₹1.75 Cr goes</p>
-        <div class="cbar"><span style="width:51.4%"></span><span style="width:17.1%; opacity:.7"></span><span style="width:6.9%; opacity:.5"></span><span style="width:14.3%; opacity:.35"></span><span style="width:10.3%; opacity:.2"></span></div>
-        <p class="ck"><i></i><b>GPUs &amp; AI servers</b> ₹90 L<i style="opacity:.7"></i><b>Gateway + relay servers</b> ₹30 L<i style="opacity:.5"></i><b>Storage</b> ₹12 L<i style="opacity:.35"></i><b>Control room</b> ₹25 L<i style="opacity:.2"></i><b>Network &amp; power</b> ₹18 L</p>
-      </div>
-      <div class="cwhere only-cloud">
-        <p class="cw-t">Where the ₹1.25 Cr goes</p>
-        <div class="cbar"><span style="width:96%"></span><span style="width:4%; opacity:.4"></span></div>
-        <p class="ck"><i></i><b>2,000 bridge devices</b> ₹1.2 Cr<i style="opacity:.4"></i><b>Cloud environment setup</b> ₹5 L</p>
-      </div>
-
-      <div class="lanes only-hq">
-        <div class="lane lane-y">
-          <p class="ltag">YantrAI</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2" width="8" height="10" rx="1"/><path d="M5,6 H9 M5,8.5 H9"/></svg>Hardware specifications and vendor evaluation</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="2.5" y="2" width="9" height="4.5" rx="1"/><rect x="2.5" y="7.5" width="9" height="4.5" rx="1"/><circle cx="4.5" cy="4.2" r=".7"/><circle cx="4.5" cy="9.7" r=".7"/></svg>Commissioning: install the platform on the racks</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5"/><path d="M4.5,7 L6.3,8.8 L9.5,5.5"/></svg>Acceptance tests before rollout begins</li>
-          </ul>
-        </div>
-        <div class="lane lane-b">
-          <p class="ltag">Baxy</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="4" y="4" width="6" height="6" rx="1"/><path d="M4,5.5 H2 M4,8.5 H2 M12,5.5 H10 M12,8.5 H10 M5.5,4 V2 M8.5,4 V2 M5.5,12 V10 M8.5,12 V10"/></svg>Procure GPUs, servers, racks, storage</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2" width="8" height="10" rx="1"/><path d="M5,5 H9 M5,7.5 H9 M5,10 H9"/></svg>Server room: space, cooling, power backup</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="3.5" cy="7" r="1.5"/><path d="M5,7 H12"/></svg>Dual leased internet lines at HQ</li>
-          </ul>
+      <!-- PHASE 3 -->
+      <div class="tlitem">
+        <span class="tlnum">3</span>
+        <div class="tlcard">
+          <div class="tlhead"><h3>Hardware deployment</h3>
+            <span class="tldur"><span class="only-hq">6–8 weeks · HQ build-out</span><span class="only-cloud">3–4 weeks · devices + cloud setup</span></span>
+            <span class="tlcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></span>
+          </div>
+          <div class="only-hq">
+            <div class="cbar"><span style="width:51.4%"></span><span style="width:17.1%; opacity:.7"></span><span style="width:6.9%; opacity:.5"></span><span style="width:14.3%; opacity:.35"></span><span style="width:10.3%; opacity:.2"></span></div>
+            <p class="ck"><i></i><b>GPUs &amp; AI servers</b> ₹90 L<i style="opacity:.7"></i><b>Gateway + relay servers</b> ₹30 L<i style="opacity:.5"></i><b>Storage</b> ₹12 L<i style="opacity:.35"></i><b>Control room</b> ₹25 L<i style="opacity:.2"></i><b>Network &amp; power</b> ₹18 L</p>
+            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Hardware specs · commissioning · acceptance tests</span></div>
+            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Procure GPUs, servers, racks · server room &amp; power · dual leased lines</span></div>
+          </div>
+          <div class="only-cloud">
+            <div class="cbar"><span style="width:96%"></span><span style="width:4%; opacity:.4"></span></div>
+            <p class="ck"><i></i><b>2,000 bridge devices</b> ₹1.2 Cr<i style="opacity:.4"></i><b>Cloud environment setup</b> ₹5 L</p>
+            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Cloud setup &amp; hardening · bridge firmware · acceptance tests</span></div>
+            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Procure 2,000 bridges · own cloud account · office internet</span></div>
+          </div>
         </div>
       </div>
-      <div class="lanes only-cloud">
-        <div class="lane lane-y">
-          <p class="ltag">YantrAI</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M4,10 a3,3 0 0 1 .8,-5.9 a3.5,3.5 0 0 1 6.7,-.8 a2.6,2.6 0 0 1 1,6.4 z"/></svg>Cloud environment setup and hardening</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M3,4.5 H11 M3,7 H11 M3,9.5 H11"/></svg>Bridge device firmware and staging</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5"/><path d="M4.5,7 L6.3,8.8 L9.5,5.5"/></svg>Acceptance tests before rollout begins</li>
-          </ul>
-        </div>
-        <div class="lane lane-b">
-          <p class="ltag">Baxy</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M3,4.5 H11 M3,7 H11 M3,9.5 H11"/></svg>Procure 2,000 bridge devices</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2" width="8" height="10" rx="1"/><path d="M5,6 H9 M5,8.5 H9"/></svg>Own the cloud account and billing</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M2,6 a7,7 0 0 1 10,0 M4,8.5 a4.2,4.2 0 0 1 6,0"/><circle cx="7" cy="11" r="1"/></svg>Office internet at HQ</li>
-          </ul>
-        </div>
-      </div>
-    </div>
 
-    <!-- ================ PHASE 4 ================ -->
-    <div class="phase">
-      <div class="phead"><span class="pnum">4</span><h3>Mass deployment</h3><span class="pdur">4–6 months · in waves of stores</span>
-        <span class="pcost"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></span>
-      </div>
-
-      <div class="strip">
-        <svg viewBox="0 0 860 78" role="img" aria-label="Stores come online wave by wave, from zero to two thousand.">
-          <g transform="translate(60,20)">
-            <rect class="sfill" x="0" y="0" width="26" height="26" rx="4"/>
-            <rect class="sfill" x="36" y="0" width="26" height="26" rx="4"/>
-            <rect class="sfill" x="72" y="0" width="26" height="26" rx="4"/>
-            <rect class="sfill" x="108" y="0" width="26" height="26" rx="4" opacity="0.55"/>
-            <rect class="icon" x="144" y="0" width="26" height="26" rx="4"/>
-            <rect class="icon" x="180" y="0" width="26" height="26" rx="4"/>
-            <rect class="icon" x="216" y="0" width="26" height="26" rx="4"/>
-            <rect class="icon" x="252" y="0" width="26" height="26" rx="4"/>
-            <rect class="icon" x="288" y="0" width="26" height="26" rx="4"/>
-            <rect class="icon" x="324" y="0" width="26" height="26" rx="4"/>
-          </g>
-          <text class="slabel" x="235" y="68" text-anchor="middle">wave by wave · 0 → 2,000 stores</text>
-          <path class="sflow" d="M460,32 H530" marker-end="url(#pa4)"/>
-          <text class="slabel" x="660" y="28" text-anchor="middle" font-size="13" fill="var(--accent)" font-weight="bold"><tspan class="only-hq">stores connect out by themselves</tspan><tspan class="only-cloud">one bridge installed per store</tspan></text>
-          <text class="slabel" x="660" y="46" text-anchor="middle">go-live checked per store</text>
-          <defs><marker id="pa4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-        </svg>
-      </div>
-
-      <div class="cwhere only-hq">
-        <p class="cw-t">Where the ₹35 L goes</p>
-        <div class="cbar"><span style="width:68.6%"></span><span style="width:31.4%; opacity:.45"></span></div>
-        <p class="ck"><i></i><b>Failover routers (600 stores)</b> ₹24 L<i style="opacity:.45"></i><b>Field rollout labour</b> ₹11 L</p>
-      </div>
-      <div class="cwhere only-cloud">
-        <p class="cw-t">Where the ₹45 L goes</p>
-        <div class="cbar"><span style="width:53.3%"></span><span style="width:22.2%; opacity:.6"></span><span style="width:24.4%; opacity:.35"></span></div>
-        <p class="ck"><i></i><b>Failover routers (600 stores)</b> ₹24 L<i style="opacity:.6"></i><b>Bridge installation</b> ₹10 L<i style="opacity:.35"></i><b>Field rollout labour</b> ₹11 L</p>
-      </div>
-
-      <div class="lanes">
-        <div class="lane lane-y">
-          <p class="ltag">YantrAI</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M11,7 a4,4 0 1 1 -1.4,-3 M11,2.5 V4.5 H9"/></svg>Zero-touch provisioning: a store comes online by itself</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M2,7 Q4.5,3 7,7 T12,7"/></svg>Wave monitoring and go-live checks per store</li>
-            <li class="only-cloud"><svg class="ib" viewBox="0 0 14 14"><path d="M3,4.5 H11 M3,7 H11 M3,9.5 H11"/></svg>Bridge activation and remote verification</li>
-          </ul>
-        </div>
-        <div class="lane lane-b">
-          <p class="ltag">Baxy</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><circle cx="7" cy="4.5" r="2.2"/><path d="M2.5,12 a4.5,4.5 0 0 1 9,0"/></svg>Field teams and store scheduling</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="2.5" y="7" width="9" height="4" rx="1"/><path d="M4.5,7 V4 M9.5,7 V3"/></svg>Install 4G-failover routers (600 stores)</li>
-            <li class="only-hq"><svg class="ib" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5"/><path d="M4.5,7 L6.3,8.8 L9.5,5.5"/></svg>No other store visit needed — recorders connect out by themselves</li>
-            <li class="only-cloud"><svg class="ib" viewBox="0 0 14 14"><path d="M3,4.5 H11 M3,7 H11 M3,9.5 H11"/></svg>Install one bridge device in every store</li>
-          </ul>
+      <!-- PHASE 4 -->
+      <div class="tlitem">
+        <span class="tlnum">4</span>
+        <div class="tlcard">
+          <div class="tlhead"><h3>Mass deployment</h3><span class="tldur">4–6 months · waves of stores · 0 → 2,000</span>
+            <span class="tlcost"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></span>
+          </div>
+          <div class="only-hq">
+            <div class="cbar"><span style="width:68.6%"></span><span style="width:31.4%; opacity:.45"></span></div>
+            <p class="ck"><i></i><b>Failover routers (600 stores)</b> ₹24 L<i style="opacity:.45"></i><b>Field rollout labour</b> ₹11 L</p>
+            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Zero-touch provisioning · wave monitoring · go-live checks</span></div>
+            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Field teams · 600 router installs — no other store visit needed</span></div>
+          </div>
+          <div class="only-cloud">
+            <div class="cbar"><span style="width:53.3%"></span><span style="width:22.2%; opacity:.6"></span><span style="width:24.4%; opacity:.35"></span></div>
+            <p class="ck"><i></i><b>Failover routers (600 stores)</b> ₹24 L<i style="opacity:.6"></i><b>Bridge installation</b> ₹10 L<i style="opacity:.35"></i><b>Field rollout labour</b> ₹11 L</p>
+            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Zero-touch provisioning · bridge activation · go-live checks</span></div>
+            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Field teams · one bridge installed per store · 600 router installs</span></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ================ PHASE 5 ================ -->
-    <div class="phase">
-      <div class="phead"><span class="pnum">5</span><h3>Operations &amp; Maintenance</h3><span class="pdur">ongoing · monthly</span>
-        <span class="pcost"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></span>
-      </div>
-
-      <div class="strip">
-        <svg viewBox="0 0 860 78" role="img" aria-label="A monthly loop: support, model updates, upkeep and bills.">
-          <g class="icon" transform="translate(130,26) scale(1.7)"><path d="M-5,3 V-1 a5,5 0 0 1 10,0 v4"/><rect x="-7" y="1.5" width="2.6" height="4.5" rx="1"/><rect x="4.4" y="1.5" width="2.6" height="4.5" rx="1"/></g>
-          <text class="slabel" x="130" y="66" text-anchor="middle">software support</text>
-          <path class="sflow" d="M220,32 H285" marker-end="url(#pa5)"/>
-          <g class="icon" transform="translate(350,26) scale(1.7)"><path d="M6,0 a6,6 0 1 1 -2,-4.5 M6,-6 V-3 H3"/></g>
-          <text class="slabel" x="350" y="66" text-anchor="middle">AI model updates</text>
-          <path class="sflow" d="M440,32 H505" marker-end="url(#pa5)"/>
-          <g class="icon" transform="translate(570,26) scale(1.7)"><path d="M-9,-4 H9 M-9,4 H9"/><circle cx="-3" cy="-4" r="2.2"/><circle cx="3" cy="4" r="2.2"/></g>
-          <text class="slabel" x="570" y="66" text-anchor="middle"><tspan class="only-hq">facility upkeep</tspan><tspan class="only-cloud">bridge swaps</tspan></text>
-          <path class="sflow" d="M660,32 H725" marker-end="url(#pa5)"/>
-          <g class="icon" transform="translate(780,26) scale(1.7)"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-3.5,-4 H3.5 M-3.5,0 H3.5 M-3.5,4 H1"/></g>
-          <text class="slabel" x="780" y="66" text-anchor="middle"><tspan class="only-hq">internet + power bills</tspan><tspan class="only-cloud">cloud bills</tspan></text>
-          <defs><marker id="pa5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-        </svg>
-      </div>
-
-      <div class="cwhere only-hq">
-        <p class="cw-t">Where the ₹9.1 L/month goes</p>
-        <div class="cbar"><span style="width:54.9%"></span><span style="width:19.8%; opacity:.7"></span><span style="width:11%; opacity:.5"></span><span style="width:9.9%; opacity:.35"></span><span style="width:4.4%; opacity:.2"></span></div>
-        <p class="ck"><i></i><b>HQ internet (8 Gbps dual)</b> ₹5 L<i style="opacity:.7"></i><b>Power &amp; cooling</b> ₹1.8 L<i style="opacity:.5"></i><b>Hardware AMC</b> ₹1 L<i style="opacity:.35"></i><b>4G SIMs</b> ₹0.9 L<i style="opacity:.2"></i><b>Cloud services</b> ₹0.4 L</p>
-      </div>
-      <div class="cwhere only-cloud">
-        <p class="cw-t">Where the ₹13 L/month goes</p>
-        <div class="cbar"><span style="width:42.3%"></span><span style="width:30.8%; opacity:.7"></span><span style="width:11.5%; opacity:.5"></span><span style="width:7.7%; opacity:.35"></span><span style="width:7.7%; opacity:.2"></span></div>
-        <p class="ck"><i></i><b>GPU rent</b> ₹5.5 L<i style="opacity:.7"></i><b>Data transfer (live viewing)</b> ₹4 L<i style="opacity:.5"></i><b>Cloud services</b> ₹1.5 L<i style="opacity:.35"></i><b>Bridge upkeep</b> ₹1 L<i style="opacity:.2"></i><b>SIMs &amp; misc</b> ₹1 L</p>
-      </div>
-
-      <div class="lanes">
-        <div class="lane lane-y">
-          <p class="ltag">YantrAI</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M3,9 V7 a4,4 0 0 1 8,0 v2"/><rect x="2" y="8.5" width="2" height="3" rx=".8"/><rect x="10" y="8.5" width="2" height="3" rx=".8"/></svg>Software support and bug fixes</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M11,7 a4,4 0 1 1 -1.4,-3 M11,2.5 V4.5 H9"/></svg>AI model updates as accuracy drifts</li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="4" y="4" width="6" height="6" rx="1"/><path d="M4,5.5 H2 M4,8.5 H2 M12,5.5 H10 M12,8.5 H10 M5.5,4 V2 M8.5,4 V2 M5.5,12 V10 M8.5,12 V10"/></svg><span class="only-hq">Platform operations on the HQ servers</span><span class="only-cloud">Platform operations in the cloud</span></li>
-          </ul>
-        </div>
-        <div class="lane lane-b">
-          <p class="ltag">Baxy</p>
-          <ul>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M2,4 H12 M2,10 H12"/><circle cx="5" cy="4" r="1.6"/><circle cx="9" cy="10" r="1.6"/></svg><span class="only-hq">HQ facility upkeep and field repairs</span><span class="only-cloud">Bridge repairs and swaps in stores</span></li>
-            <li><svg class="ib" viewBox="0 0 14 14"><rect x="3" y="2" width="8" height="10" rx="1"/><path d="M5,5 H9 M5,7.5 H9 M5,10 H7.5"/></svg><span class="only-hq">Internet and power bills</span><span class="only-cloud">Cloud and internet bills</span></li>
-            <li><svg class="ib" viewBox="0 0 14 14"><path d="M2,6 L2,12 H12 V6 M2,6 L3,3 H11 L12,6"/></svg>Store-side consumables and coordination</li>
-          </ul>
+      <!-- PHASE 5 -->
+      <div class="tlitem">
+        <span class="tlnum">↻</span>
+        <div class="tlcard">
+          <div class="tlhead"><h3>Operations &amp; Maintenance</h3><span class="tldur">ongoing · monthly</span>
+            <span class="tlcost"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></span>
+          </div>
+          <div class="only-hq">
+            <div class="cbar"><span style="width:54.9%"></span><span style="width:19.8%; opacity:.7"></span><span style="width:11%; opacity:.5"></span><span style="width:9.9%; opacity:.35"></span><span style="width:4.4%; opacity:.2"></span></div>
+            <p class="ck"><i></i><b>HQ internet (8 Gbps dual)</b> ₹5 L<i style="opacity:.7"></i><b>Power &amp; cooling</b> ₹1.8 L<i style="opacity:.5"></i><b>Hardware AMC</b> ₹1 L<i style="opacity:.35"></i><b>4G SIMs</b> ₹0.9 L<i style="opacity:.2"></i><b>Cloud services</b> ₹0.4 L</p>
+            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Software support · AI model updates · platform ops at HQ</span></div>
+            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Facility upkeep &amp; field repairs · internet + power bills</span></div>
+          </div>
+          <div class="only-cloud">
+            <div class="cbar"><span style="width:42.3%"></span><span style="width:30.8%; opacity:.7"></span><span style="width:11.5%; opacity:.5"></span><span style="width:7.7%; opacity:.35"></span><span style="width:7.7%; opacity:.2"></span></div>
+            <p class="ck"><i></i><b>GPU rent</b> ₹5.5 L<i style="opacity:.7"></i><b>Data transfer (live viewing)</b> ₹4 L<i style="opacity:.5"></i><b>Cloud services</b> ₹1.5 L<i style="opacity:.35"></i><b>Bridge upkeep</b> ₹1 L<i style="opacity:.2"></i><b>SIMs &amp; misc</b> ₹1 L</p>
+            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Software support · AI model updates · platform ops in cloud</span></div>
+            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Bridge repairs &amp; swaps · cloud and internet bills</span></div>
+          </div>
         </div>
       </div>
+
     </div>
   </section>
 
