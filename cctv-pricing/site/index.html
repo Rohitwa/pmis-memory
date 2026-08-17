@@ -53,11 +53,11 @@
     color: var(--ink);
     font-family: var(--font-body);
     font-size: 15px;
-    line-height: 1.55;
+    line-height: 1.5;
     margin: 0;
     padding: 48px 20px 80px;
   }
-  main { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 38px; }
+  main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
 
   header { text-align: center; }
   header h1 {
@@ -68,119 +68,10 @@
     margin: 0 0 6px;
     text-wrap: balance;
   }
-  header .sub { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+  header .sub { color: var(--muted); margin: 0; font-size: 14px; }
 
-  .seg {
-    display: inline-flex;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    overflow: hidden;
-    background: var(--surface);
-  }
-  .seg button {
-    font-family: var(--font-display);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    padding: 10px 24px;
-    border: 0;
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-  }
-  .seg button.active { background: var(--accent); color: #FFFFFF; }
-  .seg button:not(.active):hover { color: var(--ink); }
-
-  section h2 {
-    font-family: var(--font-display);
-    font-weight: 650;
-    font-size: 23px;
-    letter-spacing: 0.02em;
-    margin: 0 0 14px;
-  }
-  section .kicker {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 6px;
-  }
-
-  /* top cost comparison */
-  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .cmpcard {
-    background: var(--surface);
-    border: 2px solid var(--line);
-    border-radius: 12px;
-    padding: 18px 20px 16px;
-    text-align: center;
-  }
-  body[data-model="hq"] .cmp-hq, body:not([data-model]) .cmp-hq { border-color: var(--accent); }
-  body[data-model="cloud"] .cmp-cloud { border-color: var(--accent); }
-  .cmpcard h3 { font-family: var(--font-display); font-size: 18px; font-weight: 650; margin: 0 0 10px; }
-  .cmp-big { font-family: var(--font-mono); font-size: 21px; font-weight: 700; color: var(--accent); }
-  .cmp-big small { font-size: 14px; font-weight: 600; color: var(--muted); }
-  .cmp-5yr { font-size: 13px; color: var(--muted); margin-top: 6px; }
-  .cmp-5yr b { color: var(--ink); }
-
-  /* timeline */
-  .tl { position: relative; padding-left: 44px; display: flex; flex-direction: column; gap: 16px; }
-  .tl::before {
-    content: "";
-    position: absolute;
-    left: 15px; top: 10px; bottom: 24px;
-    width: 2px;
-    background: var(--line);
-  }
-  .tlitem { position: relative; }
-  .tlnum {
-    position: absolute;
-    left: -44px; top: 12px;
-    width: 32px; height: 32px; line-height: 32px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #FFF;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 14px;
-    text-align: center;
-  }
-  .tlcard {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 13px 18px 14px;
-  }
-  .tlhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 9px; }
-  .tlhead h3 { font-family: var(--font-display); font-size: 18.5px; font-weight: 650; margin: 0; }
-  .tldur { font-size: 12.5px; color: var(--muted); }
-  .tlcost { margin-left: auto; font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--accent); white-space: nowrap; }
-
-  .cbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--row-alt); }
-  .cbar span { background: var(--accent); }
-  .ck { margin: 6px 0 10px; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
-  .ck b { color: var(--ink); font-weight: 600; }
-  .ck i {
-    display: inline-block; width: 9px; height: 9px; border-radius: 2px;
-    background: var(--accent); margin: 0 4px 0 10px; vertical-align: baseline;
-  }
-  .ck i:first-child { margin-left: 0; }
-
-  .who { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; }
-  .wtag {
-    flex: none;
-    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
-    font-weight: 700; padding: 3px 10px; border-radius: 999px;
-    min-width: 76px; text-align: center;
-  }
-  .who-y .wtag { color: var(--accent); background: var(--accent-soft); }
-  .who-b .wtag { color: var(--party2); background: var(--party2-soft); }
-  .wtxt { font-size: 13.5px; }
-  .tlnote { font-size: 11.5px; color: var(--muted); margin: 7px 0 0; }
-
-  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
-  table { border-collapse: collapse; width: 100%; min-width: 720px; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 780px; }
   th {
     font-family: var(--font-mono);
     font-size: 10.5px;
@@ -189,21 +80,37 @@
     font-weight: 600;
     color: var(--muted);
     text-align: left;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--line);
     white-space: nowrap;
   }
-  td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 13.5px; }
+  th.model { color: var(--accent); }
+  td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 13.5px; }
   tr:last-child td { border-bottom: none; }
   tbody tr:nth-child(even) td { background: var(--row-alt); }
-  td.dim { font-weight: 600; white-space: nowrap; }
-  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; color: var(--accent); font-weight: 600; }
-  tr.total td { border-top: 2px solid var(--accent); font-weight: 600; background: var(--accent-soft); }
 
-  .foot { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .pname { font-family: var(--font-display); font-weight: 650; font-size: 15.5px; white-space: nowrap; }
+  .pdur { display: block; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
 
-  body:not([data-model]) .only-cloud, body[data-model="hq"] .only-cloud { display: none; }
-  body[data-model="cloud"] .only-hq { display: none; }
+  .wrow { display: flex; gap: 7px; align-items: baseline; margin-bottom: 5px; }
+  .wrow:last-child { margin-bottom: 0; }
+  .wtag {
+    flex: none;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    min-width: 62px; text-align: center;
+  }
+  .w-y .wtag { color: var(--accent); background: var(--accent-soft); }
+  .w-b .wtag { color: var(--party2); background: var(--party2-soft); }
+
+  .cost { font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--accent); white-space: nowrap; }
+  .micro { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.55; font-family: var(--font-body); font-weight: 400; white-space: normal; }
+
+  tr.total td { border-top: 2px solid var(--accent); background: var(--accent-soft); font-weight: 600; }
+  tr.total .cost { font-size: 14px; }
+  tr.total .micro { color: var(--muted); }
+
+  .foot { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
 
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
@@ -213,167 +120,82 @@
   <header>
     <h1>Store Monitoring — Pricing</h1>
     <p class="sub">2,000 stores · 10,000 cameras</p>
-    <div class="seg" role="tablist" aria-label="Choose architecture model">
-      <button type="button" class="active" data-model="hq" role="tab" aria-selected="true">Self-hosted HQ Model</button>
-      <button type="button" data-model="cloud" role="tab" aria-selected="false">Cloud Bridge Model</button>
-    </div>
   </header>
 
-  <!-- ============ COST COMPARISON ============ -->
-  <section>
-    <p class="kicker">The two models, side by side</p>
-    <div class="cmp">
-      <div class="cmpcard cmp-hq">
-        <h3>Self-hosted HQ Model</h3>
-        <div class="cmp-big">₹2.9 Cr <small>one-time</small> + ₹9.1 L<small>/month</small></div>
-        <p class="cmp-5yr">≈ <b>₹8.4 Cr</b> over 5 years</p>
-      </div>
-      <div class="cmpcard cmp-cloud">
-        <h3>Cloud Bridge Model</h3>
-        <div class="cmp-big">₹2.5 Cr <small>one-time</small> + ₹13 L<small>/month</small></div>
-        <p class="cmp-5yr">≈ <b>₹10.3 Cr</b> over 5 years</p>
-      </div>
-    </div>
-  </section>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Who does what</th>
+          <th class="model">Self-hosted HQ Model</th>
+          <th class="model">Cloud Bridge Model</th>
+        </tr>
+      </thead>
+      <tbody>
 
-  <!-- ============ PHASES: TIMELINE ============ -->
-  <section>
-    <p class="kicker">Phase by phase</p>
-    <h2>Where the money goes, and who does what</h2>
+        <tr>
+          <td><span class="pname">1 · Pilot</span><span class="pdur">2 weeks · 2 stores<br>minimal stack</span></td>
+          <td>
+            <div class="wrow w-y"><span class="wtag">YantrAI</span><span>Minimal pilot build · accuracy &amp; night-alert tuning · pilot report</span></div>
+            <div class="wrow w-b"><span class="wtag">Baxy</span><span>2 stores with access · field installation · broadband / SIMs</span></div>
+          </td>
+          <td><span class="cost">₹5 L</span><span class="micro">engineering 4 · field 1<br>+ hardware on actuals (one GPU workstation)</span></td>
+          <td><span class="cost">₹5 L</span><span class="micro">engineering 4 · field 1<br>+ hardware on actuals (cloud GPU, 2 bridges)</span></td>
+        </tr>
 
-    <div class="tl">
+        <tr>
+          <td><span class="pname">2 · Software</span><span class="pdur">6–8 weeks<br>AI-assisted build</span></td>
+          <td>
+            <div class="wrow w-y"><span class="wtag">YantrAI</span><span>Gateway · stream router · AI pipeline · dashboards · fleet tooling</span></div>
+            <div class="wrow w-b"><span class="wtag">Baxy</span><span>Requirements · user acceptance testing · sign-off</span></div>
+          </td>
+          <td><span class="cost">₹75 L</span><span class="micro">engineering 60 · testing 10 · docs &amp; training 5</span></td>
+          <td><span class="cost">₹75 L</span><span class="micro">same software, deployed to cloud instead of HQ</span></td>
+        </tr>
 
-      <!-- PHASE 1 -->
-      <div class="tlitem">
-        <span class="tlnum">1</span>
-        <div class="tlcard">
-          <div class="tlhead"><h3>Pilot</h3><span class="tldur">2 weeks · 2 stores · minimal stack</span><span class="tlcost">₹5 L</span></div>
-          <div class="cbar"><span style="width:80%"></span><span style="width:20%; opacity:.45"></span></div>
-          <p class="ck"><i></i><b>Pilot engineering &amp; tuning</b> ₹4 L<i style="opacity:.45"></i><b>Field &amp; travel</b> ₹1 L &nbsp;·&nbsp; hardware on actuals (<span class="only-hq">one GPU workstation</span><span class="only-cloud">cloud GPU + 2 bridge units</span>)</p>
-          <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Minimal pilot build · accuracy &amp; night-alert tuning · pilot report</span></div>
-          <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">2 stores with access · field installation · broadband / SIMs</span></div>
-        </div>
-      </div>
+        <tr>
+          <td><span class="pname">3 · Hardware</span><span class="pdur">HQ: 6–8 weeks<br>Cloud: 3–4 weeks</span></td>
+          <td>
+            <div class="wrow w-y"><span class="wtag">YantrAI</span><span>Specifications &amp; setup · commissioning · acceptance tests</span></div>
+            <div class="wrow w-b"><span class="wtag">Baxy</span><span>Procure the central hardware or bridge fleet · space &amp; connectivity</span></div>
+          </td>
+          <td><span class="cost">₹1.75 Cr</span><span class="micro">GPUs &amp; AI servers 90 · gateway servers 30 · storage 12 · control room 25 · network &amp; power 18</span></td>
+          <td><span class="cost">₹1.25 Cr</span><span class="micro">2,000 bridge devices 120 · cloud setup 5</span></td>
+        </tr>
 
-      <!-- PHASE 2 -->
-      <div class="tlitem">
-        <span class="tlnum">2</span>
-        <div class="tlcard">
-          <div class="tlhead"><h3>Software development</h3><span class="tldur">6–8 weeks · AI-assisted build</span><span class="tlcost">₹75 L</span></div>
-          <div class="cbar"><span style="width:80%"></span><span style="width:13.3%; opacity:.55"></span><span style="width:6.7%; opacity:.3"></span></div>
-          <p class="ck"><i></i><b>Platform engineering</b> ₹60 L<i style="opacity:.55"></i><b>Testing &amp; hardening</b> ₹10 L<i style="opacity:.3"></i><b>Docs &amp; training</b> ₹5 L</p>
-          <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Gateway · stream router · AI pipeline · dashboards · fleet tooling — <span class="only-hq">deployed at HQ</span><span class="only-cloud">deployed in cloud, incl. bridge software</span></span></div>
-          <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Requirements · user acceptance testing · sign-off</span></div>
-          <p class="tlnote">Same software serves both models — only where it is deployed changes.</p>
-        </div>
-      </div>
+        <tr>
+          <td><span class="pname">4 · Mass deployment</span><span class="pdur">4–6 months<br>0 → 2,000 in waves</span></td>
+          <td>
+            <div class="wrow w-y"><span class="wtag">YantrAI</span><span>Zero-touch provisioning · wave monitoring · go-live checks</span></div>
+            <div class="wrow w-b"><span class="wtag">Baxy</span><span>Field teams · store visits &amp; device installs</span></div>
+          </td>
+          <td><span class="cost">₹35 L</span><span class="micro">failover routers (600) 24 · rollout labour 11</span></td>
+          <td><span class="cost">₹45 L</span><span class="micro">failover routers (600) 24 · bridge installs 10 · rollout labour 11</span></td>
+        </tr>
 
-      <!-- PHASE 3 -->
-      <div class="tlitem">
-        <span class="tlnum">3</span>
-        <div class="tlcard">
-          <div class="tlhead"><h3>Hardware deployment</h3>
-            <span class="tldur"><span class="only-hq">6–8 weeks · HQ build-out</span><span class="only-cloud">3–4 weeks · devices + cloud setup</span></span>
-            <span class="tlcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></span>
-          </div>
-          <div class="only-hq">
-            <div class="cbar"><span style="width:51.4%"></span><span style="width:17.1%; opacity:.7"></span><span style="width:6.9%; opacity:.5"></span><span style="width:14.3%; opacity:.35"></span><span style="width:10.3%; opacity:.2"></span></div>
-            <p class="ck"><i></i><b>GPUs &amp; AI servers</b> ₹90 L<i style="opacity:.7"></i><b>Gateway + relay servers</b> ₹30 L<i style="opacity:.5"></i><b>Storage</b> ₹12 L<i style="opacity:.35"></i><b>Control room</b> ₹25 L<i style="opacity:.2"></i><b>Network &amp; power</b> ₹18 L</p>
-            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Hardware specs · commissioning · acceptance tests</span></div>
-            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Procure GPUs, servers, racks · server room &amp; power · dual leased lines</span></div>
-          </div>
-          <div class="only-cloud">
-            <div class="cbar"><span style="width:96%"></span><span style="width:4%; opacity:.4"></span></div>
-            <p class="ck"><i></i><b>2,000 bridge devices</b> ₹1.2 Cr<i style="opacity:.4"></i><b>Cloud environment setup</b> ₹5 L</p>
-            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Cloud setup &amp; hardening · bridge firmware · acceptance tests</span></div>
-            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Procure 2,000 bridges · own cloud account · office internet</span></div>
-          </div>
-        </div>
-      </div>
+        <tr>
+          <td><span class="pname">5 · O&amp;M</span><span class="pdur">ongoing · monthly</span></td>
+          <td>
+            <div class="wrow w-y"><span class="wtag">YantrAI</span><span>Software support · AI model updates · platform operations</span></div>
+            <div class="wrow w-b"><span class="wtag">Baxy</span><span>Repairs · connectivity &amp; infrastructure bills · consumables</span></div>
+          </td>
+          <td><span class="cost">₹9.1 L/mo</span><span class="micro">internet 5 · power 1.8 · AMC 1 · SIMs 0.9 · cloud services 0.4</span></td>
+          <td><span class="cost">₹13 L/mo</span><span class="micro">GPU rent 5.5 · data transfer 4 · cloud services 1.5 · bridge upkeep 1 · SIMs 1</span></td>
+        </tr>
 
-      <!-- PHASE 4 -->
-      <div class="tlitem">
-        <span class="tlnum">4</span>
-        <div class="tlcard">
-          <div class="tlhead"><h3>Mass deployment</h3><span class="tldur">4–6 months · waves of stores · 0 → 2,000</span>
-            <span class="tlcost"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></span>
-          </div>
-          <div class="only-hq">
-            <div class="cbar"><span style="width:68.6%"></span><span style="width:31.4%; opacity:.45"></span></div>
-            <p class="ck"><i></i><b>Failover routers (600 stores)</b> ₹24 L<i style="opacity:.45"></i><b>Field rollout labour</b> ₹11 L</p>
-            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Zero-touch provisioning · wave monitoring · go-live checks</span></div>
-            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Field teams · 600 router installs — no other store visit needed</span></div>
-          </div>
-          <div class="only-cloud">
-            <div class="cbar"><span style="width:53.3%"></span><span style="width:22.2%; opacity:.6"></span><span style="width:24.4%; opacity:.35"></span></div>
-            <p class="ck"><i></i><b>Failover routers (600 stores)</b> ₹24 L<i style="opacity:.6"></i><b>Bridge installation</b> ₹10 L<i style="opacity:.35"></i><b>Field rollout labour</b> ₹11 L</p>
-            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Zero-touch provisioning · bridge activation · go-live checks</span></div>
-            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Field teams · one bridge installed per store · 600 router installs</span></div>
-          </div>
-        </div>
-      </div>
+        <tr class="total">
+          <td><span class="pname">Total</span></td>
+          <td>One-time (phases 1–4), then monthly O&amp;M</td>
+          <td><span class="cost">₹2.9 Cr + ₹9.1 L/mo</span><span class="micro">≈ ₹8.4 Cr over 5 years</span></td>
+          <td><span class="cost">₹2.5 Cr + ₹13 L/mo</span><span class="micro">≈ ₹10.3 Cr over 5 years</span></td>
+        </tr>
 
-      <!-- PHASE 5 -->
-      <div class="tlitem">
-        <span class="tlnum">↻</span>
-        <div class="tlcard">
-          <div class="tlhead"><h3>Operations &amp; Maintenance</h3><span class="tldur">ongoing · monthly</span>
-            <span class="tlcost"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></span>
-          </div>
-          <div class="only-hq">
-            <div class="cbar"><span style="width:54.9%"></span><span style="width:19.8%; opacity:.7"></span><span style="width:11%; opacity:.5"></span><span style="width:9.9%; opacity:.35"></span><span style="width:4.4%; opacity:.2"></span></div>
-            <p class="ck"><i></i><b>HQ internet (8 Gbps dual)</b> ₹5 L<i style="opacity:.7"></i><b>Power &amp; cooling</b> ₹1.8 L<i style="opacity:.5"></i><b>Hardware AMC</b> ₹1 L<i style="opacity:.35"></i><b>4G SIMs</b> ₹0.9 L<i style="opacity:.2"></i><b>Cloud services</b> ₹0.4 L</p>
-            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Software support · AI model updates · platform ops at HQ</span></div>
-            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Facility upkeep &amp; field repairs · internet + power bills</span></div>
-          </div>
-          <div class="only-cloud">
-            <div class="cbar"><span style="width:42.3%"></span><span style="width:30.8%; opacity:.7"></span><span style="width:11.5%; opacity:.5"></span><span style="width:7.7%; opacity:.35"></span><span style="width:7.7%; opacity:.2"></span></div>
-            <p class="ck"><i></i><b>GPU rent</b> ₹5.5 L<i style="opacity:.7"></i><b>Data transfer (live viewing)</b> ₹4 L<i style="opacity:.5"></i><b>Cloud services</b> ₹1.5 L<i style="opacity:.35"></i><b>Bridge upkeep</b> ₹1 L<i style="opacity:.2"></i><b>SIMs &amp; misc</b> ₹1 L</p>
-            <div class="who who-y"><span class="wtag">YantrAI</span><span class="wtxt">Software support · AI model updates · platform ops in cloud</span></div>
-            <div class="who who-b"><span class="wtag">Baxy</span><span class="wtxt">Bridge repairs &amp; swaps · cloud and internet bills</span></div>
-          </div>
-        </div>
-      </div>
+      </tbody>
+    </table>
+  </div>
 
-    </div>
-  </section>
-
-  <!-- ============ SUMMARY TABLE ============ -->
-  <section>
-    <p class="kicker">Everything in one grid</p>
-    <h2>Phase comparison</h2>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>Phase</th><th>What happens</th><th>Duration</th><th>YantrAI delivers</th><th>Baxy delivers</th><th>Cost</th></tr></thead>
-        <tbody>
-          <tr><td class="dim">1 · Pilot</td><td>Prove accuracy on 2 stores, minimal stack</td><td>2 weeks</td><td>Working pilot + tuning report</td><td>Stores, fieldwork, connectivity</td><td class="num">₹5 L + hw on actuals</td></tr>
-          <tr><td class="dim">2 · Software</td><td>Build the full platform, AI-assisted</td><td>6–8 weeks</td><td>Gateway, AI pipeline, dashboards, fleet tooling</td><td>Requirements, UAT, sign-off</td><td class="num">₹75 L</td></tr>
-          <tr><td class="dim">3 · Hardware</td><td><span class="only-hq">Build the HQ server room</span><span class="only-cloud">Devices + cloud environment</span></td><td><span class="only-hq">6–8 weeks</span><span class="only-cloud">3–4 weeks</span></td><td><span class="only-hq">Specs, commissioning, acceptance</span><span class="only-cloud">Cloud setup, firmware, acceptance</span></td><td><span class="only-hq">GPUs, racks, room, leased lines</span><span class="only-cloud">2,000 bridges, cloud account</span></td><td class="num"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></td></tr>
-          <tr><td class="dim">4 · Mass deployment</td><td>Roll out all 2,000 stores in waves</td><td>4–6 months</td><td>Zero-touch provisioning, go-live checks</td><td><span class="only-hq">Field teams, 600 router installs</span><span class="only-cloud">Field teams, bridge + router installs</span></td><td class="num"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></td></tr>
-          <tr><td class="dim">5 · O&amp;M</td><td>Keep it running and improving</td><td>Ongoing</td><td>Support, model updates, platform ops</td><td><span class="only-hq">Facility, repairs, bills</span><span class="only-cloud">Bridge swaps, cloud bills</span></td><td class="num"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></td></tr>
-          <tr class="total"><td class="dim">Total</td><td colspan="4">One-time (phases 1–4), then monthly O&amp;M · 5-year view incl. O&amp;M: <span class="only-hq">≈ ₹8.4 Cr</span><span class="only-cloud">≈ ₹10.3 Cr</span></td><td class="num"><span class="only-hq">₹2.9 Cr + ₹9.1 L/mo</span><span class="only-cloud">₹2.5 Cr + ₹13 L/mo</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <p class="foot">Pilot hardware (<span class="only-hq">one GPU workstation</span><span class="only-cloud">cloud GPU + 2 bridge units</span>) is billed on actuals over the ₹5 L pilot fee. Mass deployment itemises field rollout labour alongside the 600 failover routers. Cameras, NVRs and store recorders are existing hardware and excluded. O&amp;M excludes 24×7 control-room staffing (existing team assumed).</p>
+  <p class="foot">Cost figures in ₹ lakh unless marked Cr. Pilot hardware is billed on actuals over the ₹5 L pilot fee. Cameras, NVRs and store recorders are existing hardware and excluded. O&amp;M excludes 24×7 control-room staffing (existing team assumed).</p>
 </main>
-
-<script>
-  (function () {
-    document.body.dataset.model = "hq";
-    var btns = document.querySelectorAll(".seg button");
-    btns.forEach(function (b) {
-      b.addEventListener("click", function () {
-        document.body.dataset.model = b.dataset.model;
-        btns.forEach(function (x) {
-          x.classList.toggle("active", x === b);
-          x.setAttribute("aria-selected", x === b ? "true" : "false");
-        });
-      });
-    });
-  })();
-</script>
 </body>
 </html>
