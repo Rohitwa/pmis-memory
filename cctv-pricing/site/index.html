@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Store Monitoring Pricing</title>
+<style>
+  :root {
+    --bg: #F4F6F8;
+    --surface: #FFFFFF;
+    --ink: #18222B;
+    --muted: #5A6A78;
+    --line: #D7DFE7;
+    --accent: #0B6E99;
+    --accent-soft: #E4F0F7;
+    --party2: #8C5A2B;
+    --party2-soft: #F5EDE3;
+    --row-alt: #F0F3F6;
+    --font-display: "Avenir Next Condensed", "Arial Narrow", "Roboto Condensed", "Segoe UI", sans-serif;
+    --font-body: "Avenir Next", "Seravek", "Segoe UI", system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10161C;
+      --surface: #171F27;
+      --ink: #E2E9EF;
+      --muted: #8FA0AF;
+      --line: #2A3642;
+      --accent: #52ABD3;
+      --accent-soft: #123240;
+      --party2: #D29A5B;
+      --party2-soft: #2A2018;
+      --row-alt: #1B2530;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10161C;
+    --surface: #171F27;
+    --ink: #E2E9EF;
+    --muted: #8FA0AF;
+    --line: #2A3642;
+    --accent: #52ABD3;
+    --accent-soft: #123240;
+    --party2: #D29A5B;
+    --party2-soft: #2A2018;
+    --row-alt: #1B2530;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+    padding: 48px 20px 80px;
+  }
+  main { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 38px; }
+
+  header { text-align: center; }
+  header h1 {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: clamp(28px, 5vw, 38px);
+    line-height: 1.05;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  header .sub { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .seg button {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 10px 24px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .seg button.active { background: var(--accent); color: #FFFFFF; }
+  .seg button:not(.active):hover { color: var(--ink); }
+
+  section h2 {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: 23px;
+    letter-spacing: 0.02em;
+    margin: 0 0 14px;
+  }
+  section .kicker {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+
+  /* journey bar */
+  .journey { display: flex; align-items: stretch; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .jstep {
+    flex: 1;
+    min-width: 128px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 10px 10px;
+    text-align: center;
+    position: relative;
+  }
+  .jnum {
+    display: inline-block;
+    background: var(--accent);
+    color: #FFF;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    width: 22px; height: 22px; line-height: 22px;
+    border-radius: 50%;
+    margin-bottom: 6px;
+  }
+  .jname { font-family: var(--font-display); font-weight: 650; font-size: 15.5px; line-height: 1.15; }
+  .jdur { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .jcost { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: var(--accent); margin-top: 6px; }
+  .jarrow { align-self: center; color: var(--muted); font-size: 16px; flex: none; }
+
+  /* phase cards */
+  .phase { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+  .phead { display: flex; align-items: baseline; gap: 12px; padding: 14px 18px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .pnum {
+    font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+    background: var(--accent); color: #FFF;
+    width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%;
+    flex: none; align-self: center;
+  }
+  .phead h3 { font-family: var(--font-display); font-size: 19px; font-weight: 650; margin: 0; }
+  .pdur { font-size: 12.5px; color: var(--muted); }
+  .pcost { margin-left: auto; font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--accent); white-space: nowrap; }
+  .lanes { display: grid; grid-template-columns: 1fr 1fr; }
+  .lane { padding: 12px 18px 14px; }
+  .lane + .lane { border-left: 1px solid var(--line); }
+  .ltag {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase;
+    font-weight: 700; margin: 0 0 8px; display: inline-block; padding: 3px 10px; border-radius: 999px;
+  }
+  .lane-y .ltag { color: var(--accent); background: var(--accent-soft); }
+  .lane-b .ltag { color: var(--party2); background: var(--party2-soft); }
+  .lane ul { margin: 0; padding-left: 18px; }
+  .lane li { font-size: 13.5px; margin-bottom: 5px; }
+  .lane-y li::marker { color: var(--accent); }
+  .lane-b li::marker { color: var(--party2); }
+  .pnote { font-size: 12px; color: var(--muted); padding: 0 18px 12px; margin: 0; }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 720px; }
+  th {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 13.5px; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) td { background: var(--row-alt); }
+  td.dim { font-weight: 600; white-space: nowrap; }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; color: var(--accent); font-weight: 600; }
+  tr.total td { border-top: 2px solid var(--accent); font-weight: 600; background: var(--accent-soft); }
+
+  .foot { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+  body:not([data-model]) .only-cloud, body[data-model="hq"] .only-cloud { display: none; }
+  body[data-model="cloud"] .only-hq { display: none; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Store Monitoring — Pricing</h1>
+    <p class="sub">2,000 stores · transparent cost basis, no margin added · planning-grade (±30%), GST excluded</p>
+    <div class="seg" role="tablist" aria-label="Choose architecture model">
+      <button type="button" class="active" data-model="hq" role="tab" aria-selected="true">Self-hosted HQ Model</button>
+      <button type="button" data-model="cloud" role="tab" aria-selected="false">Cloud Bridge Model</button>
+    </div>
+  </header>
+
+  <!-- ============ JOURNEY ============ -->
+  <section>
+    <p class="kicker">The engagement at a glance</p>
+    <div class="journey">
+      <div class="jstep"><span class="jnum">1</span><div class="jname">Pilot</div><div class="jdur">6–8 weeks</div><div class="jcost">₹15 L</div></div>
+      <div class="jarrow">→</div>
+      <div class="jstep"><span class="jnum">2</span><div class="jname">Software development</div><div class="jdur">~7 months</div><div class="jcost">₹75 L</div></div>
+      <div class="jarrow">→</div>
+      <div class="jstep"><span class="jnum">3</span><div class="jname">Hardware deployment</div><div class="jdur"><span class="only-hq">6–8 weeks</span><span class="only-cloud">3–4 weeks</span></div><div class="jcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></div></div>
+      <div class="jarrow">→</div>
+      <div class="jstep"><span class="jnum">4</span><div class="jname">Mass deployment</div><div class="jdur">4–6 months</div><div class="jcost"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></div></div>
+      <div class="jarrow">→</div>
+      <div class="jstep"><span class="jnum">5</span><div class="jname">O&amp;M</div><div class="jdur">ongoing ↻</div><div class="jcost"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ PHASES ============ -->
+  <section style="display:flex; flex-direction:column; gap:16px;">
+    <p class="kicker" style="margin-bottom:-8px">Phase by phase — who does what</p>
+
+    <div class="phase">
+      <div class="phead"><span class="pnum">1</span><h3>Pilot</h3><span class="pdur">6–8 weeks · 15–20 stores</span><span class="pcost">₹15 L</span></div>
+      <div class="lanes">
+        <div class="lane lane-y">
+          <p class="ltag">YantrAI</p>
+          <ul>
+            <li>Run the gateway + analytics on pilot stores</li>
+            <li>Tune counting accuracy and night-alert false alarms</li>
+            <li>Pilot report: measured accuracy vs targets</li>
+          </ul>
+        </div>
+        <div class="lane lane-b">
+          <p class="ltag">Baxy</p>
+          <ul>
+            <li>Pilot store access and permissions</li>
+            <li>Field installation and store coordination</li>
+            <li>Broadband / SIMs at pilot stores</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phead"><span class="pnum">2</span><h3>Software development</h3><span class="pdur">~7 months · overlaps pilot</span><span class="pcost">₹75 L</span></div>
+      <div class="lanes">
+        <div class="lane lane-y">
+          <p class="ltag">YantrAI</p>
+          <ul>
+            <li>Full platform: gateway, stream router, AI pipeline</li>
+            <li>Live dashboards + alert console</li>
+            <li>Fleet tooling: provisioning, health, config push</li>
+          </ul>
+        </div>
+        <div class="lane lane-b">
+          <p class="ltag">Baxy</p>
+          <ul>
+            <li>Requirements and store operating rules</li>
+            <li>User acceptance testing</li>
+            <li>Phase sign-offs</li>
+          </ul>
+        </div>
+      </div>
+      <p class="pnote">Same software serves both models — only where it is deployed changes.</p>
+    </div>
+
+    <div class="phase">
+      <div class="phead"><span class="pnum">3</span><h3>Hardware deployment</h3>
+        <span class="pdur"><span class="only-hq">6–8 weeks · HQ build-out</span><span class="only-cloud">3–4 weeks · devices + cloud setup</span></span>
+        <span class="pcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></span>
+      </div>
+      <div class="lanes only-hq">
+        <div class="lane lane-y">
+          <p class="ltag">YantrAI</p>
+          <ul>
+            <li>Hardware specifications and vendor evaluation</li>
+            <li>Commissioning: install platform on the racks</li>
+            <li>Acceptance tests before rollout begins</li>
+          </ul>
+        </div>
+        <div class="lane lane-b">
+          <p class="ltag">Baxy</p>
+          <ul>
+            <li>Procure GPUs, servers, racks, storage</li>
+            <li>Server room: space, cooling, power backup</li>
+            <li>Dual leased internet lines at HQ</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lanes only-cloud">
+        <div class="lane lane-y">
+          <p class="ltag">YantrAI</p>
+          <ul>
+            <li>Cloud environment setup and hardening</li>
+            <li>Bridge device firmware and staging</li>
+            <li>Acceptance tests before rollout begins</li>
+          </ul>
+        </div>
+        <div class="lane lane-b">
+          <p class="ltag">Baxy</p>
+          <ul>
+            <li>Procure 2,000 bridge devices</li>
+            <li>Own the cloud account and billing</li>
+            <li>Office internet at HQ</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phead"><span class="pnum">4</span><h3>Mass deployment</h3><span class="pdur">4–6 months · in waves of stores</span>
+        <span class="pcost"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></span>
+      </div>
+      <div class="lanes">
+        <div class="lane lane-y">
+          <p class="ltag">YantrAI</p>
+          <ul>
+            <li>Zero-touch provisioning: store comes online by itself</li>
+            <li>Wave monitoring and go-live checks per store</li>
+            <li class="only-cloud">Bridge activation and remote verification</li>
+          </ul>
+        </div>
+        <div class="lane lane-b">
+          <p class="ltag">Baxy</p>
+          <ul>
+            <li>Field teams and store scheduling</li>
+            <li>Install 4G-failover routers (600 stores)</li>
+            <li class="only-cloud">Install one bridge device in every store</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phead"><span class="pnum">5</span><h3>Operations &amp; Maintenance</h3><span class="pdur">ongoing · monthly</span>
+        <span class="pcost"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></span>
+      </div>
+      <div class="lanes">
+        <div class="lane lane-y">
+          <p class="ltag">YantrAI</p>
+          <ul>
+            <li>Software support and bug fixes</li>
+            <li>AI model updates as accuracy drifts</li>
+            <li><span class="only-hq">Platform operations on the HQ servers</span><span class="only-cloud">Platform operations in the cloud</span></li>
+          </ul>
+        </div>
+        <div class="lane lane-b">
+          <p class="ltag">Baxy</p>
+          <ul>
+            <li><span class="only-hq">HQ facility upkeep and field repairs</span><span class="only-cloud">Bridge repairs and swaps in stores</span></li>
+            <li><span class="only-hq">Internet and power bills</span><span class="only-cloud">Cloud and internet bills</span></li>
+            <li>Store-side consumables and coordination</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SUMMARY TABLE ============ -->
+  <section>
+    <p class="kicker">Everything in one grid</p>
+    <h2>Phase comparison</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Phase</th><th>What happens</th><th>Duration</th><th>YantrAI delivers</th><th>Baxy delivers</th><th>Cost</th></tr></thead>
+        <tbody>
+          <tr><td class="dim">1 · Pilot</td><td>Prove accuracy on 15–20 stores</td><td>6–8 weeks</td><td>Working pilot + tuning report</td><td>Stores, fieldwork, connectivity</td><td class="num">₹15 L</td></tr>
+          <tr><td class="dim">2 · Software</td><td>Build the full platform</td><td>~7 months</td><td>Gateway, AI pipeline, dashboards, fleet tooling</td><td>Requirements, UAT, sign-off</td><td class="num">₹75 L</td></tr>
+          <tr><td class="dim">3 · Hardware</td><td><span class="only-hq">Build the HQ server room</span><span class="only-cloud">Devices + cloud environment</span></td><td><span class="only-hq">6–8 weeks</span><span class="only-cloud">3–4 weeks</span></td><td><span class="only-hq">Specs, commissioning, acceptance</span><span class="only-cloud">Cloud setup, firmware, acceptance</span></td><td><span class="only-hq">GPUs, racks, room, leased lines</span><span class="only-cloud">2,000 bridges, cloud account</span></td><td class="num"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></td></tr>
+          <tr><td class="dim">4 · Mass deployment</td><td>Roll out all 2,000 stores in waves</td><td>4–6 months</td><td>Zero-touch provisioning, go-live checks</td><td><span class="only-hq">Field teams, 600 router installs</span><span class="only-cloud">Field teams, bridge + router installs</span></td><td class="num"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></td></tr>
+          <tr><td class="dim">5 · O&amp;M</td><td>Keep it running and improving</td><td>Ongoing</td><td>Support, model updates, platform ops</td><td><span class="only-hq">Facility, repairs, bills</span><span class="only-cloud">Bridge swaps, cloud bills</span></td><td class="num"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></td></tr>
+          <tr class="total"><td class="dim">Total</td><td colspan="4">One-time (phases 1–4), then monthly O&amp;M · 5-year view incl. O&amp;M: <span class="only-hq">≈ ₹8.5 Cr</span><span class="only-cloud">≈ ₹10.4 Cr</span></td><td class="num"><span class="only-hq">₹3.0 Cr + ₹9.1 L/mo</span><span class="only-cloud">₹2.6 Cr + ₹13 L/mo</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="foot">Figures are the midbound cost estimates from the costing workings, shown without margin. Mass deployment now itemises field rollout labour (~₹11 L) alongside the 600 failover routers. Cameras, NVRs and store recorders are existing hardware and excluded. O&amp;M excludes 24×7 control-room staffing (existing team assumed).</p>
+</main>
+
+<script>
+  (function () {
+    document.body.dataset.model = "hq";
+    var btns = document.querySelectorAll(".seg button");
+    btns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        document.body.dataset.model = b.dataset.model;
+        btns.forEach(function (x) {
+          x.classList.toggle("active", x === b);
+          x.setAttribute("aria-selected", x === b ? "true" : "false");
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

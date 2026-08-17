@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches: [claude/cctv-monitoring-architecture-dynygs]
-    paths: ["cctv-monitoring/**"]
+    paths: ["cctv-monitoring/**", "cctv-pricing/**"]
 
 jobs:
-  deploy:
+  deploy-report:
     runs-on: ubuntu-latest
-    concurrency: fly-deploy
+    concurrency: fly-deploy-report
     defaults:
       run:
         working-directory: cctv-monitoring
@@ -18,6 +18,24 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Create app if missing
         run: flyctl apps create store-monitoring-pmis --org personal || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Deploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy-pricing:
+    runs-on: ubuntu-latest
+    concurrency: fly-deploy-pricing
+    defaults:
+      run:
+        working-directory: cctv-pricing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Create app if missing
+        run: flyctl apps create store-monitoring-pricing --org personal || true
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       - name: Deploy
