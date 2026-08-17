@@ -206,9 +206,9 @@
   <section>
     <p class="kicker">The engagement at a glance</p>
     <div class="journey">
-      <div class="jstep"><span class="jnum">1</span><div class="jname">Pilot</div><div class="jdur">6–8 weeks</div><div class="jcost">₹15 L</div></div>
+      <div class="jstep"><span class="jnum">1</span><div class="jname">Pilot</div><div class="jdur">2 weeks</div><div class="jcost">₹5 L</div></div>
       <div class="jarrow">→</div>
-      <div class="jstep"><span class="jnum">2</span><div class="jname">Software development</div><div class="jdur">~7 months</div><div class="jcost">₹75 L</div></div>
+      <div class="jstep"><span class="jnum">2</span><div class="jname">Software development</div><div class="jdur">6–8 weeks</div><div class="jcost">₹75 L</div></div>
       <div class="jarrow">→</div>
       <div class="jstep"><span class="jnum">3</span><div class="jname">Hardware deployment</div><div class="jdur"><span class="only-hq">6–8 weeks</span><span class="only-cloud">3–4 weeks</span></div><div class="jcost"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></div></div>
       <div class="jarrow">→</div>
@@ -223,20 +223,20 @@
     <p class="kicker" style="margin-bottom:-8px">Phase by phase — who does what</p>
 
     <div class="phase">
-      <div class="phead"><span class="pnum">1</span><h3>Pilot</h3><span class="pdur">6–8 weeks · 15–20 stores</span><span class="pcost">₹15 L</span></div>
+      <div class="phead"><span class="pnum">1</span><h3>Pilot</h3><span class="pdur">2 weeks · 2 stores · minimal stack</span><span class="pcost">₹5 L</span></div>
       <div class="lanes">
         <div class="lane lane-y">
           <p class="ltag">YantrAI</p>
           <ul>
-            <li>Run the gateway + analytics on pilot stores</li>
-            <li>Tune counting accuracy and night-alert false alarms</li>
-            <li>Pilot report: measured accuracy vs targets</li>
+            <li>Minimal gateway + analytics on 2 stores</li>
+            <li><span class="only-hq">Pilot rig at HQ: one GPU workstation — hardware billed on actuals</span><span class="only-cloud">Pilot on a rented cloud GPU + 2 bridge units — hardware billed on actuals</span></li>
+            <li>Tune counting accuracy and night-alert false alarms; short pilot report</li>
           </ul>
         </div>
         <div class="lane lane-b">
           <p class="ltag">Baxy</p>
           <ul>
-            <li>Pilot store access and permissions</li>
+            <li>2 pilot stores: access and permissions</li>
             <li>Field installation and store coordination</li>
             <li>Broadband / SIMs at pilot stores</li>
           </ul>
@@ -245,7 +245,7 @@
     </div>
 
     <div class="phase">
-      <div class="phead"><span class="pnum">2</span><h3>Software development</h3><span class="pdur">~7 months · overlaps pilot</span><span class="pcost">₹75 L</span></div>
+      <div class="phead"><span class="pnum">2</span><h3>Software development</h3><span class="pdur">6–8 weeks · AI-assisted build</span><span class="pcost">₹75 L</span></div>
       <div class="lanes">
         <div class="lane lane-y">
           <p class="ltag">YantrAI</p>
@@ -253,6 +253,7 @@
             <li>Full platform: gateway, stream router, AI pipeline</li>
             <li>Live dashboards + alert console</li>
             <li>Fleet tooling: provisioning, health, config push</li>
+            <li><span class="only-hq">Deploy target: the HQ servers</span><span class="only-cloud">Deploy target: the cloud environment, incl. bridge software</span></li>
           </ul>
         </div>
         <div class="lane lane-b">
@@ -328,6 +329,7 @@
           <ul>
             <li>Field teams and store scheduling</li>
             <li>Install 4G-failover routers (600 stores)</li>
+            <li class="only-hq">No other store visit needed — recorders connect out by themselves</li>
             <li class="only-cloud">Install one bridge device in every store</li>
           </ul>
         </div>
@@ -367,18 +369,18 @@
       <table>
         <thead><tr><th>Phase</th><th>What happens</th><th>Duration</th><th>YantrAI delivers</th><th>Baxy delivers</th><th>Cost</th></tr></thead>
         <tbody>
-          <tr><td class="dim">1 · Pilot</td><td>Prove accuracy on 15–20 stores</td><td>6–8 weeks</td><td>Working pilot + tuning report</td><td>Stores, fieldwork, connectivity</td><td class="num">₹15 L</td></tr>
-          <tr><td class="dim">2 · Software</td><td>Build the full platform</td><td>~7 months</td><td>Gateway, AI pipeline, dashboards, fleet tooling</td><td>Requirements, UAT, sign-off</td><td class="num">₹75 L</td></tr>
+          <tr><td class="dim">1 · Pilot</td><td>Prove accuracy on 2 stores, minimal stack</td><td>2 weeks</td><td>Working pilot + tuning report</td><td>Stores, fieldwork, connectivity</td><td class="num">₹5 L + hw on actuals</td></tr>
+          <tr><td class="dim">2 · Software</td><td>Build the full platform, AI-assisted</td><td>6–8 weeks</td><td>Gateway, AI pipeline, dashboards, fleet tooling</td><td>Requirements, UAT, sign-off</td><td class="num">₹75 L</td></tr>
           <tr><td class="dim">3 · Hardware</td><td><span class="only-hq">Build the HQ server room</span><span class="only-cloud">Devices + cloud environment</span></td><td><span class="only-hq">6–8 weeks</span><span class="only-cloud">3–4 weeks</span></td><td><span class="only-hq">Specs, commissioning, acceptance</span><span class="only-cloud">Cloud setup, firmware, acceptance</span></td><td><span class="only-hq">GPUs, racks, room, leased lines</span><span class="only-cloud">2,000 bridges, cloud account</span></td><td class="num"><span class="only-hq">₹1.75 Cr</span><span class="only-cloud">₹1.25 Cr</span></td></tr>
           <tr><td class="dim">4 · Mass deployment</td><td>Roll out all 2,000 stores in waves</td><td>4–6 months</td><td>Zero-touch provisioning, go-live checks</td><td><span class="only-hq">Field teams, 600 router installs</span><span class="only-cloud">Field teams, bridge + router installs</span></td><td class="num"><span class="only-hq">₹35 L</span><span class="only-cloud">₹45 L</span></td></tr>
           <tr><td class="dim">5 · O&amp;M</td><td>Keep it running and improving</td><td>Ongoing</td><td>Support, model updates, platform ops</td><td><span class="only-hq">Facility, repairs, bills</span><span class="only-cloud">Bridge swaps, cloud bills</span></td><td class="num"><span class="only-hq">₹9.1 L/mo</span><span class="only-cloud">₹13 L/mo</span></td></tr>
-          <tr class="total"><td class="dim">Total</td><td colspan="4">One-time (phases 1–4), then monthly O&amp;M · 5-year view incl. O&amp;M: <span class="only-hq">≈ ₹8.5 Cr</span><span class="only-cloud">≈ ₹10.4 Cr</span></td><td class="num"><span class="only-hq">₹3.0 Cr + ₹9.1 L/mo</span><span class="only-cloud">₹2.6 Cr + ₹13 L/mo</span></td></tr>
+          <tr class="total"><td class="dim">Total</td><td colspan="4">One-time (phases 1–4), then monthly O&amp;M · 5-year view incl. O&amp;M: <span class="only-hq">≈ ₹8.4 Cr</span><span class="only-cloud">≈ ₹10.3 Cr</span></td><td class="num"><span class="only-hq">₹2.9 Cr + ₹9.1 L/mo</span><span class="only-cloud">₹2.5 Cr + ₹13 L/mo</span></td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <p class="foot">Figures are the midbound cost estimates from the costing workings, shown without margin. Mass deployment now itemises field rollout labour (~₹11 L) alongside the 600 failover routers. Cameras, NVRs and store recorders are existing hardware and excluded. O&amp;M excludes 24×7 control-room staffing (existing team assumed).</p>
+  <p class="foot">Figures are midbound cost estimates shown without margin. Pilot hardware (one GPU workstation or cloud GPU + 2 bridge units) is billed on actuals over the ₹5 L pilot fee. Mass deployment itemises field rollout labour (~₹11 L) alongside the 600 failover routers. Cameras, NVRs and store recorders are existing hardware and excluded. O&amp;M excludes 24×7 control-room staffing (existing team assumed).</p>
 </main>
 
 <script>
