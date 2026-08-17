@@ -1,0 +1,26 @@
+name: Deploy report site to Fly
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/cctv-monitoring-architecture-dynygs]
+    paths: ["cctv-monitoring/**"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency: fly-deploy
+    defaults:
+      run:
+        working-directory: cctv-monitoring
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Create app if missing
+        run: flyctl apps create store-monitoring-pmis || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Deploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

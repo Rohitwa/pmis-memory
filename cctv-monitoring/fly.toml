@@ -1,6 +1,6 @@
 # Static site: Store Monitoring final report + costing
 # Deploy: fly launch --copy-config --name <your-app-name> --region bom --now
-app = "store-monitoring-report"
+app = "store-monitoring-pmis"
 primary_region = "bom"
 
 [build]
