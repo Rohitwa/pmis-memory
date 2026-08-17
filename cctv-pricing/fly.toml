@@ -1,6 +1,6 @@
 # Static site: Store Monitoring pricing (separate app/domain from the report site)
 app = "store-monitoring-pricing"
-primary_region = "bom"
+primary_region = "sin"
 
 [build]
 
