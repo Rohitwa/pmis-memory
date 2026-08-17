@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Create app if missing
-        run: flyctl apps create store-monitoring-pmis || true
+        run: flyctl apps create store-monitoring-pmis --org personal || true
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       - name: Deploy
