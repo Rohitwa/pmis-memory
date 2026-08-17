@@ -1,6 +1,6 @@
 # Store Monitoring — Report Site
 
-Static site with the final architecture report (`index.html`) and costing (`costing.html`) for the 2,000-store CCTV monitoring system.
+Static site with the final architecture report (`index.html`) for the 2,000-store CCTV monitoring system. Costing is kept as a separate document, not published here.
 
 ## Deploy to Fly.io
 
