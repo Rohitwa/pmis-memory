@@ -90,3 +90,4 @@ pmis_v2/approval_config.yaml
 proxy/tokens.json
 proxy/node_modules/
 proxy/.wrangler/
+!website/*.html

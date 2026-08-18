@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Accountant — YantrAI Labs</title>
+<meta name="description" content="The AI Accountant catches duplicate payments, missing tax and over-billing before money moves — on the ERP you already run. By YantrAI Labs.">
+<meta property="og:title" content="AI Accountant — YantrAI Labs">
+<meta property="og:description" content="A ₹100 crore company loses up to ₹3 crore on its outflows. Plug the gap in real time, on SAP, Oracle, Tally or Zoho.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231a7a4c'/%3E%3Cpath d='M8 17.5 L13.5 23 L24 10' stroke='%23f4f3ee' stroke-width='3.4' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f4f3ee;
+    --paper-2: #eeede6;
+    --card: #ffffff;
+    --ink: #1c2b26;
+    --ink-2: #4c5a54;
+    --muted: #5b6760;      /* darkened from mock's #8b948c — AA on paper */
+    --rule: #ddddd2;
+    --rule-2: #ccccbe;
+    --green: #1a7a4c;
+    --green-deep: #135c39;
+    --mint: #7ec89e;
+    --mint-dim: #b9c4bb;
+    --alert: #b23a2c;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --sans: Archivo, -apple-system, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  section { scroll-margin-top: 76px; }
+  img { max-width: 100%; }
+  a { color: var(--green); }
+  a:hover { color: var(--green-deep); }
+  :focus-visible { outline: 2.5px solid var(--green); outline-offset: 2px; }
+  .dark :focus-visible, .darkband :focus-visible { outline-color: var(--mint); }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 100;
+    background: var(--ink); color: var(--paper); padding: 10px 16px;
+    font-family: var(--mono); font-size: 12px; text-decoration: none;
+  }
+  .skip:focus { left: 0; color: var(--paper); }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(244, 243, 238, 0.94);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 14px 24px; max-width: 1120px; margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand img { height: 22px; width: auto; display: block; }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); border-left: 1px solid var(--rule-2); padding-left: 12px;
+  }
+  .nav-links { display: flex; align-items: center; gap: 22px; }
+  .nav-links a {
+    font-size: 13.5px; color: var(--ink-2); text-decoration: none; font-weight: 500;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.btn, .nav-links a.btn:hover { color: #ffffff; }
+  .menu { display: none; }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-block; background: var(--green); color: #ffffff;
+    padding: 14px 26px; font-weight: 600; font-size: 15px;
+    text-decoration: none; border: 1.5px solid var(--green);
+  }
+  .btn:hover { background: var(--green-deep); border-color: var(--green-deep); color: #ffffff; }
+  .btn.small { padding: 9px 18px; font-size: 13px; }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: var(--paper); }
+  .btn.on-dark { background: var(--mint); border-color: var(--mint); color: var(--ink); }
+  .btn.on-dark:hover { background: #93d5af; border-color: #93d5af; color: var(--ink); }
+  .btn.ghost-dark { background: transparent; color: var(--paper); border-color: var(--mint-dim); }
+  .btn.ghost-dark:hover { border-color: var(--mint); color: var(--mint); }
+
+  /* ---------- shared section furniture ---------- */
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+    color: var(--green); font-weight: 500;
+  }
+  .dark .eyebrow { color: var(--mint); }
+  h1, h2 { margin: 0; text-wrap: balance; letter-spacing: -0.3px; }
+  h2 { font-size: clamp(26px, 3.4vw, 34px); font-weight: 800; }
+  .lead { font-size: 16px; color: var(--ink-2); max-width: 680px; margin: 0; }
+  .sec { border-top: 1px solid var(--rule); padding: clamp(56px, 8vw, 84px) 0; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 22px; padding: clamp(56px, 9vw, 96px) 24px clamp(48px, 7vw, 80px);
+    max-width: 1020px; margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: clamp(30px, 4.6vw, 50px); font-weight: 800; line-height: 1.14;
+    letter-spacing: -0.5px; max-width: 940px;
+  }
+  .hero .loss { color: var(--alert); }
+  .hero .sub { font-size: clamp(16px, 2vw, 19px); line-height: 1.5; color: var(--ink-2); max-width: 640px; margin: 0; }
+  .hero .sub strong { color: var(--green); font-weight: 600; }
+  .cta-row { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+  .erp-strip { display: flex; align-items: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+  .erp-strip .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+  .erp-strip .chip {
+    border: 1px solid var(--rule-2); background: var(--card);
+    padding: 9px 20px; font-weight: 700; font-size: 14px;
+  }
+
+  /* ---------- field report ---------- */
+  .ledger { background: var(--card); border: 1px solid var(--rule-2); margin-top: 8px; }
+  .ledger-head {
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 14px 22px; border-bottom: 2px solid var(--ink);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--muted);
+  }
+  .ledger-row {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 24px; padding: 15px 22px; border-bottom: 1px solid #e6e5da;
+  }
+  .ledger-row:last-child { border-bottom: 0; }
+  .ledger-row .what { font-size: 15px; }
+  .ledger-row .val {
+    font-family: var(--mono); font-size: 12.5px; color: var(--alert);
+    white-space: nowrap; font-weight: 500; flex-shrink: 0;
+  }
+  .ledger-row .val.blocked { color: #ffffff; background: var(--alert); padding: 4px 10px; }
+
+  /* ---------- flow ---------- */
+  .flow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px 26px; margin-top: 10px; }
+  .flow-node {
+    position: relative; border: 1.5px solid var(--rule); background: var(--card);
+    padding: 18px 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .flow-node .step { font-family: var(--mono); font-size: 9.5px; letter-spacing: 2px; color: var(--green); }
+  .flow-node .name { font-size: 15px; font-weight: 700; }
+  .flow-node .det { font-family: var(--mono); font-size: 10.5px; color: var(--muted); line-height: 1.7; }
+  .flow-node.risk .step, .flow-node.risk .det { color: var(--alert); }
+  .flow-node.final { border-color: var(--green); border-width: 2px; }
+  .flow-node.final .name { color: var(--green); }
+  .flow > .flow-node:not(:last-child)::after {
+    content: ""; position: absolute; top: 50%; right: -21px;
+    width: 16px; height: 2px; background: var(--green); margin-top: -1px;
+  }
+  .flow > .flow-node:not(:last-child)::before {
+    content: ""; position: absolute; top: 50%; right: -22px; margin-top: -5px;
+    width: 8px; height: 8px;
+    border-top: 2px solid var(--green); border-right: 2px solid var(--green);
+    transform: rotate(45deg); transform-origin: center;
+  }
+  @keyframes flowOn {
+    0%, 9% { border-color: var(--green); background: #eef4ee; transform: translateY(-4px); box-shadow: 0 8px 18px rgba(26, 122, 76, 0.16); }
+    13%, 100% { border-color: var(--rule); background: var(--card); transform: translateY(0); box-shadow: none; }
+  }
+  .anim .flow-node { animation: flowOn 14s infinite; }
+  .anim .fn0 { animation-delay: 0s; } .anim .fn1 { animation-delay: 2s; }
+  .anim .fn2 { animation-delay: 4s; } .anim .fn3 { animation-delay: 6s; }
+  .anim .fn4 { animation-delay: 8s; } .anim .fn5 { animation-delay: 10s; }
+  .anim .fn6 { animation-delay: 12s; }
+  @media (prefers-reduced-motion: reduce) {
+    .anim .flow-node { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+  .loop-band {
+    border: 1.5px solid var(--rule); background: var(--card);
+    padding: 22px 28px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 18px;
+  }
+  .loop-band .lbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: 2px; color: var(--green); white-space: nowrap; }
+  .loop-band .chips { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; }
+  .loop-band .chips span { border: 1px solid var(--rule-2); background: var(--paper); padding: 7px 14px; font-size: 12.5px; font-weight: 600; }
+  .loop-band .note { font-family: var(--mono); font-size: 10.5px; color: var(--ink-2); }
+  .split { display: flex; align-items: stretch; margin-top: 14px; }
+  .split .agent { flex: 7; background: #e3ebe2; padding: 20px 26px; }
+  .split .human { flex: 3; background: var(--card); border: 1px solid var(--rule); padding: 20px 26px; }
+  .split .pct { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; font-weight: 600; display: block; margin-bottom: 6px; }
+  .split .agent .pct { color: var(--green); }
+  .split small { font-size: 14px; color: var(--ink-2); }
+
+  /* ---------- agents ---------- */
+  .agent-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+  .agent-card { background: var(--card); border: 1px solid var(--rule); padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .agent-card .cat { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+  .agent-card .name { font-size: 18px; font-weight: 700; }
+  .agent-card .what { font-size: 13.5px; color: var(--ink-2); }
+  .roster {
+    background: var(--ink); color: var(--paper);
+    display: flex; align-items: center; gap: 28px; padding: 26px 32px; margin-top: 18px; flex-wrap: wrap;
+  }
+  .roster .num { font-family: var(--mono); font-size: 40px; font-weight: 600; color: var(--mint); line-height: 1; }
+  .roster .txt { display: flex; flex-direction: column; gap: 6px; min-width: 280px; flex: 1; }
+  .roster .txt b { font-size: 16px; }
+  .roster .txt span { font-size: 13.5px; color: var(--mint-dim); }
+
+  /* ---------- security ---------- */
+  .dark { background: var(--ink); color: var(--paper); }
+  .dark h2 { color: var(--paper); font-weight: 700; font-size: clamp(24px, 3vw, 32px); line-height: 1.3; }
+  .dark h2 .hl { color: var(--mint); }
+  .prism-list { display: flex; flex-direction: column; margin-top: 10px; border-top: 1px solid #3d4f45; }
+  .prism { border-bottom: 1px solid #3d4f45; }
+  .prism summary {
+    display: flex; align-items: baseline; gap: 14px; padding: 15px 6px;
+    cursor: pointer; list-style: none;
+  }
+  .prism summary::-webkit-details-marker { display: none; }
+  .prism summary .ltr { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--mint); width: 18px; }
+  .prism summary .nm { font-size: 14px; color: var(--mint-dim); font-weight: 600; }
+  .prism summary .plus { margin-left: auto; font-family: var(--mono); color: #6d7f72; font-size: 14px; }
+  .prism[open] summary .plus { transform: rotate(45deg); }
+  .prism summary:hover .nm { color: var(--paper); }
+  .prism .body { padding: 0 6px 16px 32px; font-size: 13.5px; line-height: 1.6; color: #d7e0d8; max-width: 640px; margin: 0; }
+
+  /* ---------- rollout ---------- */
+  .weeks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 18px; }
+  .week { position: relative; background: var(--card); border: 1px solid var(--rule); padding: 26px 24px; display: flex; flex-direction: column; gap: 8px; }
+  .week.final { border: 2px solid var(--green); }
+  .week .wk { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+  .week.final .wk { color: var(--green); }
+  .week .nm { font-size: 17px; font-weight: 700; }
+  .week .what { font-size: 13.5px; color: var(--ink-2); }
+  .week:not(:last-child)::after {
+    content: ""; position: absolute; top: 50%; right: -21px;
+    width: 16px; height: 2px; background: var(--green); margin-top: -1px;
+  }
+  .week:not(:last-child)::before {
+    content: ""; position: absolute; top: 50%; right: -22px; margin-top: -5px;
+    width: 8px; height: 8px;
+    border-top: 2px solid var(--green); border-right: 2px solid var(--green);
+    transform: rotate(45deg);
+  }
+
+  /* ---------- customers ---------- */
+  .cust { text-align: center; display: flex; flex-direction: column; gap: 18px; align-items: center; }
+  .cust-names { display: flex; gap: 40px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .cust-names span { font-size: 19px; font-weight: 700; color: var(--ink-2); }
+  .metrics { display: flex; gap: clamp(28px, 6vw, 64px); justify-content: center; margin-top: 12px; font-family: var(--mono); flex-wrap: wrap; }
+  .metric { display: flex; flex-direction: column; gap: 4px; }
+  .metric .n { font-size: 30px; font-weight: 600; color: var(--green); font-variant-numeric: tabular-nums; }
+  .metric .l { font-size: 11px; color: var(--ink-2); }
+
+  /* ---------- team ---------- */
+  .team-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 12px; max-width: 860px; }
+  .person { background: var(--card); border: 1px solid var(--rule); padding: 28px; display: flex; align-items: flex-start; gap: 20px; }
+  .person .avatar {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--green); color: #ffffff;
+    display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; flex-shrink: 0;
+  }
+  .person .info { display: flex; flex-direction: column; gap: 6px; }
+  .person .nm { font-size: 18px; font-weight: 700; }
+  .person .role { font-family: var(--mono); font-size: 10.5px; letter-spacing: 1px; color: var(--muted); }
+  .person .bio { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+  .person a { font-size: 13px; font-weight: 600; }
+
+  /* ---------- final CTA ---------- */
+  .darkband { background: var(--ink); color: var(--paper); }
+  .darkband h2 { color: var(--paper); }
+  .darkband .lead { color: var(--mint-dim); }
+  .darkband .contact-line { font-family: var(--mono); font-size: 12.5px; color: #9fb0a4; }
+  .darkband .contact-line a { color: var(--mint); text-decoration: none; }
+  .darkband .contact-line a:hover { text-decoration: underline; }
+
+  /* ---------- footer ---------- */
+  footer { background: #16211d; color: var(--mint-dim); padding: 56px 24px 40px; }
+  .foot { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+  .foot-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 32px; }
+  .foot-id { display: flex; flex-direction: column; gap: 8px; }
+  .foot-id .nm { font-weight: 800; font-size: 15px; color: var(--paper); letter-spacing: 0.5px; }
+  .foot-id .co { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: #8a9a8e; }
+  .foot-id a, .foot-id .addr { font-family: var(--mono); font-size: 11.5px; color: #8a9a8e; text-decoration: none; }
+  .foot-id a:hover { color: var(--mint); }
+  .offices { display: flex; gap: 48px; flex-wrap: wrap; }
+  .office { display: flex; flex-direction: column; gap: 4px; }
+  .office .city { font-size: 14px; font-weight: 600; color: var(--paper); }
+  .office .ctry { font-family: var(--mono); font-size: 10px; color: #8a9a8e; }
+  .foot-bottom {
+    border-top: 1px solid #3d4f45; padding-top: 18px;
+    font-family: var(--mono); font-size: 10px; color: #8a9a8e; letter-spacing: 1px;
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .foot-bottom nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  .foot-bottom a { color: #8a9a8e; text-decoration: none; }
+  .foot-bottom a:hover { color: var(--mint); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 960px) {
+    .flow { grid-template-columns: repeat(2, 1fr); }
+    .flow-node::after, .flow-node::before { display: none; }
+    .agent-grid { grid-template-columns: repeat(2, 1fr); }
+    .weeks { grid-template-columns: 1fr; gap: 14px; }
+    .week::after, .week::before { display: none; }
+    .team-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .nav-links { display: none; }
+    .menu { display: block; position: relative; }
+    .menu summary { list-style: none; cursor: pointer; padding: 8px 10px; border: 1px solid var(--rule-2); font-family: var(--mono); font-size: 11px; letter-spacing: 2px; }
+    .menu summary::-webkit-details-marker { display: none; }
+    .menu[open] .sheet {
+      position: absolute; right: 0; top: calc(100% + 8px); z-index: 60;
+      background: var(--card); border: 1px solid var(--rule-2);
+      display: flex; flex-direction: column; min-width: 210px;
+      box-shadow: 0 12px 28px rgba(28, 43, 38, 0.14);
+    }
+    .menu .sheet a { padding: 13px 18px; font-size: 14px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+    .menu .sheet a:last-child { border-bottom: 0; }
+    .menu .sheet a.demo { color: var(--green); font-weight: 700; }
+    .split { flex-direction: column; }
+    .ledger-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+  @media (max-width: 560px) {
+    .flow { grid-template-columns: 1fr; }
+    .agent-grid { grid-template-columns: 1fr; }
+    .cust-names { gap: 20px; }
+    .cust-names span { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="#top" aria-label="YantrAI — AI Accountant, back to top">
+      <img src="yantrai_logo.png" alt="YantrAI">
+      <span class="tag">AI&nbsp;ACCOUNTANT</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#field-report">What it found</a>
+      <a href="#how">How it works</a>
+      <a href="#agents">The agents</a>
+      <a href="#security">Security</a>
+      <a href="#rollout">Rollout</a>
+      <a href="#team">Team</a>
+      <a class="btn small" href="mailto:rohit@yantrailabs.com?subject=Demo%20request%20%E2%80%94%20AI%20Accountant">Book a demo</a>
+    </nav>
+    <details class="menu">
+      <summary aria-label="Open menu">MENU</summary>
+      <nav class="sheet" aria-label="Mobile">
+        <a href="#field-report">What it found</a>
+        <a href="#how">How it works</a>
+        <a href="#agents">The agents</a>
+        <a href="#security">Security</a>
+        <a href="#rollout">Rollout</a>
+        <a href="#team">Team</a>
+        <a class="demo" href="mailto:rohit@yantrailabs.com?subject=Demo%20request%20%E2%80%94%20AI%20Accountant">Book a demo</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section id="top" class="hero">
+    <p class="eyebrow">FINANCE, RUN BY AGENTS</p>
+    <h1>A ₹100 crore company loses up to <span class="loss">₹3 crore on its outflows</span> — and finds out after the money has moved.</h1>
+    <p class="sub">Plug the gap with the <strong>AI&nbsp;Accountant</strong> — in real time, on the ERP you already run.</p>
+    <div class="cta-row">
+      <a class="btn" href="mailto:rohit@yantrailabs.com?subject=Demo%20request%20%E2%80%94%20AI%20Accountant">Book a demo</a>
+      <a class="btn ghost" href="#field-report">See what it caught</a>
+    </div>
+    <div class="erp-strip">
+      <span class="lbl">WORKS ON TOP OF</span>
+      <span class="chip">SAP</span>
+      <span class="chip">Oracle</span>
+      <span class="chip">Tally</span>
+      <span class="chip">Zoho</span>
+    </div>
+  </section>
+
+  <!-- FIELD REPORT (proof first) -->
+  <section id="field-report" class="sec">
+    <div class="wrap stack">
+      <p class="eyebrow">FIELD REPORT</p>
+      <h2>What one run actually found.</h2>
+      <p class="lead">At a live client, the agent worked through 36 payment files — from the documents alone.</p>
+      <div class="ledger" role="table" aria-label="Findings from one run">
+        <div class="ledger-head">
+          <span>RUN · 36 PAYMENT FILES</span><span>$420,000 UNDER REVIEW</span>
+        </div>
+        <div class="ledger-row" role="row">
+          <span class="what">A bill about to be paid a second time</span>
+          <span class="val blocked">DUPLICATE · BLOCKED</span>
+        </div>
+        <div class="ledger-row" role="row">
+          <span class="what">Tax missing from one large invoice</span>
+          <span class="val">$53,000</span>
+        </div>
+        <div class="ledger-row" role="row">
+          <span class="what">Vendors whose purchase orders were written after the bill had arrived</span>
+          <span class="val">8 VENDORS</span>
+        </div>
+        <div class="ledger-row" role="row">
+          <span class="what">A vendor charging for 150 licences when 85 were agreed</span>
+          <span class="val">150 vs 85</span>
+        </div>
+      </div>
+      <p class="lead">Nobody had caught any of it. That was 36 documents — most clients process thousands a month.</p>
+      <p style="margin: 6px 0 0"><a class="btn" href="mailto:rohit@yantrailabs.com?subject=50-file%20check%20%E2%80%94%20AI%20Accountant&body=We%27d%20like%20the%20AI%20Accountant%20to%20run%20its%20checks%20on%2050%20of%20our%20payment%20files.">Get this run on 50 of your payment files</a></p>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="sec">
+    <div class="wrap stack anim">
+      <p class="eyebrow">HOW AI ACCOUNTANT WORKS</p>
+      <h2>One system, two loops.</h2>
+      <div class="flow">
+        <div class="flow-node fn0">
+          <span class="step">ACCEPT</span>
+          <span class="name">Any document</span>
+          <span class="det">email · PDF · scan · photo · WhatsApp</span>
+        </div>
+        <div class="flow-node fn1">
+          <span class="step">READ</span>
+          <span class="name">Every field out</span>
+          <span class="det">vendor · line items · amounts · tax</span>
+        </div>
+        <div class="flow-node fn2">
+          <span class="step">MATCH</span>
+          <span class="name">Books agree</span>
+          <span class="det">bill · order · goods · bank · ledger</span>
+        </div>
+        <div class="flow-node fn3 risk">
+          <span class="step">CHECK</span>
+          <span class="name">Before money moves</span>
+          <span class="det">duplicates · tax rates · vendors</span>
+        </div>
+        <div class="flow-node fn4">
+          <span class="step">REPORT</span>
+          <span class="name">Live every day</span>
+          <span class="det">P&amp;L · cash · ageing · outstandings</span>
+        </div>
+        <div class="flow-node fn5 final">
+          <span class="step">PUSH TO ERP</span>
+          <span class="name">Master record</span>
+          <span class="det">SAP · Oracle · Tally · Zoho</span>
+        </div>
+      </div>
+      <div class="loop-band flow-node fn6">
+        <span class="lbl">AFTER THE PUSH · THE JUDGMENT LOOP</span>
+        <div class="chips">
+          <span>credit note processing</span>
+          <span>payment processing</span>
+          <span>10+ more processes</span>
+        </div>
+        <span class="note">prepared for a person · one click: approve — hold — query</span>
+      </div>
+      <div class="split">
+        <div class="agent">
+          <span class="pct">~70% — THE AGENT AUTOMATES</span>
+          <small>reads · enters · matches · checks · reports — 24×7, never forgets</small>
+        </div>
+        <div class="human">
+          <span class="pct">30% — YOUR TEAM</span>
+          <small>approve · hold · query · pay</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE AGENTS -->
+  <section id="agents" class="sec" style="background: var(--paper-2)">
+    <div class="wrap stack">
+      <p class="eyebrow">LIVE AGENTS</p>
+      <h2>A team of agents, each good at one job.</h2>
+      <div class="agent-grid">
+        <div class="agent-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="3" width="14" height="18" stroke="#1a7a4c" stroke-width="1.6"></rect><line x1="8" y1="8" x2="16" y2="8" stroke="#1a7a4c" stroke-width="1.6"></line><line x1="8" y1="12" x2="16" y2="12" stroke="#1a7a4c" stroke-width="1.6"></line><line x1="8" y1="16" x2="13" y2="16" stroke="#1a7a4c" stroke-width="1.6"></line></svg>
+          <span class="cat">CAPTURE</span>
+          <span class="name">Invoice reader</span>
+          <span class="what">any bill, any format → structured fields</span>
+        </div>
+        <div class="agent-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12 L13 12 M10 8 L14 12 L10 16" stroke="#1a7a4c" stroke-width="1.6" fill="none"></path><rect x="16" y="5" width="5" height="14" stroke="#1a7a4c" stroke-width="1.6"></rect></svg>
+          <span class="cat">ENTRY</span>
+          <span class="name">Invoice entry</span>
+          <span class="what">posts to your ERP · maker–checker on every one</span>
+        </div>
+        <div class="agent-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="12" r="5.5" stroke="#1a7a4c" stroke-width="1.6"></circle><circle cx="15" cy="12" r="5.5" stroke="#1a7a4c" stroke-width="1.6"></circle></svg>
+          <span class="cat">CONTROL</span>
+          <span class="name">Reconciliation</span>
+          <span class="what">three-way, bank, ledger — continuous</span>
+        </div>
+        <div class="agent-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3 L6 21 M6 4 L18 7.5 L6 11" stroke="#b23a2c" stroke-width="1.6" fill="none"></path></svg>
+          <span class="cat">CONTROL</span>
+          <span class="name">Flagging</span>
+          <span class="what">every payment checked before it leaves</span>
+        </div>
+        <div class="agent-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><line x1="5" y1="20" x2="5" y2="12" stroke="#1a7a4c" stroke-width="1.6"></line><line x1="10" y1="20" x2="10" y2="7" stroke="#1a7a4c" stroke-width="1.6"></line><line x1="15" y1="20" x2="15" y2="10" stroke="#1a7a4c" stroke-width="1.6"></line><line x1="20" y1="20" x2="20" y2="4" stroke="#1a7a4c" stroke-width="1.6"></line></svg>
+          <span class="cat">INSIGHT</span>
+          <span class="name">Reporting</span>
+          <span class="what">P&amp;L, cash, ageing — live every day</span>
+        </div>
+        <div class="agent-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 L21 12 L12 21 L3 12 Z" stroke="#1a7a4c" stroke-width="1.6" fill="none"></path><path d="M8.5 12 L11 14.5 L15.5 9.5" stroke="#1a7a4c" stroke-width="1.6" fill="none"></path></svg>
+          <span class="cat">JUDGMENT SUPPORT</span>
+          <span class="name">Decision</span>
+          <span class="what">prepares the case · a person decides</span>
+        </div>
+      </div>
+      <div class="roster">
+        <span class="num">10+</span>
+        <div class="txt">
+          <b>agents in the roster — latest live: the Credit note agent</b>
+          <span>Raises and reconciles credit and debit notes — over-billing, returns, rate differences — before they turn into disputes. Each new agent onboards like a new employee: it learns your documents and rules once, and delivers in days.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section id="security" class="sec dark">
+    <div class="wrap stack">
+      <p class="eyebrow">SECURITY · THE PRISM-ES STACK</p>
+      <h2>It sees only what the signed-in person sees, acts only through approved tools, and your books <span class="hl">never leave your control</span>.</h2>
+      <div class="prism-list">
+        <details class="prism">
+          <summary><span class="ltr">P</span><span class="nm">Platform</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">One system, reachable from every device — web, iOS, Android, Windows.</p>
+        </details>
+        <details class="prism">
+          <summary><span class="ltr">R</span><span class="nm">Roles</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">Who can see and do what, checked before anything else happens. An agent can only do what the signed-in person could do themselves.</p>
+        </details>
+        <details class="prism">
+          <summary><span class="ltr">I</span><span class="nm">Intelligence</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">The AI works through defined tools, never around them. Every input is screened, every output is checked.</p>
+        </details>
+        <details class="prism">
+          <summary><span class="ltr">S</span><span class="nm">Shield</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">Each customer's books are walled off in their own space. Never used to train anything shared.</p>
+        </details>
+        <details class="prism">
+          <summary><span class="ltr">M</span><span class="nm">Master data</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">Your ERP stays the authoritative record. Untouched.</p>
+        </details>
+        <details class="prism">
+          <summary><span class="ltr">E</span><span class="nm">Engineered on</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">A proven, modern stack, end to end.</p>
+        </details>
+        <details class="prism">
+          <summary><span class="ltr">S</span><span class="nm">Scales</span><span class="plus" aria-hidden="true">+</span></summary>
+          <p class="body">Built to grow — connects to the ERPs and CRMs you already run.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLLOUT -->
+  <section id="rollout" class="sec">
+    <div class="wrap stack">
+      <p class="eyebrow">SCALABILITY</p>
+      <h2>Scoped, trained and scaled — in four weeks.</h2>
+      <div class="weeks">
+        <div class="week">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="6.5" stroke="#1a7a4c" stroke-width="1.6"></circle><line x1="15" y1="15" x2="21" y2="21" stroke="#1a7a4c" stroke-width="1.6"></line></svg>
+          <span class="wk">WEEK 1</span>
+          <span class="nm">Scoping, discovery &amp; design</span>
+          <span class="what">Map your entities, workflows, document types and rules.</span>
+        </div>
+        <div class="week">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="12" height="12" stroke="#1a7a4c" stroke-width="1.6"></rect><rect x="8" y="8" width="12" height="12" stroke="#1a7a4c" stroke-width="1.6" stroke-dasharray="3 3"></rect></svg>
+          <span class="wk">WEEK 2–3</span>
+          <span class="nm">Workflow training &amp; shadow mode</span>
+          <span class="what">Agents learn your documents and run alongside your team — books compared entry by entry.</span>
+        </div>
+        <div class="week final">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="5" r="2.5" stroke="#1a7a4c" stroke-width="1.6"></circle><circle cx="5" cy="18" r="2.5" stroke="#1a7a4c" stroke-width="1.6"></circle><circle cx="19" cy="18" r="2.5" stroke="#1a7a4c" stroke-width="1.6"></circle><path d="M10.8 7 L6 15.8 M13.2 7 L18 15.8 M7.5 18 L16.5 18" stroke="#1a7a4c" stroke-width="1.6"></path></svg>
+          <span class="wk">WEEK 4</span>
+          <span class="nm">Scale across teams</span>
+          <span class="what">Roll out to every team and entity — no new systems for your people to learn.</span>
+        </div>
+      </div>
+      <p class="lead">Every step runs on the books you already have — SAP, Oracle, Tally or Zoho. Turning on another entity or workflow is <strong style="color: var(--green)">a switch, not a new project</strong>.</p>
+    </div>
+  </section>
+
+  <!-- CUSTOMERS -->
+  <section id="customers" class="sec" style="background: var(--paper-2)">
+    <div class="wrap cust">
+      <p class="eyebrow">RUNNING LIVE AT</p>
+      <div class="cust-names">
+        <span>BlueStone</span>
+        <span>Govt. of Odisha</span>
+        <span>Omaxe Group</span>
+        <span>Baxy Infotech</span>
+        <span>Mount Meru Group</span>
+      </div>
+      <!-- VERIFY BEFORE LAUNCH: these figures came in by instruction (13 / 40k / $15M monthly);
+           the reference paper says 12 customers and ~$3M saved in total. Align before go-live. -->
+      <div class="metrics">
+        <div class="metric"><span class="n">13</span><span class="l">live deployments</span></div>
+        <div class="metric"><span class="n">40k</span><span class="l">documents / month</span></div>
+        <div class="metric"><span class="n">$15M</span><span class="l">recovered monthly</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section id="team" class="sec">
+    <div class="wrap stack">
+      <p class="eyebrow">TEAM</p>
+      <h2>The people behind the agents.</h2>
+      <div class="team-grid">
+        <div class="person">
+          <div class="avatar" aria-hidden="true">M</div>
+          <div class="info">
+            <span class="nm">Mohit Sharma</span>
+            <span class="role">CO-FOUNDER · STRATEGY · BUSINESS · AI</span>
+            <span class="bio">B.Tech, IIT Delhi '12 · Hero Group $200M+ · Oye! Rickshaw — $12M raised (Matrix, Xiaomi)</span>
+            <a href="https://www.linkedin.com/in/mohit-sharma-24709913/">LinkedIn ↗</a>
+          </div>
+        </div>
+        <div class="person">
+          <div class="avatar" aria-hidden="true">R</div>
+          <div class="info">
+            <span class="nm">Rohit Singh</span>
+            <span class="role">CO-FOUNDER · BUSINESS · GTM · PRODUCT</span>
+            <span class="bio">B.Tech, NIT Rourkela '12 · Hero Group · EasyLokal (Techstars) → WayCool · Zomato</span>
+            <a href="https://www.linkedin.com/in/rohit-s-762957b1/">LinkedIn ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section id="contact" class="sec darkband">
+    <div class="wrap stack" style="align-items: flex-start">
+      <p class="eyebrow">START SMALL</p>
+      <h2>Send us 50 payment files. We'll show you what they're hiding.</h2>
+      <p class="lead">The agent runs the same checks it runs before money moves — duplicates, tax, quantities, vendors — and hands you the findings. If it finds nothing, you've lost nothing.</p>
+      <div class="cta-row" style="justify-content: flex-start">
+        <a class="btn on-dark" href="mailto:rohit@yantrailabs.com?subject=50-file%20check%20%E2%80%94%20AI%20Accountant&body=We%27d%20like%20the%20AI%20Accountant%20to%20run%20its%20checks%20on%2050%20of%20our%20payment%20files.">Get the 50-file check</a>
+        <a class="btn ghost-dark" href="mailto:rohit@yantrailabs.com?subject=Demo%20request%20%E2%80%94%20AI%20Accountant">Book a demo</a>
+      </div>
+      <p class="contact-line">or write directly — <a href="mailto:rohit@yantrailabs.com">rohit@yantrailabs.com</a> · <a href="tel:+919123102267">+91&nbsp;91231&nbsp;02267</a></p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot">
+    <div class="foot-top">
+      <div class="foot-id">
+        <span class="nm">AI ACCOUNTANT</span>
+        <span class="co">YANTRAI LABS</span>
+        <a href="mailto:rohit@yantrailabs.com" style="margin-top: 8px">rohit@yantrailabs.com</a>
+        <a href="tel:+919123102267">+91 91231 02267</a>
+        <span class="addr">SAS Towers, Sector 38, Gurgaon — 122018</span>
+      </div>
+      <div class="offices">
+        <div class="office"><span class="city">Dubai</span><span class="ctry">UAE</span></div>
+        <div class="office"><span class="city">Nairobi</span><span class="ctry">KENYA</span></div>
+        <div class="office"><span class="city">San Francisco</span><span class="ctry">USA</span></div>
+        <div class="office"><span class="city">Gurgaon</span><span class="ctry">INDIA</span></div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 YANTRAI LABS · ALL RIGHTS RESERVED</span>
+      <nav aria-label="Footer">
+        <a href="#field-report">FIELD REPORT</a>
+        <a href="#how">HOW IT WORKS</a>
+        <a href="#security">SECURITY</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
