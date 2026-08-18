@@ -57,6 +57,7 @@ memory_system/versions/
 !productivity-tracker/daemon/monitor_ui/*.html
 !productivity-tracker/src/ui/dashboard/*.html
 !pmis_v2/templates/*.html
+!AI Accountant/*.html
 
 # Research papers and personal docs
 *_research*.md

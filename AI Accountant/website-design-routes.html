@@ -1,0 +1,544 @@
+<title>AI Accountant Design Routes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Source+Serif+4:opsz,ital,wght@8..60,0,400;8..60,0,600;8..60,1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #F6F7F6;
+    --surface: #FFFFFF;
+    --ink: #1A1D1B;
+    --muted: #5B635E;
+    --faint: #8A928D;
+    --line: #DFE3E0;
+    --line-strong: #C4CBC6;
+    --accent: #1F6E4E;
+    --accent-ink: #17553C;
+    --accent-wash: #EAF2ED;
+    --flag: #B03A2E;
+    --chip: #EEF0EE;
+    /* Option A swatches */
+    --a1: #FCFBF8; --a2: #17181A; --a3: #B03A2E; --a4: #2E6B4F; --a5: #D8D2C4;
+    /* Option B swatches */
+    --b1: #0F1417; --b2: #E6EDEA; --b3: #3FC79A; --b4: #22313A; --b5: #7A8C94;
+    /* Option C swatches */
+    --c1: #F2F4F6; --c2: #1B2A3A; --c3: #E0A32E; --c4: #4A6FA5; --c5: #97A6B4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141715;
+      --surface: #1B1F1C;
+      --ink: #E7EAE7;
+      --muted: #A3ACA6;
+      --faint: #77807A;
+      --line: #2B302C;
+      --line-strong: #3C433E;
+      --accent: #4FA97F;
+      --accent-ink: #6FBF97;
+      --accent-wash: #1E2B24;
+      --flag: #D66A5E;
+      --chip: #242926;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141715;
+    --surface: #1B1F1C;
+    --ink: #E7EAE7;
+    --muted: #A3ACA6;
+    --faint: #77807A;
+    --line: #2B302C;
+    --line-strong: #3C433E;
+    --accent: #4FA97F;
+    --accent-ink: #6FBF97;
+    --accent-wash: #1E2B24;
+    --flag: #D66A5E;
+    --chip: #242926;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.25rem 6rem;
+  }
+  .wrap { max-width: 60rem; margin: 0 auto; }
+  h1, h2, h3, h4 {
+    font-family: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0;
+  }
+  p { margin: 0 0 1rem; max-width: 65ch; }
+  .mono, .eyebrow, .tag, .swatch-label, .flow-label {
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Masthead ---------- */
+  header.masthead {
+    padding: 4.5rem 0 2.5rem;
+    border-bottom: 1px solid var(--line-strong);
+    margin-bottom: 3rem;
+  }
+  header.masthead h1 {
+    font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+    font-weight: 700;
+    margin: 0.75rem 0 1.25rem;
+  }
+  .lede { font-size: 1.2rem; color: var(--muted); max-width: 58ch; }
+
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 4rem; }
+  section > h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .sec-head { display: flex; align-items: baseline; gap: 0.9rem; margin-bottom: 1.25rem; }
+  .sec-head .eyebrow { white-space: nowrap; }
+  .sec-head hr { flex: 1; border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+  /* ---------- Inventory ---------- */
+  .inventory {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.6rem;
+    padding: 0; margin: 1.25rem 0;
+    list-style: none;
+  }
+  .inventory li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .inventory li strong {
+    display: block;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 0.85rem;
+  }
+  .inventory li span { color: var(--muted); }
+  .principle {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-wash);
+    padding: 1rem 1.25rem;
+    border-radius: 0 4px 4px 0;
+    max-width: 62ch;
+  }
+  .principle p { margin: 0; }
+
+  /* ---------- Option chapters ---------- */
+  .option {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 3.5rem;
+  }
+  .option-band {
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .option-band .titleblock { max-width: 34rem; }
+  .option-band h3 { font-size: 1.9rem; font-weight: 700; margin: 0.5rem 0 0.6rem; }
+  .option-band .thesis { color: var(--muted); font-size: 1.05rem; margin: 0; font-style: italic; }
+  .identity { min-width: 14rem; }
+  .swatches { display: flex; gap: 0.35rem; margin-bottom: 0.5rem; }
+  .swatch {
+    width: 2.1rem; height: 2.1rem; border-radius: 4px;
+    border: 1px solid var(--line-strong);
+  }
+  .swatch-label { font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
+  .option-body { padding: 2rem; display: grid; gap: 2rem; }
+  @media (min-width: 800px) {
+    .option-body { grid-template-columns: 1fr 1fr; }
+    .option-body .full { grid-column: 1 / -1; }
+  }
+  .option h4 {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+    font-family: "IBM Plex Mono", monospace;
+  }
+  .option p { font-size: 0.98rem; }
+  .facts { list-style: none; margin: 0; padding: 0; font-size: 0.95rem; }
+  .facts li { padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
+  .facts li:last-child { border-bottom: 0; }
+  .facts b { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-direction: column; gap: 0; counter-reset: fs; }
+  .flow-step {
+    display: grid;
+    grid-template-columns: 2rem 11rem 1fr;
+    gap: 0.9rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed var(--line);
+    align-items: baseline;
+  }
+  .flow-step:last-child { border-bottom: 0; }
+  .flow-step::before {
+    counter-increment: fs;
+    content: counter(fs, decimal-leading-zero);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--faint);
+  }
+  .flow-label { font-size: 0.82rem; font-weight: 500; color: var(--accent-ink); }
+  .flow-step small { color: var(--muted); font-size: 0.88rem; line-height: 1.5; display: block; }
+  @media (max-width: 620px) {
+    .flow-step { grid-template-columns: 2rem 1fr; }
+    .flow-step small { grid-column: 2; }
+  }
+
+  /* Keep / cut */
+  .keepcut { display: grid; gap: 1.5rem; }
+  @media (min-width: 800px) { .keepcut { grid-template-columns: 1fr 1fr; } }
+  .kc-col ul { margin: 0; padding: 0; list-style: none; font-size: 0.92rem; }
+  .kc-col li { padding: 0.3rem 0 0.3rem 1.3rem; position: relative; color: var(--muted); }
+  .kc-col li::before { position: absolute; left: 0; font-family: "IBM Plex Mono", monospace; }
+  .kc-keep li::before { content: "+"; color: var(--accent); }
+  .kc-cut li::before { content: "−"; color: var(--flag); }
+  .kc-col li b { color: var(--ink); font-weight: 600; font-family: "Bricolage Grotesque", sans-serif; }
+
+  .tradeoff {
+    background: var(--chip);
+    border-radius: 4px;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .tradeoff b { color: var(--ink); }
+
+  /* ---------- Comparison table ---------- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 44rem; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.8rem 1rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  td:first-child { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; white-space: nowrap; }
+
+  /* ---------- Recommendation ---------- */
+  .reco {
+    border: 1px solid var(--accent);
+    background: var(--accent-wash);
+    border-radius: 8px;
+    padding: 1.75rem 2rem;
+  }
+  .reco h2 { font-size: 1.35rem; margin-bottom: 0.75rem; }
+  .reco p { max-width: 62ch; }
+  .reco p:last-child { margin-bottom: 0; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--chip);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    color: var(--muted);
+    margin-right: 0.4rem;
+  }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Design exercise · YantrAI Labs · AI Accountant</div>
+  <h1>Three routes to the AI Accountant website</h1>
+  <p class="lede">The source document is a complete pitch — product, proof, security, pricing, team. A website shouldn't carry all of it. Each route below picks <em>one reader, one job, one narrative</em> and keeps only the content that serves it. The three routes are deliberately incompatible with each other: choosing one means choosing what the site is for.</p>
+</header>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">00 · Source inventory</span><hr></div>
+  <h2>What the document gives us</h2>
+  <p>Twelve distinct content blocks. No route uses more than seven at full strength — the rest get compressed to a line or cut entirely.</p>
+  <ul class="inventory">
+    <li><strong>Positioning</strong><span>An AI employee on top of SAP / Oracle / Tally / Zoho</span></li>
+    <li><strong>Problem</strong><span>4 daily jobs; leakage of 2–3% of payables found after money leaves</span></li>
+    <li><strong>70 / 30 split</strong><span>Agent does routine 70%; humans keep the 30% that needs judgment</span></li>
+    <li><strong>Pipeline</strong><span>Read → Code → Match → Post / Exception → Report; 99% extraction, 90–95% auto-matched</span></li>
+    <li><strong>Six agents</strong><span>Reader, Entry, Reconciliation, Flagging, Reporting, Decision</span></li>
+    <li><strong>Live results</strong><span>36 files / $420K: duplicate payment, $53K missing tax, 8 backdated POs, 150 vs 85 licences</span></li>
+    <li><strong>What it is not</strong><span>5 disarming commitments (ERP stays master, maker–checker, no shared training…)</span></li>
+    <li><strong>PRISM-ES</strong><span>7-layer security stack</span></li>
+    <li><strong>Roadmap</strong><span>Live in 3 weeks, entity by entity</span></li>
+    <li><strong>Pricing</strong><span>$6,000 one-time + $29 / seat / agent / month</span></li>
+    <li><strong>Credibility</strong><span>Bluestone, Omaxe, Govt. of Odisha…; 12 customers, 110 agents, $100M processed, $3M saved; Shriram Group</span></li>
+    <li><strong>Founders + contact</strong><span>Mohit (IIT-D) &amp; Rohit (NIT-R); Gurgaon address</span></li>
+  </ul>
+  <div class="principle">
+    <p><strong>Curation rule for every route:</strong> a section earns its place only if the target reader would act differently after reading it. Everything else is one line, a footnote, or gone.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ OPTION A ═══════════════════ -->
+<section>
+  <div class="sec-head"><span class="eyebrow">Route A</span><hr></div>
+  <div class="option">
+    <div class="option-band">
+      <div class="titleblock">
+        <span class="tag">Proof-led</span><span class="tag">Conversion page</span>
+        <h3>The Audit</h3>
+        <p class="thesis">"We found $53,000 of missing tax in 36 invoices. Nobody had caught it."</p>
+      </div>
+      <div class="identity">
+        <div class="swatches">
+          <div class="swatch" style="background:#FCFBF8"></div>
+          <div class="swatch" style="background:#17181A"></div>
+          <div class="swatch" style="background:#B03A2E"></div>
+          <div class="swatch" style="background:#2E6B4F"></div>
+          <div class="swatch" style="background:#D8D2C4"></div>
+        </div>
+        <div class="swatch-label">ledger paper · ink · audit red · settled green · rule beige</div>
+        <div class="swatch-label" style="margin-top:0.3rem">Type: Libre Caslon display · IBM Plex Mono numerals</div>
+      </div>
+    </div>
+    <div class="option-body">
+      <div>
+        <h4>Reader &amp; job</h4>
+        <p><b>CFOs and finance heads</b> who believe their books are fine. The page has one job: create the itch to run the agent on their own files. It sells the <em>audit finding</em>, not the software.</p>
+        <h4>Tone</h4>
+        <p>Forensic, understated, numeric. Short declarative sentences. The page looks like a ledger: ruled hairlines, tabular numerals, red flags on found items. No product screenshots — evidence instead.</p>
+      </div>
+      <div>
+        <h4>Why this framing</h4>
+        <p>The document's strongest asset is the live-client findings — they are specific, verifiable-feeling, and alarming. Leading with the product invites comparison shopping; leading with <em>"here's the money you're losing right now"</em> invites a trial. The 2–3% leakage stat becomes the villain of the whole page.</p>
+      </div>
+      <div class="full">
+        <h4>Page flow — single scroll, one CTA repeated</h4>
+        <div class="flow">
+          <div class="flow-step"><span class="flow-label">HERO / FINDING</span><small>"In 36 payment files we found a bill about to be paid twice, $53,000 of missing tax, and a vendor billing 150 licences for 85 agreed." CTA: <em>Run it on your last month's invoices.</em></small></div>
+          <div class="flow-step"><span class="flow-label">THE LEDGER</span><small>The four findings set as audit lines — date, item, amount, flag. Interactive: hovering a line reveals what the agent saw. Closes with "That was 36 documents. You process thousands."</small></div>
+          <div class="flow-step"><span class="flow-label">THE LEAK</span><small>Why this happens: the work is slow, so mistakes are found <em>after</em> money leaves. 2–3% of payables, quantified against the visitor's own spend via a small slider calculator.</small></div>
+          <div class="flow-step"><span class="flow-label">HOW IT CATCHES</span><small>Pipeline compressed to three beats: reads every document, matches everything continuously, flags before payment. No agent taxonomy here.</small></div>
+          <div class="flow-step"><span class="flow-label">PROOF BAR</span><small>Client names + 12 / 110 / $100M / $3M stat strip. Shriram Group lineage as one line of small print.</small></div>
+          <div class="flow-step"><span class="flow-label">THE COMMITMENTS</span><small>"What it is not" reframed as five signed commitments — ERP stays master, maker–checker on every entry, your data trains only your deployment.</small></div>
+          <div class="flow-step"><span class="flow-label">PRICE &amp; CTA</span><small>$6,000 + $29/seat stated plainly next to "$3M saved to date." Final CTA repeats the hero offer with phone + email.</small></div>
+        </div>
+      </div>
+      <div class="keepcut full">
+        <div class="kc-col kc-keep">
+          <h4>Kept at full strength</h4>
+          <ul>
+            <li><b>Live results</b> — promoted to hero + own section</li>
+            <li><b>Leakage stat</b> — becomes an interactive calculator</li>
+            <li><b>What it is not</b> — reframed as commitments</li>
+            <li><b>Pricing</b> — transparency signals confidence</li>
+            <li><b>Client names + stats</b> — one proof bar</li>
+          </ul>
+        </div>
+        <div class="kc-col kc-cut">
+          <h4>Compressed or cut</h4>
+          <ul>
+            <li><b>Six-agent taxonomy</b> — cut; internal architecture, not a buying reason here</li>
+            <li><b>PRISM-ES stack</b> — one trust line + link; the acronym is for security reviews, not first contact</li>
+            <li><b>Founder bios</b> — cut to names in the footer</li>
+            <li><b>Full pipeline diagram</b> — compressed to three beats</li>
+            <li><b>Roadmap</b> — one line: "live in three weeks"</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tradeoff full"><b>Tradeoff:</b> strongest at generating trials, weakest at satisfying a controller doing due diligence — it deliberately withholds the how. Needs Route B's material available one click deeper for the second visit.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ OPTION B ═══════════════════ -->
+<section>
+  <div class="sec-head"><span class="eyebrow">Route B</span><hr></div>
+  <div class="option">
+    <div class="option-band">
+      <div class="titleblock">
+        <span class="tag">Product-led</span><span class="tag">Systems walkthrough</span>
+        <h3>The Machine Room</h3>
+        <p class="thesis">"Your ERP finally does the work" — a living schematic of the pipeline, running on screen.</p>
+      </div>
+      <div class="identity">
+        <div class="swatches">
+          <div class="swatch" style="background:#0F1417"></div>
+          <div class="swatch" style="background:#E6EDEA"></div>
+          <div class="swatch" style="background:#3FC79A"></div>
+          <div class="swatch" style="background:#22313A"></div>
+          <div class="swatch" style="background:#7A8C94"></div>
+        </div>
+        <div class="swatch-label">graphite · bone · signal green · panel slate · annotation grey</div>
+        <div class="swatch-label" style="margin-top:0.3rem">Type: Archivo display · IBM Plex Mono schematic labels</div>
+      </div>
+    </div>
+    <div class="option-body">
+      <div>
+        <h4>Reader &amp; job</h4>
+        <p><b>Controllers, finance ops leads, and IT evaluators</b> — the people who will be asked "will this actually work with our SAP?" The job: survive due diligence. Answer every hard question before it's asked.</p>
+        <h4>Tone</h4>
+        <p>Technical confidence. Dark-first schematic aesthetic: an animated document flowing through the six stages in the hero, monospace annotations, precise numbers (99%, 90–95%, 5–10%) rendered as instrument readouts.</p>
+      </div>
+      <div>
+        <h4>Why this framing</h4>
+        <p>The document's pipeline diagram is genuinely good — it already thinks like a systems page. This route makes it the hero: a document arrives (email · PDF · scan · WhatsApp), gets read, coded, matched, and posted, live, on scroll. Evaluators trust what they can trace.</p>
+      </div>
+      <div class="full">
+        <h4>Page flow — anchored sections, sticky nav</h4>
+        <div class="flow">
+          <div class="flow-step"><span class="flow-label">HERO / SCHEMATIC</span><small>The 6-step pipeline as a scroll-driven animation. Headline: "An accountant made of software. It sits on the ERP you already run." ERP logos (SAP, Oracle, Tally, Zoho) as input sockets.</small></div>
+          <div class="flow-step"><span class="flow-label">THE SPLIT</span><small>70/30 rendered as an honest diagram: what the agent takes (routine), what stays human (judgment), and the handoff — exceptions arrive with documents, history, and a suggested action. One click.</small></div>
+          <div class="flow-step"><span class="flow-label">THE SIX AGENTS</span><small>Full agent table as spec cards — Reader, Entry, Reconciliation, Flagging, Reporting, Decision — each with its one job and one number. "Onboarded like an employee: show it your documents and rules once."</small></div>
+          <div class="flow-step"><span class="flow-label">SECURITY</span><small>PRISM-ES at full depth, read bottom-up as the doc intends. The plain-language summary line — "the AI sees only what the signed-in person can see" — set large; the seven layers expandable beneath.</small></div>
+          <div class="flow-step"><span class="flow-label">ROLLOUT</span><small>Three-week roadmap as a timeline: Week 1 shadow-run and compare books entry-by-entry, Week 2 full AP/AR at real volume, Week 3+ group-wide. "A switch, not a project."</small></div>
+          <div class="flow-step"><span class="flow-label">BOUNDARIES / FAQ</span><small>"What it is not" verbatim as an FAQ — this is exactly the section finance teams ask for.</small></div>
+          <div class="flow-step"><span class="flow-label">PRICING &amp; CONTACT</span><small>$6,000 + $29/seat/agent/month with a worked example (e.g., 5 seats × 3 agents). CTA: <em>Book a technical walkthrough.</em></small></div>
+        </div>
+      </div>
+      <div class="keepcut full">
+        <div class="kc-col kc-keep">
+          <h4>Kept at full strength</h4>
+          <ul>
+            <li><b>Pipeline</b> — promoted to animated hero</li>
+            <li><b>Six agents</b> — full spec-card treatment</li>
+            <li><b>PRISM-ES</b> — only route that uses all 7 layers</li>
+            <li><b>Roadmap</b> — full 3-week timeline</li>
+            <li><b>What it is not</b> — verbatim, as FAQ</li>
+          </ul>
+        </div>
+        <div class="kc-col kc-cut">
+          <h4>Compressed or cut</h4>
+          <ul>
+            <li><b>Live findings</b> — compressed to stat chips inside relevant sections ($53K tax sits next to the Flagging agent)</li>
+            <li><b>Founder bios</b> — cut entirely</li>
+            <li><b>Leakage narrative</b> — one framing line in the split section</li>
+            <li><b>Client roster</b> — logo strip only</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tradeoff full"><b>Tradeoff:</b> most credible and most complete, but coldest — it assumes the visitor already wants the category. Weak at creating urgency; a CFO skimming for 20 seconds leaves without feeling the leak.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ OPTION C ═══════════════════ -->
+<section>
+  <div class="sec-head"><span class="eyebrow">Route C</span><hr></div>
+  <div class="option">
+    <div class="option-band">
+      <div class="titleblock">
+        <span class="tag">Narrative-led</span><span class="tag">Brand story</span>
+        <h3>The New Hire</h3>
+        <p class="thesis">"Meet your new accountant. Starts in three weeks. Works nights. Never forgets."</p>
+      </div>
+      <div class="identity">
+        <div class="swatches">
+          <div class="swatch" style="background:#F2F4F6"></div>
+          <div class="swatch" style="background:#1B2A3A"></div>
+          <div class="swatch" style="background:#E0A32E"></div>
+          <div class="swatch" style="background:#4A6FA5"></div>
+          <div class="swatch" style="background:#97A6B4"></div>
+        </div>
+        <div class="swatch-label">cool paper · navy ink · marigold · workaday blue · pencil grey</div>
+        <div class="swatch-label" style="margin-top:0.3rem">Type: Fraunces-class warm serif display · humanist sans body</div>
+      </div>
+    </div>
+    <div class="option-body">
+      <div>
+        <h4>Reader &amp; job</h4>
+        <p><b>Founders and CEOs of mid-market companies</b> — people who feel finance headcount as a monthly pain, not a process diagram. The job: make the product feel like a hiring decision they already know how to make.</p>
+        <h4>Tone</h4>
+        <p>Warm, plainspoken, a little wry. The document already talks this way — "onboarded like a new employee," "it never forgets," "nobody types." This route commits to the metaphor and carries it through every section as an employment story.</p>
+      </div>
+      <div>
+        <h4>Why this framing</h4>
+        <p>Software framing invites an IT evaluation; hiring framing invites a gut decision. Every hard concept maps cleanly: agents become a team with roles, results become references, "what it is not" becomes terms of employment, pricing becomes a salary — $29 a month against the cost of a person.</p>
+      </div>
+      <div class="full">
+        <h4>Page flow — one continuous story</h4>
+        <div class="flow">
+          <div class="flow-step"><span class="flow-label">THE OFFER</span><small>Hero as an offer letter: "Meet your new accountant." Three lines of terms: works 24×7 · learns your rules once · every dollar checked before it leaves. CTA: <em>Interview the agent.</em></small></div>
+          <div class="flow-step"><span class="flow-label">THE WORK NOBODY WANTS</span><small>The four daily jobs — typing, checking, reporting, chasing — written from the team's point of view. "The first three take the most people, the most hours, the most money."</small></div>
+          <div class="flow-step"><span class="flow-label">WHAT THEY TAKE OFF YOUR PLATE</span><small>70/30 as a promise about people, not percentages: "your team stops typing and moves to the 30% that needs a brain." Same function, ~30% of the people.</small></div>
+          <div class="flow-step"><span class="flow-label">MEET THE TEAM</span><small>Six agents as résumé cards — name, role, one-line specialty, one stat. The Flagging agent's card carries the $53K catch as its proudest moment.</small></div>
+          <div class="flow-step"><span class="flow-label">REFERENCES</span><small>Live results told as short anecdotes ("at one client, it stopped a bill from being paid twice — in its first week") + client names. 12 companies, $3M saved.</small></div>
+          <div class="flow-step"><span class="flow-label">TERMS OF EMPLOYMENT</span><small>"What it is not" as contract clauses: never posts without a check, never touches the master record, never shares what it learns. Security condensed to one plain sentence.</small></div>
+          <div class="flow-step"><span class="flow-label">START DATE &amp; SALARY</span><small>Three-week onboarding plan, then pricing as compensation: $29/seat/agent/month. Sign-off from the hiring managers — Mohit &amp; Rohit, the one route where founder credentials appear.</small></div>
+        </div>
+      </div>
+      <div class="keepcut full">
+        <div class="kc-col kc-keep">
+          <h4>Kept at full strength</h4>
+          <ul>
+            <li><b>Employee metaphor</b> — from a single doc line to the whole spine</li>
+            <li><b>Four daily jobs</b> — the emotional opening</li>
+            <li><b>Six agents</b> — as characters, not specs</li>
+            <li><b>Founders</b> — only route that features them; a hire needs a hiring manager</li>
+            <li><b>Roadmap</b> — as an onboarding plan</li>
+          </ul>
+        </div>
+        <div class="kc-col kc-cut">
+          <h4>Compressed or cut</h4>
+          <ul>
+            <li><b>Pipeline diagram</b> — cut; replaced by a one-line "day in the life"</li>
+            <li><b>PRISM-ES</b> — cut to one sentence inside the terms</li>
+            <li><b>Accuracy percentages</b> — mostly cut; metaphor beats metrics here</li>
+            <li><b>Implementation fee detail</b> — folded into "start date" as a simple line</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tradeoff full"><b>Tradeoff:</b> most memorable and most shareable, but the metaphor is a commitment — it can read as soft to a skeptical CFO, and enterprise buyers (Govt. of Odisha-scale) may want the machine room, not the story. Metaphor discipline required: one wink per section, never a costume party.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPARISON ═══════════════════ -->
+<section>
+  <div class="sec-head"><span class="eyebrow">Side by side</span><hr></div>
+  <h2>Choosing between them</h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th></th><th>A · The Audit</th><th>B · The Machine Room</th><th>C · The New Hire</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Reader</td><td>CFO who thinks the books are fine</td><td>Controller / IT running due diligence</td><td>Founder tired of finance headcount</td></tr>
+        <tr><td>Core emotion</td><td>Alarm → relief</td><td>Skepticism → trust</td><td>Burden → delegation</td></tr>
+        <tr><td>Hero asset</td><td>The $53K finding</td><td>The animated pipeline</td><td>The offer letter</td></tr>
+        <tr><td>CTA</td><td>Run it on your invoices</td><td>Book a technical walkthrough</td><td>Interview the agent</td></tr>
+        <tr><td>Buying trigger</td><td>Loss aversion</td><td>Verified capability</td><td>Familiar decision (hiring)</td></tr>
+        <tr><td>Content spine</td><td>Results + leakage</td><td>Pipeline + security + rollout</td><td>Metaphor + team + terms</td></tr>
+        <tr><td>Biggest risk</td><td>Thin on "how" for evaluators</td><td>No urgency for skimmers</td><td>Metaphor reads soft to enterprise</td></tr>
+        <tr><td>Sales cycle fit</td><td>Top of funnel — first touch</td><td>Mid funnel — evaluation</td><td>Brand — word of mouth</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="reco">
+    <h2>Recommendation</h2>
+    <p><strong>Lead with Route A, back it with Route B.</strong> The findings are this company's rarest asset — no competitor can copy "$53,000 of missing tax in 36 files," but anyone can draw a pipeline. The Audit converts the first visit; the Machine Room's sections (agents, PRISM-ES, roadmap, FAQ) live one click deeper as <em>/how-it-works</em> and <em>/security</em> for the evaluation that follows.</p>
+    <p>Route C is worth keeping in the drawer: its "new hire" voice is the strongest <em>copy system</em> of the three, and lines from it ("nobody types," "it never forgets") can season Route A without committing to the full metaphor.</p>
+  </div>
+</section>
+
+</div>
