@@ -1,0 +1,826 @@
+<title>AI Accountant</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  /* ============ TOKENS — dark-first ============ */
+  :root {
+    --ground: #0F1417;
+    --panel: #161E24;
+    --panel-2: #1B252D;
+    --ink: #E6EDEA;
+    --muted: #9AAAB2;
+    --faint: #64757E;
+    --line: #243039;
+    --line-strong: #34434D;
+    --signal: #3FC79A;
+    --signal-ink: #5AD5AC;
+    --signal-wash: rgba(63, 199, 154, 0.09);
+    --flag: #E06055;
+    --flag-ink: #E87B71;
+    --flag-wash: rgba(224, 96, 85, 0.08);
+    --nav-bg: rgba(15, 20, 23, 0.85);
+    --btn-ink: #0B1210;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --ground: #F2F5F4;
+      --panel: #FFFFFF;
+      --panel-2: #F7FAF9;
+      --ink: #16222A;
+      --muted: #55676F;
+      --faint: #84939A;
+      --line: #DCE3E1;
+      --line-strong: #C2CDCA;
+      --signal: #178A64;
+      --signal-ink: #116E4F;
+      --signal-wash: rgba(23, 138, 100, 0.08);
+      --flag: #B23A2E;
+      --flag-ink: #9C3227;
+      --flag-wash: rgba(178, 58, 46, 0.07);
+      --nav-bg: rgba(242, 245, 244, 0.88);
+      --btn-ink: #FFFFFF;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #F2F5F4;
+    --panel: #FFFFFF;
+    --panel-2: #F7FAF9;
+    --ink: #16222A;
+    --muted: #55676F;
+    --faint: #84939A;
+    --line: #DCE3E1;
+    --line-strong: #C2CDCA;
+    --signal: #178A64;
+    --signal-ink: #116E4F;
+    --signal-wash: rgba(23, 138, 100, 0.08);
+    --flag: #B23A2E;
+    --flag-ink: #9C3227;
+    --flag-wash: rgba(178, 58, 46, 0.07);
+    --nav-bg: rgba(242, 245, 244, 0.88);
+    --btn-ink: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.04rem;
+    line-height: 1.65;
+  }
+  h1, h2, h3 {
+    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.12;
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+  p { margin: 0 0 1rem; max-width: 62ch; }
+  a { color: inherit; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 5.5rem 0 2rem; scroll-margin-top: 4.5rem; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--signal-ink);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.1rem;
+  }
+  .eyebrow::after { content: ""; flex: 0 0 3.5rem; border-top: 1px solid var(--line-strong); }
+  section h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); font-weight: 700; margin-bottom: 1rem; }
+  .sub { color: var(--muted); font-size: 1.08rem; max-width: 58ch; }
+
+  /* ============ NAV ============ */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: 72rem; margin: 0 auto; padding: 0.8rem 1.5rem;
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .brand {
+    font-family: "Archivo", sans-serif; font-weight: 700; font-size: 0.95rem;
+    letter-spacing: 0.02em; text-decoration: none; white-space: nowrap;
+  }
+  .brand small { font-family: "IBM Plex Mono", monospace; font-weight: 400; color: var(--faint); font-size: 0.7rem; margin-left: 0.5rem; letter-spacing: 0.1em; }
+  .nav-links { display: flex; gap: 1.1rem; margin-left: auto; flex-wrap: wrap; }
+  .nav-links a {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); text-decoration: none; padding: 0.3rem 0;
+  }
+  .nav-links a:hover { color: var(--signal-ink); }
+  .btn {
+    display: inline-block;
+    font-family: "Archivo", sans-serif; font-weight: 600; font-size: 0.9rem;
+    background: var(--signal); color: var(--btn-ink);
+    padding: 0.55rem 1.2rem; border-radius: 4px; text-decoration: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost {
+    background: transparent; color: var(--ink);
+    border-color: var(--line-strong);
+  }
+  .btn.ghost:hover { border-color: var(--signal); color: var(--signal-ink); }
+  @media (max-width: 800px) { .nav-links { display: none; } .nav-inner .btn { margin-left: auto; } }
+
+  /* ============ HERO ============ */
+  .hero { padding: 5rem 0 3rem; }
+  .hero h1 {
+    font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+    font-weight: 700;
+    max-width: 21ch;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 em { font-style: normal; color: var(--signal-ink); }
+  .hero .sub { font-size: 1.15rem; margin-bottom: 1.75rem; }
+  .hero-ctas { display: flex; gap: 0.9rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .erp-row {
+    display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+    font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+    color: var(--faint); letter-spacing: 0.06em;
+  }
+  .erp-row .socket {
+    border: 1px solid var(--line-strong); border-radius: 3px;
+    padding: 0.25rem 0.7rem; color: var(--muted);
+  }
+
+  /* Schematic */
+  .schematic-frame {
+    margin: 3rem 0 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+  .schematic-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid var(--line);
+    font-family: "IBM Plex Mono", monospace; font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  }
+  .schematic-head .live { color: var(--signal-ink); }
+  .schematic-head .live::before {
+    content: "●"; margin-right: 0.5rem; animation: blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+  .schematic-scroll { overflow-x: auto; }
+  .schematic-scroll svg { display: block; min-width: 920px; width: 100%; height: auto; }
+
+  svg .box { fill: var(--panel-2); stroke: var(--line-strong); stroke-width: 1; rx: 5; }
+  svg .box-exc { stroke: var(--flag); }
+  svg .stage-num { font-family: "IBM Plex Mono", monospace; font-size: 11px; fill: var(--faint); letter-spacing: 2px; }
+  svg .stage-name { font-family: "Archivo", sans-serif; font-size: 17px; font-weight: 700; fill: var(--ink); }
+  svg .stage-desc { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; fill: var(--muted); }
+  svg .stage-stat { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; fill: var(--signal-ink); }
+  svg .stage-stat-exc { fill: var(--flag-ink); }
+  svg .wire { stroke: var(--line-strong); stroke-width: 1.4; fill: none; }
+  svg .wire-flow { stroke: var(--signal); stroke-width: 1.4; fill: none; stroke-dasharray: 3 7; animation: dashflow 1.6s linear infinite; opacity: 0.85; }
+  svg .wire-flow.exc { stroke: var(--flag); }
+  @keyframes dashflow { to { stroke-dashoffset: -10; } }
+  svg .pct { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; fill: var(--signal-ink); }
+  svg .pct-exc { fill: var(--flag-ink); }
+  svg .input-lbl { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; fill: var(--faint); }
+  .doc-dot {
+    width: 9px; height: 9px; border-radius: 2px;
+    background: var(--signal); position: absolute;
+    offset-rotate: 0deg;
+  }
+  .doc-dot.exc { background: var(--flag); }
+  .schematic-stage { position: relative; }
+  .dot-main { offset-path: path("M -20 200 L 735 200 L 735 90 L 950 90 L 990 90 L 990 200 L 1180 200"); animation: travel 9s linear infinite; }
+  .dot-exc  { offset-path: path("M -20 200 L 735 200 L 735 310 L 950 310 L 990 310 L 990 200 L 1180 200"); animation: travel 9s linear infinite; animation-delay: 4.5s; }
+  @keyframes travel { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+  /* Ticker — first appearance of red */
+  .ticker {
+    border-top: 1px solid var(--line);
+    padding: 0.65rem 1.2rem;
+    font-family: "IBM Plex Mono", monospace; font-size: 0.74rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--faint);
+    display: flex; gap: 1.4rem; flex-wrap: wrap;
+  }
+  .ticker b { font-weight: 500; color: var(--muted); }
+  .ticker .caught { color: var(--flag-ink); }
+
+  /* ============ SPLIT 70/30 ============ */
+  .splitbar { display: flex; border-radius: 6px; overflow: hidden; border: 1px solid var(--line-strong); margin: 2.25rem 0 0.8rem; }
+  .splitbar > div { padding: 1.1rem 1.25rem; }
+  .split-agent { flex: 0 0 70%; background: var(--signal-wash); border-right: 1px dashed var(--line-strong); }
+  .split-human { flex: 1; background: var(--panel); }
+  .split-pct { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 1.7rem; display: block; }
+  .split-agent .split-pct { color: var(--signal-ink); }
+  .split-lbl { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .splitbar p { font-size: 0.9rem; color: var(--muted); margin: 0.5rem 0 0; }
+  @media (max-width: 640px) { .splitbar { flex-direction: column; } .split-agent { border-right: 0; border-bottom: 1px dashed var(--line-strong); } }
+  .split-grid { display: grid; gap: 1.5rem; margin-top: 2rem; }
+  @media (min-width: 800px) { .split-grid { grid-template-columns: 1.1fr 1fr; } }
+  .handoff {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1.4rem 1.5rem;
+  }
+  .handoff h3 { font-size: 1.05rem; margin-bottom: 0.6rem; }
+  .handoff p { font-size: 0.95rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .handoff .attach {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.9rem 0;
+  }
+  .handoff .attach span {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    padding: 0.22rem 0.7rem; color: var(--muted);
+  }
+  .leak {
+    border-left: 3px solid var(--flag);
+    background: var(--flag-wash);
+    padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;
+    font-size: 0.97rem; max-width: 60ch;
+  }
+  .leak b { color: var(--flag-ink); font-variant-numeric: tabular-nums; }
+
+  /* ============ AGENTS ============ */
+  .agent-grid { display: grid; gap: 1rem; margin-top: 2.25rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+  .agent {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 0.45rem;
+  }
+  .agent:hover { border-color: var(--line-strong); }
+  .agent .role {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-ink);
+  }
+  .agent h3 { font-size: 1.12rem; }
+  .agent p { font-size: 0.93rem; color: var(--muted); margin: 0; flex: 1; }
+  .agent .stat {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--ink);
+    border-top: 1px solid var(--line); padding-top: 0.65rem; margin-top: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .agent .evidence {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; line-height: 1.5;
+    color: var(--flag-ink); margin-top: 0.15rem;
+  }
+  .agent .evidence::before { content: "⚑ "; }
+  .onboard-note { margin-top: 1.75rem; color: var(--muted); font-size: 0.98rem; max-width: 62ch; }
+
+  /* ============ FIELD REPORT ============ */
+  .report {
+    border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden;
+    background: var(--panel); margin-top: 2.25rem;
+  }
+  .report-head {
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    padding: 0.75rem 1.3rem; border-bottom: 1px solid var(--line);
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  }
+  .report-head .rh-right { color: var(--muted); }
+  .report-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: baseline;
+    padding: 0.85rem 1.3rem; border-bottom: 1px dashed var(--line);
+    font-size: 0.96rem;
+  }
+  .report-row:last-of-type { border-bottom: 1px solid var(--line); }
+  .report-row .what { color: var(--ink); max-width: 56ch; }
+  .report-row .amt {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.85rem;
+    color: var(--flag-ink); white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .report-foot { padding: 1.1rem 1.3rem 1.25rem; font-size: 0.95rem; color: var(--muted); }
+  .report-foot p { margin: 0 0 0.4rem; }
+  .report-foot b { color: var(--flag-ink); font-variant-numeric: tabular-nums; }
+
+  /* ============ SECURITY ============ */
+  .promise {
+    font-family: "Archivo", sans-serif; font-weight: 600;
+    font-size: clamp(1.25rem, 2.6vw, 1.7rem); line-height: 1.35;
+    max-width: 34ch; margin: 1.5rem 0 2rem; text-wrap: balance;
+  }
+  .promise em { font-style: normal; color: var(--signal-ink); }
+  .stack { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .stack details { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .stack details:last-child { border-bottom: 0; }
+  .stack summary {
+    display: grid; grid-template-columns: 2.6rem 9.5rem 1fr auto; gap: 1rem; align-items: baseline;
+    padding: 0.85rem 1.3rem; cursor: pointer; list-style: none;
+  }
+  .stack summary::-webkit-details-marker { display: none; }
+  .stack summary:hover { background: var(--panel-2); }
+  .stack .letter {
+    font-family: "Archivo", sans-serif; font-weight: 700; font-size: 1.15rem;
+    color: var(--signal-ink);
+  }
+  .stack .layer-name { font-family: "IBM Plex Mono", monospace; font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .stack .layer-gist { font-size: 0.92rem; color: var(--muted); }
+  .stack .expander { font-family: "IBM Plex Mono", monospace; color: var(--faint); font-size: 0.8rem; }
+  .stack details[open] .expander { transform: rotate(45deg); display: inline-block; }
+  .stack .layer-body { padding: 0 1.3rem 1.1rem 4.9rem; font-size: 0.95rem; color: var(--ink); max-width: 68ch; }
+  @media (max-width: 700px) {
+    .stack summary { grid-template-columns: 2.2rem 1fr auto; }
+    .stack .layer-gist { display: none; }
+    .stack .layer-body { padding-left: 1.3rem; }
+  }
+
+  /* ============ ROLLOUT ============ */
+  .timeline { display: grid; gap: 1rem; margin-top: 2.25rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .tl-step { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 1.3rem 1.4rem; position: relative; }
+  .tl-step .when {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--signal-ink); display: block; margin-bottom: 0.5rem;
+  }
+  .tl-step h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+  .tl-step p { font-size: 0.92rem; color: var(--muted); margin: 0; }
+  .switch-line { margin-top: 1.5rem; font-size: 0.98rem; color: var(--muted); }
+  .switch-line b { color: var(--ink); }
+
+  /* ============ BOUNDARIES ============ */
+  .faq { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: 2.25rem; }
+  .faq details { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .faq details:last-child { border-bottom: 0; }
+  .faq summary {
+    padding: 1rem 1.3rem; cursor: pointer; list-style: none;
+    font-family: "Archivo", sans-serif; font-weight: 600; font-size: 1rem;
+    display: flex; justify-content: space-between; gap: 1rem; align-items: baseline;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary:hover { background: var(--panel-2); }
+  .faq summary .expander { font-family: "IBM Plex Mono", monospace; color: var(--faint); font-weight: 400; }
+  .faq details[open] .expander { transform: rotate(45deg); display: inline-block; }
+  .faq .faq-body { padding: 0 1.3rem 1.1rem; font-size: 0.95rem; color: var(--muted); max-width: 68ch; }
+
+  /* ============ PRICING + PROOF ============ */
+  .price-grid { display: grid; gap: 1rem; margin-top: 2.25rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+  .price-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 1.5rem 1.6rem; }
+  .price-card .plabel { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.6rem; }
+  .price-card .amount { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 2.4rem; font-variant-numeric: tabular-nums; }
+  .price-card .per { font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--muted); }
+  .price-card p { font-size: 0.92rem; color: var(--muted); margin: 0.7rem 0 0; }
+  .worked {
+    margin-top: 1.25rem; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem;
+    color: var(--muted); background: var(--panel-2); border: 1px dashed var(--line-strong);
+    border-radius: 6px; padding: 0.9rem 1.2rem; max-width: 46rem; line-height: 1.7;
+    overflow-x: auto;
+  }
+  .worked b { color: var(--ink); font-weight: 500; }
+  .proofbar {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    border-radius: 8px; overflow: hidden; margin-top: 2.5rem;
+  }
+  .proofbar > div { background: var(--panel); padding: 1.2rem 1.3rem; }
+  .proofbar .pv { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 1.8rem; font-variant-numeric: tabular-nums; display: block; }
+  .proofbar .pv.saved { color: var(--flag-ink); }
+  .proofbar .pk { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .clients {
+    margin-top: 1.4rem; font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+    color: var(--muted); letter-spacing: 0.05em; line-height: 2;
+  }
+  .clients span { border: 1px solid var(--line-strong); border-radius: 3px; padding: 0.2rem 0.65rem; margin-right: 0.45rem; white-space: nowrap; }
+  .lineage { margin-top: 1rem; font-size: 0.85rem; color: var(--faint); }
+
+  /* ============ CONTACT ============ */
+  .contact {
+    margin-top: 2rem; border: 1px solid var(--line-strong); border-radius: 10px;
+    background: var(--panel); padding: 2.5rem 2rem; text-align: center;
+  }
+  .contact h2 { margin-bottom: 0.75rem; }
+  .contact .sub { margin: 0 auto 1.75rem; }
+  .contact-ctas { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .invoice-offer {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .invoice-offer b { color: var(--flag-ink); font-weight: 500; }
+  footer {
+    margin-top: 4rem; padding: 2rem 0 3rem; border-top: 1px solid var(--line);
+    font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; color: var(--faint);
+    line-height: 2;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--signal-ink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .doc-dot, .wire-flow, .schematic-head .live::before { animation: none !important; }
+    .doc-dot { display: none; }
+  }
+</style>
+
+<!-- ================= NAV ================= -->
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="#top">AI ACCOUNTANT<small>YANTRAI LABS</small></a>
+    <div class="nav-links">
+      <a href="#system">System</a>
+      <a href="#agents">Agents</a>
+      <a href="#report">Field report</a>
+      <a href="#security">Security</a>
+      <a href="#rollout">Rollout</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <a class="btn" href="#contact">Book a walkthrough</a>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="eyebrow">Finance, run by agents</div>
+  <h1>An accountant made of software. It sits on the <em>ERP you already run</em>.</h1>
+  <p class="sub">It reads your documents, makes the entries, matches the books, flags what's wrong, and keeps the reports current — every day, not every month. Your ERP stays the master record. Nobody types.</p>
+  <div class="hero-ctas">
+    <a class="btn" href="#contact">Book a technical walkthrough</a>
+    <a class="btn ghost" href="#system">See how it works</a>
+  </div>
+  <div class="erp-row">
+    WORKS ON TOP OF
+    <span class="socket">SAP</span>
+    <span class="socket">Oracle</span>
+    <span class="socket">Tally</span>
+    <span class="socket">Zoho</span>
+  </div>
+
+  <div class="schematic-frame">
+    <div class="schematic-head">
+      <span class="live">System running</span>
+      <span>DOC-IN → ERP-OUT · CONTINUOUS</span>
+    </div>
+    <div class="schematic-scroll">
+      <div class="schematic-stage">
+        <div class="doc-dot dot-main" aria-hidden="true"></div>
+        <div class="doc-dot exc dot-exc" aria-hidden="true"></div>
+        <svg viewBox="0 0 1200 400" role="img" aria-label="Pipeline: documents are read, coded, and matched. Matched entries (90 to 95 percent) post to the ERP automatically; exceptions (5 to 10 percent) go to a person with a suggested action. Everything feeds daily reports.">
+          <!-- input labels -->
+          <text class="input-lbl" x="14" y="168">email</text>
+          <text class="input-lbl" x="14" y="186">PDF</text>
+          <text class="input-lbl" x="14" y="204">scan</text>
+          <text class="input-lbl" x="14" y="222">photo</text>
+          <text class="input-lbl" x="14" y="240">WhatsApp</text>
+
+          <!-- wires -->
+          <path class="wire" d="M 78 200 L 100 200"/>
+          <path class="wire-flow" d="M 78 200 L 100 200"/>
+          <path class="wire" d="M 260 200 L 320 200"/>
+          <path class="wire-flow" d="M 260 200 L 320 200"/>
+          <path class="wire" d="M 480 200 L 540 200"/>
+          <path class="wire-flow" d="M 480 200 L 540 200"/>
+          <!-- match -> post -->
+          <path class="wire" d="M 700 180 L 735 180 L 735 90 L 790 90"/>
+          <path class="wire-flow" d="M 700 180 L 735 180 L 735 90 L 790 90"/>
+          <!-- match -> exception -->
+          <path class="wire" d="M 700 220 L 735 220 L 735 310 L 790 310"/>
+          <path class="wire-flow exc" d="M 700 220 L 735 220 L 735 310 L 790 310"/>
+          <!-- post -> report -->
+          <path class="wire" d="M 950 90 L 990 90 L 990 180 L 1030 180"/>
+          <path class="wire-flow" d="M 950 90 L 990 90 L 990 180 L 1030 180"/>
+          <!-- exception -> report -->
+          <path class="wire" d="M 950 310 L 990 310 L 990 220 L 1030 220"/>
+          <path class="wire-flow" d="M 950 310 L 990 310 L 990 220 L 1030 220"/>
+
+          <!-- split percentages -->
+          <text class="pct" x="712" y="132">90–95%</text>
+          <text class="pct-exc pct" x="712" y="282">5–10%</text>
+
+          <!-- stage: READ -->
+          <rect class="box" x="100" y="150" width="160" height="100" rx="5"/>
+          <text class="stage-num" x="118" y="176">01</text>
+          <text class="stage-name" x="118" y="198">READ</text>
+          <text class="stage-desc" x="118" y="218">vendor · lines · tax</text>
+          <text class="stage-stat" x="118" y="236">99% extraction</text>
+
+          <!-- stage: CODE -->
+          <rect class="box" x="320" y="150" width="160" height="100" rx="5"/>
+          <text class="stage-num" x="338" y="176">02</text>
+          <text class="stage-name" x="338" y="198">CODE</text>
+          <text class="stage-desc" x="338" y="218">ledger · cost centre</text>
+          <text class="stage-desc" x="338" y="236">picked automatically</text>
+
+          <!-- stage: MATCH -->
+          <rect class="box" x="540" y="150" width="160" height="100" rx="5"/>
+          <text class="stage-num" x="558" y="176">03</text>
+          <text class="stage-name" x="558" y="198">MATCH</text>
+          <text class="stage-desc" x="558" y="218">bill—order—goods</text>
+          <text class="stage-desc" x="558" y="236">bank—ledger · all day</text>
+
+          <!-- stage: POST -->
+          <rect class="box" x="790" y="40" width="160" height="100" rx="5"/>
+          <text class="stage-num" x="808" y="66">04</text>
+          <text class="stage-name" x="808" y="88">POST</text>
+          <text class="stage-desc" x="808" y="108">entry in your ERP</text>
+          <text class="stage-stat" x="808" y="126">nobody types</text>
+
+          <!-- stage: EXCEPTION -->
+          <rect class="box box-exc" x="790" y="260" width="160" height="100" rx="5"/>
+          <text class="stage-num" x="808" y="286">05</text>
+          <text class="stage-name" x="808" y="308">EXCEPTION</text>
+          <text class="stage-desc" x="808" y="328">to a person, with a</text>
+          <text class="stage-stat stage-stat-exc" x="808" y="346">suggested action</text>
+
+          <!-- stage: REPORT -->
+          <rect class="box" x="1030" y="150" width="156" height="100" rx="5"/>
+          <text class="stage-num" x="1048" y="176">06</text>
+          <text class="stage-name" x="1048" y="198">REPORT</text>
+          <text class="stage-desc" x="1048" y="218">cash · ageing · P&amp;L</text>
+          <text class="stage-stat" x="1048" y="236">current every day</text>
+        </svg>
+      </div>
+    </div>
+    <div class="ticker num">
+      <span>LAST RUN</span>
+      <span><b>36 FILES</b></span>
+      <span><b>$420,000</b> REVIEWED</span>
+      <span class="caught">4 EXCEPTIONS CAUGHT</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= SPLIT ================= -->
+<section id="system">
+  <div class="eyebrow">01 · The split</div>
+  <h2>70% of the work is routine. The agent takes exactly that.</h2>
+  <p class="sub">Every company runs an ERP, but the ERP doesn't do the work — people do. Typing, checking, reporting, chasing. The routine part goes to the agent; the judgment stays with your team.</p>
+
+  <div class="splitbar num">
+    <div class="split-agent">
+      <span class="split-pct">70%</span>
+      <span class="split-lbl">Routine — the agent</span>
+      <p>Reading, entering, flagging, correcting, matching, reporting. Runs 24×7. Never forgets.</p>
+    </div>
+    <div class="split-human">
+      <span class="split-pct">30%</span>
+      <span class="split-lbl">Judgment — your people</span>
+      <p>Approve, hold, query, pay. The decisions that need a brain.</p>
+    </div>
+  </div>
+
+  <div class="split-grid">
+    <div class="handoff">
+      <h3>The handoff, when judgment is needed</h3>
+      <p>An exception doesn't land in an inbox as a mystery. It arrives at the right person as a prepared case:</p>
+      <div class="attach">
+        <span>documents attached</span>
+        <span>full history</span>
+        <span>suggested action</span>
+      </div>
+      <p>The person reads, decides, clicks once. The same finance function runs on about <strong>30% of the people</strong>.</p>
+    </div>
+    <div>
+      <div class="leak">
+        Today the work is slow, so mistakes and leakage surface <em>after</em> the money has left — typically <b>2–3% of payables</b>, gone quietly. The agent checks every dollar <em>before</em> it goes out.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AGENTS ================= -->
+<section id="agents">
+  <div class="eyebrow">02 · The agents</div>
+  <h2>Not one program. A team of six, each good at one job.</h2>
+
+  <div class="agent-grid">
+    <div class="agent">
+      <span class="role">Capture</span>
+      <h3>Invoice reader</h3>
+      <p>Pulls every field off any bill, in any format — vendor, line items, amounts, tax.</p>
+      <span class="stat num">99% extraction accuracy</span>
+    </div>
+    <div class="agent">
+      <span class="role">Entry</span>
+      <h3>Invoice entry</h3>
+      <p>Creates the entry and syncs it to SAP, Oracle, Tally or Zoho. Maker–checker enforced on every one.</p>
+      <span class="stat">writes into your ERP · nobody types</span>
+    </div>
+    <div class="agent">
+      <span class="role">Control</span>
+      <h3>Reconciliation</h3>
+      <p>Three-way match, bank match, ledger match — running continuously, not at month-end.</p>
+      <span class="stat num">90–95% auto-matched</span>
+      <span class="evidence num">caught a bill about to be paid twice</span>
+    </div>
+    <div class="agent">
+      <span class="role">Control</span>
+      <h3>Flagging</h3>
+      <p>Duplicates, missing orders, rate changes, wrong tax, unusual vendors — before payment, not after.</p>
+      <span class="stat">every dollar checked before it leaves</span>
+      <span class="evidence num">$53,000 tax missing on one invoice · 150 licences billed, 85 agreed</span>
+    </div>
+    <div class="agent">
+      <span class="role">Insight</span>
+      <h3>Reporting</h3>
+      <p>Profit and loss, cash position, ageing, outstandings — live, current every day.</p>
+      <span class="stat">daily close, not monthly</span>
+    </div>
+    <div class="agent">
+      <span class="role">Judgment support</span>
+      <h3>Decision</h3>
+      <p>Compliance gaps, interest, penalties, debit and credit notes — surfaced with context for a human call.</p>
+      <span class="stat">prepares · a person decides</span>
+      <span class="evidence num">8 vendors with POs written after the bill arrived</span>
+    </div>
+  </div>
+
+  <p class="onboard-note">Each agent is onboarded like a new employee: you show it your documents and your rules once. It learns them, and starts delivering in days.</p>
+</section>
+
+<!-- ================= FIELD REPORT ================= -->
+<section id="report">
+  <div class="eyebrow">03 · Field report</div>
+  <h2>What one run actually found</h2>
+  <p class="sub">At a live client, the agent worked through 36 payment files — from the documents alone.</p>
+
+  <div class="report">
+    <div class="report-head">
+      <span>RUN · 36 PAYMENT FILES</span>
+      <span class="rh-right num">$420,000 UNDER REVIEW</span>
+    </div>
+    <div class="report-row">
+      <span class="what">A bill about to be paid a second time</span>
+      <span class="amt">DUPLICATE · BLOCKED</span>
+    </div>
+    <div class="report-row">
+      <span class="what">Tax missing from one large invoice</span>
+      <span class="amt num">$53,000</span>
+    </div>
+    <div class="report-row">
+      <span class="what">Vendors whose purchase orders were written <em>after</em> the bill had already arrived</span>
+      <span class="amt num">8 VENDORS</span>
+    </div>
+    <div class="report-row">
+      <span class="what">A vendor charging for 150 licences when 85 were agreed</span>
+      <span class="amt num">150 vs 85</span>
+    </div>
+    <div class="report-foot">
+      <p>Nobody had caught any of it. That was 36 documents — most clients process thousands a month.</p>
+      <p>Across all live deployments, the agent recovers <b>2–3% of vendor spend</b> that used to leak out quietly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECURITY ================= -->
+<section id="security">
+  <div class="eyebrow">04 · Security · PRISM-ES</div>
+  <h2>Built so finance can say yes</h2>
+  <p class="promise">The AI can only see what the signed-in person can see, it can only act through approved tools, and <em>your books never leave your control</em>.</p>
+
+  <div class="stack">
+    <details>
+      <summary><span class="letter">P</span><span class="layer-name">Platform</span><span class="layer-gist">One system, every device</span><span class="expander">+</span></summary>
+      <div class="layer-body">One system, reachable from every device — web, iOS, Android, Windows.</div>
+    </details>
+    <details>
+      <summary><span class="letter">R</span><span class="layer-name">Roles</span><span class="layer-gist">Permissions checked first</span><span class="expander">+</span></summary>
+      <div class="layer-body">Who can see and do what is checked before anything else happens. An agent can only do what the signed-in person could do themselves.</div>
+    </details>
+    <details>
+      <summary><span class="letter">I</span><span class="layer-name">Intelligence</span><span class="layer-gist">Defined tools, never around them</span><span class="expander">+</span></summary>
+      <div class="layer-body">The AI works through defined tools, never around them. Every input is screened, every output is checked.</div>
+    </details>
+    <details>
+      <summary><span class="letter">S</span><span class="layer-name">Shield</span><span class="layer-gist">Your data trains only your deployment</span><span class="expander">+</span></summary>
+      <div class="layer-body">Each customer's books are walled off in their own space — never used to train anything shared. Your books train your deployment, and only yours.</div>
+    </details>
+    <details>
+      <summary><span class="letter">M</span><span class="layer-name">Master data</span><span class="layer-gist">Your ERP stays authoritative</span><span class="expander">+</span></summary>
+      <div class="layer-body">Your ERP stays the authoritative record. Untouched. The agent writes into it; it never replaces it.</div>
+    </details>
+    <details>
+      <summary><span class="letter">E</span><span class="layer-name">Engineered on</span><span class="layer-gist">A proven, modern stack</span><span class="expander">+</span></summary>
+      <div class="layer-body">A proven, modern stack, end to end.</div>
+    </details>
+    <details>
+      <summary><span class="letter">S</span><span class="layer-name">Scales</span><span class="layer-gist">Grows with your systems</span><span class="expander">+</span></summary>
+      <div class="layer-body">Built to grow — connects to the ERPs and CRMs you already run.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= ROLLOUT ================= -->
+<section id="rollout">
+  <div class="eyebrow">05 · Rollout</div>
+  <h2>Live in three weeks, entity by entity</h2>
+
+  <div class="timeline">
+    <div class="tl-step">
+      <span class="when">Week 1 · One entity</span>
+      <h3>Shadow run</h3>
+      <p>Connect your ERP, bank feeds and invoice inbox. The agent runs alongside your team — you compare its books to yours, entry by entry.</p>
+    </div>
+    <div class="tl-step">
+      <span class="when">Week 2 · Full AP &amp; AR</span>
+      <h3>Live at real volume</h3>
+      <p>Capture, matching, collections and exceptions go live — tested at your actual monthly volume, not a sample.</p>
+    </div>
+    <div class="tl-step">
+      <span class="when">Week 3+ · Every entity</span>
+      <h3>Group-wide</h3>
+      <p>Rollout across the group. Software copies itself — no new systems ship.</p>
+    </div>
+  </div>
+  <p class="switch-line">Every step runs on the books you already have. Turning on another workflow is <b>a switch, not a new project</b>.</p>
+</section>
+
+<!-- ================= BOUNDARIES ================= -->
+<section id="boundaries">
+  <div class="eyebrow">06 · Boundaries</div>
+  <h2>What it is not</h2>
+  <p class="sub">Worth being clear, because finance teams always ask.</p>
+
+  <div class="faq">
+    <details>
+      <summary>It does not replace your ERP <span class="expander">+</span></summary>
+      <div class="faq-body">SAP, Oracle or Tally stays the master record. The agent writes into it — it never becomes the system of record itself.</div>
+    </details>
+    <details>
+      <summary>It does not file your returns <span class="expander">+</span></summary>
+      <div class="faq-body">It prepares them. Your accountant still reviews and signs.</div>
+    </details>
+    <details>
+      <summary>It does not post without a check <span class="expander">+</span></summary>
+      <div class="faq-body">Maker–checker is enforced on every entry, with limits you set.</div>
+    </details>
+    <details>
+      <summary>It does not remove your finance team <span class="expander">+</span></summary>
+      <div class="faq-body">It removes the typing. Your people move to the 30% of the work that needs a brain.</div>
+    </details>
+    <details>
+      <summary>It does not learn from your data for anyone else <span class="expander">+</span></summary>
+      <div class="faq-body">Your books train your deployment, and only yours. Nothing is shared across customers.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section id="pricing">
+  <div class="eyebrow">07 · Pricing &amp; proof</div>
+  <h2>Priced like software, not like headcount</h2>
+
+  <div class="price-grid">
+    <div class="price-card">
+      <span class="plabel">One-time implementation</span>
+      <span class="amount num">$6,000</span>
+      <p>ERP connection, bank feeds, invoice inbox, your rules learned — through the three-week rollout.</p>
+    </div>
+    <div class="price-card">
+      <span class="plabel">Then, ongoing</span>
+      <span class="amount num">$29</span> <span class="per">/ seat / agent / month</span>
+      <p>Turn agents on per seat. Add a workflow with a switch, not a project.</p>
+    </div>
+  </div>
+
+  <div class="worked num">
+    <b>Worked example</b> — 5 seats × 3 agents = 15 units × $29 = <b>$435 / month</b>.<br>
+    Against 2–3% of vendor spend recovered, most deployments pay for themselves in the first payment cycle.
+  </div>
+
+  <div class="proofbar">
+    <div><span class="pv num">12</span><span class="pk">Live customers</span></div>
+    <div><span class="pv num">110</span><span class="pk">Live agents</span></div>
+    <div><span class="pv num">$100M</span><span class="pk">Transactions processing</span></div>
+    <div><span class="pv saved num">$3M</span><span class="pk">Money saved</span></div>
+  </div>
+
+  <div class="clients">
+    LIVE TODAY WITH
+    <span>Bluestone</span><span>Omaxe</span><span>Government of Odisha</span><span>Baxy Group</span><span>Mount Meru Group</span>
+    + 10 large enterprises across India, the GCC, Africa and the USA
+  </div>
+  <p class="lineage">A rich heritage of building businesses — part of the Shriram Group.</p>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+  <div class="contact">
+    <div class="eyebrow" style="justify-content:center">08 · Next step</div>
+    <h2>See it run on your own books</h2>
+    <p class="sub">A 45-minute technical walkthrough: the pipeline live, the security model, and the rollout plan for your entities.</p>
+    <div class="contact-ctas">
+      <a class="btn" href="mailto:rohit@yantrailabs.com?subject=Technical%20walkthrough%20—%20AI%20Accountant">Book a technical walkthrough</a>
+      <a class="btn ghost" href="mailto:rohit@yantrailabs.com?subject=30%20invoices%20—%20show%20me%20what%20you%20find">Or send us 30 invoices</a>
+    </div>
+    <p class="invoice-offer">We'll run the agent over them and show you what we find. <b>The last 36 files hid $53,000.</b></p>
+  </div>
+
+  <footer>
+    <div>YANTRAI LABS · SAS Towers, Sector 38, Gurgaon, Haryana — 122018</div>
+    <div><a href="tel:+919123102267">+91 91231 02267</a> · <a href="mailto:rohit@yantrailabs.com">rohit@yantrailabs.com</a></div>
+  </footer>
+</section>
+
+</div>
