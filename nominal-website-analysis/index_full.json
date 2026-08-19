@@ -1,0 +1,2197 @@
+[
+  {
+    "url": "https://nominal.so/",
+    "status": 200,
+    "title": "Nominal • Nominal | Agentic AI Platform That Runs Your Accounting",
+    "metaDesc": "Eliminate manual effort with an agentic platform that plugs into your existing setup to execute the busywork, freeing your people to create real business value.",
+    "h1": [
+      "Run your entire close with AI agents."
+    ]
+  },
+  {
+    "url": "https://nominal.so/our-platform",
+    "status": 200,
+    "title": "Nominal Platform: Agentic Performance Management • Nominal",
+    "metaDesc": "Nominal deploys autonomous AI agents that execute reconciliation, consolidation, variance analysis, and close across any ERP, without adding headcount.",
+    "h1": [
+      "A new way to run accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/agents/flux-analysis-agents",
+    "status": 200,
+    "title": "Flux Analysis Agents for Accounting Teams • Nominal",
+    "metaDesc": "Nominal's agents trace balance changes to their source transactions, deliver variance explanations, and flag unexpected movements before close.",
+    "h1": [
+      "Stop investigating variance. Start understanding it."
+    ]
+  },
+  {
+    "url": "https://nominal.so/agents/bank-reconciliation-agents",
+    "status": 200,
+    "title": "Bank Reconciliation Agents for Accounting Teams • Nominal",
+    "metaDesc": "Nominal's AI agents match bank activity to your ledger continuously, surface exceptions automatically, and keep every account audit-ready without manual work.",
+    "h1": [
+      "From bank chaos to reconciled cash, automatically"
+    ]
+  },
+  {
+    "url": "https://nominal.so/agents/trigger-agents",
+    "status": 200,
+    "title": "Trigger Agents for Accounting Teams • Nominal",
+    "metaDesc": "Nominal's Trigger Agents monitor financial activity in real time and automatically initiate workflows when conditions are met, with no manual follow-up required.",
+    "h1": [
+      "Automation that knows when to act"
+    ]
+  },
+  {
+    "url": "https://nominal.so/agents/transaction-matching-agents",
+    "status": 200,
+    "title": "Transaction Matching Agents for Accounting Teams • Nominal",
+    "metaDesc": "Nominal's agents match transactions across ledgers, entities, and systems automatically, so accounting teams review results instead of hunting for mismatches.",
+    "h1": [
+      "Match transactions across any ledger, entity, or system"
+    ]
+  },
+  {
+    "url": "https://nominal.so/agents/transaction-patrol-agents",
+    "status": 200,
+    "title": "Transaction Patrol Agents for Accounting Teams • Nominal",
+    "metaDesc": "Transaction Matching Agents detects, pairs, and prepares your GL reconciliation using logic tailored to intercompany, inventory, and more.",
+    "h1": [
+      "Anomalies detected in real time"
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/close-acceleration-and-accuracy",
+    "status": 200,
+    "title": "Close Acceleration & Accuracy • Nominal",
+    "metaDesc": "Nominal's agents continuously reconcile, detect anomalies, and manage close workflows so your team arrives at month-end with the hard work already done.",
+    "h1": [
+      "A better close with agents."
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/intercompany-and-multi-entity-operations",
+    "status": 200,
+    "title": "Intercompany & Multi-Entity Operations • Nominal",
+    "metaDesc": "Nominal’s agents continuously match, normalize, and reconcile activity across entities, so your structure doesn’t slow your close.",
+    "h1": [
+      "Operate like one company, even when you’re structured like fifty."
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/financial-consolidation-and-reporting",
+    "status": 200,
+    "title": "Financial Consolidation & Reporting • Nominal",
+    "metaDesc": "Nominal’s agents normalize, reconcile, and automate eliminations—ensuring your consolidated financials are accurate, audit-ready, and delivered on time.",
+    "h1": [
+      "Consolidate faster. Report with confidence."
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/preparing-for-scale-and-ipo",
+    "status": 200,
+    "title": "Preparing for Scale & IPO • Nominal",
+    "metaDesc": "Nominal’s agents build repeatable, auditable workflows that scale, delivering the control needed for IPO readiness.",
+    "h1": [
+      "Build public-company finance before you go public."
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/workday",
+    "status": 200,
+    "title": "Nominal x Workday • Nominal",
+    "metaDesc": "Connect Nominal to Workday to automate reconciliations, monitor variances, and drive workflows—all without changing how your team books transactions.",
+    "h1": [
+      "Unlock more from Workday"
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/microsoft-dynamics-365",
+    "status": 200,
+    "title": "Nominal X Microsoft Dynamics 365 • Nominal",
+    "metaDesc": "Connect Nominal to Dynamics 365 to automate reconciliations, monitor variances, and drive workflows—all without changing how your team books transactions.",
+    "h1": [
+      "Bring Agentic Intelligence to Dynamics 365"
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/oracle",
+    "status": 200,
+    "title": "Nominal x Oracle • Nominal",
+    "metaDesc": "Connect Nominal to Oracle to automate reconciliations, monitor variances, and drive workflows—all without changing how your team books transactions.",
+    "h1": [
+      "Oracle, upgraded"
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/sage-intacct",
+    "status": 200,
+    "title": "Nominal x Sage Intacct • Nominal",
+    "metaDesc": "Connect Nominal to Sage Intacct to automate reconciliations, monitor variances, and drive workflows—all without changing how your team books transactions.",
+    "h1": [
+      "Get more operational power from Sage Intacct"
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/sap",
+    "status": 200,
+    "title": "Nominal x SAP • Nominal",
+    "metaDesc": "Connect Nominal to SAP to automate reconciliations, monitor variances, and drive workflows—all without changing how your team books transactions.",
+    "h1": [
+      "Modern finance execution on top of SAP"
+    ]
+  },
+  {
+    "url": "https://nominal.so/solutions/erp-agnostic-orchestration",
+    "status": 200,
+    "title": "ERP-Agnostic Orchestration • Nominal",
+    "metaDesc": "Nominal connects to your ERP and adds an execution layer powered by AI agents to do the work your team shouldn’t have to do manually.",
+    "h1": [
+      "Your ERP Records. Nominal Executes."
+    ]
+  },
+  {
+    "url": "https://nominal.so/company/about",
+    "status": 200,
+    "title": "About Nominal: Agentic Finance for Accounting Teams • Nominal",
+    "metaDesc": "Learn about Nominal's mission, leadership team, and the story behind the Agentic Performance Management platform built to free accounting teams from manual work.",
+    "h1": [
+      "Strategy over spreadsheets"
+    ]
+  },
+  {
+    "url": "https://nominal.so/company/careers",
+    "status": 200,
+    "title": "Careers at Nominal: Join the Agentic Finance Team • Nominal",
+    "metaDesc": "Explore open roles at Nominal, the Agentic Performance Management platform for accounting teams. Hybrid work, equity, health benefits, and a clear path to grow.",
+    "h1": [
+      "Where experience meets drive and creativity"
+    ]
+  },
+  {
+    "url": "https://nominal.so/company/security",
+    "status": 200,
+    "title": "Nominal Security: SOC 1 Certified AI Finance Platform • Nominal",
+    "metaDesc": "Nominal safeguards your critical data with state-of-the-art security tools and combined decades of professional security expertise.",
+    "h1": [
+      "Your data is our priority"
+    ]
+  },
+  {
+    "url": "https://nominal.so/contact-us",
+    "status": 200,
+    "title": "Get in Touch with the Nominal Team • Nominal",
+    "metaDesc": "Talk to Nominal about Agentic Performance Management, see a live demo, or explore a partnership. Reach out and the right person will follow up.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog",
+    "status": 200,
+    "title": "Nominal Blog: Insights from the Agentic Era • Nominal",
+    "metaDesc": "Insights, product updates, and practical guides for accounting teams navigating agentic AI, close automation, multi-entity consolidation, and ERP operations.",
+    "h1": [
+      "Insights from the Agentic Era"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources",
+    "status": 200,
+    "title": "Nominal Resource Center For Accounting Teams • Nominal",
+    "metaDesc": "White papers, eBooks, checklists, and guides for controllers and finance teams managing close, consolidation, reconciliation, and AI adoption.",
+    "h1": [
+      "Tools, Guides & Insights"
+    ]
+  },
+  {
+    "url": "https://nominal.so/case-studies",
+    "status": 200,
+    "title": "Nominal Customer Case Studies: Real Finance Results • Nominal",
+    "metaDesc": "See how accounting teams use Nominal to cut close time, automate reconciliation, and scale multi-entity operations. Real results from real teams.",
+    "h1": [
+      "How Nominal powers modern finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/courses/masterclass",
+    "status": 200,
+    "title": "Nominal Masterclass: AI Accounting Certification • Nominal",
+    "metaDesc": "A free 4-module course for CFOs, controllers, and accountants. Learn how AI agents work in finance, earn your AI Mastery Badge, and apply it immediately.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/agentic-performance-management-hub",
+    "status": 200,
+    "title": "Agentic Performance Management: The Complete Hub • Nominal",
+    "metaDesc": "Everything on Agentic Performance Management: definitions, use cases, comparisons, and resources for accounting teams.",
+    "h1": [
+      "Agentic Performance Management: The Complete Resource Hub"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events",
+    "status": 200,
+    "title": "Nominal Events: Finance & Accounting AI Webinars • Nominal",
+    "metaDesc": "Stay up to date with Nominal’s upcoming events and connect with top finance and accounting leaders exploring AI in accounting.",
+    "h1": [
+      "Nominal Events"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press",
+    "status": 200,
+    "title": "Nominal Press Room: News and Announcements • Nominal",
+    "metaDesc": "Stay current with Nominal's latest press releases, funding announcements, product milestones, and coverage on agentic AI in accounting and finance operations.",
+    "h1": [
+      "Nominal in the News Nominal in the News"
+    ]
+  },
+  {
+    "url": "https://nominal.so/book-a-demo",
+    "status": 200,
+    "title": "Book a Demo With Nominal: See Autonomous Agents in Action • Nominal",
+    "metaDesc": "See how Nominal's AI agents execute reconciliation, intercompany, consolidation, and close, so your team can focus on analysis, not manual work.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog/automated-reconciliation",
+    "status": 200,
+    "title": "Automated Reconciliation: Beyond Rules-Based Tools • Nominal",
+    "metaDesc": "Automated reconciliation with RPA handles volume but not exceptions. Learn how APM agents complete the full workflow continuously and keep books audit-ready.",
+    "h1": [
+      "Automated Reconciliation: Why RPA Falls Short at Scale and How APM Agents Finish the Job"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/nick-masotti",
+    "status": 200,
+    "title": "Nick Masotti, Business Development Representative at Nominal • Nominal",
+    "metaDesc": "Nick Masotti is a business development professional at Nominal, where he helps finance teams modernize accounting workflows through AI-powered automation.",
+    "h1": [
+      "Nick Masotti"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/pl-report",
+    "status": 200,
+    "title": "P&L Report: Get Real-Time Visibility Without the Wait • Nominal",
+    "metaDesc": "Learn how accounting teams can produce an accurate P&L report throughout the month using agent-powered continuous reconciliation, not just at month-end close.",
+    "h1": [
+      "P&L Report: How Accounting Teams Get Real-Time Visibility Without Waiting for Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/human-in-the-loop-ai-governance-accounting",
+    "status": 200,
+    "title": "How Human-in-the-Loop AI Governance Works in Accounting • Nominal",
+    "metaDesc": "How accounting teams define thresholds, escalation rules, and audit trails for AI agents, and how to spot governance that's real versus cosmetic.",
+    "h1": [
+      "Human-in-the-Loop AI Governance in Accounting: Thresholds, Escalation, and Audit Trails"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/samantha-sachs",
+    "status": 200,
+    "title": "Samantha Sachs, Account Executive at Nominal • Nominal",
+    "metaDesc": "Samantha Sachs is an Account Executive at Nominal, where she partners with finance and accounting teams to transform their operations from reactive to",
+    "h1": [
+      "Samantha Sachs"
+    ]
+  },
+  {
+    "url": "https://nominal.so/legal/privacy-policy",
+    "status": 200,
+    "title": "Nominal Privacy Policy • Nominal",
+    "metaDesc": "Read Nominal's privacy policy to understand how we collect, use, and protect your information when you visit our website or request a demo.",
+    "h1": [
+      "Privacy Policy"
+    ]
+  },
+  {
+    "url": "https://nominal.so/legal/terms-of-use",
+    "status": 200,
+    "title": "Nominal Terms of Use • Nominal",
+    "metaDesc": "Read Nominal's terms of use governing access to our website, including permitted use, intellectual property, disclaimers, and contact information.",
+    "h1": [
+      "Terms of Use"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/workday-account-reconciliation",
+    "status": 200,
+    "title": "Workday Account Reconciliation: Why Teams Use Excel • Nominal",
+    "metaDesc": "Workday captures every transaction accurately. But account reconciliation still happens in spreadsheets. See where the gap lives and how AI agents close it. ",
+    "h1": [
+      "The Workday Account Reconciliation Gap: What It Costs and How to Close It"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/sage-multi-entity-close",
+    "status": 200,
+    "title": "Sage Accounting: Closing the Multi-Entity Gap • Nominal",
+    "metaDesc": "Multi-entity teams on Sage lose weeks to manual consolidation, reconciliation, and intercompany work. Here's the execution layer built to close that gap.",
+    "h1": [
+      "Why Multi-Entity Accounting Teams on Sage Still Close Manually"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/victoria-mcdevitt",
+    "status": 200,
+    "title": "Victoria McDevitt, Business Development Representative at Nominal • Nominal",
+    "metaDesc": "Victoria McDevitt is Business Development Representative at Nominal, the agentic finance platform for accounting teams. Read her articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Victoria McDevitt"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-ai-accounting",
+    "status": 200,
+    "title": "Agentic AI in Accounting: How Automation Works in Practice • Nominal",
+    "metaDesc": "Agentic AI in accounting executes reconciliations, close, and consolidation autonomously. See how accounting teams use it to close faster.",
+    "h1": [
+      "Agentic AI in Accounting: The Shift From Assistance to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-ai-in-finance",
+    "status": 200,
+    "title": "Agentic AI in Finance: How It Transforms Corporate Operations • Nominal",
+    "metaDesc": "Agentic AI in finance moves beyond execution assistance. See how CFOs are using autonomous agents to close faster and scale without adding headcount.",
+    "h1": [
+      "Agentic AI in Finance: Why Assistance Is No Longer Enough"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/ricardo-cohen-pellico",
+    "status": 200,
+    "title": "Ricardo Cohen Pellico, Growth Marketing Manager at Nominal • Nominal",
+    "metaDesc": "Ricardo Cohen Pellico is a Growth Marketing Manager at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Ricardo Cohen Pellico"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/multi-entity-consolidation-renewable-energy",
+    "status": 200,
+    "title": "How Energy Companies Handle Multi-Entity Consolidation • Nominal",
+    "metaDesc": "Renewable energy developers manage hundreds of entities across layered structures. See how accounting teams close faster without replacing their ERP.",
+    "h1": [
+      "Why Multi-Entity Consolidation Is the Hardest Accounting Problem in Energy"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/dena-omar",
+    "status": 200,
+    "title": "Dena Omar, GTM Engineer at Nominal • Nominal",
+    "metaDesc": "Dena Omar is a GTM Engineer at Nominal, building the AI-powered infrastructure that connects data, systems, and automation to scale revenue. She engineers",
+    "h1": [
+      "Dena Omar"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/accounting-team-structure-agentic-era",
+    "status": 200,
+    "title": "When Agents Execute, What Does the Controller Do? • Nominal",
+    "metaDesc": "AI agents are changing the accounting role, not eliminating it. Here is what the shift from execution to oversight actually looks like in practice.",
+    "h1": [
+      "When Agents Do the Work, What Does the Controller Actually Do?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/katherine-mejia",
+    "status": 200,
+    "title": "Katherine Mejia, Account Executive at Nominal • Nominal",
+    "metaDesc": "Katherine Mejia is an Account Executive at Nominal, the agentic finance platform for accounting teams. Read her articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Katherine Mejia"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/multi-entity-accounting",
+    "status": 200,
+    "title": "Multi-Entity Accounting: What It Is and How It Works • Nominal",
+    "metaDesc": "Multi-entity accounting means running finance across multiple legal entities. See what makes it complex and how modern teams scale it.",
+    "h1": [
+      "Multi-Entity Accounting: The Operating Model Behind Every Clean Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/evolution-accounting",
+    "status": 200,
+    "title": "Accounting's Evolution: Ledgers to Agentic Performance • Nominal",
+    "metaDesc": "Accounting has evolved from manual ledgers to ERPs to autonomous AI agents. See where your accounting team sits on this maturity curve and what comes next.",
+    "h1": [
+      "The Evolution of Accounting: From Manual Ledgers to Agentic Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/onestream-vs-blackline",
+    "status": 200,
+    "title": "OneStream vs BlackLine vs Nominal: APM Compared • Nominal",
+    "metaDesc": "OneStream and BlackLine manage the close. See how Agentic Performance Management, delivered by Nominal, executes it instead.",
+    "h1": [
+      "OneStream vs BlackLine vs Nominal: Why Agentic Performance Management Changes the Comparison"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/rafael-ataide",
+    "status": 200,
+    "title": "Rafael Ataíde, Business Development Representative • Nominal",
+    "metaDesc": "Rafael Ataíde is a business development professional with over 12 years of experience, focused on helping finance teams improve efficiency and scale their",
+    "h1": [
+      "Rafael Ataíde"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-performance-management-principles",
+    "status": 200,
+    "title": "Four Principles of Agentic Performance Management • Nominal",
+    "metaDesc": "The four principles that define Agentic Performance Management, and why accounting teams need all of them to achieve autonomous finance operations.",
+    "h1": [
+      "Agentic Performance Management: The Four Principles That Set It Apart"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-performance-management",
+    "status": 200,
+    "title": "What Is Agentic Performance Management and How It Works • Nominal",
+    "metaDesc": "Learn what Agentic Performance Management is, how it works in finance, and why autonomous agents are transforming accounting operations and close processes.",
+    "h1": [
+      "Agentic Performance Management: How Accounting Teams Move From Automation to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/guy-leibovitz",
+    "status": 200,
+    "title": "Guy Leibovitz, Co-Founder and CEO of Nominal • Nominal",
+    "metaDesc": "Guy Leibovitz is the Co-Founder and CEO of Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Guy Leibovitz"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/deterministic-ai-agents-accounting",
+    "status": 200,
+    "title": "Deterministic AI Agents in Accounting Explained • Nominal",
+    "metaDesc": "Accounting demands AI agents that behave the same way every time. Learn why deterministic design is essential for audit-ready, SOX-compliant finance operations",
+    "h1": [
+      "Why AI Agents in Accounting Must Be Deterministic"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/ryan-baker",
+    "status": 200,
+    "title": "Ryan Baker, Business Development Representative at Nominal • Nominal",
+    "metaDesc": "Ryan Baker is a Business Development Representative at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Ryan Baker"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/bpm-vs-emp-vs-apm",
+    "status": 200,
+    "title": "BPM vs. EPM vs. APM: What Is the Difference? • Nominal",
+    "metaDesc": "BPM tracks goals, EPM handles planning, APM executes accounting workflows. Find out which type of performance management software your team needs.",
+    "h1": [
+      "BPM vs. EPM vs. APM: What Each Type of Performance Management Software Actually Does"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/financial-consolidation",
+    "status": 200,
+    "title": "Financial Consolidation: Process, Challenges & AI • Nominal",
+    "metaDesc": "Financial consolidation combines data from multiple entities into one set of statements. See how account teams use AI agents to close faster and scale. ",
+    "h1": [
+      "What Is Financial Consolidation? Process, Challenges, and AI Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/vincente-herrera",
+    "status": 200,
+    "title": "Vincente Herrera, Sales Engineer at Nominal • Nominal",
+    "metaDesc": "Vincente Herrera is a Sales Engineer at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Vincente Herrera"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agent-use-cases-accounting",
+    "status": 200,
+    "title": "AI Agent Use Cases in Accounting • Nominal",
+    "metaDesc": "Explore real AI agent use cases in accounting: consolidation, bank reconciliation, and flux analysis, with full ERP connectivity and human oversight built in.",
+    "h1": [
+      "AI Agent Use Cases in Accounting: From Manual Workflows to Autonomous Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/why-you-cant-build-nominal",
+    "status": 200,
+    "title": "Why You Can't Build Nominal • Nominal",
+    "metaDesc": "General-purpose AI tools handle the easy cases. Here's why accounting agents require more than a prompt, and what purpose-built infrastructure involves.",
+    "h1": [
+      "Can You Really Build an Accounting Agent With an LLM?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/financial-audit-with-ai",
+    "status": 200,
+    "title": "Financial Audit with AI: Checklist and Strategies • Nominal",
+    "metaDesc": "Learn how accounting teams use AI to automate reconciliations, streamline review preparation, and stay compliant year-round without last-minute scrambles.",
+    "h1": [
+      "Financial Audit with AI: How Modern Accounting Teams Stay Compliant at Scale"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/flux-analysis",
+    "status": 200,
+    "title": "Flux Analysis: Definition, Causes, and AI-Powered Tips • Nominal",
+    "metaDesc": "Flux analysis identifies and explains changes in account balances. Learn how accounting teams use it to stay audit-ready and close faster.",
+    "h1": [
+      "What Is Flux Analysis and How Is AI Changing the Way Accounting Teams Use It"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/month-end-close-automation",
+    "status": 200,
+    "title": "Month-End Close Automation: Process, Costs, and Checklist • Nominal",
+    "metaDesc": "Month-end close automation reduces errors, speeds up reconciliations, and frees finance teams from manual work. Here's how to modernize your close process.",
+    "h1": [
+      "Month-End Close Automation: How to Fix a Broken Process"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/anomaly-detection-agent",
+    "status": 200,
+    "title": "What Is an Anomaly Detection Agent in Accounting? • Nominal",
+    "metaDesc": "An anomaly detection agent uses AI to flag missing transactions, misclassifications, and spending irregularities in real time. See how finance teams use it.",
+    "h1": [
+      "What Is an Anomaly Detection Agent? How Accounting Teams Use AI to Stay Audit-Ready"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/d365-fo-intercompany-gap-apm",
+    "status": 200,
+    "title": "D365 F&O Intercompany Gap: Why ERPs Can't Execute • Nominal",
+    "metaDesc": "D365 F&O records intercompany transactions perfectly but can't resolve them. Learn how APM closes the execution gap for enterprise finance teams.",
+    "h1": [
+      "The Intercompany Gap: What D365 F&O Records But Can't Resolve"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/business-central-solutions",
+    "status": 200,
+    "title": "Business Central Scaling Limits & APM Solutions • Nominal",
+    "metaDesc": "Why Business Central users hit capacity walls at 5-10 entities and how Agentic Performance Management enables growth without adding headcount.",
+    "h1": [
+      "Why Business Central Users Hit a Scaling Wall and How APM Breaks Through"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/consolidation-agents",
+    "status": 200,
+    "title": "How Consolidation Agents Streamline Finance Ops • Nominal",
+    "metaDesc": "Explore how consolidation agents automate reconciliation, eliminations, and reporting across systems, helping teams close faster with full audit control.",
+    "h1": [
+      "Consolidation Agents in Finance and Accounting: Automating the Multi-Entity Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/trigger-agents",
+    "status": 200,
+    "title": "Trigger Agents: Automate Manual GL Work in Finance • Nominal",
+    "metaDesc": "Learn how Trigger Agents connect ledger events to automation, helping finance teams reduce manual work, accelerate close, and improve control across the GL.",
+    "h1": [
+      "How Finance Teams Use Trigger Agents to Eliminate Manual GL Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/how-ai-agents-automate-month-end-close",
+    "status": 200,
+    "title": "3 AI Agents Finance Teams Need for Month-End Close • Nominal",
+    "metaDesc": "Learn how AI agents automate accrual reversals, transaction matching, and flux analysis so teams can close faster with full control and audit visibility.",
+    "h1": [
+      "How to Automate Accrual Reversals, Transaction Matching, and Flux Analysis with AI Agents"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/yaara-hendel",
+    "status": 200,
+    "title": "Yaara Hendel, VP of Product Management at Nominal • Nominal",
+    "metaDesc": "Yaara Hendel is the VP of Product Management at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Yaara Hendel"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/intercompany-eliminations",
+    "status": 200,
+    "title": "What Are Intercompany Eliminations and How to Automate Them • Nominal",
+    "metaDesc": "Learn how to automate intercompany eliminations, reduce error risk, and accelerate consolidation using AI-powered finance tools like Nominal.",
+    "h1": [
+      "Intercompany Eliminations: How AI-Powered Automation Transforms Consolidation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/intercompany-transactions",
+    "status": 200,
+    "title": "Intercompany Transactions: Types, Challenges & Automation • Nominal",
+    "metaDesc": "Explore intercompany transaction management, from recording and matching to elimination. See how AI automation cuts close time by 2-3 days.",
+    "h1": [
+      "Intercompany Transactions: How Automation Transforms Reconciliation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/resolution-agents",
+    "status": 200,
+    "title": "What Are Resolution Agents in Accounting Automation • Nominal",
+    "metaDesc": "Learn how Resolution Agents automate corrective journal entries, eliminate manual fixes, and compress close cycles for multi-entity finance teams",
+    "h1": [
+      "From Bottlenecks to Breakthroughs: The Power of Resolution Agents in Finance Automation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/currency-consolidation",
+    "status": 200,
+    "title": "Currency Consolidation: Process, Challenges & Automation • Nominal",
+    "metaDesc": "Learn how currency consolidation works, why it challenges finance teams, and how automation reduces translation time by up to 95%.",
+    "h1": [
+      "How to Handle Currency Consolidation in Multi-Entity Organizations"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/intercompany-reconciliation",
+    "status": 200,
+    "title": "Intercompany Reconciliation: Process, Challenges & AI • Nominal",
+    "metaDesc": "Learn how intercompany reconciliation works, common challenges finance teams face, and how AI-powered automation eliminates mismatches for faster",
+    "h1": [
+      "What Is Intercompany Reconciliation and How to Eliminate Backlogs and Speed Up Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/inventory-reconciliation",
+    "status": 200,
+    "title": "Inventory Reconciliation: Process, Errors & Automation • Nominal",
+    "metaDesc": "Learn how inventory reconciliation helps finance teams match transactions across systems, reduce COGS errors, and accelerate period-end close.",
+    "h1": [
+      "Inventory Reconciliation for Finance Teams: Match, Fix, and Close Faster"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/erp-finance-manual-work",
+    "status": 200,
+    "title": "The Hidden Execution Gap in Your ERP System • Nominal",
+    "metaDesc": "Even with a modern ERP, finance teams are stuck in manual work. Learn how agentic automation helps close faster and scale smarter.",
+    "h1": [
+      "Why Your ERP Leaves Finance Teams Drowning in Manual Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agent-driven-finance",
+    "status": 200,
+    "title": "Agent-Driven Finance: What It Is and How It Works • Nominal",
+    "metaDesc": "Agent-driven finance uses autonomous AI agents to execute complete financial workflows. Learn how it transforms accounting operations and close processes.",
+    "h1": [
+      "Agent-Driven Finance: Autonomous Execution for Modern Accounting Operations"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/multi-entity-consolidation",
+    "status": 200,
+    "title": "Multi-Entity Consolidation: Definition, Process & Automation • Nominal",
+    "metaDesc": "Learn what multi-entity consolidation is, why it matters, and how Nominal simplifies the process with automated mapping, eliminations, and reporting.",
+    "h1": [
+      "Multi-Entity Consolidation: How to Scale Without Breaking Your Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/intercompany-errors",
+    "status": 200,
+    "title": "Intercompany Errors: Causes, Types, and Prevention • Nominal",
+    "metaDesc": "Intercompany errors create compliance risks and reporting delays. Learn the common causes, types, and how to prevent discrepancies in multi-entity accounting.",
+    "h1": [
+      "Intercompany Errors: What They Are, Why They Happen, and How to Fix Them"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/bank-reconciliation",
+    "status": 200,
+    "title": "Bank Reconciliation: AI-Powered Automation • Nominal",
+    "metaDesc": "Discover how automated bank reconciliation eliminates manual matching, reduces close time from days to hours, and redirects senior talent to strategic work.",
+    "h1": [
+      "Bank Reconciliation: From Month-End Bottleneck to Continuous Automation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/nominal-ai-agents",
+    "status": 200,
+    "title": "How Nominal’s AI Agents Work in Finance and Accounting • Nominal",
+    "metaDesc": "Nominal’s AI agents operate inside your workflows to detect, explain, and correct GL errors, automating the hardest parts of close, with full oversight.",
+    "h1": [
+      "Inside Nominal’s AI Agents: Embedded, Decision-Driven, and GL-Native"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agents-in-finance-accounting",
+    "status": 200,
+    "title": "AI Agents in Finance and Accounting: Why It Matters • Nominal",
+    "metaDesc": "Learn what AI agents are, how they apply to finance and accounting, and real examples of how they automate close, reconciliation, and reporting.",
+    "h1": [
+      "AI Agents in Finance and Accounting: Automating Close, Reconciliation, and Reporting with Intelligence"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/nominal-content-review",
+    "status": 200,
+    "title": "Nominal Review 2025: Content Highlights for Finance Leaders • Nominal",
+    "metaDesc": "Explore Nominal’s top finance content of 2025 including AI strategy guides and case studies curated to help teams plan smarter for 2026.",
+    "h1": [
+      "The Nominal Review: 2025’s Most Impactful Ideas in Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/laura-bernardes",
+    "status": 200,
+    "title": "Laura Bernardes, Marketing Manager at Nominal • Nominal",
+    "metaDesc": "Laura Bernardes is the Marketing Manager at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Laura Bernardes"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/components-autonomous-finance",
+    "status": 200,
+    "title": "Inside APM: 3 Components for Autonomous Finance • Nominal",
+    "metaDesc": "Agentic Performance Management introduces autonomous execution to finance. Learn the three essential components that make APM different from ERP and EPM.",
+    "h1": [
+      "Inside the APM Category: The Three Components That Make Autonomous Finance Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/erp-accounting-gap",
+    "status": 200,
+    "title": "ERP Accounting Gap: Why Finance Teams Need APM • Nominal",
+    "metaDesc": "ERPs record transactions but don't execute accounting work. Learn why the ERP gap forces manual consolidation, reconciliation, and close processes.",
+    "h1": [
+      "The ERP Accounting Gap: What Finance Teams Need to Know"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/apm-erp-epm",
+    "status": 200,
+    "title": "APM vs ERP vs EPM: What Each Layer Actually Does • Nominal",
+    "metaDesc": "ERP records transactions, EPM plans strategy, and APM executes accounting work. Learn how these three layers work together in your finance tech stack.",
+    "h1": [
+      "ERP vs EPM vs APM: Which One Actually Reduces Manual Work?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/close-management",
+    "status": 200,
+    "title": "Close Management Software for Multi Entity Automation • Nominal",
+    "metaDesc": "Discover how close management evolves from task tracking to execution. Learn why coordination isn't enough and how AI agents reduce manual work.",
+    "h1": [
+      "How APM Transforms Close Management from Coordination to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/matching-agents",
+    "status": 200,
+    "title": "What Are Matching Agents? Modern Reconciliation Explained • Nominal",
+    "metaDesc": "Learn how matching agents streamline reconciliation and reduce manual effort in finance operations.",
+    "h1": [
+      "What Are Matching Agents? The Foundation of Modern Reconciliation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/multi-entity-reporting",
+    "status": 200,
+    "title": "Multi-Entity Reporting: How To Automate Financial Consolidation • Nominal",
+    "metaDesc": "Learn how multi-entity reporting consolidates financials across subsidiaries and ERPs. Automate eliminations, currency translation, and audit trails.",
+    "h1": [
+      "Multi-Entity Reporting: How to Consolidate Financials Across Entities Without Spreadsheets"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/shai-atar",
+    "status": 200,
+    "title": "Shai Atar, Senior Product Manager at Nominal • Nominal",
+    "metaDesc": "Shai Atar is a Senior Product Manager at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Shai Atar"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/transaction-patrol",
+    "status": 200,
+    "title": "What Is Transaction Patrol? AI Error Detection Explained • Nominal",
+    "metaDesc": "Discover how the Patrol Agent flags exceptions early, helping teams close faster and avoid costly mistakes.",
+    "h1": [
+      "The Transaction Patrol Agent: How Finance Teams Automate Error Detection"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/apm-epm-close-management",
+    "status": 200,
+    "title": "APM vs EPM vs Close Management: What's the Difference? • Nominal",
+    "metaDesc": "Understand how APM fills the gaps left by EPM, ERP, and close management tools in finance workflows.",
+    "h1": [
+      "APM vs. EPM vs. Close Management: Understanding Finance's Tech Stack Evolution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/autonomous-execution-vs-ai-assistance",
+    "status": 200,
+    "title": "Finance Automation: Autonomous Execution vs AI Assistance • Nominal",
+    "metaDesc": "Understand the difference between helping and doing—and why execution is the future of AI in finance.",
+    "h1": [
+      "From AI Assistance to Autonomous Execution: How Finance Workflows Are Changing"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/finance-automation-stack",
+    "status": 200,
+    "title": "Finance Automation Stack: Time to Rethink Your Approach • Nominal",
+    "metaDesc": "Explore why bloated finance stacks slow teams down, and how a new model enables execution without adding tools.",
+    "h1": [
+      "Rethinking the Finance Automation Stack: Why Today’s Tech Architecture Is Unsustainable"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/intercompany-accounting",
+    "status": 200,
+    "title": "Intercompany Accounting: AI Agents for Multi-Entity Finance • Nominal",
+    "metaDesc": "Learn how intelligent agents automate intercompany reconciliations and eliminations across complex structures.",
+    "h1": [
+      "Intercompany Accounting: How AI Agents Solve It at Scale"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/autonomous-agents-finance",
+    "status": 200,
+    "title": "Autonomous Agents in Finance: What CFOs Need to Know • Nominal",
+    "metaDesc": "Autonomous agents execute complete finance workflows independently. Learn how they differ from AI assistants and why CFOs are adopting them for faster closes.",
+    "h1": [
+      "Autonomous Agents in Finance: The Shift from Assistance to Full Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/entity-management-strategies",
+    "status": 200,
+    "title": "Entity Management Strategies for Multi-Entity Businesses • Nominal",
+    "metaDesc": "Learn how finance and legal teams are moving from reactive entity management to strategic, automated workflows that reduce risk and accelerate growth.",
+    "h1": [
+      "From Complexity to Clarity: Clear Entity Management Strategies"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/cfo-impossible-triangle",
+    "status": 200,
+    "title": "Breaking the CFO's Impossible Triangle with APM • Nominal",
+    "metaDesc": "For decades, CFOs chose between speed, accuracy, or cost in finance operations. APM eliminates this trade-off entirely through autonomous execution.",
+    "h1": [
+      "Breaking the CFO's Impossible Triangle: Speed, Accuracy, and Cost"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/finance-needs-apm",
+    "status": 200,
+    "title": "Why Finance Needs APM, Not More Tools • Nominal",
+    "metaDesc": "Finance teams are overwhelmed by tools, but the real problem is execution capacity. See how autonomous systems replace coordination with continuous performance.",
+    "h1": [
+      "Finance Doesn’t Need More Tools, It Needs Agentic Performance Management"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/flux-agent",
+    "status": 200,
+    "title": "What Are Flux Agents and How Finance Teams Are Using It • Nominal",
+    "metaDesc": "Discover how AI-powered Flux Agents transform variance analysis with automated narratives, contextual insights, and audit-ready workflows.",
+    "h1": [
+      "What Are Flux Agents? AI-Powered Variance Analysis for Finance Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/complete-close-automation-hub",
+    "status": 200,
+    "title": "The Finance Leader's Guide to Close Automation in 2026 • Nominal",
+    "metaDesc": "Access the complete close automation guide for finance leaders. Learn how to modernize month-end processes, reduce errors, and scale without adding headcount",
+    "h1": [
+      "The Complete Close Automation Hub: Transform Your Month-End in 2026"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/scaling-finance-operations",
+    "status": 200,
+    "title": "Scaling Finance Operations: How 89% of Errors Are Solved • Nominal",
+    "metaDesc": "Learn how to scale finance operations without hiring. Research of 50M+ transactions reveals 89% of errors follow 12 predictable patterns.",
+    "h1": [
+      "How to Scale Finance Operations Without Adding Headcount: Data-Driven Insights from 50 Million Transactions"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/stephanie-montelius",
+    "status": 200,
+    "title": "Stephanie Montelius, VP of Marketing at Nominal • Nominal",
+    "metaDesc": "Stephanie Montelius is VP of Marketing at Nominal, the agentic finance platform for accounting teams. Read his articles on AI, accounting ops, and APM.",
+    "h1": [
+      "Stephanie Montelius"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/financial-consolidation-software",
+    "status": 200,
+    "title": "5 Financial Consolidation Software For 2026 • Nominal",
+    "metaDesc": "Compare top financial consolidation software for multi-entity CFOs. See why AI-powered platforms outperform legacy solutions.",
+    "h1": [
+      "5 Best Financial Consolidation Software for CFOs"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agents-rpa-api",
+    "status": 200,
+    "title": "AI Agents vs RPA vs API: Differences & Best Uses • Nominal",
+    "metaDesc": "Discover which automation technology actually solves your accounting bottlenecks. Compare AI agents, RPA, and APIs for finance teams. Get expert insights",
+    "h1": [
+      "AI Agents vs. RPA vs. API: Which One Actually Solves Your Accounting Bottlenecks?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/financial-statement-report",
+    "status": 200,
+    "title": "Financial Statement Report Accuracy Across Entities • Nominal",
+    "metaDesc": "Learn how to ensure accurate, audit-ready financial statement reports when consolidating data across multiple entities, ERPs, and local charts.",
+    "h1": [
+      "Financial Statement Report Accuracy: How to Consolidate Data Across Entities with Confidence"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/transaction-matching",
+    "status": 200,
+    "title": "Transaction Matching: What It Is and How to Automate It • Nominal",
+    "metaDesc": "Understand how transaction matching ensures accuracy in financial reconciliation and how automation eliminates manual errors across fragmented systems.",
+    "h1": [
+      "Transaction Matching: How Modern Finance Teams Automate Accuracy"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/numeric-vs-floqast",
+    "status": 200,
+    "title": "Numeric vs FloQast vs Nominal: Best Close Software for 2026 • Nominal",
+    "metaDesc": "FloQast organizes Excel workflows. Numeric adds reporting and audit visibility. Nominal goes further with AI-powered automation and real-time ERP integration.",
+    "h1": [
+      "Numeric vs FloQast: Which Close Software Works Best in 2026?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/variance-analysis",
+    "status": 200,
+    "title": "Variance Analysis: Examples, Types, and How to Automate • Nominal",
+    "metaDesc": "Learn how to automate variance analysis with real examples, formulas, and steps to help finance teams move faster with fewer spreadsheets",
+    "h1": [
+      "Smarter Variance Analysis: Automate Insights, Skip the Spreadsheets"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/blackline-vs-floqast",
+    "status": 200,
+    "title": "BlackLine vs FloQast vs Nominal: Best Close Software for 2026 • Nominal",
+    "metaDesc": "Compare BlackLine, FloQast, and Nominal for financial close automation. See which platform fits your team’s scale, speed, and reporting needs in 2026.",
+    "h1": [
+      "BlackLine vs FloQast: Which Financial Close Platform Fits Your Team in 2026?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-implementation",
+    "status": 200,
+    "title": "AI Implementation Roadmap for Finance Teams • Nominal",
+    "metaDesc": "Learn how finance teams can implement AI in four phases, from pilot to predictive insights, without disrupting existing systems or workflows.",
+    "h1": [
+      "AI Implementation: A Strategic Roadmap for Finance Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/blackline-alternatives",
+    "status": 200,
+    "title": "BlackLine Alternatives: Top 5 Competitors to Consider in 2026 • Nominal",
+    "metaDesc": "Explore why Nominal is the top BlackLine alternative for modern finance. Get AI-native, multi-entity automation without the IT burden.",
+    "h1": [
+      "The 5 Best BlackLine Alternatives to Streamline Your Close in 2026"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/best-financial-close-automation-software",
+    "status": 200,
+    "title": "Best Financial Close Automation Software for 2026 • Nominal",
+    "metaDesc": "Explore the best financial close automation software. Compare Nominal with FloQast, BlackLine, Planful, and Numeric to find the right fit for your  team.",
+    "h1": [
+      "The Best Financial Close Automation Software for Modern Finance Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/document-processing",
+    "status": 200,
+    "title": "AI Document Processing: How Accounting Teams Close Faster • Nominal",
+    "metaDesc": "Discover how AI transforms document processing in finance by turning leases, invoices, and contracts into ERP-ready records with speed, accuracy, and control.",
+    "h1": [
+      "Document Processing: How AI Transforms Accounting Workflows"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-in-erp",
+    "status": 200,
+    "title": "AI in ERP: How Finance Teams Gain Speed and Control • Nominal",
+    "metaDesc": "AI in ERP helps finance teams automate close, consolidate faster, and reduce risk without replacing core systems.",
+    "h1": [
+      "The Real Impact of AI in ERP for Multi-Entity Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agent-vs-ai-workflow",
+    "status": 200,
+    "title": "AI Agent vs AI Workflow: What's the Difference and Use Case? • Nominal",
+    "metaDesc": "AI agent vs AI workflow: Explore their roles in finance automation: how they trigger actions, enhance audit trails, and improve speed.",
+    "h1": [
+      "AI Agent vs AI Workflow Automation: Why Triggering Matters"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/smarter-finance-ai-masterclass-overview",
+    "status": 200,
+    "title": "Smarter Finance with AI: MasterClass Overview • Nominal",
+    "metaDesc": "Explore Nominal’s AI MasterClass for CFOs, Controllers, and Accountants. Learn how AI elevates finance operations with practical, role-based training.",
+    "h1": [
+      "Smarter Finance with AI: Inside Nominal’s Masterclass"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/nominal-team",
+    "status": 200,
+    "title": "Nominal Team • Nominal",
+    "metaDesc": "Meet the Nominal Team: a collective of AI pioneers, data scientists, and community builders empowering accounting and finance professionals with practical AI",
+    "h1": [
+      "Nominal Team"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/will-ai-take-accounting-jobs",
+    "status": 200,
+    "title": "Will AI Take Accounting Jobs? What’s Changing Now • Nominal",
+    "metaDesc": "Will AI take accounting jobs? Explore how roles are evolving—not disappearing—as AI handles routine work and frees accountants for higher‑value tasks.",
+    "h1": [
+      "Will AI Take Accounting Jobs? Not the Parts Accountants Value"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agents-manufacturing",
+    "status": 200,
+    "title": "How AI Agents in Manufacturing Transform Finance Teams • Nominal",
+    "metaDesc": "Learn how AI agents in manufacturing automate reconciliation, variance analysis, and consolidation to streamline close and improve accuracy.",
+    "h1": [
+      "How AI Agents in Manufacturing Are Transforming Finance Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/automation-accounting-manufacturing",
+    "status": 200,
+    "title": "Speed Up Close with Automation in Accounting for Manufacturing • Nominal",
+    "metaDesc": "Learn how automation in accounting for manufacturing reduces errors, accelerates close, and works with ERPs like Sage X3 and Microsoft BC",
+    "h1": [
+      "Automation in Accounting for Manufacturing: Why Your ERP Isn’t Enough"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agents-vs-agentic-ai",
+    "status": 200,
+    "title": "AI Agents vs. Agentic AI: Key Differences Explained • Nominal",
+    "metaDesc": "Discover the key differences between AI agents and Agentic AI in finance.",
+    "h1": [
+      "AI Agents vs. Agentic AI: What’s the Difference and Why It Matters for Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-in-finance",
+    "status": 200,
+    "title": "Why AI in Finance Is a Must for Modern Teams • Nominal",
+    "metaDesc": "AI in finance helps reduce errors, speed up the close, and boost productivity. Learn why manual processes are no longer sustainable for finance leaders.",
+    "h1": [
+      "Why AI in Finance Can’t Be Ignored"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/sap-bpc-sunset",
+    "status": 200,
+    "title": "SAP BPC Sunset: What Finance Teams Should Do Next [2025] • Nominal",
+    "metaDesc": "SAP BPC is entering end-of-life. Learn what this means, key risks of waiting, and how finance teams can plan their next steps now.",
+    "h1": [
+      "What the SAP BPC Sunset Means for Finance Teams [2025 Update]"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-driven-consolidation",
+    "status": 200,
+    "title": "How AI-Driven Consolidation Is Changing Logistics Finance • Nominal",
+    "metaDesc": "Discover how logistics finance teams are replacing spreadsheets with AI-driven consolidation to boost speed, accuracy, and audit readiness.",
+    "h1": [
+      "Why Logistics Finance Teams Are Ditching Spreadsheets for AI-Driven Consolidation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/digital-accounting-automation",
+    "status": 200,
+    "title": "Digital Accounting Automation: What It Is and Why It Matters • Nominal",
+    "metaDesc": "What is digital accounting automation? Discover how it accelerates close cycles, reduces errors, and supports multi‑entity finance.",
+    "h1": [
+      "How to Use Digital Accounting Automation to Accelerate Close and Eliminate Manual Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-powered-accounting-workflows",
+    "status": 200,
+    "title": "5 Ways AI-Powered Accounting Workflows Replace Spreadsheets • Nominal",
+    "metaDesc": "Discover how AI-powered accounting workflows help finance teams reduce errors, automate manual tasks, and scale with confidence.",
+    "h1": [
+      "5 Ways AI-Powered Accounting Workflows Outperform Spreadsheets"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-workflow",
+    "status": 200,
+    "title": "What Is an Agentic Workflow in Finance and Accounting • Nominal",
+    "metaDesc": "Learn how agentic workflows use AI agents to automate finance tasks like reconciliation, close, and consolidation with more speed and accuracy",
+    "h1": [
+      "Agentic Workflow Automation: What It Means for Accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-modern-cfo",
+    "status": 200,
+    "title": "AI & the Modern CFO: How to Automate Finance with Agents • Nominal",
+    "metaDesc": "See how agentic AI helps CFOs automate finance tasks, cut manual work, and lead the shift to faster, smarter operations.",
+    "h1": [
+      "AI & the Modern CFO: A Roadmap to Autonomous Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/how-ai-agents-replace-spreadsheets",
+    "status": 200,
+    "title": "How AI Agents Replace Spreadsheets in Accounting • Nominal",
+    "metaDesc": "Learn how AI agents replace spreadsheets by automating reconciliations, consolidations, and reporting with speed and accuracy.",
+    "h1": [
+      "How AI Agents Replace Spreadsheets in Modern Accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/finance-process-automation",
+    "status": 200,
+    "title": "What Is Finance Process Automation, How It Works, and Examples • Nominal",
+    "metaDesc": "Streamline finance with automation. Learn how AI tools like Nominal improve accuracy, speed, and strategy for finance operations.",
+    "h1": [
+      "From Manual to Intelligent: Finance Process Automation Explained"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/generative-ai-finance",
+    "status": 200,
+    "title": "Generative AI in Finance: How to Transform Your Workflows • Nominal",
+    "metaDesc": "Discover how Generative AI in finance is streamlining workflows, automating manual processes, and helping teams close faster.",
+    "h1": [
+      "How Generative AI in Finance Is Reshaping Accounting Workflows"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/excel-rpa-ai-agents",
+    "status": 200,
+    "title": "Excel vs RPA vs AI Agents: The Future of Accounting Tools • Nominal",
+    "metaDesc": "Compare modern accounting tools: Excel, RPA, and AI Agents. Discover which solution best fits today’s complex finance operations and growing data demands.",
+    "h1": [
+      "Modern Accounting Tools: Excel vs RPA vs AI Agents Compared"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/are-you-too-dependent-on-excel",
+    "status": 200,
+    "title": "Excel Alternatives for Finance Teams: Assess Your Dependency • Nominal",
+    "metaDesc": "Still using spreadsheets? Explore Excel alternatives and take a quick quiz to assess your team's dependency and automation potential.",
+    "h1": [
+      "It's Time to Look for Excel Alternatives: Assess Your Spreadsheet Dependency"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/2024-in-review-the-rise-of-agentic-ai-in-accounting-and-finance",
+    "status": 200,
+    "title": "How AI is Transforming Finance and Accounting in 2024 • Nominal",
+    "metaDesc": "Discover how CFOs use AI in 2024 to boost efficiency, cut manual work by 55%, and drive innovation in finance and accounting.",
+    "h1": [
+      "2024 in Review: The Rise of Agentic AI in Accounting and Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/the-execution-gap-why-microsoft-dynamics-365-needs-an-agentic-layer",
+    "status": 200,
+    "title": "The Execution Gap: Dynamics 365 and the Agentic Layer • Nominal",
+    "metaDesc": "Dynamics 365 records every transaction. But close still happens in Excel. Read Nominal's white paper on why, and what the execution layer looks like.",
+    "h1": [
+      "The Execution Gap: Why Microsoft Dynamics 365 Needs an Agentic Layer"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/month-end-close-process-checklist",
+    "status": 200,
+    "title": "Month-End Close Process Checklist for Controllers • Nominal",
+    "metaDesc": "A step-by-step close framework for Controllers and finance teams. Download Nominal's free checklist covering every phase from pre-close to audit readiness.",
+    "h1": [
+      "Month-End Close Process Checklist: Your Step-by-Step Framework for a Faster, Cleaner Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/the-agentic-performance-management-playbook",
+    "status": 200,
+    "title": "The Agentic Performance Management Playbook • Nominal",
+    "metaDesc": "Nominal's APM Playbook: practical guide for finance leaders on deploying AI agents that execute workflows, accelerate close, and scale without adding headcount.",
+    "h1": [
+      "The Agentic Performance Management Playbook: A CFO's Guide to Agentic Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/sage-accounting-execution-layer",
+    "status": 200,
+    "title": "The Modern Accounting Stack: Sage & Nominal • Nominal",
+    "metaDesc": "Sage handles the GL. Nominal handles the close. See how AI agents eliminate manual consolidations, intercompany reconciliations, and spreadsheet-driven cycles.",
+    "h1": [
+      "The Modern Accounting Stack: Sage as the System of Record, Nominal as the Execution Layer"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/beyond-the-erp-bank-reconciliation-workday",
+    "status": 200,
+    "title": "Bank Reconciliation for Workday Accounting Teams • Nominal",
+    "metaDesc": "A white paper for controllers on Workday on why reconciliation stalls at close and how AI agents match 90%+ of transactions automatically without migration.",
+    "h1": [
+      "Beyond the ERP: Modernizing Bank Reconciliations for Workday Finance Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/finance-performance-management-evaluation-scorecard",
+    "status": 200,
+    "title": "Finance Performance Management Evaluation Scorecard • Nominal",
+    "metaDesc": "Compare up to three finance performance management vendors across eight weighted criteria, including ERP compatibility and automation depth. Free from Nominal.",
+    "h1": [
+      "Finance Performance Management Evaluation Scorecard"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/pre-implementation-checklist-prepare-for-a-smooth-close-automation-rollout",
+    "status": 200,
+    "title": "Pre-Implementation Checklist: Close Automation Rollout • Nominal",
+    "metaDesc": "A 4-part checklist covering team setup, data readiness, entity structure, and system access to prepare accounting teams for a smooth close automation go-live.",
+    "h1": [
+      "Pre-Implementation Checklist: Prepare for a Smooth Close Automation Rollout"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/the-modern-close-blueprint",
+    "status": 200,
+    "title": "The Modern Close Blueprint: 5 Stages to Continuous Control • Nominal",
+    "metaDesc": "Discover the 5 stages accounting teams use to move from a reactive month-end close to continuous control, with role-based benefits for CFOs and controllers.",
+    "h1": [
+      "The Modern Close Blueprint"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/50-m-journal-entries-what-we-learned-about-finance-operations",
+    "status": 200,
+    "title": "50M Journal Entries: What We Learned About Accounting Ops • Nominal",
+    "metaDesc": "Nominal analyzed 50M journal entries and found 12 recurring error patterns behind most accounting mistakes. Here's what the data reveals about modern close ops.",
+    "h1": [
+      "50,000,000 Journal Entries: What We Learned About Finance Operations"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/nominal-for-logistics-transportation",
+    "status": 200,
+    "title": "AI Accounting Automation for Logistics and Transportation • Nominal",
+    "metaDesc": "See how logistics and transportation accounting teams use Nominal's AI agents to automate reconciliations, consolidations, and close reporting across entities.",
+    "h1": [
+      "Nominal for Logistics & Transportation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/nominal-for-energy",
+    "status": 200,
+    "title": "AI Accounting Automation for Energy • Nominal",
+    "metaDesc": "See how energy accounting teams use Nominal's AI agents to automate consolidation, compliance, and reporting across multi-entity operations.",
+    "h1": [
+      "Nominal for Energy"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/nominal-for-manufacturing-machinery",
+    "status": 200,
+    "title": "AI Accounting Automation for Manufacturing and Machinery • Nominal",
+    "metaDesc": "See how manufacturing accounting teams use Nominal's AI agents to reconcile across plants, automate consolidations, and shorten close cycles without ERP changes.",
+    "h1": [
+      "Nominal For Manufacturing & Machinery"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/nominal-for-tech-companies",
+    "status": 200,
+    "title": "AI Accounting Automation for Tech Companies • Nominal",
+    "metaDesc": "See how accounting teams at tech companies use Nominal's AI agents to automate close, reconciliations, and reporting without migrating their existing ERP.",
+    "h1": [
+      "Nominal For Tech Companies"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/automate-reconciliation-consolidation-close-without-replacing-erp",
+    "status": 200,
+    "title": "Automate Reconciliation and Close Without Replacing Your ERP • Nominal",
+    "metaDesc": "See how manufacturing and multi-entity accounting teams automate intercompany reconciliation, consolidation, and close without costly ERP replatforming.",
+    "h1": [
+      "Automate Reconciliation, Consolidation, and Close — Without Replacing Your ERP"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/nominal-for-retail-finance",
+    "status": 200,
+    "title": "AI Accounting Automation for Retail Finance Teams • Nominal",
+    "metaDesc": "See how retail accounting teams use Nominal's AI agents to automate inventory matching, consolidation & close across multi-store operations without ERP changes.",
+    "h1": [
+      "Nominal for Retail Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/10-unexpected-ways-ai-agents-are-revolutionizing-traditional-erp",
+    "status": 200,
+    "title": "10 Ways AI Agents Extend What Your ERP Can Do • Nominal",
+    "metaDesc": "Discover 10 ways AI agents fill ERP automation gaps, reducing manual workloads and improving speed, accuracy, and decision-making without costly replatforming.",
+    "h1": [
+      "10 Unexpected Ways AI Agents Are Revolutionizing Traditional ERP"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/5-signs-your-finance-team-has-outgrown-spreadsheets",
+    "status": 200,
+    "title": "5 Signs Your Finance Team Has Outgrown Spreadsheets • Nominal",
+    "metaDesc": "Spot the bottlenecks slowing your close. This diagnostic covers 5 signs that manual spreadsheet processes are holding your accounting team back from scaling.",
+    "h1": [
+      "5 Signs Your Finance Team Has Outgrown Spreadsheets"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/automated-financial-consolidation",
+    "status": 200,
+    "title": "Automated Financial Consolidation for Accounting Teams • Nominal",
+    "metaDesc": "See how AI agents automate reconciliations, eliminations, and intercompany matching across entities, with full audit trails and no ERP migration required.",
+    "h1": [
+      "Automated Financial Consolidation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/autonomous-finance-how-ai-agents-are-rewriting-the-rules-of-accounting",
+    "status": 200,
+    "title": "Autonomous Finance: How AI Agents Are Changing Accounting • Nominal",
+    "metaDesc": "A deep dive into how autonomous AI agents handle complex accounting workflows, why traditional automation falls short, and what early adopters are gaining.",
+    "h1": [
+      "Autonomous Finance: How AI Agents Are Rewriting the Rules of Accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/ai-agents-the-next-frontier-of-autonomous-automation-in-finance-and-accounting",
+    "status": 200,
+    "title": "AI Agents for Autonomous Accounting Automation • Nominal",
+    "metaDesc": "Discover how AI agents go beyond RPA and rules-based tools to execute reconciliation, consolidation, and reporting autonomously across accounting workflows.",
+    "h1": [
+      "AI Agents: The Next Frontier of Autonomous Automation in Finance and Accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/ai-implementation-roadmap",
+    "status": 200,
+    "title": "AI Implementation Roadmap for Accounting Teams • Nominal",
+    "metaDesc": "A 4-phase roadmap for controllers and accounting teams to move from manual processes to 70%+ AI automation, with key success factors and pitfalls to avoid.",
+    "h1": [
+      "AI Implementation Roadmap for Accounting Teams: From Manual to Autonomous in 4 Phases"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/finance-audit-checklist",
+    "status": 200,
+    "title": "Accounting Audit Checklist: Stay Audit-Ready Year-Round • Nominal",
+    "metaDesc": "A checklist for controllers and accounting teams covering document organization, reconciliations, internal controls, and audit prep from start to finish.",
+    "h1": [
+      "The Accounting Audit Checklist for Year-Round Audit Readiness"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/from-spreadsheets-to-ai-the-future-of-financial-consolidation",
+    "status": 200,
+    "title": "From Manual Consolidation to AI: What Changes and Why • Nominal",
+    "metaDesc": "Discover how AI agents replace manual financial consolidation with continuous, adaptive workflows, and why multi-entity accounting teams are making the shift.",
+    "h1": [
+      "From Spreadsheets to AI: The Future of Financial Consolidation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/why-and-how-to-buy-agentic-ai-for-accounting",
+    "status": 200,
+    "title": "How to Buy Agentic AI for Accounting: A Practical Guide • Nominal",
+    "metaDesc": "A practical guide for controllers and accounting leaders on how to evaluate, source, and implement agentic AI without disrupting existing ERP systems.",
+    "h1": [
+      "Why and How to Buy Agentic AI for Accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter7",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 7 • Nominal",
+    "metaDesc": "See how finance teams use Nominal's autonomous agents for real-time consolidation and intercompany eliminations. Real insights from Leanpay's transformation.",
+    "h1": [
+      "A Real Close with Nominal"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter6",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 6 • Nominal",
+    "metaDesc": "Learn how finance teams implement close automation in 30 days without IT. Avoid common pitfalls and drive results with a proven, finance-led approach.",
+    "h1": [
+      "Implementation Tips That Actually Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter5",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 5 • Nominal",
+    "metaDesc": "Learn how to evaluate finance software from ERP modules to AI assistants to APM platforms and choose the right approach to transform your close.",
+    "h1": [
+      "How to Choose Agentic Performance Management Software for Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter1",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 1 • Nominal",
+    "metaDesc": "Take a quick quiz to assess your finance team's close process. Discover where you stand and get a personalized path to automate and improve your month-end.",
+    "h1": [
+      "Where Does Your Close Stand Today?"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter2",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 2 • Nominal",
+    "metaDesc": "Learn how manual close processes increase time, errors, and stress. Discover how automation helps finance teams close faster and focus on strategic work.",
+    "h1": [
+      "The Cost of a Broken Close"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter4",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 4 • Nominal",
+    "metaDesc": "Learn how to automate reconciliations, consolidations, and variance analysis without replacing your ERP. Cut time, errors, and manual work from your close.",
+    "h1": [
+      "Automating the Close Process"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/close-guide-chapter3",
+    "status": 200,
+    "title": "The Complete Guide to Close: Chapter 3 • Nominal",
+    "metaDesc": "Discover how modern finance teams use automation to close faster, reduce errors, and scale efficiently. See how your team can move from chaos to confidence.",
+    "h1": [
+      "What a Modern Close Looks Like"
+    ]
+  },
+  {
+    "url": "https://nominal.so/case-studies/team-car-care-case-study",
+    "status": 200,
+    "title": "Nominal Cuts Team Car Care's Reconciliation Work Over 70% • Nominal",
+    "metaDesc": "Team Car Care automated over 70% of inventory reconciliation across 500 Jiffy Lube locations with Nominal, transforming how their accounting team operates.",
+    "h1": [
+      "How Team Car Care Reached Over 70% Reconciliation Automation With Nominal"
+    ]
+  },
+  {
+    "url": "https://nominal.so/case-studies/gspp-case-study",
+    "status": 200,
+    "title": "Nominal Saves GSPP 60+ Hours a Month on Financial Close • Nominal",
+    "metaDesc": "Green Street Power Partners uses Nominal to consolidate 280+ entities, automate ASC 842 lease tracking, and save 60+ hours per month on financial close.",
+    "h1": [
+      "How GSPP Consolidates 280+ Entities With Nominal"
+    ]
+  },
+  {
+    "url": "https://nominal.so/case-studies/kunai-case-study",
+    "status": 200,
+    "title": "Kunai Reduced Acquisition Preparation Cost by $20k with Nominal • Nominal",
+    "metaDesc": "Kunai used Nominal to prep for acquisition in weeks, saving 80+ hours and $20K with automated consolidation and audit-ready reports.",
+    "h1": [
+      "Nominal Saves Kunai 80+ Hours During Acquisition Due Diligence"
+    ]
+  },
+  {
+    "url": "https://nominal.so/case-studies/leanpay-case-study",
+    "status": 200,
+    "title": "Leanpay Cuts Month-End Close Time by 25% With Nominal • Nominal",
+    "metaDesc": "See how Leanpay automated multi-entity, multi-currency consolidation and cut close time by 25% using Nominal’s AI-powered finance platform.",
+    "h1": [
+      "Leanpay Cuts Month-End Close Time by 25% With Nominal"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/module-1-ai-and-the-future-of-financial-intelligence",
+    "status": 200,
+    "title": "Smarter Finance with AI Masterclass: Module 1 • Nominal",
+    "metaDesc": "AI is no longer optional for modern finance teams. This module shows how it's reshaping workflows, reducing risk, and unlocking new levels of insight.",
+    "h1": [
+      "Module 1: AI and the Future of Financial Intelligence"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/module-2-building-smart-workflows-with-trigger-agents",
+    "status": 200,
+    "title": "Smarter Finance with AI Masterclass: Module 2 • Nominal",
+    "metaDesc": "Learn how to build smart workflows using Trigger Agents. Master AI prompting, automation logic, and ERP-connected workflows that move your finance team forward.",
+    "h1": [
+      "Module 2: Building Smart Workflows with Trigger Agents"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/module-3-ai-for-your-role-unlock-strategic-advantage",
+    "status": 200,
+    "title": "Smarter Finance with AI Masterclass: Module 3 • Nominal",
+    "metaDesc": "This module explores how AI adapts to your role, and how Nominal unifies financial workflows across your stack.",
+    "h1": [
+      "Module 3: AI for your Role: Unlock Strategic Advantage"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/module-4-wrap-up-earn-your-ai-mastery-badge",
+    "status": 200,
+    "title": "Smarter Finance with AI Masterclass: Module 4 • Nominal",
+    "metaDesc": "Master AI in finance with Nominal. Learn to automate close, control, and reporting using agents, real-time logic, and intelligent workflows.",
+    "h1": [
+      "Module 4: Wrap-Up: Earn Your AI Mastery Badge"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/the-agentic-performance-management-playbook/?utm_source=blog&utm_medium=downloadable&utm_campaign=mgl-content-blog&utm_content=banner-blog",
+    "status": 200,
+    "title": "The Agentic Performance Management Playbook • Nominal",
+    "metaDesc": "Nominal's APM Playbook: practical guide for finance leaders on deploying AI agents that execute workflows, accelerate close, and scale without adding headcount.",
+    "h1": [
+      "The Agentic Performance Management Playbook: A CFO's Guide to Agentic Finance"
+    ]
+  },
+  {
+    "url": "https://nominal.so/book-a-demo/?utm_source=website&utm_medium=internal&utm_campaign=mql-apm-hub&utm_content=book-demo-button",
+    "status": 200,
+    "title": "Book a Demo With Nominal: See Autonomous Agents in Action • Nominal",
+    "metaDesc": "See how Nominal's AI agents execute reconciliation, intercompany, consolidation, and close, so your team can focus on analysis, not manual work.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/resources/apm-glossary",
+    "status": 200,
+    "title": "APM Glossary: Agentic Performance Management Terms • Nominal",
+    "metaDesc": "Explore key Agentic Performance Management terms, from AI agents to intercompany elimination, and see how APM executes accounting workflows.",
+    "h1": [
+      "The Agentic Performance Management (APM) Glossary"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/how-to-escape-your-spreadsheet-prison",
+    "status": 200,
+    "title": "Escape Spreadsheet Chaos: 3 Live AI Agent Use Cases • Nominal",
+    "metaDesc": "Live webinar for CFOs, controllers, and finance leaders on AI agents for consolidation, reconciliation, and variance analysis. Practical demos + live Q&A.",
+    "h1": [
+      "How to Escape Your Spreadsheet Prison — 3 Live AI Agent Use Cases"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/what-apm-is-and-isnt",
+    "status": 200,
+    "title": "What APM Is (And Isn't): Everything \"AI-Powered\" Won't Tell You • Nominal",
+    "metaDesc": "\"Agentic\" and \"AI-powered\" get used for almost anything in finance right now. Get a straight definition of Agentic Performance Management. No demo, no pitch.",
+    "h1": [
+      "What APM Is (And Isn't): Everything \"AI-Powered\" Won't Tell You"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/from-doers-to-reviewers-finance-teams-ai",
+    "status": 200,
+    "title": "From Doers to Reviewers: Finance Teams and AI • Nominal",
+    "metaDesc": "Fireside chat with Booksy's VP Global Controller on restructuring finance teams around AI. Live Q&A on multi-entity close, consolidation, and audit readiness.",
+    "h1": [
+      "From Doers to Reviewers: How Finance Leaders Are Restructuring Their Teams Around AI"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/apm-in-action-live-demo",
+    "status": 200,
+    "title": "APM in Action: Live Demo • Nominal",
+    "metaDesc": "See AI agents execute month-end finance workflows live. Watch real product execution, explore APM, and get your questions answered by our team.",
+    "h1": [
+      "APM in Action: Live Demo"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/nominal-upcoming-events",
+    "status": 200,
+    "title": "Finance Events 2026: Nominal's Conference & Summit Calendar • Nominal",
+    "metaDesc": "Discover top finance events 2026 including Nominal's Agentic Finance Summit, Gartner Symposium, and Workday Rising. Your complete CFO event calendar.",
+    "h1": [
+      "Finance & Accounting Events 2026: Where to Find Nominal This Year"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/finance-ops-layer",
+    "status": 200,
+    "title": "The Finance Operations Layer Your ERP Wasn't Built For • Nominal",
+    "metaDesc": "Your ERP records transactions, but it doesn't execute workflows. Discover how APM uses AI agents to automate finance operations and close faster.",
+    "h1": [
+      "The Finance Operations Layer Your ERP Wasn't Built For"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/finance-tech-stack-for-2026",
+    "status": 200,
+    "title": "Why APM is the Category You Can't Ignore • Nominal",
+    "metaDesc": "Explore the finance technology category reshaping operations in 2026. See how APM combines AI agents, task management, and the general ledger.",
+    "h1": [
+      "Finance Tech Stack for 2026: Why APM is the Category You Can't Ignore"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/from-complexity-to-clarity-clear-entity-strategies",
+    "status": 200,
+    "title": "From Complexity to Clarity: Clear Entity Strategies • Nominal",
+    "metaDesc": "Discover strategies for simplifying entity management, improving compliance, and aligning finance and legal teams around scalable processes.",
+    "h1": [
+      "From Complexity to Clarity: Clear Entity Strategies"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/scaling-finance-operations-ai",
+    "status": 200,
+    "title": "Scaling Finance Without Adding Headcount • Nominal",
+    "metaDesc": "Learn how leading finance teams use AI and intelligent automation to streamline close processes, reduce costs, and scale without adding headcount.",
+    "h1": [
+      "Scaling Finance Without Adding Headcount"
+    ]
+  },
+  {
+    "url": "https://nominal.so/events/nomi-fest-where-ai-in-finance-meets-community",
+    "status": 200,
+    "title": "Nomi Fest: Where AI in Finance Meets Community • Nominal",
+    "metaDesc": "A recap of Nomi Fest Florida, Nominal's invite-only gathering for CFOs and accounting leaders exploring AI agents, financial close, and multi-entity operations.",
+    "h1": [
+      "Nomi Fest – Where AI in Finance Meets Community"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press/nominal-announces-apm",
+    "status": 200,
+    "title": "How Nominal Defined the Next Era of Accounting Operations • Nominal",
+    "metaDesc": "Nominal announces a rebrand and launches Agentic Performance Management, a new category where intelligent agents execute accounting workflows from start to finish.",
+    "h1": [
+      "Agentic Accounting Has Arrived and This Is What It Means"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press/nominal-named-agentic-list",
+    "status": 200,
+    "title": "Nominal Named to The Agentic List 2026 • Nominal",
+    "metaDesc": "Nominal has been named to The Agentic List 2026, recognized for autonomous agents that execute financial workflows end-to-end.",
+    "h1": [
+      "Nominal Recognized on The Agentic List 2026 for Agentic Enterprises"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press/nominal-raise-announcement",
+    "status": 200,
+    "title": "Nominal Raises $20M to Scale AI Accounting Agents • Nominal",
+    "metaDesc": "With $20M in Series A funding, Nominal expands its AI accounting agents to automate reconciliation, close, and consolidation for mid-market and enterprise teams.",
+    "h1": [
+      "We Raised $20M to Help Finance Teams Do Less Manual Work—and More Actual Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press/nominal-soc1-certification",
+    "status": 200,
+    "title": "Nominal Achieves SOC 1 Type II Certification • Nominal",
+    "metaDesc": "Nominal completes SOC 1 Type II certification, validating its internal controls over financial reporting as one of the first agentic AI finance platforms to do so.",
+    "h1": [
+      "Nominal Becomes One of the First AI-Native Finance Platforms to Achieve SOC 1 Type 2 Certification"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press/nominal-in-2024-year-end-wrap",
+    "status": 200,
+    "title": "Nominal 2024 Year in Review: AI Accounting • Nominal",
+    "metaDesc": "In 2024, Nominal's autonomous AI agents helped accounting teams save 50+ hours per close, consolidate 56 entities on average, and process 29 currencies.",
+    "h1": [
+      "Nominal in 2024: Year-End Wrap"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press/nominal-emerges-out-of-stealth-to-bridge-the-erp-gap",
+    "status": 200,
+    "title": "Nominal Raises $9.2M to Automate Accounting • Nominal",
+    "metaDesc": "Nominal raised $9.2M to build the next generation of accounting automation, helping multi-entity finance teams eliminate manual work across their ERP stack.",
+    "h1": [
+      "Nominal emerges out of stealth to bridge the ERP gap with AI"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/apm-rpa-copilots",
+    "status": 404,
+    "title": "",
+    "metaDesc": "",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/meet-agentic-performance-management?utm_medium=organic&utm_source=blog&utm_campaign=banner-apm-book-demo",
+    "status": 200,
+    "title": "Book a Demo With Nominal: See Autonomous Agents in Action • Nominal",
+    "metaDesc": "See how Nominal's AI agents execute reconciliation, intercompany, consolidation, and close, so your team can focus on analysis, not manual work.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog/nominal-soc1-certification",
+    "status": 200,
+    "title": "Nominal Achieves SOC 1 Type II Certification • Nominal",
+    "metaDesc": "Nominal completes SOC 1 Type II certification, validating its internal controls over financial reporting as one of the first agentic AI finance platforms to do so.",
+    "h1": [
+      "Nominal Becomes One of the First AI-Native Finance Platforms to Achieve SOC 1 Type 2 Certification"
+    ]
+  },
+  {
+    "url": "https://nominal.so/book-a-demo?utm_medium=organic&utm_source=blog&utm_campaign=book-demo-blog",
+    "status": 200,
+    "title": "Book a Demo With Nominal: See Autonomous Agents in Action • Nominal",
+    "metaDesc": "See how Nominal's AI agents execute reconciliation, intercompany, consolidation, and close, so your team can focus on analysis, not manual work.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/resources/sage-accounting-execution-layer/?utm_source=blog&utm_medium=downloadable&utm_campaign=mgl-content-blog&utm_content=banner-blog",
+    "status": 200,
+    "title": "The Modern Accounting Stack: Sage & Nominal • Nominal",
+    "metaDesc": "Sage handles the GL. Nominal handles the close. See how AI agents eliminate manual consolidations, intercompany reconciliations, and spreadsheet-driven cycles.",
+    "h1": [
+      "The Modern Accounting Stack: Sage as the System of Record, Nominal as the Execution Layer"
+    ]
+  },
+  {
+    "url": "https://nominal.so/our-platform/?utm_medium=organic&utm_source=blog&utm_campaign=banner-apm-book-demo",
+    "status": 200,
+    "title": "Nominal Platform: Agentic Performance Management • Nominal",
+    "metaDesc": "Nominal deploys autonomous AI agents that execute reconciliation, consolidation, variance analysis, and close across any ERP, without adding headcount.",
+    "h1": [
+      "A new way to run accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/author/rafael-ataie",
+    "status": 404,
+    "title": "Error - Page Not Found • Nominal",
+    "metaDesc": "",
+    "h1": [
+      "Page Not Found"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/month-end-close",
+    "status": 200,
+    "title": "Month-End Close Automation: Process, Costs, and Checklist • Nominal",
+    "metaDesc": "Month-end close automation reduces errors, speeds up reconciliations, and frees finance teams from manual work. Here's how to modernize your close process.",
+    "h1": [
+      "Month-End Close Automation: How to Fix a Broken Process"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/what-is-ai-agent",
+    "status": 200,
+    "title": "AI Agents in Finance and Accounting: Why It Matters • Nominal",
+    "metaDesc": "Learn what AI agents are, how they apply to finance and accounting, and real examples of how they automate close, reconciliation, and reporting.",
+    "h1": [
+      "AI Agents in Finance and Accounting: Automating Close, Reconciliation, and Reporting with Intelligence"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/finance-audit-checklist/?utm_source=blog&utm_medium=organic&utm_campaign=mgl-blog-cta-gated-content",
+    "status": 200,
+    "title": "Accounting Audit Checklist: Stay Audit-Ready Year-Round • Nominal",
+    "metaDesc": "A checklist for controllers and accounting teams covering document organization, reconciliations, internal controls, and audit prep from start to finish.",
+    "h1": [
+      "The Accounting Audit Checklist for Year-Round Audit Readiness"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/finance-audit-checklist",
+    "status": 200,
+    "title": "Financial Audit with AI: Checklist and Strategies • Nominal",
+    "metaDesc": "Learn how accounting teams use AI to automate reconciliations, streamline review preparation, and stay compliant year-round without last-minute scrambles.",
+    "h1": [
+      "Financial Audit with AI: How Modern Accounting Teams Stay Compliant at Scale"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-in-audit",
+    "status": 200,
+    "title": "Financial Audit with AI: Checklist and Strategies • Nominal",
+    "metaDesc": "Learn how accounting teams use AI to automate reconciliations, streamline review preparation, and stay compliant year-round without last-minute scrambles.",
+    "h1": [
+      "Financial Audit with AI: How Modern Accounting Teams Stay Compliant at Scale"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources-center/beyond-the-erp-bank-reconciliation-workday?utm_medium=organic&utm_source=blog&utm_campaign=dynamics-series",
+    "status": 200,
+    "title": "Bank Reconciliation for Workday Accounting Teams • Nominal",
+    "metaDesc": "A white paper for controllers on Workday on why reconciliation stalls at close and how AI agents match 90%+ of transactions automatically without migration.",
+    "h1": [
+      "Beyond the ERP: Modernizing Bank Reconciliations for Workday Finance Teams"
+    ]
+  },
+  {
+    "url": "https://nominal.so/close-guide-hub",
+    "status": 200,
+    "title": "Month-End Close Guide Hub for Accounting Teams • Nominal",
+    "metaDesc": "A 7-chapter guide for controllers and senior accountants covering close automation, tool evaluation, multi-entity operations, and implementation in 2026.",
+    "h1": [
+      "Master Your Month-End: The Complete Guide to Close in 2026"
+    ]
+  },
+  {
+    "url": "https://nominal.so/book-a-demo?utm_medium=organic&utm_source=blog&utm_campaign=book-demo-blog](https://www.nominal.so/book-a-demo?utm_medium=organic&utm_source=blog&utm_campaign=book-demo-blog",
+    "status": 200,
+    "title": "Book a Demo With Nominal: See Autonomous Agents in Action • Nominal",
+    "metaDesc": "See how Nominal's AI agents execute reconciliation, intercompany, consolidation, and close, so your team can focus on analysis, not manual work.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog/evolution-of-financial-consolidation",
+    "status": 200,
+    "title": "Financial Consolidation: Process, Challenges & AI • Nominal",
+    "metaDesc": "Financial consolidation combines data from multiple entities into one set of statements. See how account teams use AI agents to close faster and scale. ",
+    "h1": [
+      "What Is Financial Consolidation? Process, Challenges, and AI Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/month-end-flux",
+    "status": 200,
+    "title": "Flux Analysis: Definition, Causes, and AI-Powered Tips • Nominal",
+    "metaDesc": "Flux analysis identifies and explains changes in account balances. Learn how accounting teams use it to stay audit-ready and close faster.",
+    "h1": [
+      "What Is Flux Analysis and How Is AI Changing the Way Accounting Teams Use It"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources-center/automated-financial-consolidation",
+    "status": 200,
+    "title": "Automated Financial Consolidation for Accounting Teams • Nominal",
+    "metaDesc": "See how AI agents automate reconciliations, eliminations, and intercompany matching across entities, with full audit trails and no ERP migration required.",
+    "h1": [
+      "Automated Financial Consolidation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources-center/50-m-journal-entries-what-we-learned-about-finance-operations",
+    "status": 200,
+    "title": "50M Journal Entries: What We Learned About Accounting Ops • Nominal",
+    "metaDesc": "Nominal analyzed 50M journal entries and found 12 recurring error patterns behind most accounting mistakes. Here's what the data reveals about modern close ops.",
+    "h1": [
+      "50,000,000 Journal Entries: What We Learned About Finance Operations"
+    ]
+  },
+  {
+    "url": "https://nominal.so/webinars/from-complexity-to-clarity-clear-entity-strategies",
+    "status": 200,
+    "title": "From Complexity to Clarity: Clear Entity Strategies • Nominal",
+    "metaDesc": "Discover strategies for simplifying entity management, improving compliance, and aligning finance and legal teams around scalable processes.",
+    "h1": [
+      "From Complexity to Clarity: Clear Entity Strategies"
+    ]
+  },
+  {
+    "url": "https://nominal.so/webinars/scaling-finance-operations-ai",
+    "status": 200,
+    "title": "Scaling Finance Without Adding Headcount • Nominal",
+    "metaDesc": "Learn how leading finance teams use AI and intelligent automation to streamline close processes, reduce costs, and scale without adding headcount.",
+    "h1": [
+      "Scaling Finance Without Adding Headcount"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press-room/nominal-soc1-certification",
+    "status": 200,
+    "title": "Nominal Achieves SOC 1 Type II Certification • Nominal",
+    "metaDesc": "Nominal completes SOC 1 Type II certification, validating its internal controls over financial reporting as one of the first agentic AI finance platforms to do so.",
+    "h1": [
+      "Nominal Becomes One of the First AI-Native Finance Platforms to Achieve SOC 1 Type 2 Certification"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-ai",
+    "status": 200,
+    "title": "Agentic AI in Accounting: How Automation Works in Practice • Nominal",
+    "metaDesc": "Agentic AI in accounting executes reconciliations, close, and consolidation autonomously. See how accounting teams use it to close faster.",
+    "h1": [
+      "Agentic AI in Accounting: The Shift From Assistance to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/close-guide-hub?utm_medium=organic&utm_source=blog&utm_campaign=banner-close-guide-hub",
+    "status": 200,
+    "title": "Month-End Close Guide Hub for Accounting Teams • Nominal",
+    "metaDesc": "A 7-chapter guide for controllers and senior accountants covering close automation, tool evaluation, multi-entity operations, and implementation in 2026.",
+    "h1": [
+      "Master Your Month-End: The Complete Guide to Close in 2026"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources-center/50-m-journal-entries-what-we-learned-about-finance-operations?utm_medium=organic&utm_source=blog&utm_campaign=journal-entries-white-paper",
+    "status": 200,
+    "title": "50M Journal Entries: What We Learned About Accounting Ops • Nominal",
+    "metaDesc": "Nominal analyzed 50M journal entries and found 12 recurring error patterns behind most accounting mistakes. Here's what the data reveals about modern close ops.",
+    "h1": [
+      "50,000,000 Journal Entries: What We Learned About Finance Operations"
+    ]
+  },
+  {
+    "url": "https://nominal.so/integrations",
+    "status": 200,
+    "title": "ERP-Agnostic Orchestration • Nominal",
+    "metaDesc": "Nominal connects to your ERP and adds an execution layer powered by AI agents to do the work your team shouldn’t have to do manually.",
+    "h1": [
+      "Your ERP Records. Nominal Executes."
+    ]
+  },
+  {
+    "url": "https://nominal.so/compare",
+    "status": 200,
+    "title": "Compare Nominal vs BlackLine, FloQast, and Other Platforms • Nominal",
+    "metaDesc": "See how Nominal compares to BlackLine, FloQast, and OneStream across AI automation, ERP integration, multi-entity consolidation, and close speed.",
+    "h1": [
+      "Compare Nominal vs BlackLine, FloQast, and Other Close Platforms"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources-center/ai-implementation-roadmap?utm_medium=organic&utm_source=blog&utm_campaign=one-sheet-ai-implementation-roadmap",
+    "status": 200,
+    "title": "AI Implementation Roadmap for Accounting Teams • Nominal",
+    "metaDesc": "A 4-phase roadmap for controllers and accounting teams to move from manual processes to 70%+ AI automation, with key success factors and pitfalls to avoid.",
+    "h1": [
+      "AI Implementation Roadmap for Accounting Teams: From Manual to Autonomous in 4 Phases"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/nominal-flux-anysis",
+    "status": 200,
+    "title": "Flux Analysis: Definition, Causes, and AI-Powered Tips • Nominal",
+    "metaDesc": "Flux analysis identifies and explains changes in account balances. Learn how accounting teams use it to stay audit-ready and close faster.",
+    "h1": [
+      "What Is Flux Analysis and How Is AI Changing the Way Accounting Teams Use It"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/bottom-lines-episode-3-understanding-agentic-ai-in-accounting",
+    "status": 200,
+    "title": "Agentic AI in Accounting: How Automation Works in Practice • Nominal",
+    "metaDesc": "Agentic AI in accounting executes reconciliations, close, and consolidation autonomously. See how accounting teams use it to close faster.",
+    "h1": [
+      "Agentic AI in Accounting: The Shift From Assistance to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/courses/masterclass?utm_medium=organic&utm_source=blog&utm_campaign=masterclass-ai-finance",
+    "status": 200,
+    "title": "Nominal Masterclass: AI Accounting Certification • Nominal",
+    "metaDesc": "A free 4-module course for CFOs, controllers, and accountants. Learn how AI agents work in finance, earn your AI Mastery Badge, and apply it immediately.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/ai-powered-analysis",
+    "status": 200,
+    "title": "Financial Consolidation & Reporting • Nominal",
+    "metaDesc": "Nominal’s agents normalize, reconcile, and automate eliminations—ensuring your consolidated financials are accurate, audit-ready, and delivered on time.",
+    "h1": [
+      "Consolidate faster. Report with confidence."
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/ai-agents-examples",
+    "status": 200,
+    "title": "AI Agents in Finance and Accounting: Why It Matters • Nominal",
+    "metaDesc": "Learn what AI agents are, how they apply to finance and accounting, and real examples of how they automate close, reconciliation, and reporting.",
+    "h1": [
+      "AI Agents in Finance and Accounting: Automating Close, Reconciliation, and Reporting with Intelligence"
+    ]
+  },
+  {
+    "url": "https://nominal.so/close-management",
+    "status": 200,
+    "title": "Close Acceleration & Accuracy • Nominal",
+    "metaDesc": "Nominal's agents continuously reconcile, detect anomalies, and manage close workflows so your team arrives at month-end with the hard work already done.",
+    "h1": [
+      "A better close with agents."
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/the-ai-evolution-in-finance",
+    "status": 200,
+    "title": "Accounting's Evolution: Ledgers to Agentic Performance • Nominal",
+    "metaDesc": "Accounting has evolved from manual ledgers to ERPs to autonomous AI agents. See where your accounting team sits on this maturity curve and what comes next.",
+    "h1": [
+      "The Evolution of Accounting: From Manual Ledgers to Agentic Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/understanding-agentic-ai-the-new-generation-of-artificial-intelligence",
+    "status": 200,
+    "title": "Agentic AI in Accounting: How Automation Works in Practice • Nominal",
+    "metaDesc": "Agentic AI in accounting executes reconciliations, close, and consolidation autonomously. See how accounting teams use it to close faster.",
+    "h1": [
+      "Agentic AI in Accounting: The Shift From Assistance to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-ai-and-the-future-of-accounting-workflows",
+    "status": 200,
+    "title": "What Is an Agentic Workflow in Finance and Accounting • Nominal",
+    "metaDesc": "Learn how agentic workflows use AI agents to automate finance tasks like reconciliation, close, and consolidation with more speed and accuracy",
+    "h1": [
+      "Agentic Workflow Automation: What It Means for Accounting"
+    ]
+  },
+  {
+    "url": "https://nominal.so/financial-consolidation",
+    "status": 200,
+    "title": "Financial Consolidation & Reporting • Nominal",
+    "metaDesc": "Nominal’s agents normalize, reconcile, and automate eliminations—ensuring your consolidated financials are accurate, audit-ready, and delivered on time.",
+    "h1": [
+      "Consolidate faster. Report with confidence."
+    ]
+  },
+  {
+    "url": "https://nominal.so/security",
+    "status": 200,
+    "title": "Nominal Security: SOC 1 Certified AI Finance Platform • Nominal",
+    "metaDesc": "Nominal safeguards your critical data with state-of-the-art security tools and combined decades of professional security expertise.",
+    "h1": [
+      "Your data is our priority"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/from-spreadsheets-to-ai-the-evolution-of-financial-consolidation",
+    "status": 200,
+    "title": "Financial Consolidation: Process, Challenges & AI • Nominal",
+    "metaDesc": "Financial consolidation combines data from multiple entities into one set of statements. See how account teams use AI agents to close faster and scale. ",
+    "h1": [
+      "What Is Financial Consolidation? Process, Challenges, and AI Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/finance-performance-management-evaluation-scorecard/?utm_medium=organic&utm_source=blog&utm_campaign=close-guide-hub&hsCtaAttrib=197403904874",
+    "status": 200,
+    "title": "Finance Performance Management Evaluation Scorecard • Nominal",
+    "metaDesc": "Compare up to three finance performance management vendors across eight weighted criteria, including ERP compatibility and automation depth. Free from Nominal.",
+    "h1": [
+      "Finance Performance Management Evaluation Scorecard"
+    ]
+  },
+  {
+    "url": "https://nominal.so/book-a-demo?utm_medium=organic&utm_source=blog&utm_campaign=close-guide-hub",
+    "status": 200,
+    "title": "Book a Demo With Nominal: See Autonomous Agents in Action • Nominal",
+    "metaDesc": "See how Nominal's AI agents execute reconciliation, intercompany, consolidation, and close, so your team can focus on analysis, not manual work.",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog/intercompany-eliminations?__hstc=753710.3710cbe0e4aede935b83de9c18eb258f.1777485799801.1777485799801.1777485799801.1&__hssc=753710.1.1777485799802&__hsfp=ae3f0c1773956dc2d264706c578d932d",
+    "status": 200,
+    "title": "What Are Intercompany Eliminations and How to Automate Them • Nominal",
+    "metaDesc": "Learn how to automate intercompany eliminations, reduce error risk, and accelerate consolidation using AI-powered finance tools like Nominal.",
+    "h1": [
+      "Intercompany Eliminations: How AI-Powered Automation Transforms Consolidation"
+    ]
+  },
+  {
+    "url": "https://nominal.so/resources/the-modern-close-blueprint/?utm_medium=organic&utm_source=blog&utm_campaign=close-guide-hub&hsCtaAttrib=197263075921",
+    "status": 503,
+    "title": "",
+    "metaDesc": "",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/book-a-demo/?utm_medium=organic&utm_source=blog&utm_campaign=book-demo-blog",
+    "status": 503,
+    "title": "",
+    "metaDesc": "",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog/how-gspp-automates-accounting-to-ensure-maximum-compliance-and-efficiency",
+    "status": 503,
+    "title": "",
+    "metaDesc": "",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/blog/nominal-emerges-out-of-stealth-to-bridge-the-erp-gap",
+    "status": 503,
+    "title": "",
+    "metaDesc": "",
+    "h1": []
+  },
+  {
+    "url": "https://nominal.so/press-room/nominal-emerges-out-of-stealth-to-bridge-the-erp-gap",
+    "status": 200,
+    "title": "Nominal Raises $9.2M to Automate Accounting • Nominal",
+    "metaDesc": "Nominal raised $9.2M to build the next generation of accounting automation, helping multi-entity finance teams eliminate manual work across their ERP stack.",
+    "h1": [
+      "Nominal emerges out of stealth to bridge the ERP gap with AI"
+    ]
+  },
+  {
+    "url": "https://nominal.so/press-room/nominal-raise-announcement",
+    "status": 200,
+    "title": "Nominal Raises $20M to Scale AI Accounting Agents • Nominal",
+    "metaDesc": "With $20M in Series A funding, Nominal expands its AI accounting agents to automate reconciliation, close, and consolidation for mid-market and enterprise teams.",
+    "h1": [
+      "We Raised $20M to Help Finance Teams Do Less Manual Work—and More Actual Work"
+    ]
+  },
+  {
+    "url": "https://nominal.so/?utm_medium=organic&utm_source=blog&utm_campaign=book-demo-blog",
+    "status": 200,
+    "title": "Nominal • Nominal | Agentic AI Platform That Runs Your Accounting",
+    "metaDesc": "Eliminate manual effort with an agentic platform that plugs into your existing setup to execute the busywork, freeing your people to create real business value.",
+    "h1": [
+      "Run your entire close with AI agents."
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/agentic-ai-the-future-of-finance-automation-is-already-here",
+    "status": 200,
+    "title": "Agentic AI in Accounting: How Automation Works in Practice • Nominal",
+    "metaDesc": "Agentic AI in accounting executes reconciliations, close, and consolidation autonomously. See how accounting teams use it to close faster.",
+    "h1": [
+      "Agentic AI in Accounting: The Shift From Assistance to Execution"
+    ]
+  },
+  {
+    "url": "https://nominal.so/blog/10-examples-of-what-ai-agents-can-do-that-your-erp-cant-and-why-it-matters",
+    "status": 200,
+    "title": "AI Agents in Finance and Accounting: Why It Matters • Nominal",
+    "metaDesc": "Learn what AI agents are, how they apply to finance and accounting, and real examples of how they automate close, reconciliation, and reporting.",
+    "h1": [
+      "AI Agents in Finance and Accounting: Automating Close, Reconciliation, and Reporting with Intelligence"
+    ]
+  }
+]
