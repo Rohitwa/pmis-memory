@@ -1,0 +1,1489 @@
+{
+  "home": {
+    "url": "https://nominal.so/",
+    "data": {
+      "colors": [
+        [
+          "#151414",
+          486
+        ],
+        [
+          "#fdfff8",
+          132
+        ],
+        [
+          "#5a5a5a",
+          49
+        ],
+        [
+          "#bbbbbb",
+          33
+        ],
+        [
+          "#d1decd",
+          13
+        ],
+        [
+          "#767676",
+          10
+        ],
+        [
+          "#5adeb7",
+          8
+        ],
+        [
+          "#e69393",
+          8
+        ],
+        [
+          "#98a5ef",
+          6
+        ],
+        [
+          "#eadc8f",
+          6
+        ],
+        [
+          "#000000",
+          1
+        ]
+      ],
+      "bgs": [
+        [
+          "#151414",
+          29
+        ],
+        [
+          "#fdfff8",
+          18
+        ],
+        [
+          "#5adeb7",
+          6
+        ],
+        [
+          "#d1decd",
+          6
+        ],
+        [
+          "#eadc8f",
+          4
+        ],
+        [
+          "#767676",
+          4
+        ],
+        [
+          "#b5c4f5",
+          3
+        ],
+        [
+          "#f2a9a9",
+          3
+        ],
+        [
+          "#e0eadd",
+          3
+        ],
+        [
+          "#b2eedc",
+          2
+        ],
+        [
+          "#98a5ef",
+          2
+        ],
+        [
+          "#e69393",
+          2
+        ],
+        [
+          "#000000",
+          2
+        ],
+        [
+          "#f9eba6",
+          1
+        ]
+      ],
+      "fontFam": [
+        [
+          "Retorika",
+          687
+        ],
+        [
+          "STK Bureau Serif",
+          64
+        ],
+        [
+          "system-ui",
+          1
+        ]
+      ],
+      "fontSize": [
+        [
+          "18px",
+          479
+        ],
+        [
+          "14px",
+          163
+        ],
+        [
+          "16px",
+          42
+        ],
+        [
+          "48px",
+          39
+        ],
+        [
+          "28px",
+          11
+        ],
+        [
+          "64px",
+          9
+        ],
+        [
+          "120px",
+          4
+        ],
+        [
+          "12px",
+          4
+        ],
+        [
+          "56px",
+          1
+        ]
+      ],
+      "fontWeight": [
+        [
+          "500",
+          628
+        ],
+        [
+          "300",
+          64
+        ],
+        [
+          "600",
+          56
+        ],
+        [
+          "700",
+          3
+        ],
+        [
+          "400",
+          1
+        ]
+      ],
+      "radius": [
+        [
+          "3.35544e+07px",
+          17
+        ]
+      ],
+      "borderColor": [
+        [
+          "#d1decd",
+          7
+        ],
+        [
+          "#e0eadd",
+          4
+        ],
+        [
+          "#5a5a5a",
+          4
+        ],
+        [
+          "#98a5ef",
+          3
+        ],
+        [
+          "#4fcba6",
+          3
+        ],
+        [
+          "#e69393",
+          3
+        ],
+        [
+          "#dfc331",
+          2
+        ],
+        [
+          "#95e6cd",
+          2
+        ],
+        [
+          "#272c2b",
+          2
+        ],
+        [
+          "#eadc8f",
+          1
+        ],
+        [
+          "#fdfff8",
+          1
+        ]
+      ],
+      "heads": {
+        "h1": {
+          "size": "64px",
+          "weight": "300",
+          "lh": "70.4px",
+          "ls": "-1.92px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h2": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        },
+        "h3": {
+          "size": "48px",
+          "weight": "300",
+          "lh": "52.8px",
+          "ls": "-1.44px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h4": {
+          "size": "28px",
+          "weight": "300",
+          "lh": "33.6px",
+          "ls": "-0.56px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "p": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        },
+        "a": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        },
+        "button": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        }
+      },
+      "btnStyles": [
+        {
+          "text": "Contact us",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px 16px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "17.5px 17.5px 17.5px 21px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "31.9999px 64px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        }
+      ],
+      "fontLinks": [],
+      "faces": [
+        "STK Bureau Serif 300",
+        "Retorika 500",
+        "Retorika 600"
+      ],
+      "sections": [
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 64px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "#f3f7eb",
+          "pad": "71.9999px / 160px"
+        },
+        {
+          "bg": "#151414",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 0px"
+        },
+        {
+          "bg": "#151414",
+          "pad": "128px / 120px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "80px / 0px"
+        }
+      ],
+      "maxWidth": []
+    }
+  },
+  "platform": {
+    "url": "https://nominal.so/our-platform",
+    "data": {
+      "colors": [
+        [
+          "#151414",
+          565
+        ],
+        [
+          "#5a5a5a",
+          44
+        ],
+        [
+          "#fdfff8",
+          31
+        ],
+        [
+          "#767676",
+          29
+        ],
+        [
+          "#000000",
+          1
+        ]
+      ],
+      "bgs": [
+        [
+          "#151414",
+          53
+        ],
+        [
+          "#f3f7eb",
+          11
+        ],
+        [
+          "#e0eadd",
+          6
+        ],
+        [
+          "#fdfff8",
+          3
+        ],
+        [
+          "#767676",
+          3
+        ],
+        [
+          "#b5c4f5",
+          2
+        ],
+        [
+          "#f9eba6",
+          2
+        ],
+        [
+          "#b2eedc",
+          2
+        ],
+        [
+          "#000000",
+          2
+        ],
+        [
+          "#ffffff",
+          1
+        ]
+      ],
+      "fontFam": [
+        [
+          "Retorika",
+          541
+        ],
+        [
+          "STK Bureau Serif",
+          128
+        ],
+        [
+          "system-ui",
+          1
+        ]
+      ],
+      "fontSize": [
+        [
+          "18px",
+          403
+        ],
+        [
+          "14px",
+          124
+        ],
+        [
+          "40px",
+          52
+        ],
+        [
+          "48px",
+          51
+        ],
+        [
+          "16px",
+          15
+        ],
+        [
+          "64px",
+          15
+        ],
+        [
+          "56px",
+          5
+        ],
+        [
+          "28px",
+          4
+        ],
+        [
+          "144px",
+          1
+        ]
+      ],
+      "fontWeight": [
+        [
+          "500",
+          468
+        ],
+        [
+          "300",
+          128
+        ],
+        [
+          "600",
+          69
+        ],
+        [
+          "700",
+          4
+        ],
+        [
+          "400",
+          1
+        ]
+      ],
+      "radius": [
+        [
+          "24px",
+          6
+        ]
+      ],
+      "borderColor": [
+        [
+          "#e0eadd",
+          9
+        ],
+        [
+          "#151414",
+          6
+        ],
+        [
+          "#98a5ef",
+          2
+        ],
+        [
+          "#eadc8f",
+          2
+        ],
+        [
+          "#5adeb7",
+          2
+        ],
+        [
+          "#d1decd",
+          2
+        ]
+      ],
+      "heads": {
+        "h1": {
+          "size": "64px",
+          "weight": "300",
+          "lh": "70.4px",
+          "ls": "-1.92px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h2": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        },
+        "h3": {
+          "size": "48px",
+          "weight": "300",
+          "lh": "52.8px",
+          "ls": "-1.44px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h4": {
+          "size": "40px",
+          "weight": "300",
+          "lh": "44px",
+          "ls": "-1.2px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "p": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#767676"
+        },
+        "a": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        }
+      },
+      "btnStyles": [
+        {
+          "text": "Contact us",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px 16px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "17.5px 17.5px 17.5px 21px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "31.9999px 64px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        }
+      ],
+      "fontLinks": [],
+      "faces": [
+        "STK Bureau Serif 300",
+        "Retorika 500",
+        "Retorika 600"
+      ],
+      "sections": [
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 64px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 0px"
+        },
+        {
+          "bg": "#f3f7eb",
+          "pad": "128px / 120px"
+        }
+      ],
+      "maxWidth": []
+    }
+  },
+  "agent": {
+    "url": "https://nominal.so/agents/flux-analysis-agents",
+    "data": {
+      "colors": [
+        [
+          "#151414",
+          356
+        ],
+        [
+          "#767676",
+          31
+        ],
+        [
+          "#fdfff8",
+          26
+        ],
+        [
+          "#5a5a5a",
+          26
+        ],
+        [
+          "#000000",
+          1
+        ]
+      ],
+      "bgs": [
+        [
+          "#151414",
+          30
+        ],
+        [
+          "#f3f7eb",
+          3
+        ],
+        [
+          "#767676",
+          3
+        ],
+        [
+          "#fdfff8",
+          2
+        ],
+        [
+          "#000000",
+          2
+        ],
+        [
+          "#ffffff",
+          1
+        ]
+      ],
+      "fontFam": [
+        [
+          "Retorika",
+          366
+        ],
+        [
+          "STK Bureau Serif",
+          73
+        ],
+        [
+          "system-ui",
+          1
+        ]
+      ],
+      "fontSize": [
+        [
+          "18px",
+          266
+        ],
+        [
+          "14px",
+          95
+        ],
+        [
+          "40px",
+          36
+        ],
+        [
+          "48px",
+          31
+        ],
+        [
+          "16px",
+          6
+        ],
+        [
+          "28px",
+          5
+        ],
+        [
+          "64px",
+          1
+        ]
+      ],
+      "fontWeight": [
+        [
+          "500",
+          331
+        ],
+        [
+          "300",
+          73
+        ],
+        [
+          "600",
+          35
+        ],
+        [
+          "400",
+          1
+        ]
+      ],
+      "radius": [],
+      "borderColor": [
+        [
+          "#e0eadd",
+          4
+        ],
+        [
+          "#d1decd",
+          2
+        ],
+        [
+          "#151414",
+          1
+        ]
+      ],
+      "heads": {
+        "h1": {
+          "size": "64px",
+          "weight": "300",
+          "lh": "70.4px",
+          "ls": "-1.92px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h2": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        },
+        "h3": {
+          "size": "48px",
+          "weight": "300",
+          "lh": "52.8px",
+          "ls": "-1.44px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h4": {
+          "size": "40px",
+          "weight": "300",
+          "lh": "44px",
+          "ls": "-1.2px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "p": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#767676"
+        },
+        "a": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        }
+      },
+      "btnStyles": [
+        {
+          "text": "Contact us",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px 16px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "17.5px 17.5px 17.5px 21px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "31.9999px 64px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        }
+      ],
+      "fontLinks": [],
+      "faces": [
+        "STK Bureau Serif 300",
+        "Retorika 500",
+        "Retorika 600"
+      ],
+      "sections": [
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "#f3f7eb",
+          "pad": "128px / 120px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "80px / 0px"
+        }
+      ],
+      "maxWidth": []
+    }
+  },
+  "compare": {
+    "url": "https://nominal.so/compare",
+    "data": {
+      "colors": [
+        [
+          "#151414",
+          507
+        ],
+        [
+          "#5a5a5a",
+          72
+        ],
+        [
+          "#fdfff8",
+          18
+        ],
+        [
+          "#767676",
+          6
+        ],
+        [
+          "#5adeb7",
+          2
+        ],
+        [
+          "#000000",
+          1
+        ]
+      ],
+      "bgs": [
+        [
+          "#151414",
+          39
+        ],
+        [
+          "#fdfff8",
+          7
+        ],
+        [
+          "#000000",
+          2
+        ],
+        [
+          "#f3f7eb",
+          1
+        ],
+        [
+          "#ffffff",
+          1
+        ]
+      ],
+      "fontFam": [
+        [
+          "Retorika",
+          493
+        ],
+        [
+          "STK Bureau Serif",
+          112
+        ],
+        [
+          "system-ui",
+          1
+        ]
+      ],
+      "fontSize": [
+        [
+          "18px",
+          365
+        ],
+        [
+          "14px",
+          87
+        ],
+        [
+          "56px",
+          63
+        ],
+        [
+          "16px",
+          42
+        ],
+        [
+          "28px",
+          28
+        ],
+        [
+          "48px",
+          20
+        ],
+        [
+          "64px",
+          1
+        ]
+      ],
+      "fontWeight": [
+        [
+          "500",
+          455
+        ],
+        [
+          "300",
+          112
+        ],
+        [
+          "600",
+          35
+        ],
+        [
+          "700",
+          3
+        ],
+        [
+          "400",
+          1
+        ]
+      ],
+      "radius": [],
+      "borderColor": [
+        [
+          "#e0eadd",
+          4
+        ],
+        [
+          "#d1decd",
+          4
+        ],
+        [
+          "#151414",
+          1
+        ]
+      ],
+      "heads": {
+        "h1": {
+          "size": "64px",
+          "weight": "300",
+          "lh": "70.4px",
+          "ls": "-1.92px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h2": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        },
+        "h3": {
+          "size": "48px",
+          "weight": "300",
+          "lh": "52.8px",
+          "ls": "-1.44px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "p": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        },
+        "a": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        },
+        "button": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        }
+      },
+      "btnStyles": [
+        {
+          "text": "Contact us",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px 16px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#fdfff8",
+          "radius": "0px",
+          "padding": "17.5px 17.5px 17.5px 21px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(253, 255, 248)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "10.5px 17.5px 10.5px 21px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "1px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        }
+      ],
+      "fontLinks": [],
+      "faces": [
+        "STK Bureau Serif 300",
+        "Retorika 500",
+        "Retorika 600"
+      ],
+      "sections": [
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 128px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "#f3f7eb",
+          "pad": "71.9999px / 160px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "128px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "80px / 0px"
+        }
+      ],
+      "maxWidth": []
+    }
+  },
+  "blog": {
+    "url": "https://nominal.so/blog",
+    "data": {
+      "colors": [
+        [
+          "#151414",
+          277
+        ],
+        [
+          "#5a5a5a",
+          76
+        ],
+        [
+          "#767676",
+          24
+        ],
+        [
+          "#fdfff8",
+          2
+        ],
+        [
+          "#000000",
+          1
+        ]
+      ],
+      "bgs": [
+        [
+          "#fdfff8",
+          42
+        ],
+        [
+          "#5a5a5a",
+          13
+        ],
+        [
+          "#151414",
+          1
+        ],
+        [
+          "#e0eadd",
+          1
+        ],
+        [
+          "#e0f8f2",
+          1
+        ]
+      ],
+      "fontFam": [
+        [
+          "Retorika",
+          376
+        ],
+        [
+          "STK Bureau Serif",
+          3
+        ],
+        [
+          "system-ui",
+          1
+        ]
+      ],
+      "fontSize": [
+        [
+          "18px",
+          256
+        ],
+        [
+          "14px",
+          90
+        ],
+        [
+          "12px",
+          17
+        ],
+        [
+          "16px",
+          14
+        ],
+        [
+          "64px",
+          1
+        ],
+        [
+          "40px",
+          1
+        ],
+        [
+          "56px",
+          1
+        ]
+      ],
+      "fontWeight": [
+        [
+          "500",
+          355
+        ],
+        [
+          "600",
+          21
+        ],
+        [
+          "300",
+          3
+        ],
+        [
+          "400",
+          1
+        ]
+      ],
+      "radius": [
+        [
+          "3.35544e+07px",
+          30
+        ]
+      ],
+      "borderColor": [
+        [
+          "#e0eadd",
+          31
+        ],
+        [
+          "#d1decd",
+          3
+        ],
+        [
+          "#b2eedc",
+          1
+        ]
+      ],
+      "heads": {
+        "h1": {
+          "size": "64px",
+          "weight": "300",
+          "lh": "70.4px",
+          "ls": "-1.92px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h2": {
+          "size": "40px",
+          "weight": "300",
+          "lh": "44px",
+          "ls": "-1.2px",
+          "family": "STK Bureau Serif",
+          "color": "#151414"
+        },
+        "h3": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        },
+        "p": {
+          "size": "14px",
+          "weight": "500",
+          "lh": "19.6px",
+          "ls": "-0.28px",
+          "family": "Retorika",
+          "color": "#767676"
+        },
+        "a": {
+          "size": "18px",
+          "weight": "500",
+          "lh": "25.2px",
+          "ls": "-0.54px",
+          "family": "Retorika",
+          "color": "#151414"
+        },
+        "button": {
+          "size": "16px",
+          "weight": "500",
+          "lh": "22.4px",
+          "ls": "-0.48px",
+          "family": "Retorika",
+          "color": "#5a5a5a"
+        }
+      },
+      "btnStyles": [
+        {
+          "text": "Contact us",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Book a Demo",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px 16px",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        },
+        {
+          "text": "Contact us",
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "#151414",
+          "radius": "0px",
+          "padding": "0px",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "border": "0px solid rgb(21, 20, 20)",
+          "textTransform": "none"
+        }
+      ],
+      "fontLinks": [],
+      "faces": [
+        "STK Bureau Serif 300",
+        "Retorika 500",
+        "Retorika 600"
+      ],
+      "sections": [
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "96px / 96px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        },
+        {
+          "bg": "rgba(0, 0, 0, 0)",
+          "pad": "0px / 0px"
+        }
+      ],
+      "maxWidth": []
+    }
+  }
+}
