@@ -1,0 +1,368 @@
+{
+  "meta": {
+    "title": "Agentic Banking Operations — Architecture & Agent Registry",
+    "derived_from": "McKinsey Operations Practice, 'AI in Asia: Reimagining banking operations through agentic AI', December 2025",
+    "purpose": "Reconstruct the agentic architecture and index every agent 'product' the report proposes by the use case it solves.",
+    "notes": "Improvement ranges are illustrative and based on McKinsey client engagements. Agent names are taken from report exhibits (1-19). This file is the canonical, machine-readable index; docs/AGENTIC_ARCHITECTURE.md is the human narrative.",
+    "value_thesis": {
+      "cost_base_at_stake": "Enterprise-wide operations = 60-70% of a bank's cost base",
+      "ai_cost_reduction": "Up to 70% gross reduction in certain cost categories; ~15-20% of entire cost base net of rising tech cost",
+      "top_10_domains_cover": "60-70% of the total operations value pool",
+      "early_mover_impact": "30-50% efficiency gains, 2-3x productivity uplift (<10% of institutions globally are executing agentic AI at scale)",
+      "manual_baseline": "~60-70% of banking-operations workflows still rely on manual processing"
+    }
+  },
+
+  "architecture": {
+    "paradigm": "Multiagentic systems: fleets of dedicated atomic agents acting as coworkers, orchestrated with human-in-the-loop, that plan multistep work, use tools, self-critique, and collaborate.",
+    "why_beyond_single_llm": [
+      "Automate complex multistep workflows (single LLM: single-shot tasks only)",
+      "Orchestrate non-linear tasks",
+      "Perform and trigger actions via tools",
+      "Effective two-way conversations",
+      "Auto-learn at high velocity with human reinforcement",
+      "Granularly embed checks and guardrails"
+    ],
+    "capability_stack_layers": [
+      {
+        "id": "engagement",
+        "name": "Engagement",
+        "goal": "Reimagine customer experience: personalized, streamlined, omnichannel.",
+        "elements": [
+          "Mobile as the gateway to the rest of the bank (branch, contact center, RMs)",
+          "Multimodal conversational experiences (text, visual, voice)",
+          "Intelligent products and services",
+          "Omnichannel experiences for customers, employees, partners",
+          "Digital twins to simulate customer and employee behavior"
+        ]
+      },
+      {
+        "id": "decisioning",
+        "name": "AI-powered decision-making",
+        "goal": "Data-based decisions that raise productivity and meet customer needs; realized through the 'agentic mesh'.",
+        "elements": [
+          "Predictive analytics models",
+          "AI orchestration (copilot-style support + autopilots that orchestrate workflows)",
+          "AI agents specialized in narrow domains (the agent library)",
+          "AI enablers, streamlined risk protocols, information-security standards",
+          "Reusable components and services"
+        ],
+        "decision_value_chain": [
+          "Customer acquisition",
+          "Credit decision-making",
+          "Monitoring and collections",
+          "Retention, selling, upselling",
+          "Servicing and engagement"
+        ]
+      },
+      {
+        "id": "core_tech_data",
+        "name": "Core technology and data",
+        "goal": "Modernize the stack for streamlined architecture and secure data exchange.",
+        "elements": [
+          "Industrial AI and machine learning; MLOps; FinOps",
+          "LLM orchestration; LLM gateway; observability",
+          "Enterprise data: ingestion, preprocessing, vector databases, post-processing, structured stores",
+          "Search and retrieval engine (RAG)",
+          "Modern API architecture; intelligent infrastructure; core modernization; cybersecurity and control tiers"
+        ]
+      },
+      {
+        "id": "operating_model",
+        "name": "Platform operating model",
+        "goal": "Centralize talent, culture, and org design so autonomous business/tech/data teams are AI-enabled.",
+        "elements": [
+          "Agile ways of working",
+          "AI control tower",
+          "Modern talent strategy",
+          "Culture and capabilities",
+          "Value-capture office to monitor transformations"
+        ]
+      }
+    ],
+    "orchestration_brain": {
+      "name": "Orchestration brain / Master orchestrator",
+      "role": "A universal AI agent layer that receives inbound requests in any channel, routes and orchestrates cases front-to-back, and hands off to specialized teams (human or agent) only when their expertise is required.",
+      "shift": "From product/skill-oriented ops with multiple handoffs and high turnaround -> AI-first ops where agents independently progress work and involve humans as needed."
+    },
+    "agentic_mesh": "AI architecture paradigm that integrates both custom-built and off-the-shelf agents into the decisioning layer.",
+    "atomic_agent_framework": {
+      "atomic_agents": 27,
+      "coverage_claim": "27 high-performing atomic agents can potentially automate ~90% of enterprise processes.",
+      "crosscutting_agents": 9,
+      "crosscutting_impact": "Correctly implemented end-to-end/front-to-back, the 9 crosscutting agents can unlock 30-40% operational efficiency.",
+      "design_principles": [
+        "Reusable across functions",
+        "Composable across journeys",
+        "Trainable to institutional knowledge",
+        "Scalable to new use cases with minimal effort",
+        "Modular frameworks so agents are easily modified and assembled into new workflows"
+      ],
+      "agent_primitive_actions": ["take action", "make decisions", "coordinate workflows", "engage in conversations", "learn and grow over time"]
+    }
+  },
+
+  "crosscutting_agents": [
+    {"id": "coordinate", "name": "Coordinate agent", "primitive": "coordinate", "solves": "Coordinates, assigns, prioritizes, and escalates cases/applications for optimized turnaround times."},
+    {"id": "prioritize", "name": "Prioritize agent", "primitive": "coordinate/decide", "solves": "Prioritizes tasks for other agents or people based on criticality."},
+    {"id": "monitor", "name": "Monitor agent", "primitive": "decide/monitor", "solves": "Monitors actions to flag breaches and resolve queries using domain expertise."},
+    {"id": "verify", "name": "Verify agent", "primitive": "decide/validate", "solves": "Parses, reconciles, and validates documents to flag inconsistencies."},
+    {"id": "create", "name": "Create agent", "primitive": "act/generate", "solves": "Creates context-specific documents by analyzing internal and external information to aid decision-making."},
+    {"id": "execute", "name": "Execute agent", "primitive": "act", "solves": "Provides real-time execution support (e.g., sending calendar invites, emails) to boost productivity and speed."},
+    {"id": "call", "name": "Call agent", "primitive": "converse", "solves": "Voice or chat agent that can chat with or call people where needed."},
+    {"id": "follow_up", "name": "Follow-up agent", "primitive": "converse/act", "solves": "Follows up with customers or employees at the right time and channel in a personalized manner."},
+    {"id": "coach", "name": "Coach agent", "primitive": "converse/decide", "solves": "Provides personalized feedback and nudges to enhance performance, decision-making, and skills development."}
+  ],
+
+  "capability_stack_narrow_agents": {
+    "note": "Representative, non-exhaustive narrow agents shown in the capability stack (Exhibit 4), grouped by the enabler they attach to.",
+    "agents": [
+      {"name": "Risk policy expert", "attaches_to": "Risk"},
+      {"name": "Instant recognition", "attaches_to": "Vision/media"},
+      {"name": "Ad banner generator", "attaches_to": "Marketing"},
+      {"name": "Property collateral analyzer", "attaches_to": "Lending/collateral"},
+      {"name": "Document summarizer", "attaches_to": "Legal"},
+      {"name": "Fraud pattern detector", "attaches_to": "Fraud"},
+      {"name": "Fraud detector", "attaches_to": "Spend"},
+      {"name": "Enterprise knowledge search", "attaches_to": "Knowledge"},
+      {"name": "Skills coach", "attaches_to": "Compliance/capability"},
+      {"name": "Task expert", "attaches_to": "Task"},
+      {"name": "Task coach generator", "attaches_to": "Code"},
+      {"name": "Email agent", "attaches_to": "Email"},
+      {"name": "Tax management", "attaches_to": "Transition/finance"},
+      {"name": "Voice/video chat", "attaches_to": "Engagement"}
+    ]
+  },
+
+  "domains": [
+    {
+      "id": 1,
+      "name": "Customer journey transformation",
+      "problem": "Digitization fixes touchpoints, not the hundreds of underlying journeys/processes, so journeys feel fragmented and slow.",
+      "solution": "Redesign journey flows to remove friction, embed personalization, and give real-time transparency across underlying processes.",
+      "flagship_use_case": "SME current-account opening in 24-48 hours (from 5-8 days)",
+      "reference_exhibit": "Exhibit 10",
+      "metrics": [
+        {"metric": "Straight-through processing rate (eligible journeys)", "target": "90%+"},
+        {"metric": "Rework reduction", "target": "60-70%"},
+        {"metric": "Employee productivity", "target": "2x"},
+        {"metric": "SME account-opening turnaround", "target": "5-8 days -> 24-48 hours"}
+      ],
+      "agent_teams": [
+        {"team": "Master orchestrator", "agents": ["Master orchestrator"], "solves": "Runs the end-to-end account-opening workflow, sequencing maker/checker steps."},
+        {"team": "Branch office buddy (during application)", "agents": ["Form-filling guide", "TAT optimizer", "Form and document checker", "Co-assist (drafts approval emails/escalations)"], "solves": "Handholds the customer through form-filling and flags process delays in real time."},
+        {"team": "Form and document checker", "agents": ["Autofill (API pull / OCR)", "Quality checker (blank/blur/completeness/validity)", "Information verifier (form-vs-doc and doc-vs-doc mismatch, policy/regulatory checks)"], "solves": "Auto-populates and validates documents; flags mismatches and policy breaches (e.g., current account exposure > $500k)."},
+        {"team": "Risk score calculator", "agents": ["Risk scoring model (SVR-based checks)", "Adverse media screening", "Mule risk", "Risk summarizer and next-swimlane generator (entity/proprietor identity fraud, business-continuity risk)"], "solves": "Pulls internal + external data (loan records, statements, tax, blacklists, bureaus) to score risk and route Low/Medium/High."},
+        {"team": "Customer communication and outreach", "agents": ["Customer communication and outreach"], "solves": "Reminders to stakeholders by priority, prepares approval summaries, manages escalations."},
+        {"team": "Performance coach", "agents": ["Performance coach"], "solves": "Automated status updates, document reminders, and TAT insight generation for the frontline."}
+      ],
+      "crosscutting_agents_used": ["coordinate", "verify", "monitor", "create", "follow_up", "coach", "prioritize"]
+    },
+    {
+      "id": 2,
+      "name": "Sales, branch, and distribution operations",
+      "problem": "Frontline productivity varies 30-50% between top and median performers; slow feedback loops hamper performance.",
+      "solution": "Real-time guidance, post-sales automation, and dynamic resource allocation across the salesperson's day.",
+      "flagship_use_case": "AI-led sales excellence across key moments of a salesperson's day",
+      "reference_exhibit": "Exhibit 11",
+      "metrics": [
+        {"metric": "Productivity uplift", "target": "2-3x"},
+        {"metric": "Time on revenue-generating tasks", "target": "~60%"},
+        {"metric": "Sales-force effectiveness", "target": "+50-100%"}
+      ],
+      "agent_teams": [
+        {"team": "Sales morning huddle", "agents": ["Daily huddle planner", "Next-best-action assist"], "solves": "What should I focus on today? Which files should I move? Where do I need my manager?"},
+        {"team": "Connector / frontline sales-agent meeting", "agents": ["High-value channel partner agent", "Lead management agent"], "solves": "Which cases are critical to discuss and which offers grow business with the channel partner?"},
+        {"team": "Customer meeting", "agents": ["Customer program agent", "Customer pitch coach"], "solves": "What is the best offer for the customer and what should my pitch be?"},
+        {"team": "Coaching conversations", "agents": ["Branch choreography", "Deviations manager"], "solves": "How do I improve my performance and what specifically must I do to get better?"},
+        {"team": "In-branch collaboration", "agents": ["Performance coach", "Incentives manager"], "solves": "What do I need from credit/legal/technical/operations to move files faster?"}
+      ],
+      "crosscutting_agents_used": ["prioritize", "coach", "coordinate", "follow_up", "create"]
+    },
+    {
+      "id": 3,
+      "name": "Customer care and service centers",
+      "problem": "Service is reactive; high call volumes; <1% of calls reviewed for quality; simple queries rely on humans.",
+      "solution": "'Contact center in a box' — a team of agents for workforce management, direct interaction handling, human copiloting, and always-on coaching.",
+      "flagship_use_case": "AI-first contact center + 100% call review / post-call insights",
+      "reference_exhibit": "Exhibit 12",
+      "metrics": [
+        {"metric": "NPS / CSAT", "target": "95%+"},
+        {"metric": "Tickets handled per agent", "target": "4x"},
+        {"metric": "Cost per call", "target": "-50%"},
+        {"metric": "CSAT lift from next-best-experience", "target": "+15-20%"},
+        {"metric": "Call center performance (India instant-loan case)", "target": "+8-10%, scaled to 500+ agents / 200k+ customers"}
+      ],
+      "agent_teams": [
+        {"team": "Optimize", "agents": ["WFM planning suite"], "solves": "AI-powered capacity planning across long-to-real-time horizons; matches supply and demand across incoming calls."},
+        {"team": "Interact", "agents": ["Multichannel conversational agent"], "solves": "Handles voice+chat interactions in real time, escalates to human as needed, updates systems, summarizes at handoff."},
+        {"team": "Assist", "agents": ["Agent copilot"], "solves": "Proactively suggests next-best actions and resource recommendations; automates notes/summaries/system updates."},
+        {"team": "Improve", "agents": ["AI coach"], "solves": "Reviews 100% of interactions for quality and compliance and delivers targeted, personalized coaching."}
+      ],
+      "crosscutting_agents_used": ["call", "coordinate", "execute", "coach", "monitor", "follow_up"]
+    },
+    {
+      "id": 4,
+      "name": "Lending and credit operations",
+      "problem": "Credit processes are memo-driven, inconsistent, and slow (3-5 day cycles); heavy manual review.",
+      "solution": "AI-led dossiers where customized agent teams spread financials, run policy checks, and price deals; only exceptions are routed to humans.",
+      "flagship_use_case": "End-to-end credit lending (financial spreading -> credit memo -> pricing & facility letter)",
+      "reference_exhibit": "Exhibit 13",
+      "tools": ["Read/write files", "RAG lookup"],
+      "metrics": [
+        {"metric": "Reworks / additional RFIs", "target": "<5%"},
+        {"metric": "Credit appraisal average handling time", "target": "<60 minutes"},
+        {"metric": "Decision cycle", "target": "3-5 days -> <1 day"},
+        {"metric": "Frontline time on client engagement", "target": "~3x"}
+      ],
+      "agent_teams": [
+        {"team": "Phase 1 - Financial spreading", "agents": ["Financial analysis agents (Information extractor, Financial analyst, Financial calculator, Planner, Critic, File manager)", "Cashflow analysis agents", "Company overview agents (Chart expert)", "Management and transparency agents"], "solves": "Extracts data from P&L/balance sheets, calculates indicators, synthesizes company activities and management strategy."},
+        {"team": "Phase 2 - Policy checks & credit memo", "agents": ["Credit memo formatting agents (Planner, Editor, Chief editor, File manager)", "Risk analysis agents (Financial expert/critic, Planner, Credit officer, File manager)", "Executive overview agents (Planner, Critic, Credit rating specialist, Analyst, File manager)"], "solves": "Produces a digital credit memo with red-amber-green scoring against each policy approval criterion; overall credit rating."},
+        {"team": "Phase 3 - Deal profitability, auto-decision & facility letter", "agents": ["Initial pricing analysis agents (Financial analyst, RWA calculator, Interest rate calculator, Planner, Critic)", "Pricing derisking and final-offer agents", "Facility letter agents (Credit risk secretary, Legal associate, Planner, Critic, File manager)"], "solves": "Evaluates profitability, generates pricing with methodology reasoning, and drafts the facility letter or decline letter."}
+      ],
+      "crosscutting_agents_used": ["verify", "create", "monitor", "coordinate", "prioritize"]
+    },
+    {
+      "id": 5,
+      "name": "Deposits, transaction banking, and payments",
+      "problem": "High transaction volumes and manual exception handling slow processing and raise liquidity risk.",
+      "solution": "Accelerate processing, auto-resolve exceptions, link exception handling directly to corporate self-service.",
+      "flagship_use_case": "ERP/file payment submission with automated exception management (e.g., 99,998 of 100,000 line items straight-through)",
+      "reference_exhibit": "Exhibit 14",
+      "metrics": [
+        {"metric": "Straight-through processing (domestic transactions)", "target": "90%+"},
+        {"metric": "Exception clearing average handling time", "target": "<2 hours"},
+        {"metric": "Handling-time reduction", "target": "up to 70%"}
+      ],
+      "agent_teams": [
+        {"team": "Exception handling", "agents": ["AI exception model (checks payment-vs-invoice mismatch, spelling errors across linked systems)", "Automated suggestion & selection agent", "Automated approval agent"], "solves": "Runs exceptions through an AI model linked to all systems, suggests adjustments, auto-approves and resubmits without manual multi-system lookup."}
+      ],
+      "crosscutting_agents_used": ["verify", "monitor", "execute", "coordinate"]
+    },
+    {
+      "id": 6,
+      "name": "Collections operations",
+      "problem": "Static scripts and generic outreach cap recovery rates and can damage customer relationships.",
+      "solution": "Personalize outreach by customer profile/behavior; optimize offer, tone, and channel dynamically; prioritize for efficiency.",
+      "flagship_use_case": "AI-led personalized multichannel collections that raises self-cure and early-stage resolution",
+      "reference_exhibit": "Exhibit 15",
+      "metrics": [
+        {"metric": "Collections operating expenditure", "target": "0.5x"},
+        {"metric": "Agent productivity", "target": "1.5-2x"}
+      ],
+      "agent_teams": [
+        {"team": "AI-led intervention", "agents": ["Microsegmentation & recommendation engine (self-cure, PDM, VaR, allocation, repo/settlement, NPV)", "AI bot/workflow (multichannel personalized digital outreach)", "Agent assistance (live prompts, personalized nudges via voice-to-text + historical calls)"], "solves": "Uses internal + off-us + call-center data to allocate delinquent customers to self-cure / call-center / field and choose the optimized channel."}
+      ],
+      "crosscutting_agents_used": ["prioritize", "follow_up", "call", "coach", "coordinate"]
+    },
+    {
+      "id": 7,
+      "name": "Financial crime operations (KYC, AML, fraud)",
+      "problem": "Manual investigations cause high false positives, slow resolution, and heavy resource drain; digital fraud rising sharply.",
+      "solution": "Adaptive risk scoring and automated investigation that retrieve, validate, analyze, and generate risk summaries.",
+      "flagship_use_case": "Automated transaction analysis -> investigation -> auto-generated risk summary",
+      "reference_exhibit": "Exhibit 16",
+      "metrics": [
+        {"metric": "Fraud detection rate", "target": "3-4x"},
+        {"metric": "False positives", "target": "<30% (post-onboarding monitoring: -40-50%)"},
+        {"metric": "Manual KYC at onboarding", "target": "-~75%"},
+        {"metric": "Investigation turnaround", "target": "-30-40% (overall investigation time -50%+)"},
+        {"metric": "Fraud-related losses", "target": "-20-30%"}
+      ],
+      "agent_teams": [
+        {"team": "Transactional analysis", "agents": ["AI anomaly detection engine (flags abnormal behavior vs profile & past behavior)", "Data extraction & cleansing agents"], "solves": "Replaces analysts manually reviewing 13 months of transactions in spreadsheets (~50% of analyst time on retrieval/cleaning)."},
+        {"team": "Investigation", "agents": ["Investigation agent (trained on 200,000+ past investigations)", "Customer assessment agent"], "solves": "Runs detailed, consistent transaction analysis and customer assessment with human-in-the-loop for missing data."},
+        {"team": "Risk summary", "agents": ["Risk summary generator"], "solves": "Auto-generates the risk summary report instead of thousands drafted manually per year."}
+      ],
+      "crosscutting_agents_used": ["monitor", "verify", "create", "coordinate", "prioritize"]
+    },
+    {
+      "id": 8,
+      "name": "Next-gen corporate functions (Finance, HR, IT, Legal, Procurement)",
+      "problem": "Document-heavy, cycle-time-bound support functions; ~60% of finance effort is transactional/compliance; backward-looking reporting.",
+      "solution": "Shift from reporting to forward-looking value management; automate transactional work; new roles (FP&A outcome designers, AI agent developers, AI compliance architects).",
+      "flagship_use_case": "AI-led annual budget creation; AI-managed HR payroll inquiries",
+      "reference_exhibit": "Exhibits 17-18",
+      "metrics": [
+        {"metric": "FP&A coordination time", "target": "-30-40%"},
+        {"metric": "Reporting cycle", "target": "weeks -> days"},
+        {"metric": "Forecast accuracy", "target": "+10-25%"},
+        {"metric": "HR processes automatable by 2030", "target": "~70%"}
+      ],
+      "agent_teams": [
+        {"team": "AI-led budget creation (Finance)", "agents": ["Data collection agent", "Market scan agent", "Budget generator agent", "Scenario agent (what-if / sensitivity)", "Budget insight agent", "Budget review agent"], "solves": "Automates guidance prep, cost-data gathering, budget generation and scenarios; CFO/LT review and approve."},
+        {"team": "AI-managed payroll inquiries (HR)", "agents": ["Intake agent (logs & classifies, routes to tier)", "HR assistant agent (FAQs, self-service, escalation)", "Investigation agent", "Compensation agent", "Payroll agent (adapts to regulatory changes, initiates/confirms payment)"], "solves": "Handles Tier 1/2 payroll inquiries end-to-end with human oversight for data integrity."}
+      ],
+      "crosscutting_agents_used": ["create", "verify", "coordinate", "execute", "follow_up", "coach"]
+    },
+    {
+      "id": 9,
+      "name": "Operations carve-out — centralization and shared services",
+      "problem": "Finance/HR/IT/legal/procurement shared functions are ticket-heavy, fragmented, and siloed.",
+      "solution": "Centralize into horizontal Centers of Excellence (CoEs) with reusable AI components for a cross-functional operational backbone.",
+      "flagship_use_case": "Four CoEs powering shared services from onboarding to collections",
+      "reference_exhibit": "Chapter 2, Domain 9",
+      "metrics": [
+        {"metric": "Processing cost (centralized credit assessment & doc checks)", "target": "-20-30%"},
+        {"metric": "Reporting/reconciliation/compliance cost", "target": "-20-25%"},
+        {"metric": "Operating expenditure", "target": "-30-40%"}
+      ],
+      "agent_teams": [
+        {"team": "Technology CoE", "agents": ["Centralized cloud/data-center/platform services"], "solves": "Centralizes cloud solutions, data centers, and digital platforms."},
+        {"team": "Data, analytics & reporting CoE", "agents": ["Unified data management", "Predictive analytics", "Regulatory reporting"], "solves": "Drives better decision-making through unified data and reporting."},
+        {"team": "Corporate functions CoE", "agents": ["Shared finance/HR/marketing/risk/legal/admin platforms"], "solves": "Consolidates support functions into shared platforms."},
+        {"team": "Agentic AI CoE", "agents": ["Reusable components", "Standardized AI models", "Use-case factory"], "solves": "Embeds intelligent automation across functions via reusable components and standardized models."}
+      ],
+      "crosscutting_agents_used": ["coordinate", "monitor", "create", "verify"]
+    },
+    {
+      "id": 10,
+      "name": "Zero-based design (ZBD / ZBO)",
+      "problem": "Legacy structures create inefficiency and duplication; incremental optimization is insufficient.",
+      "solution": "Redesign the operating model from a clean slate; every process/capability/role justified by measurable value; ~1 human supervising 20-30 autonomous agents.",
+      "flagship_use_case": "Clean-slate redesign of the 10 domains around digital self-service, automation, and offshore/nearshore integration",
+      "reference_exhibit": "Chapter 2, Domain 10",
+      "metrics": [
+        {"metric": "Human-to-agent supervision ratio (near future)", "target": "1 : 20-30"},
+        {"metric": "Productivity potential (agent library, 1 human : 15-20 agents)", "target": "up to 20x"}
+      ],
+      "zbo_levers": [
+        "Demand rationalization (eliminate non-value-added work)",
+        "Consolidation and centralization (standardize, reduce redundancy)",
+        "Offshoring / nearshoring (scale and cost efficiencies)",
+        "Lean process redesign (remove bottlenecks and waste)",
+        "Digital and technology (automate and integrate workflows)",
+        "Analytics and insights (data-based decisions)",
+        "Governance optimization (streamline roles, spans, layers)",
+        "Capability development (build digital and analytical skills)"
+      ],
+      "agent_teams": [
+        {"team": "Adaptive enterprise model", "agents": ["Self-optimizing multiagentic layer across all 10 domains"], "solves": "Continuously learns and self-optimizes, eliminating friction and duplication and driving accountability."}
+      ],
+      "crosscutting_agents_used": ["coordinate", "prioritize", "monitor", "coach", "verify", "create", "execute", "follow_up", "call"]
+    }
+  ],
+
+  "transformation_framework": {
+    "note": "Five enterprise capabilities required to scale (Exhibit 19).",
+    "capabilities": [
+      {"id": 1, "name": "Business-driven road map", "stage": "Strategy", "essentials": ["Bold bankwide AI-ops vision linked to strategy and financial outcomes", "Prioritize high-value domains for end-to-end transformation", "Delivery road map with owners and milestones"]},
+      {"id": 2, "name": "Talent", "stage": "Planning & delivery", "essentials": ["Right roles, reporting structure, and skills to drive innovation and execution"]},
+      {"id": 3, "name": "Operating model and governance", "stage": "Planning & delivery", "essentials": ["Cross-functional 'garages' of domain experts, data scientists, transformation leaders", "Close collaboration across business, ops, risk"]},
+      {"id": 4, "name": "Technology and data", "stage": "Planning & delivery", "essentials": ["Right stack with advanced tools", "Agent library of reusable atomic agents for rapid deployment and monitoring"]},
+      {"id": 5, "name": "Adoption and scaling", "stage": "Scaling & maintenance", "essentials": ["Structured change agenda and new ways of working", "Targeted capability building", "Governance-first practices"]}
+    ],
+    "sequencing": [
+      "Prioritize domains by value and strategic relevance",
+      "Target the highest-friction processes within each domain (manual verifications, payment exceptions, reconciliations)",
+      "Build the common crosscutting transformer agents first (reduce redundancy, enable scaling)",
+      "Then add domain-specific / niche agents for specialized processes",
+      "Develop governance and data discipline along the journey to build confidence and buy-in"
+    ],
+    "common_pitfalls": [
+      "Technology-first, hyperscaler-driven pilots with unclear value -> use a use-case-led road map with sized value levers and dashboards",
+      "One-size-fits-all vendor products -> design a custom, fit-for-purpose agentic solution with functional teams",
+      "Underinvesting in change management / capability building -> embed structured change with clear deliverables per phase"
+    ]
+  }
+}
