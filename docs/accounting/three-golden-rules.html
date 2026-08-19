@@ -1,0 +1,1180 @@
+<title>The Three Golden Rules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #F4F6EF;
+    --panel:      #EAEEE1;
+    --panel-2:    #E1E7D6;
+    --rule:       #C7D2BC;
+    --rule-soft:  #DCE3D2;
+    --ink:        #1B2419;
+    --ink-soft:   #5B6A5A;
+    --debit:      #1D4E68;
+    --debit-bg:   #E2ECF1;
+    --credit:     #93302B;
+    --credit-bg:  #F4E4E1;
+    --gold:       #8A6710;
+    --gold-bg:    #F0E9D4;
+
+    --measure: 63ch;
+    --wide: 1060px;
+
+    --f-display: "Bodoni Moda", "Didot", Georgia, serif;
+    --f-body: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #131711;
+      --panel:     #1A2018;
+      --panel-2:   #212820;
+      --rule:      #37432F;
+      --rule-soft: #262E23;
+      --ink:       #E7ECDE;
+      --ink-soft:  #9BA893;
+      --debit:     #86BBD8;
+      --debit-bg:  #16262E;
+      --credit:    #E5928A;
+      --credit-bg: #2E1B19;
+      --gold:      #D6AC55;
+      --gold-bg:   #2A2313;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:     #131711;
+    --panel:     #1A2018;
+    --panel-2:   #212820;
+    --rule:      #37432F;
+    --rule-soft: #262E23;
+    --ink:       #E7ECDE;
+    --ink-soft:  #9BA893;
+    --debit:     #86BBD8;
+    --debit-bg:  #16262E;
+    --credit:    #E5928A;
+    --credit-bg: #2E1B19;
+    --gold:      #D6AC55;
+    --gold-bg:   #2A2313;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--wide);
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  .col {
+    max-width: var(--measure);
+    margin-inline: auto;
+  }
+
+  p { margin: 0 0 1.1em; }
+  .col > * + h2 { margin-top: 0; }
+
+  strong { font-weight: 600; }
+
+  a { color: var(--debit); }
+
+  /* ---------- masthead ---------- */
+
+  header.mast {
+    border-bottom: 1px solid var(--rule);
+    padding: 72px 0 40px;
+    margin-bottom: 56px;
+  }
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+  }
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(46px, 9vw, 88px);
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+    margin: 0 0 24px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 54ch;
+    margin: 0;
+  }
+  .standfirst em { color: var(--ink); font-style: normal; font-weight: 500; }
+
+  /* ---------- contents ---------- */
+
+  nav.toc {
+    margin: 36px auto 0;
+    max-width: var(--measure);
+    border-top: 1px solid var(--rule-soft);
+    padding-top: 18px;
+    font-family: var(--f-mono);
+    font-size: 13px;
+  }
+  nav.toc ol {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 6px 28px;
+    counter-reset: toc;
+  }
+  nav.toc li { counter-increment: toc; }
+  nav.toc a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    display: block;
+    padding: 3px 0;
+  }
+  nav.toc a::before {
+    content: counter(toc, decimal-leading-zero) "  ";
+    color: var(--gold);
+  }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--ink); }
+
+  /* ---------- sections ---------- */
+
+  section { margin-bottom: 76px; scroll-margin-top: 24px; }
+
+  h2 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(28px, 4.4vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+  .kicker {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 10px;
+  }
+  h2 + p.sub {
+    color: var(--ink-soft);
+    font-size: 18px;
+    margin-bottom: 1.6em;
+  }
+  h3 {
+    font-family: var(--f-body);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: 0.005em;
+    margin: 2em 0 0.5em;
+  }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 40px auto;
+    max-width: 940px;
+  }
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: var(--ink);
+  }
+  .svg-scroll { overflow-x: auto; }
+  figcaption {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-top: 14px;
+    max-width: 68ch;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .sv-box { fill: var(--panel); stroke: var(--rule); stroke-width: 1.5; }
+  .sv-box-2 { fill: none; stroke: var(--rule); stroke-width: 1.5; }
+  .sv-gold { fill: var(--gold-bg); stroke: var(--gold); stroke-width: 1.5; }
+  .sv-line { stroke: var(--ink-soft); stroke-width: 1.5; fill: none; }
+  .sv-t { fill: var(--ink); font-family: "IBM Plex Sans", sans-serif; font-size: 14px; }
+  .sv-t-strong { fill: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; }
+  .sv-t-small { fill: var(--ink-soft); font-family: "IBM Plex Sans", sans-serif; font-size: 12.5px; }
+  .sv-t-gold { fill: var(--gold); font-family: "IBM Plex Mono", monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.1em; }
+  .sv-t-edge { fill: var(--ink-soft); font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: 0.06em; }
+  .sv-dr { fill: var(--debit); font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+  .sv-cr { fill: var(--credit); font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+
+  /* ---------- T-account component ---------- */
+
+  .t-account {
+    border: 1.5px solid var(--rule);
+    background: var(--panel);
+    max-width: 560px;
+    margin: 26px auto;
+  }
+  .t-account .t-head {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 10px 12px;
+    border-bottom: 1.5px solid var(--rule);
+  }
+  .t-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .t-body > div { padding: 14px 16px 18px; }
+  .t-body > div:first-child { border-right: 1.5px solid var(--rule); }
+  .t-label {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+  }
+  .t-dr .t-label { color: var(--debit); }
+  .t-cr .t-label { color: var(--credit); }
+  .t-rule { font-size: 15.5px; line-height: 1.5; }
+  .t-note { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
+
+  /* ---------- family cards ---------- */
+
+  .family {
+    border-top: 2px solid var(--gold);
+    padding-top: 22px;
+    margin: 56px auto 0;
+  }
+  .family-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .family-head h3 {
+    font-family: var(--f-display);
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .family-head .tag {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- callouts ---------- */
+
+  .note {
+    background: var(--panel);
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+    margin: 28px 0;
+    font-size: 16px;
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note .note-label {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ---------- ledger table ---------- */
+
+  .ledger-scroll {
+    overflow-x: auto;
+    border: 1.5px solid var(--rule);
+    background: var(--panel);
+    margin: 34px 0;
+  }
+  table.ledger {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 780px;
+    font-size: 14.5px;
+  }
+  table.ledger caption {
+    caption-side: top;
+    text-align: left;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 12px 16px;
+    border-bottom: 1.5px solid var(--rule);
+    background: var(--panel-2);
+  }
+  table.ledger th {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--ink-soft);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  table.ledger td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  table.ledger tr:last-child td { border-bottom: none; }
+  table.ledger tr.txn td {
+    background: var(--panel-2);
+    font-weight: 500;
+    padding-top: 16px;
+  }
+  table.ledger tr.txn td .n {
+    font-family: var(--f-mono);
+    color: var(--gold);
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .amt {
+    font-family: var(--f-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .acct { font-weight: 500; }
+  .dr, .cr {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .dr { color: var(--debit); border-color: var(--debit); background: var(--debit-bg); }
+  .cr { color: var(--credit); border-color: var(--credit); background: var(--credit-bg); }
+  .type {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .why { color: var(--ink-soft); font-size: 13.5px; }
+
+  /* ---------- practice ---------- */
+
+  .drill {
+    border: 1.5px solid var(--rule);
+    background: var(--panel);
+    margin: 14px 0;
+  }
+  .drill > summary {
+    cursor: pointer;
+    padding: 15px 18px;
+    font-size: 16.5px;
+    font-weight: 500;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 18px;
+  }
+  .drill > summary::-webkit-details-marker { display: none; }
+  .drill > summary::after {
+    content: "show entry";
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .drill[open] > summary::after { content: "hide"; }
+  .drill > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .drill-body {
+    padding: 4px 18px 18px;
+    border-top: 1px dashed var(--rule);
+    font-size: 15px;
+  }
+  .drill-body ul { margin: 12px 0 0; padding-left: 0; list-style: none; }
+  .drill-body li { margin-bottom: 10px; line-height: 1.5; }
+  .drill-body .why { display: block; }
+
+  /* ---------- mapping grid ---------- */
+
+  .map {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5px;
+    background: var(--rule);
+    border: 1.5px solid var(--rule);
+    margin: 32px 0;
+  }
+  .map > div { background: var(--panel); padding: 18px 20px; }
+  .map h4 {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    color: var(--ink-soft);
+  }
+  .map p { font-size: 15px; margin: 0; }
+  .map .big {
+    font-family: var(--f-mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  /* ---------- cheat sheet ---------- */
+
+  .cheat {
+    border: 2px solid var(--gold);
+    background: var(--gold-bg);
+    padding: 30px 30px 26px;
+    margin: 0 auto;
+    max-width: 720px;
+  }
+  .cheat .cheat-title {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 20px;
+    text-align: center;
+  }
+  .cheat ol { margin: 0; padding: 0; list-style: none; counter-reset: c; }
+  .cheat li {
+    counter-increment: c;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--gold);
+  }
+  .cheat li:last-child { border-bottom: none; }
+  .cheat .r-name {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .cheat .r-rule { font-size: 17px; line-height: 1.5; }
+  .cheat .r-rule b { font-weight: 600; }
+  .cheat .r-rule .d { color: var(--debit); font-weight: 600; }
+  .cheat .r-rule .c { color: var(--credit); font-weight: 600; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    margin-top: 70px;
+    padding-top: 22px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    .wrap { padding: 0 18px 72px; }
+    header.mast { padding-top: 48px; }
+    .t-body { grid-template-columns: 1fr; }
+    .t-body > div:first-child { border-right: none; border-bottom: 1.5px solid var(--rule); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="col">
+    <p class="eyebrow">Double-entry bookkeeping · traditional classification</p>
+    <h1>The Three Golden Rules</h1>
+    <p class="standfirst">Every account you will ever open is one of three kinds — <em>personal</em>, <em>real</em>, or <em>nominal</em>. Decide which, and the rule for what to debit and what to credit is already written for you.</p>
+  </div>
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#account">What an account actually is</a></li>
+      <li><a href="#drcr">Debit and credit mean left and right</a></li>
+      <li><a href="#flowchart">The classification flowchart</a></li>
+      <li><a href="#families">The three families and their rules</a></li>
+      <li><a href="#subtypes">The sub-types map</a></li>
+      <li><a href="#entries">Nine transactions, worked out</a></li>
+      <li><a href="#practice">Practise on your own</a></li>
+      <li><a href="#traps">Traps that catch everyone</a></li>
+      <li><a href="#modern">The other rulebook you will meet</a></li>
+      <li><a href="#cheat">The cheat sheet</a></li>
+    </ol>
+  </nav>
+</header>
+
+<!-- ================= 1 ================= -->
+<section id="account">
+  <div class="col">
+    <p class="kicker">Start here</p>
+    <h2>An account is just a page with a name on it</h2>
+    <p class="sub">Before any rule makes sense, you need to know what the rules are being applied <em>to</em>.</p>
+
+    <p>Imagine a notebook. You give one page to cash, one page to your furniture, one page to your friend Rahul who owes you money, one page to the salaries you pay. Each of those pages is an <strong>account</strong>. That's the whole idea — an account is a running record of one specific thing.</p>
+
+    <p>Now the bit that makes bookkeeping different from a shopping list: every page is split down the middle. The <strong>left half is called the debit side</strong>. The <strong>right half is called the credit side</strong>. Because of its shape, bookkeepers call this a <strong>T-account</strong>.</p>
+  </div>
+
+  <figure>
+    <div class="svg-scroll">
+      <svg viewBox="0 0 700 300" role="img" aria-label="Anatomy of a T-account: a page named Furniture Account, split into a left debit side and a right credit side, with entries on each side.">
+        <rect x="90" y="20" width="520" height="248" class="sv-box"/>
+        <line x1="90" y1="68" x2="610" y2="68" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="350" y1="68" x2="350" y2="268" stroke="currentColor" stroke-width="1.5"/>
+        <text x="350" y="50" text-anchor="middle" class="sv-t-strong">FURNITURE ACCOUNT</text>
+
+        <text x="110" y="96" class="sv-t sv-dr" font-size="13">DEBIT SIDE (Dr)</text>
+        <text x="590" y="96" text-anchor="end" class="sv-t sv-cr" font-size="13">CREDIT SIDE (Cr)</text>
+        <text x="110" y="116" class="sv-t-small">always the left half</text>
+        <text x="590" y="116" text-anchor="end" class="sv-t-small">always the right half</text>
+
+        <line x1="110" y1="132" x2="330" y2="132" stroke="currentColor" stroke-width="0.75" opacity="0.35"/>
+        <line x1="370" y1="132" x2="590" y2="132" stroke="currentColor" stroke-width="0.75" opacity="0.35"/>
+
+        <text x="110" y="158" class="sv-t">To Cash — desks bought</text>
+        <text x="330" y="158" text-anchor="end" class="sv-t sv-dr">20,000</text>
+        <text x="110" y="186" class="sv-t">To Bank — shelving bought</text>
+        <text x="330" y="186" text-anchor="end" class="sv-t sv-dr">7,500</text>
+
+        <text x="370" y="158" class="sv-t">By Cash — old desk sold</text>
+        <text x="590" y="158" text-anchor="end" class="sv-t sv-cr">3,000</text>
+
+        <text x="110" y="238" class="sv-t-small">furniture that came IN</text>
+        <text x="370" y="238" class="sv-t-small">furniture that went OUT</text>
+
+        <text x="350" y="292" text-anchor="middle" class="sv-t-edge">ONE PAGE PER THING · ONE THING PER PAGE</text>
+      </svg>
+    </div>
+    <figcaption>Every account is one page split in two. What lands on the left and what lands on the right is the only question bookkeeping ever asks you.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 2 ================= -->
+<section id="drcr">
+  <div class="col">
+    <p class="kicker">Unlearn this first</p>
+    <h2>Debit and credit mean left and right. Nothing more.</h2>
+
+    <p>This is where most beginners quietly get stuck, so let's kill it early. <strong>Debit does not mean loss. Credit does not mean gain.</strong> They are not good and bad, plus and minus, in and out. They are <em>directions on the page</em>:</p>
+
+    <div class="t-account">
+      <div class="t-head">Any account whatsoever</div>
+      <div class="t-body">
+        <div class="t-dr">
+          <div class="t-label">DEBIT · Dr</div>
+          <div class="t-rule">The left side.</div>
+          <p class="t-note">From Latin <em>debere</em>, "to owe". In your books it is a position, not a verdict.</p>
+        </div>
+        <div class="t-cr">
+          <div class="t-label">CREDIT · Cr</div>
+          <div class="t-rule">The right side.</div>
+          <p class="t-note">From Latin <em>credere</em>, "to entrust". Again — a position, not a verdict.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>The second thing to know is the law that governs all of it: <strong>every transaction touches at least two accounts, and the amount you put on the left must equal the amount you put on the right.</strong> That is what "double entry" means. Money never appears; it only moves from one page to another.</p>
+  </div>
+
+  <figure>
+    <div class="svg-scroll">
+      <svg viewBox="0 0 880 300" role="img" aria-label="One transaction, paying fifteen thousand rupees of salary by cheque, splits into two entries: Salary Account debited and Bank Account credited, for equal amounts.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect x="10" y="108" width="256" height="76" class="sv-box"/>
+        <text x="138" y="138" text-anchor="middle" class="sv-t">Paid salary of &#8377;15,000</text>
+        <text x="138" y="160" text-anchor="middle" class="sv-t">by cheque</text>
+        <text x="138" y="98" text-anchor="middle" class="sv-t-edge">ONE EVENT</text>
+
+        <g color="var(--ink-soft)">
+          <path d="M 266 146 H 320 V 78 H 400" class="sv-line" marker-end="url(#ah)"/>
+          <path d="M 266 146 H 320 V 214 H 400" class="sv-line" marker-end="url(#ah)"/>
+        </g>
+
+        <rect x="404" y="42" width="466" height="72" fill="var(--debit-bg)" stroke="var(--debit)" stroke-width="1.5"/>
+        <text x="424" y="70" class="sv-t sv-dr" font-size="13">DEBIT</text>
+        <text x="480" y="70" class="sv-t">Salary A/c</text>
+        <text x="850" y="70" text-anchor="end" class="sv-t sv-dr" font-size="15">15,000</text>
+        <text x="424" y="94" class="sv-t-small">nominal account &#183; rule: debit all expenses and losses</text>
+
+        <rect x="404" y="178" width="466" height="72" fill="var(--credit-bg)" stroke="var(--credit)" stroke-width="1.5"/>
+        <text x="424" y="206" class="sv-t sv-cr" font-size="13">CREDIT</text>
+        <text x="484" y="206" class="sv-t">Bank A/c</text>
+        <text x="850" y="206" text-anchor="end" class="sv-t sv-cr" font-size="15">15,000</text>
+        <text x="424" y="230" class="sv-t-small">personal account &#183; rule: credit the giver</text>
+
+        <line x1="404" y1="146" x2="870" y2="146" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+        <text x="637" y="290" text-anchor="middle" class="sv-t-edge">LEFT TOTAL 15,000  =  RIGHT TOTAL 15,000</text>
+      </svg>
+    </div>
+    <figcaption>One event, two entries, equal and opposite. The two rules quoted here are the golden rules — which one you reach for depends entirely on what kind of account you are looking at.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 3 ================= -->
+<section id="flowchart">
+  <div class="col">
+    <p class="kicker">The whole system in one picture</p>
+    <h2>Three questions, asked in order</h2>
+    <p class="sub">Take any account name. Walk down this ladder and stop at the first "yes". That is its type, and its type hands you the rule.</p>
+  </div>
+
+  <figure>
+    <div class="svg-scroll">
+      <svg viewBox="0 0 900 512" role="img" aria-label="Decision flowchart: ask if the account names a person or organisation — if yes it is Personal; if no, ask if it is a thing you own — if yes it is Real; if no, ask if it is money spent or earned — if yes it is Nominal.">
+        <defs>
+          <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect x="40" y="14" width="420" height="52" class="sv-box"/>
+        <text x="250" y="45" text-anchor="middle" class="sv-t-strong">ANY ACCOUNT IN YOUR BOOKS</text>
+
+        <g color="var(--ink-soft)">
+          <line x1="250" y1="66" x2="250" y2="98" class="sv-line" marker-end="url(#ah2)"/>
+        </g>
+
+        <!-- Q1 -->
+        <rect x="40" y="102" width="420" height="94" class="sv-box-2"/>
+        <text x="60" y="128" class="sv-t-edge">QUESTION 1</text>
+        <text x="60" y="152" class="sv-t">Does it name a person or an organisation?</text>
+        <text x="60" y="174" class="sv-t-small">Someone who can owe you, or whom you can owe.</text>
+        <text x="60" y="190" class="sv-t-small" font-style="italic">Rahul &#183; HDFC Bank &#183; Infosys Ltd &#183; Capital &#183; Drawings</text>
+
+        <g color="var(--ink-soft)">
+          <line x1="460" y1="149" x2="576" y2="149" class="sv-line" marker-end="url(#ah2)"/>
+        </g>
+        <text x="518" y="139" text-anchor="middle" class="sv-t-edge">YES</text>
+
+        <rect x="580" y="118" width="280" height="62" class="sv-gold"/>
+        <text x="720" y="146" text-anchor="middle" class="sv-t-gold">PERSONAL</text>
+        <text x="720" y="167" text-anchor="middle" class="sv-t-small">a who</text>
+
+        <g color="var(--ink-soft)">
+          <line x1="250" y1="196" x2="250" y2="238" class="sv-line" marker-end="url(#ah2)"/>
+        </g>
+        <text x="264" y="222" class="sv-t-edge">NO</text>
+
+        <!-- Q2 -->
+        <rect x="40" y="242" width="420" height="94" class="sv-box-2"/>
+        <text x="60" y="268" class="sv-t-edge">QUESTION 2</text>
+        <text x="60" y="292" class="sv-t">Is it a thing you own or possess?</text>
+        <text x="60" y="314" class="sv-t-small">Property with value &#8212; touchable or not.</text>
+        <text x="60" y="330" class="sv-t-small" font-style="italic">Cash &#183; Furniture &#183; Building &#183; Stock &#183; Goodwill &#183; Patents</text>
+
+        <g color="var(--ink-soft)">
+          <line x1="460" y1="289" x2="576" y2="289" class="sv-line" marker-end="url(#ah2)"/>
+        </g>
+        <text x="518" y="279" text-anchor="middle" class="sv-t-edge">YES</text>
+
+        <rect x="580" y="258" width="280" height="62" class="sv-gold"/>
+        <text x="720" y="286" text-anchor="middle" class="sv-t-gold">REAL</text>
+        <text x="720" y="307" text-anchor="middle" class="sv-t-small">a what</text>
+
+        <g color="var(--ink-soft)">
+          <line x1="250" y1="336" x2="250" y2="378" class="sv-line" marker-end="url(#ah2)"/>
+        </g>
+        <text x="264" y="362" class="sv-t-edge">NO</text>
+
+        <!-- Q3 -->
+        <rect x="40" y="382" width="420" height="94" class="sv-box-2"/>
+        <text x="60" y="408" class="sv-t-edge">QUESTION 3</text>
+        <text x="60" y="432" class="sv-t">Is it money spent, lost, earned or gained?</text>
+        <text x="60" y="454" class="sv-t-small">It exists only for this trading period, then resets.</text>
+        <text x="60" y="470" class="sv-t-small" font-style="italic">Salary &#183; Rent &#183; Discount &#183; Sales &#183; Commission received</text>
+
+        <g color="var(--ink-soft)">
+          <line x1="460" y1="429" x2="576" y2="429" class="sv-line" marker-end="url(#ah2)"/>
+        </g>
+        <text x="518" y="419" text-anchor="middle" class="sv-t-edge">YES</text>
+
+        <rect x="580" y="398" width="280" height="62" class="sv-gold"/>
+        <text x="720" y="426" text-anchor="middle" class="sv-t-gold">NOMINAL</text>
+        <text x="720" y="447" text-anchor="middle" class="sv-t-small">a why</text>
+
+        <text x="450" y="500" text-anchor="middle" class="sv-t-edge">STOP AT THE FIRST YES &#183; EVERY ACCOUNT LANDS SOMEWHERE</text>
+      </svg>
+    </div>
+    <figcaption>Ask the questions in this order and the order does the work for you: "Bank" is a person before it is a thing, so it stops at question 1 and never reaches question 2.</figcaption>
+  </figure>
+
+  <div class="col">
+    <div class="note">
+      <span class="note-label">The shortcut</span>
+      <p>Personal answers <strong>who</strong>. Real answers <strong>what</strong>. Nominal answers <strong>why</strong>. If you can shake its hand it's personal; if you can lock it in a cupboard it's real; if it only explains where the money went, it's nominal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4 ================= -->
+<section id="families">
+  <div class="col">
+    <p class="kicker">The rules themselves</p>
+    <h2>Three families, three rules</h2>
+    <p class="sub">Each family gets exactly one rule, and each rule is a matched pair — one thing to debit, one thing to credit.</p>
+
+    <!-- PERSONAL -->
+    <div class="family">
+      <div class="family-head">
+        <h3>Personal accounts</h3>
+        <span class="tag">a who</span>
+      </div>
+      <p>Any account that stands for a human being, a business, a bank, or an institution — anybody who can hand you something or receive something from you. Rahul, HDFC Bank, Infosys Ltd, the local charity, and, importantly, <strong>the owner of the business</strong> (that's the Capital and Drawings accounts).</p>
+    </div>
+  </div>
+
+  <div class="t-account">
+    <div class="t-head">Rule for personal accounts</div>
+    <div class="t-body">
+      <div class="t-dr">
+        <div class="t-label">DEBIT</div>
+        <div class="t-rule">the <strong>receiver</strong></div>
+        <p class="t-note">Whoever got the benefit goes on the left.</p>
+      </div>
+      <div class="t-cr">
+        <div class="t-label">CREDIT</div>
+        <div class="t-rule">the <strong>giver</strong></div>
+        <p class="t-note">Whoever handed it over goes on the right.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p><strong>Feel it:</strong> you pay Rahul ₹5,000 in cash. Rahul <em>received</em> — so <span class="dr">Dr</span> Rahul A/c ₹5,000. Think of it as writing on Rahul's page: "he took this from me."</p>
+
+    <!-- REAL -->
+    <div class="family">
+      <div class="family-head">
+        <h3>Real accounts</h3>
+        <span class="tag">a what</span>
+      </div>
+      <p>Anything the business <em>owns</em> — property and possessions. Cash, furniture, machinery, buildings, land, stock in the godown. Also the things you own that you cannot physically touch: goodwill, patents, trademarks, copyrights. They're called "real" because they stay real from one year to the next — your building doesn't reset on 1 April.</p>
+    </div>
+  </div>
+
+  <div class="t-account">
+    <div class="t-head">Rule for real accounts</div>
+    <div class="t-body">
+      <div class="t-dr">
+        <div class="t-label">DEBIT</div>
+        <div class="t-rule">what <strong>comes in</strong></div>
+        <p class="t-note">The thing arriving into the business goes on the left.</p>
+      </div>
+      <div class="t-cr">
+        <div class="t-label">CREDIT</div>
+        <div class="t-rule">what <strong>goes out</strong></div>
+        <p class="t-note">The thing leaving the business goes on the right.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p><strong>Feel it:</strong> you buy a table for ₹8,000 cash. Two real accounts are in play. The table came in — <span class="dr">Dr</span> Furniture A/c. The cash went out — <span class="cr">Cr</span> Cash A/c. One transaction, both sides real, still balances.</p>
+
+    <!-- NOMINAL -->
+    <div class="family">
+      <div class="family-head">
+        <h3>Nominal accounts</h3>
+        <span class="tag">a why</span>
+      </div>
+      <p>Accounts that exist only to explain your performance this period: everything you <em>spent</em> or <em>lost</em>, and everything you <em>earned</em> or <em>gained</em>. Salary, rent, wages, electricity, advertising, discount allowed, loss by fire — and on the other side, sales, commission received, interest received, discount received. They're "nominal" — in name only — because at year end they are emptied into the Profit &amp; Loss account and start again at zero.</p>
+    </div>
+  </div>
+
+  <div class="t-account">
+    <div class="t-head">Rule for nominal accounts</div>
+    <div class="t-body">
+      <div class="t-dr">
+        <div class="t-label">DEBIT</div>
+        <div class="t-rule">all <strong>expenses and losses</strong></div>
+        <p class="t-note">Money leaving to run the business goes on the left.</p>
+      </div>
+      <div class="t-cr">
+        <div class="t-label">CREDIT</div>
+        <div class="t-rule">all <strong>incomes and gains</strong></div>
+        <p class="t-note">Money the business earns goes on the right.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p><strong>Feel it:</strong> you pay ₹12,000 rent in cash. Rent is an expense — <span class="dr">Dr</span> Rent A/c. Cash is a real account going out — <span class="cr">Cr</span> Cash A/c. Notice how the two rules co-operate: one account is judged by its own family's rule, the other by its own.</p>
+
+    <div class="note">
+      <span class="note-label">The one thing to internalise</span>
+      <p>You never apply one rule to a whole transaction. You look at each account separately, ask what family it belongs to, and apply <em>that family's</em> rule to it. A single journal entry routinely uses two different rules.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5 ================= -->
+<section id="subtypes">
+  <div class="col">
+    <p class="kicker">One level deeper</p>
+    <h2>The sub-types you'll be asked about</h2>
+    <p class="sub">The rules don't change inside a family — but the names do, and exams and textbooks use them freely.</p>
+  </div>
+
+  <figure>
+    <div class="svg-scroll">
+      <svg viewBox="0 0 900 470" role="img" aria-label="A tree showing the sub-types: Personal splits into natural, artificial and representative; Real splits into tangible and intangible; Nominal splits into expenses and losses versus incomes and gains.">
+        <defs>
+          <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- PERSONAL -->
+        <rect x="14" y="60" width="196" height="52" class="sv-gold"/>
+        <text x="112" y="92" text-anchor="middle" class="sv-t-gold" font-size="14">PERSONAL</text>
+        <g color="var(--ink-soft)">
+          <path d="M 210 86 H 258 V 32 H 306" class="sv-line" marker-end="url(#ah3)"/>
+          <path d="M 210 86 H 258 V 86 H 306" class="sv-line" marker-end="url(#ah3)"/>
+          <path d="M 210 86 H 258 V 140 H 306" class="sv-line" marker-end="url(#ah3)"/>
+        </g>
+        <rect x="310" y="10" width="576" height="44" class="sv-box"/>
+        <text x="328" y="30" class="sv-t-strong">NATURAL</text>
+        <text x="328" y="46" class="sv-t-small">Actual human beings &#8212; Rahul A/c, Priya A/c, the proprietor's Capital and Drawings A/c</text>
+        <rect x="310" y="64" width="576" height="44" class="sv-box"/>
+        <text x="328" y="84" class="sv-t-strong">ARTIFICIAL</text>
+        <text x="328" y="100" class="sv-t-small">Bodies the law treats as persons &#8212; HDFC Bank A/c, Infosys Ltd A/c, a club, a hospital</text>
+        <rect x="310" y="118" width="576" height="44" class="sv-box"/>
+        <text x="328" y="138" class="sv-t-strong">REPRESENTATIVE</text>
+        <text x="328" y="154" class="sv-t-small">Stand-ins for a person &#8212; Outstanding Salary A/c, Prepaid Rent A/c, Accrued Interest A/c</text>
+
+        <!-- REAL -->
+        <rect x="14" y="223" width="196" height="52" class="sv-gold"/>
+        <text x="112" y="255" text-anchor="middle" class="sv-t-gold" font-size="14">REAL</text>
+        <g color="var(--ink-soft)">
+          <path d="M 210 249 H 258 V 222 H 306" class="sv-line" marker-end="url(#ah3)"/>
+          <path d="M 210 249 H 258 V 276 H 306" class="sv-line" marker-end="url(#ah3)"/>
+        </g>
+        <rect x="310" y="200" width="576" height="44" class="sv-box"/>
+        <text x="328" y="220" class="sv-t-strong">TANGIBLE</text>
+        <text x="328" y="236" class="sv-t-small">You can touch it &#8212; Cash A/c, Furniture A/c, Building A/c, Machinery A/c, Stock A/c</text>
+        <rect x="310" y="254" width="576" height="44" class="sv-box"/>
+        <text x="328" y="274" class="sv-t-strong">INTANGIBLE</text>
+        <text x="328" y="290" class="sv-t-small">You own it but cannot touch it &#8212; Goodwill A/c, Patents A/c, Trademarks A/c</text>
+
+        <!-- NOMINAL -->
+        <rect x="14" y="359" width="196" height="52" class="sv-gold"/>
+        <text x="112" y="391" text-anchor="middle" class="sv-t-gold" font-size="14">NOMINAL</text>
+        <g color="var(--ink-soft)">
+          <path d="M 210 385 H 258 V 358 H 306" class="sv-line" marker-end="url(#ah3)"/>
+          <path d="M 210 385 H 258 V 412 H 306" class="sv-line" marker-end="url(#ah3)"/>
+        </g>
+        <rect x="310" y="336" width="576" height="44" fill="var(--debit-bg)" stroke="var(--debit)" stroke-width="1.5"/>
+        <text x="328" y="356" class="sv-t-strong sv-dr">EXPENSES &amp; LOSSES &#8212; always debited</text>
+        <text x="328" y="372" class="sv-t-small">Salary, Rent, Wages, Carriage, Advertising, Discount allowed, Loss by fire</text>
+        <rect x="310" y="390" width="576" height="44" fill="var(--credit-bg)" stroke="var(--credit)" stroke-width="1.5"/>
+        <text x="328" y="410" class="sv-t-strong sv-cr">INCOMES &amp; GAINS &#8212; always credited</text>
+        <text x="328" y="426" class="sv-t-small">Sales, Commission received, Interest received, Discount received, Profit on sale</text>
+
+        <text x="450" y="460" text-anchor="middle" class="sv-t-edge">SUB-TYPES CHANGE THE NAME, NEVER THE RULE</text>
+      </svg>
+    </div>
+    <figcaption>Representative personal accounts are the ones people miss: "Outstanding Salary" isn't an expense — the expense is "Salary". Outstanding Salary stands in for the staff you still owe, so it is a person.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 6 ================= -->
+<section id="entries">
+  <div class="col">
+    <p class="kicker">Worked examples</p>
+    <h2>Nine transactions, taken apart</h2>
+    <p class="sub">Read the middle column first — the type — because everything to its right follows from it automatically.</p>
+  </div>
+
+  <div class="ledger-scroll">
+    <table class="ledger">
+      <caption>Journal · Sunrise Traders · amounts in &#8377;</caption>
+      <thead>
+        <tr>
+          <th scope="col">Account</th>
+          <th scope="col">Type</th>
+          <th scope="col">Because</th>
+          <th scope="col">Side</th>
+          <th scope="col" class="amt">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="txn"><td colspan="5"><span class="n">01</span>Started the business with &#8377;1,00,000 of my own cash</td></tr>
+        <tr><td class="acct">Cash A/c</td><td class="type">Real</td><td class="why">cash came in</td><td><span class="dr">Dr</span></td><td class="amt">1,00,000</td></tr>
+        <tr><td class="acct">Capital A/c</td><td class="type">Personal &#183; natural</td><td class="why">the owner gave it</td><td><span class="cr">Cr</span></td><td class="amt">1,00,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">02</span>Bought furniture for &#8377;20,000, paid cash</td></tr>
+        <tr><td class="acct">Furniture A/c</td><td class="type">Real &#183; tangible</td><td class="why">furniture came in</td><td><span class="dr">Dr</span></td><td class="amt">20,000</td></tr>
+        <tr><td class="acct">Cash A/c</td><td class="type">Real &#183; tangible</td><td class="why">cash went out</td><td><span class="cr">Cr</span></td><td class="amt">20,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">03</span>Opened a current account, deposited &#8377;40,000 cash</td></tr>
+        <tr><td class="acct">Bank A/c</td><td class="type">Personal &#183; artificial</td><td class="why">the bank received it</td><td><span class="dr">Dr</span></td><td class="amt">40,000</td></tr>
+        <tr><td class="acct">Cash A/c</td><td class="type">Real</td><td class="why">cash went out</td><td><span class="cr">Cr</span></td><td class="amt">40,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">04</span>Paid March salary of &#8377;15,000 by cheque</td></tr>
+        <tr><td class="acct">Salary A/c</td><td class="type">Nominal</td><td class="why">an expense</td><td><span class="dr">Dr</span></td><td class="amt">15,000</td></tr>
+        <tr><td class="acct">Bank A/c</td><td class="type">Personal &#183; artificial</td><td class="why">the bank gave it</td><td><span class="cr">Cr</span></td><td class="amt">15,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">05</span>Sold goods worth &#8377;10,000 to Rahul on credit</td></tr>
+        <tr><td class="acct">Rahul A/c</td><td class="type">Personal &#183; natural</td><td class="why">Rahul received the goods</td><td><span class="dr">Dr</span></td><td class="amt">10,000</td></tr>
+        <tr><td class="acct">Sales A/c</td><td class="type">Nominal</td><td class="why">an income</td><td><span class="cr">Cr</span></td><td class="amt">10,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">06</span>Received &#8377;2,000 commission in cash</td></tr>
+        <tr><td class="acct">Cash A/c</td><td class="type">Real</td><td class="why">cash came in</td><td><span class="dr">Dr</span></td><td class="amt">2,000</td></tr>
+        <tr><td class="acct">Commission Received A/c</td><td class="type">Nominal</td><td class="why">a gain</td><td><span class="cr">Cr</span></td><td class="amt">2,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">07</span>March rent of &#8377;8,000 is due but not yet paid</td></tr>
+        <tr><td class="acct">Rent A/c</td><td class="type">Nominal</td><td class="why">an expense, incurred</td><td><span class="dr">Dr</span></td><td class="amt">8,000</td></tr>
+        <tr><td class="acct">Outstanding Rent A/c</td><td class="type">Personal &#183; representative</td><td class="why">stands for the landlord, who gave the use of the shop</td><td><span class="cr">Cr</span></td><td class="amt">8,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">08</span>Bought the goodwill of a neighbouring shop for &#8377;50,000 by cheque</td></tr>
+        <tr><td class="acct">Goodwill A/c</td><td class="type">Real &#183; intangible</td><td class="why">an asset came in</td><td><span class="dr">Dr</span></td><td class="amt">50,000</td></tr>
+        <tr><td class="acct">Bank A/c</td><td class="type">Personal &#183; artificial</td><td class="why">the bank gave it</td><td><span class="cr">Cr</span></td><td class="amt">50,000</td></tr>
+
+        <tr class="txn"><td colspan="5"><span class="n">09</span>Took &#8377;5,000 cash out of the till for a family holiday</td></tr>
+        <tr><td class="acct">Drawings A/c</td><td class="type">Personal &#183; natural</td><td class="why">the owner, personally, received it</td><td><span class="dr">Dr</span></td><td class="amt">5,000</td></tr>
+        <tr><td class="acct">Cash A/c</td><td class="type">Real</td><td class="why">cash went out</td><td><span class="cr">Cr</span></td><td class="amt">5,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>Look down the "Because" column and you'll see the golden rules doing all the work in plain English — came in, went out, received, gave, expense, income. There is nothing else to memorise.</p>
+  </div>
+</section>
+
+<!-- ================= 7 ================= -->
+<section id="practice">
+  <div class="col">
+    <p class="kicker">Your turn</p>
+    <h2>Practise on your own</h2>
+    <p class="sub">Work each one out before you open it. Name the two accounts, name their types, then decide the sides.</p>
+
+    <details class="drill">
+      <summary>Paid &#8377;3,200 for electricity in cash.</summary>
+      <div class="drill-body">
+        <ul>
+          <li><span class="dr">Dr</span> <strong>Electricity A/c</strong> &#8377;3,200 &#8212; <span class="why">Nominal. An expense, and all expenses are debited.</span></li>
+          <li><span class="cr">Cr</span> <strong>Cash A/c</strong> &#8377;3,200 &#8212; <span class="why">Real. Cash went out.</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="drill">
+      <summary>Rahul settles his &#8377;10,000 bill by cheque.</summary>
+      <div class="drill-body">
+        <ul>
+          <li><span class="dr">Dr</span> <strong>Bank A/c</strong> &#8377;10,000 &#8212; <span class="why">Personal (artificial). The bank received the money on your behalf.</span></li>
+          <li><span class="cr">Cr</span> <strong>Rahul A/c</strong> &#8377;10,000 &#8212; <span class="why">Personal (natural). Rahul gave it, so he is the giver.</span></li>
+        </ul>
+        <p class="why" style="margin-top:12px">Two personal accounts, one rule, applied twice.</p>
+      </div>
+    </details>
+
+    <details class="drill">
+      <summary>Bought a delivery van worth &#8377;4,00,000 from Tata Motors on credit.</summary>
+      <div class="drill-body">
+        <ul>
+          <li><span class="dr">Dr</span> <strong>Van A/c</strong> &#8377;4,00,000 &#8212; <span class="why">Real. The van came in.</span></li>
+          <li><span class="cr">Cr</span> <strong>Tata Motors A/c</strong> &#8377;4,00,000 &#8212; <span class="why">Personal (artificial). They gave the van and are still owed.</span></li>
+        </ul>
+        <p class="why" style="margin-top:12px">Note what did <em>not</em> happen: no cash moved, and the entry still balances. Double entry tracks obligations, not just money.</p>
+      </div>
+    </details>
+
+    <details class="drill">
+      <summary>Paid next year's insurance of &#8377;6,000 in advance, by cheque.</summary>
+      <div class="drill-body">
+        <ul>
+          <li><span class="dr">Dr</span> <strong>Prepaid Insurance A/c</strong> &#8377;6,000 &#8212; <span class="why">Personal (representative). It stands for the insurer, who now owes you cover. It is not an expense yet, because the year it covers hasn't happened.</span></li>
+          <li><span class="cr">Cr</span> <strong>Bank A/c</strong> &#8377;6,000 &#8212; <span class="why">Personal (artificial). The bank gave it.</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="drill">
+      <summary>Goods costing &#8377;9,000 were destroyed in a fire. No insurance.</summary>
+      <div class="drill-body">
+        <ul>
+          <li><span class="dr">Dr</span> <strong>Loss by Fire A/c</strong> &#8377;9,000 &#8212; <span class="why">Nominal. A loss, and all losses are debited.</span></li>
+          <li><span class="cr">Cr</span> <strong>Purchases A/c</strong> (or Stock) &#8377;9,000 &#8212; <span class="why">The goods went out of the business, just not through a sale.</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="drill">
+      <summary>Deposited &#8377;25,000 of the shop's cash into the business bank account.</summary>
+      <div class="drill-body">
+        <ul>
+          <li><span class="dr">Dr</span> <strong>Bank A/c</strong> &#8377;25,000 &#8212; <span class="why">Personal (artificial). The bank received it.</span></li>
+          <li><span class="cr">Cr</span> <strong>Cash A/c</strong> &#8377;25,000 &#8212; <span class="why">Real. Cash went out of the till.</span></li>
+        </ul>
+        <p class="why" style="margin-top:12px">Your wealth didn't change at all — this is why "debit = bad" makes no sense as a mental model.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 8 ================= -->
+<section id="traps">
+  <div class="col">
+    <p class="kicker">Where people slip</p>
+    <h2>Six traps that catch everyone</h2>
+
+    <h3>1. Cash is real, but Bank is personal</h3>
+    <p>Cash in the drawer is a thing you possess — real. Money "in the bank" is not in your pocket; it is a debt the bank owes you, and a bank is an artificial person — personal. The two behave identically in every entry, which is exactly why the distinction only ever bites you in an exam.</p>
+
+    <h3>2. Capital and Drawings are personal, not something exotic</h3>
+    <p>The business and its owner are treated as two separate people. Money the owner puts in is the owner <em>giving</em> — credit Capital. Money the owner takes out is the owner <em>receiving</em> — debit Drawings. Once you accept that split, both accounts stop being mysterious.</p>
+
+    <h3>3. "Outstanding" and "Prepaid" are people in disguise</h3>
+    <p>Rent A/c is nominal. Outstanding Rent A/c is <em>personal</em> — it represents the landlord you still owe. Same for Prepaid Insurance, Accrued Commission, Salary Payable. If the word describes a timing difference rather than the expense itself, look for the person hiding behind it.</p>
+
+    <h3>4. Your bank app uses the words backwards — on purpose</h3>
+    <p>Your salary lands and the app says "credited". In <em>your</em> books, cash coming in is a debit. Both are right, because the app is showing you a page from <strong>the bank's</strong> ledger, not yours. To the bank you are a person they owe money to, so your balance sits on their credit side. Never calibrate your rules against a bank statement.</p>
+
+    <h3>5. Purchases and Sales — textbooks genuinely disagree</h3>
+    <p>Some books treat goods accounts (Purchases, Sales, Returns) as <strong>real</strong>, since goods are property coming in and going out. Others treat Purchases as an expense and Sales as an income, making both <strong>nominal</strong>. This is a real, long-standing split, not something you are misreading. Two things save you: the debit/credit answer is identical either way (Purchases Dr, Sales Cr), and you should simply follow whichever convention your own textbook or teacher uses.</p>
+
+    <h3>6. One transaction, two different rules</h3>
+    <p>The single most common beginner error is picking a rule for the transaction rather than for each account. "Paid rent in cash" is nominal on one side and real on the other. Always split first, classify second, then apply.</p>
+  </div>
+</section>
+
+<!-- ================= 9 ================= -->
+<section id="modern">
+  <div class="col">
+    <p class="kicker">The other rulebook</p>
+    <h2>What to do when someone says "assets and liabilities" instead</h2>
+    <p class="sub">There is a second, newer classification — the modern or American approach. It is not a rival system; it is the same double entry sorted into different boxes.</p>
+
+    <p>The modern approach skips person/thing/why and sorts every account into five buckets: <strong>assets, liabilities, capital, income, expenses</strong>. Then it gives you one rule per bucket, based on whether the account is going up or down.</p>
+  </div>
+
+  <div class="map">
+    <div>
+      <h4>Traditional</h4>
+      <p class="big">REAL</p>
+      <p class="why">Cash, furniture, goodwill</p>
+    </div>
+    <div>
+      <h4>Modern equivalent</h4>
+      <p class="big">Assets</p>
+      <p class="why">Increase = <span class="dr">Dr</span> &#183; Decrease = <span class="cr">Cr</span></p>
+    </div>
+    <div>
+      <h4>Traditional</h4>
+      <p class="big">PERSONAL</p>
+      <p class="why">Customers who owe you &#8594; assets. Suppliers, outstanding expenses, capital &#8594; liabilities.</p>
+    </div>
+    <div>
+      <h4>Modern equivalent</h4>
+      <p class="big">Assets or Liabilities</p>
+      <p class="why">Asset up = <span class="dr">Dr</span> &#183; Liability up = <span class="cr">Cr</span></p>
+    </div>
+    <div>
+      <h4>Traditional</h4>
+      <p class="big">NOMINAL &#8212; debit half</p>
+      <p class="why">Salary, rent, discount allowed</p>
+    </div>
+    <div>
+      <h4>Modern equivalent</h4>
+      <p class="big">Expenses &amp; Losses</p>
+      <p class="why">Increase = <span class="dr">Dr</span></p>
+    </div>
+    <div>
+      <h4>Traditional</h4>
+      <p class="big">NOMINAL &#8212; credit half</p>
+      <p class="why">Sales, commission received</p>
+    </div>
+    <div>
+      <h4>Modern equivalent</h4>
+      <p class="big">Incomes &amp; Gains</p>
+      <p class="why">Increase = <span class="cr">Cr</span></p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="note">
+      <span class="note-label">The mnemonic you'll see everywhere</span>
+      <p><strong>DEAD CLIC.</strong> Things that increase on the <span class="dr">debit</span> side: <strong>D</strong>rawings, <strong>E</strong>xpenses, <strong>A</strong>ssets, <strong>D</strong>ividends. Things that increase on the <span class="cr">credit</span> side: <strong>C</strong>apital, <strong>L</strong>iabilities, <strong>I</strong>ncome, <strong>C</strong>redit sales revenue.</p>
+    </div>
+
+    <p>Run any transaction through both rulebooks and you get the same journal entry every time. If you are studying in India, the traditional three-way classification is what you'll be examined on; the modern one is what accounting software and most international texts assume. Knowing that they agree is what stops the two from ever confusing you.</p>
+  </div>
+</section>
+
+<!-- ================= 10 ================= -->
+<section id="cheat">
+  <div class="cheat">
+    <p class="cheat-title">Keep this &#183; the three golden rules</p>
+    <ol>
+      <li>
+        <span class="r-name">Personal &#8212; a who</span>
+        <span class="r-rule"><span class="d">Debit</span> the <b>receiver</b>, <span class="c">credit</span> the <b>giver</b>.</span>
+      </li>
+      <li>
+        <span class="r-name">Real &#8212; a what</span>
+        <span class="r-rule"><span class="d">Debit</span> what <b>comes in</b>, <span class="c">credit</span> what <b>goes out</b>.</span>
+      </li>
+      <li>
+        <span class="r-name">Nominal &#8212; a why</span>
+        <span class="r-rule"><span class="d">Debit</span> all <b>expenses and losses</b>, <span class="c">credit</span> all <b>incomes and gains</b>.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="col">
+    <div class="note" style="margin-top:34px">
+      <span class="note-label">The four-step method</span>
+      <p><strong>1.</strong> Name the two (or more) accounts the transaction touches. <strong>2.</strong> Classify each one through the flowchart. <strong>3.</strong> Apply that account's own golden rule to decide its side. <strong>4.</strong> Check that the left total equals the right total. If step 4 fails, step 1 was wrong — you missed an account.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  TRADITIONAL CLASSIFICATION &#183; PERSONAL &#183; REAL &#183; NOMINAL
+</footer>
+
+</div>
