@@ -1,0 +1,771 @@
+<title>The Munshi Trials</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #F4F6EF;
+    --panel:      #EAEEE1;
+    --panel-2:    #E1E7D6;
+    --rule:       #C7D2BC;
+    --rule-soft:  #DCE3D2;
+    --ink:        #1B2419;
+    --ink-soft:   #5B6A5A;
+    --debit:      #1D4E68;
+    --debit-bg:   #E2ECF1;
+    --credit:     #93302B;
+    --credit-bg:  #F4E4E1;
+    --gold:       #8A6710;
+    --gold-bg:    #F0E9D4;
+    --ok:         #2F6B33;
+    --ok-bg:      #E2EEDD;
+
+    --f-display: "Bodoni Moda", "Didot", Georgia, serif;
+    --f-body: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #131711;
+      --panel:     #1A2018;
+      --panel-2:   #212820;
+      --rule:      #37432F;
+      --rule-soft: #262E23;
+      --ink:       #E7ECDE;
+      --ink-soft:  #9BA893;
+      --debit:     #86BBD8;
+      --debit-bg:  #16262E;
+      --credit:    #E5928A;
+      --credit-bg: #2E1B19;
+      --gold:      #D6AC55;
+      --gold-bg:   #2A2313;
+      --ok:        #93C48B;
+      --ok-bg:     #1B2A19;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:     #131711;
+    --panel:     #1A2018;
+    --panel-2:   #212820;
+    --rule:      #37432F;
+    --rule-soft: #262E23;
+    --ink:       #E7ECDE;
+    --ink-soft:  #9BA893;
+    --debit:     #86BBD8;
+    --debit-bg:  #16262E;
+    --credit:    #E5928A;
+    --credit-bg: #2E1B19;
+    --gold:      #D6AC55;
+    --gold-bg:   #2A2313;
+    --ok:        #93C48B;
+    --ok-bg:     #1B2A19;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16.5px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 20px 90px; }
+
+  button { font: inherit; color: inherit; }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* ---------- masthead ---------- */
+  .mast { text-align: center; margin-bottom: 34px; }
+  .eyebrow {
+    font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-soft); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--f-display); font-weight: 700;
+    font-size: clamp(40px, 8vw, 64px); line-height: 1; letter-spacing: -0.01em;
+    margin: 0 0 14px; text-wrap: balance;
+  }
+  .standfirst { color: var(--ink-soft); max-width: 52ch; margin: 0 auto; font-size: 17px; }
+  .standfirst em { color: var(--ink); font-style: normal; font-weight: 500; }
+
+  /* ---------- rank strip ---------- */
+  .rankstrip {
+    display: flex; justify-content: center; gap: 28px; flex-wrap: wrap;
+    font-family: var(--f-mono); font-size: 12.5px; letter-spacing: .08em;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    padding: 12px 8px; margin: 26px 0 30px;
+  }
+  .rankstrip b { font-weight: 600; color: var(--gold); }
+  .rankstrip span { color: var(--ink-soft); }
+
+  /* ---------- trial cards ---------- */
+  .trials { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .trials { grid-template-columns: 1fr; } }
+  .tcard {
+    border: 1.5px solid var(--rule); background: var(--panel);
+    padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 8px;
+    text-align: left;
+  }
+  .tnum { font-family: var(--f-display); font-weight: 700; font-size: 30px; color: var(--gold); line-height: 1; }
+  .tname { font-weight: 600; font-size: 18px; }
+  .tdesc { color: var(--ink-soft); font-size: 14.5px; margin: 0; flex: 1; }
+  .bar { height: 7px; background: var(--panel-2); border: 1px solid var(--rule-soft); margin: 6px 0 2px; }
+  .bar i { display: block; height: 100%; background: var(--gold); transition: width .3s; }
+  .tmeta { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-soft); }
+  .btn {
+    display: inline-block; cursor: pointer;
+    border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper);
+    padding: 9px 20px; font-family: var(--f-mono); font-size: 12.5px;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .btn:hover { background: var(--gold); border-color: var(--gold); color: var(--paper); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
+  .btn.ghost:hover { border-color: var(--gold); color: var(--gold); background: transparent; }
+  .tcard .btn { align-self: flex-start; margin-top: 6px; }
+
+  .homefoot {
+    margin-top: 26px; text-align: center;
+    font-family: var(--f-mono); font-size: 12px; color: var(--ink-soft);
+  }
+  .homefoot .link {
+    background: none; border: none; cursor: pointer; padding: 0;
+    color: var(--ink-soft); text-decoration: underline; font: inherit;
+  }
+  .homefoot .link:hover { color: var(--credit); }
+
+  /* ---------- play screen ---------- */
+  .hud {
+    display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-soft);
+    border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-bottom: 22px;
+  }
+  .hud b { color: var(--ink); font-weight: 600; }
+  .hud .streak-live { color: var(--gold); font-weight: 600; }
+
+  .qcard {
+    border: 1.5px solid var(--rule); background: var(--panel);
+    padding: 30px 30px 26px;
+  }
+  @media (max-width: 640px) { .qcard { padding: 22px 18px; } }
+  .qkicker {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--gold); margin: 0 0 12px;
+  }
+  .qname {
+    font-family: var(--f-display); font-weight: 700;
+    font-size: clamp(26px, 5vw, 38px); line-height: 1.08; margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .qevent { font-size: 17.5px; margin: 0; }
+  .qsub { color: var(--ink-soft); font-size: 14.5px; margin: 8px 0 0; }
+  .again-badge {
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em;
+    color: var(--credit); border: 1px solid var(--credit); background: var(--credit-bg);
+    padding: 2px 7px; margin-left: 10px; vertical-align: middle; text-transform: uppercase;
+  }
+
+  .chips {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px; margin-top: 24px;
+  }
+  .chip {
+    border: 1.5px solid var(--rule); background: var(--paper);
+    padding: 13px 15px; text-align: left; cursor: pointer;
+    font-size: 15px; font-weight: 500; line-height: 1.35;
+  }
+  .chip:hover { border-color: var(--gold); }
+  .chip .k {
+    font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-soft);
+    border: 1px solid var(--rule); padding: 1px 6px; margin-right: 9px;
+  }
+  .chip small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
+  .chip.side-dr { border-color: var(--debit); background: var(--debit-bg); color: var(--debit); font-family: var(--f-mono); font-weight: 600; }
+  .chip.side-cr { border-color: var(--credit); background: var(--credit-bg); color: var(--credit); font-family: var(--f-mono); font-weight: 600; }
+  .chip.side-dr small, .chip.side-cr small { color: inherit; opacity: .75; font-family: var(--f-body); font-weight: 400; }
+  .chip.side-dr:hover, .chip.side-cr:hover { filter: brightness(1.06); }
+  .chip.side-dr .k { border-color: var(--debit); color: var(--debit); }
+  .chip.side-cr .k { border-color: var(--credit); color: var(--credit); }
+
+  .stagenote {
+    margin: 20px 0 0; font-family: var(--f-mono); font-size: 12px;
+    letter-spacing: .08em; color: var(--ok); text-transform: uppercase;
+  }
+
+  /* ---------- feedback ---------- */
+  .fb { margin-top: 22px; border-left: 3px solid var(--ink-soft); background: var(--panel-2); padding: 18px 20px; }
+  .fb.ok { border-left-color: var(--ok); }
+  .fb .verdict {
+    font-family: var(--f-mono); font-size: 13px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px;
+  }
+  .fb.ok .verdict { color: var(--ok); }
+  .fb.bad .verdict { color: var(--ink-soft); }
+  .fb .ans { font-size: 16px; margin: 0 0 6px; }
+  .fb .why { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 4px; }
+  .fb .rulequote {
+    font-family: var(--f-mono); font-size: 12.5px; color: var(--gold);
+    margin: 10px 0 0; letter-spacing: .03em;
+  }
+  .fb .btn { margin-top: 16px; }
+  .pill-dr, .pill-cr {
+    font-family: var(--f-mono); font-size: 11.5px; font-weight: 600; letter-spacing: .08em;
+    padding: 1px 7px; border: 1px solid;
+  }
+  .pill-dr { color: var(--debit); border-color: var(--debit); background: var(--debit-bg); }
+  .pill-cr { color: var(--credit); border-color: var(--credit); background: var(--credit-bg); }
+  .jline { display: flex; justify-content: space-between; gap: 12px; font-size: 15.5px; margin: 3px 0; }
+  .jline.indent { padding-left: 26px; }
+  .jline .amt { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- end screen ---------- */
+  .endcard { border: 2px solid var(--gold); background: var(--gold-bg); padding: 34px 30px; text-align: center; }
+  .endcard h2 { font-family: var(--f-display); font-size: clamp(30px, 6vw, 44px); margin: 0 0 8px; line-height: 1.05; }
+  .endstats {
+    display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;
+    font-family: var(--f-mono); font-size: 13px; margin: 18px 0 6px;
+  }
+  .endstats div b { display: block; font-size: 26px; color: var(--gold); }
+  .endnote { color: var(--ink-soft); font-size: 14.5px; max-width: 46ch; margin: 10px auto 0; }
+  .endbtns { display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+
+  /* ---------- rules overlay ---------- */
+  .peek {
+    position: fixed; left: 16px; bottom: 16px; z-index: 5;
+    border: 1.5px solid var(--rule); background: var(--panel); cursor: pointer;
+    font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-soft); padding: 8px 14px;
+  }
+  .peek:hover { color: var(--gold); border-color: var(--gold); }
+  .overlay {
+    position: fixed; inset: 0; z-index: 10; background: var(--paper);
+    overflow-y: auto; display: none;
+  }
+  .overlay.open { display: block; }
+  .ovl-inner { max-width: 640px; margin: 0 auto; padding: 50px 22px 80px; }
+  .ovl-inner h2 { font-family: var(--f-display); font-size: 34px; margin: 0 0 4px; }
+  .ovl-cost { font-family: var(--f-mono); font-size: 12px; color: var(--credit); margin: 0 0 24px; letter-spacing: .06em; }
+  .rulebox { border: 1.5px solid var(--rule); background: var(--panel); padding: 16px 20px; margin-bottom: 12px; }
+  .rulebox .rn {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 5px;
+  }
+  .rulebox .rr { font-size: 16.5px; }
+  .rulebox .rr .d { color: var(--debit); font-weight: 600; }
+  .rulebox .rr .c { color: var(--credit); font-weight: 600; }
+  .rulebox .rs { color: var(--ink-soft); font-size: 13.5px; margin-top: 6px; }
+  .ovl-tip { color: var(--ink-soft); font-size: 14px; margin-top: 20px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .qcard, .fb, .endcard { animation: rise .25s ease-out both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap"><div id="app"></div></div>
+
+<button class="peek" id="peekBtn" type="button">Peek at the rules</button>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="The golden rules">
+  <div class="ovl-inner">
+    <h2>The Rules</h2>
+    <p class="ovl-cost" id="ovlCost"></p>
+
+    <div class="rulebox">
+      <span class="rn">Personal &mdash; a who &middot; natural / artificial / representative</span>
+      <div class="rr"><span class="d">Debit</span> the <b>receiver</b>, <span class="c">credit</span> the <b>giver</b>.</div>
+      <p class="rs">People, firms, banks, clubs &mdash; and stand-ins like Outstanding Salary or Prepaid Rent, which hide a person behind a timing word.</p>
+    </div>
+    <div class="rulebox">
+      <span class="rn">Real &mdash; a what &middot; tangible / intangible</span>
+      <div class="rr"><span class="d">Debit</span> what <b>comes in</b>, <span class="c">credit</span> what <b>goes out</b>.</div>
+      <p class="rs">Property the firm owns: cash, furniture, machinery, stock &mdash; plus goodwill, patents, trademarks.</p>
+    </div>
+    <div class="rulebox">
+      <span class="rn">Nominal &mdash; a why &middot; expense-loss / income-gain</span>
+      <div class="rr"><span class="d">Debit</span> all <b>expenses &amp; losses</b>, <span class="c">credit</span> all <b>incomes &amp; gains</b>.</div>
+      <p class="rs">Salary, rent, wages, losses on one side; sales, commission received, discounts received on the other.</p>
+    </div>
+
+    <p class="ovl-tip"><strong>The method, always:</strong> split the transaction into its accounts &rarr; classify <em>each account</em> &rarr; apply that account&rsquo;s own rule &rarr; check left total = right total.</p>
+    <button class="btn" data-act="rules-close" type="button">Back to the trial</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var app = document.getElementById("app");
+  var overlay = document.getElementById("overlay");
+  var peekBtn = document.getElementById("peekBtn");
+  var ovlCost = document.getElementById("ovlCost");
+
+  /* ============ data ============ */
+
+  var FAM = {
+    personal: { label: "Personal", tag: "a who",  rule: "Debit the receiver, credit the giver." },
+    real:     { label: "Real",     tag: "a what", rule: "Debit what comes in, credit what goes out." },
+    nominal:  { label: "Nominal",  tag: "a why",  rule: "Debit all expenses and losses, credit all incomes and gains." }
+  };
+  var SUB = {
+    natural: "Natural person", artificial: "Artificial (legal) person", representative: "Representative person",
+    tangible: "Tangible", intangible: "Intangible",
+    expense: "Expense / loss", income: "Income / gain"
+  };
+  var FAMSUBS = { personal: ["natural", "artificial", "representative"], real: ["tangible", "intangible"], nominal: ["expense", "income"] };
+
+  var ACCOUNTS = [
+    ["Rahul A/c", "personal", "natural", "A flesh-and-blood customer — the most literal kind of person."],
+    ["Priya A/c", "personal", "natural", "A person the firm deals with."],
+    ["Capital A/c", "personal", "natural", "The owner. The books treat the boss as an outside person who gave the firm money."],
+    ["Drawings A/c", "personal", "natural", "The owner again — this page tracks what they take home."],
+    ["HDFC Bank A/c", "personal", "artificial", "A bank is a legal person. Your balance is a debt it owes you."],
+    ["Infosys Ltd A/c", "personal", "artificial", "A company is a person in the eyes of the law."],
+    ["Tata Motors A/c", "personal", "artificial", "A supplier company — a legal person."],
+    ["City Sports Club A/c", "personal", "artificial", "Clubs, societies, institutions — all legal persons."],
+    ["LIC A/c", "personal", "artificial", "A corporation — a legal person."],
+    ["Outstanding Salary A/c", "personal", "representative", "Not the expense — the unpaid staff hiding behind the name."],
+    ["Prepaid Rent A/c", "personal", "representative", "The landlord, who owes you the months you have already paid for."],
+    ["Accrued Interest A/c", "personal", "representative", "Interest earned but not yet in hand — someone owes it to you."],
+    ["Outstanding Wages A/c", "personal", "representative", "Workers already worked; this page stands for them until you pay."],
+    ["Unearned Commission A/c", "personal", "representative", "Money taken in advance — you owe the service to whoever paid."],
+    ["Cash A/c", "real", "tangible", "Notes and coins in the till. Property you can touch."],
+    ["Furniture A/c", "real", "tangible", "Desks and chairs the firm owns."],
+    ["Machinery A/c", "real", "tangible", "Owned, bolted to the floor, touchable."],
+    ["Building A/c", "real", "tangible", "Bricks and mortar the firm owns."],
+    ["Land A/c", "real", "tangible", "The plot itself — owned property."],
+    ["Stock A/c", "real", "tangible", "Goods lying in the godown, waiting to be sold."],
+    ["Delivery Van A/c", "real", "tangible", "A vehicle the firm owns."],
+    ["Computers A/c", "real", "tangible", "Owned equipment."],
+    ["Goodwill A/c", "real", "intangible", "Owned and valuable, but you cannot lock it in a cupboard — reputation."],
+    ["Patents A/c", "real", "intangible", "An owned right, not an object."],
+    ["Trademarks A/c", "real", "intangible", "The brand mark the firm owns."],
+    ["Copyright A/c", "real", "intangible", "An owned right over creative work."],
+    ["Salary A/c", "nominal", "expense", "Money spent on staff — a cost of running the business."],
+    ["Rent A/c", "nominal", "expense", "Money spent for the use of premises."],
+    ["Wages A/c", "nominal", "expense", "Money spent on labour."],
+    ["Electricity A/c", "nominal", "expense", "A running cost."],
+    ["Advertising A/c", "nominal", "expense", "Money spent to bring customers in."],
+    ["Discount Allowed A/c", "nominal", "expense", "A little profit given away to a customer — a loss."],
+    ["Loss by Fire A/c", "nominal", "expense", "Value destroyed — a loss."],
+    ["Carriage Inward A/c", "nominal", "expense", "Freight paid to bring goods in — a cost."],
+    ["Commission Received A/c", "nominal", "income", "Money earned for a service — an income."],
+    ["Interest Received A/c", "nominal", "income", "Money your money earned — a gain."],
+    ["Discount Received A/c", "nominal", "income", "A supplier let you off part of a bill — a gain."],
+    ["Rent Received A/c", "nominal", "income", "Someone pays to use your property — an income."]
+  ].map(function (a, i) { return { id: i, n: a[0], f: a[1], s: a[2], why: a[3] }; });
+
+  var RULES3 = [
+    ["Machinery A/c", "New machinery arrives at the factory.", "dr", "Real — debit what comes in."],
+    ["Cash A/c", "Cash leaves the till to settle a bill.", "cr", "Real — credit what goes out."],
+    ["Rahul A/c", "Rahul takes goods from you on credit.", "dr", "Personal — debit the receiver."],
+    ["Bank A/c", "The bank pays out your cheque.", "cr", "Personal — credit the giver."],
+    ["Wages A/c", "You pay the month's wages.", "dr", "Nominal — debit all expenses and losses."],
+    ["Commission Received A/c", "A commission is earned.", "cr", "Nominal — credit all incomes and gains."],
+    ["Furniture A/c", "Old furniture is sold off.", "cr", "Real — credit what goes out."],
+    ["Capital A/c", "The owner puts fresh money into the firm.", "cr", "Personal — the owner is the giver; credit the giver."],
+    ["Drawings A/c", "The owner takes cash home for personal use.", "dr", "Personal — the owner received; debit the receiver."],
+    ["Loss by Fire A/c", "Goods are destroyed in a fire.", "dr", "Nominal — losses are debited."],
+    ["Interest Received A/c", "Interest is earned on your deposit.", "cr", "Nominal — gains are credited."],
+    ["Outstanding Rent A/c", "March rent is still owed to the landlord.", "cr", "Representative personal — the landlord gave the use of the shop; credit the giver."],
+    ["Prepaid Insurance A/c", "Next year's premium is paid in advance.", "dr", "Representative personal — the insurer received your money; debit the receiver."],
+    ["Discount Allowed A/c", "A customer pays early and you knock some money off.", "dr", "Nominal — a loss; debit it."],
+    ["Discount Received A/c", "A supplier knocks some money off your bill.", "cr", "Nominal — a gain; credit it."]
+  ].map(function (a, i) { return { id: i, n: a[0], ev: a[1], side: a[2], why: a[3] }; });
+
+  var TXNS = [
+    { t: "Started business with ₹1,00,000 of the owner's cash.", a: "1,00,000",
+      dr: "Cash A/c", wd: "Real — cash came in.",
+      cr: "Capital A/c", wc: "Personal — the owner gave it.",
+      opts: ["Cash A/c", "Capital A/c", "Bank A/c", "Sales A/c"] },
+    { t: "Bought machinery for ₹50,000, paid by cheque.", a: "50,000",
+      dr: "Machinery A/c", wd: "Real — the machine came in.",
+      cr: "Bank A/c", wc: "Personal — the bank gave the money.",
+      opts: ["Machinery A/c", "Bank A/c", "Cash A/c", "Purchases A/c"] },
+    { t: "Paid the month's rent of ₹8,000 in cash.", a: "8,000",
+      dr: "Rent A/c", wd: "Nominal — an expense.",
+      cr: "Cash A/c", wc: "Real — cash went out.",
+      opts: ["Rent A/c", "Cash A/c", "Bank A/c", "Outstanding Rent A/c"] },
+    { t: "Sold goods worth ₹12,000 to Priya on credit.", a: "12,000",
+      dr: "Priya A/c", wd: "Personal — she received the goods.",
+      cr: "Sales A/c", wc: "An income for the business.",
+      opts: ["Priya A/c", "Sales A/c", "Cash A/c", "Purchases A/c"] },
+    { t: "Received ₹3,000 commission in cash.", a: "3,000",
+      dr: "Cash A/c", wd: "Real — cash came in.",
+      cr: "Commission Received A/c", wc: "Nominal — a gain.",
+      opts: ["Cash A/c", "Commission Received A/c", "Sales A/c", "Bank A/c"] },
+    { t: "Priya settles her ₹12,000 bill by cheque.", a: "12,000",
+      dr: "Bank A/c", wd: "Personal — the bank received it for you.",
+      cr: "Priya A/c", wc: "Personal — she gave it.",
+      opts: ["Bank A/c", "Priya A/c", "Cash A/c", "Sales A/c"] },
+    { t: "March salary of ₹15,000 is due but not yet paid.", a: "15,000",
+      dr: "Salary A/c", wd: "Nominal — the expense has happened, paid or not.",
+      cr: "Outstanding Salary A/c", wc: "Representative personal — the staff you still owe.",
+      opts: ["Salary A/c", "Outstanding Salary A/c", "Cash A/c", "Bank A/c"] },
+    { t: "The owner takes ₹4,000 cash home for personal use.", a: "4,000",
+      dr: "Drawings A/c", wd: "Personal — the owner received it.",
+      cr: "Cash A/c", wc: "Real — cash went out.",
+      opts: ["Drawings A/c", "Capital A/c", "Cash A/c", "Bank A/c"] },
+    { t: "Bought goods for resale, ₹20,000 in cash.", a: "20,000",
+      dr: "Purchases A/c", wd: "Goods bought for resale go to Purchases — Stock is only counted at year end, not posted during the year.",
+      cr: "Cash A/c", wc: "Real — cash went out.",
+      opts: ["Purchases A/c", "Stock A/c", "Cash A/c", "Sales A/c"] },
+    { t: "Goods costing ₹5,000 are destroyed by fire.", a: "5,000",
+      dr: "Loss by Fire A/c", wd: "Nominal — a loss.",
+      cr: "Purchases A/c", wc: "The goods leave through the back door — they came in through Purchases, so they exit from it.",
+      opts: ["Loss by Fire A/c", "Purchases A/c", "Cash A/c", "Sales A/c"] },
+    { t: "Paid the ₹2,500 electricity bill by cheque.", a: "2,500",
+      dr: "Electricity A/c", wd: "Nominal — an expense.",
+      cr: "Bank A/c", wc: "Personal — the bank gave it.",
+      opts: ["Electricity A/c", "Bank A/c", "Cash A/c", "Rent A/c"] },
+    { t: "Moved ₹10,000 from the till into the bank account.", a: "10,000",
+      dr: "Bank A/c", wd: "Personal — the bank received it.",
+      cr: "Cash A/c", wc: "Real — cash went out. Note: your wealth did not change.",
+      opts: ["Bank A/c", "Cash A/c", "Capital A/c", "Drawings A/c"] },
+    { t: "Sold an old office table for ₹3,000 cash, at book value.", a: "3,000",
+      dr: "Cash A/c", wd: "Real — cash came in.",
+      cr: "Furniture A/c", wc: "Real — the asset went out. Selling an asset is NOT 'Sales' — that page is only for the goods you trade in.",
+      opts: ["Cash A/c", "Furniture A/c", "Sales A/c", "Stock A/c"] }
+  ].map(function (t, i) { t.id = i; return t; });
+
+  var TRIALS = {
+    t1: { num: "I",   name: "Sort the Accounts", desc: "A name appears. Call its family: personal, real or nominal.", bank: ACCOUNTS, n: 10 },
+    t2: { num: "II",  name: "Know the Faces",    desc: "Family first, then the exact sub-type. Seven faces in all.",  bank: ACCOUNTS, n: 10 },
+    t3: { num: "III", name: "Left or Right",     desc: "Something happens to one account. Debit it or credit it.",    bank: RULES3,   n: 8 },
+    t4: { num: "IV",  name: "Post the Entry",    desc: "A full transaction. Pick what to debit, then what to credit.", bank: TXNS,    n: 6 }
+  };
+  var ORDER = ["t1", "t2", "t3", "t4"];
+  var RANKS = [[1, "Keeper of the Bahi-Khata"], [0.75, "Head Munshi"], [0.5, "Munshi"], [0.25, "Junior Munshi"], [0, "Apprentice Clerk"]];
+
+  /* ============ progress ============ */
+
+  function load() {
+    var d = {};
+    try { d = JSON.parse(localStorage.getItem("munshi-trials") || "{}"); } catch (e) { d = {}; }
+    var base = { xp: 0, best: 0, boxes: { t1: {}, t2: {}, t3: {}, t4: {} } };
+    for (var k in d) base[k] = d[k];
+    if (!base.boxes.t1) base.boxes = { t1: {}, t2: {}, t3: {}, t4: {} };
+    return base;
+  }
+  function save() { try { localStorage.setItem("munshi-trials", JSON.stringify(P)); } catch (e) {} }
+
+  var P = load();
+  var G = null; // active game
+
+  function mastery(t) {
+    var bank = TRIALS[t].bank, b = P.boxes[t], s = 0;
+    for (var i = 0; i < bank.length; i++) s += Math.min(b[i] || 0, 2);
+    return s / (2 * bank.length);
+  }
+  function overall() {
+    var s = 0, tot = 0;
+    ORDER.forEach(function (t) {
+      var bank = TRIALS[t].bank, b = P.boxes[t];
+      for (var i = 0; i < bank.length; i++) s += Math.min(b[i] || 0, 2);
+      tot += 2 * bank.length;
+    });
+    return s / tot;
+  }
+  function rank() {
+    var m = overall();
+    for (var i = 0; i < RANKS.length; i++) if (m >= RANKS[i][0]) return RANKS[i][1];
+    return RANKS[RANKS.length - 1][1];
+  }
+  function pct(x) { return Math.round(x * 100); }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  /* ============ rendering helpers ============ */
+
+  function chipHtml(idx, label, sub, cls) {
+    return '<button type="button" class="chip ' + (cls || "") + '" data-act="ans" data-i="' + idx + '">' +
+      '<span class="k">' + (idx + 1) + "</span>" + label + (sub ? "<small>" + sub + "</small>" : "") + "</button>";
+  }
+  function ruleQuote(f) { return '<p class="rulequote">RULE — ' + FAM[f].label.toUpperCase() + ": " + FAM[f].rule + "</p>"; }
+  function pill(side) { return side === "dr" ? '<span class="pill-dr">Dr</span>' : '<span class="pill-cr">Cr</span>'; }
+
+  /* ============ screens ============ */
+
+  function renderHome() {
+    G = null;
+    peekBtn.style.display = "";
+    var cards = ORDER.map(function (t) {
+      var d = TRIALS[t], m = mastery(t);
+      return '<div class="tcard">' +
+        '<div class="tnum">' + d.num + "</div>" +
+        '<div class="tname">' + d.name + "</div>" +
+        '<p class="tdesc">' + d.desc + "</p>" +
+        '<div class="bar"><i style="width:' + pct(m) + '%"></i></div>' +
+        '<div class="tmeta">MASTERY ' + pct(m) + "% · " + d.bank.length + " ITEMS</div>" +
+        '<button type="button" class="btn" data-act="start" data-t="' + t + '">' + (m > 0 ? "Continue" : "Enter trial") + "</button>" +
+        "</div>";
+    }).join("");
+
+    app.innerHTML =
+      '<header class="mast">' +
+      '<p class="eyebrow">Ledger training &middot; four trials</p>' +
+      "<h1>The Munshi Trials</h1>" +
+      '<p class="standfirst">The munshi was the merchant house&rsquo;s book-keeper &mdash; the one who could post <em>any</em> entry without looking up a rule. Four trials, three rules, one ledger learned by heart.</p>' +
+      "</header>" +
+      '<div class="rankstrip">' +
+      "<div><span>RANK</span> <b>" + rank() + "</b></div>" +
+      "<div><span>MASTERY</span> <b>" + pct(overall()) + "%</b></div>" +
+      "<div><span>XP</span> <b>" + P.xp + "</b></div>" +
+      "<div><span>BEST STREAK</span> <b>×" + P.best + "</b></div>" +
+      "</div>" +
+      '<div class="trials">' + cards + "</div>" +
+      '<p class="homefoot">Keys 1&ndash;4 answer &middot; Enter continues &middot; peeking at the rules mid-trial spends your streak.<br>Progress lives in this browser. <button type="button" class="link" data-act="reset" id="resetBtn">Reset progress</button></p>';
+  }
+
+  function startTrial(t) {
+    var d = TRIALS[t];
+    var ids = d.bank.map(function (x) { return x.id; });
+    // lowest boxes first, shuffled within equal boxes
+    shuffle(ids);
+    ids.sort(function (a, b) { return (P.boxes[t][a] || 0) - (P.boxes[t][b] || 0); });
+    var pick = ids.slice(0, d.n);
+    shuffle(pick);
+    G = {
+      t: t, queue: pick.map(function (id) { return { id: id, rq: false }; }),
+      total: d.n, done: 0, firstTry: 0, streak: 0, xp: 0, phase: "q", cur: null, stage: 0, peeked: false
+    };
+    next();
+  }
+
+  function next() {
+    if (!G.queue.length) { renderEnd(); return; }
+    G.cur = G.queue.shift();
+    G.phase = "q"; G.stage = 0; G.pickedFam = null;
+    if (G.t === "t4") {
+      var item = TXNS[G.cur.id];
+      G.optOrder = shuffle(item.opts.slice());
+    }
+    renderPlay();
+  }
+
+  function hud() {
+    var d = TRIALS[G.t];
+    var left = G.queue.length + 1;
+    return '<div class="hud">' +
+      "<div>TRIAL " + d.num + " <b>" + d.name + "</b></div>" +
+      "<div>LEFT IN QUEUE <b>" + left + "</b></div>" +
+      '<div class="streak-live">STREAK ×' + G.streak + "</div>" +
+      "<div>SESSION XP <b>+" + G.xp + "</b></div>" +
+      "</div>";
+  }
+
+  function renderPlay() {
+    var t = G.t, html = hud() + '<div class="qcard">';
+    var again = G.cur.rq ? '<span class="again-badge">again</span>' : "";
+
+    if (t === "t1") {
+      var a = ACCOUNTS[G.cur.id];
+      html += '<p class="qkicker">Which family?</p><h2 class="qname">' + a.n + again + "</h2>" +
+        '<div class="chips">' +
+        chipHtml(0, "Personal", "a who — debit receiver, credit giver") +
+        chipHtml(1, "Real", "a what — debit in, credit out") +
+        chipHtml(2, "Nominal", "a why — debit expense, credit income") +
+        "</div>";
+    } else if (t === "t2") {
+      var a2 = ACCOUNTS[G.cur.id];
+      html += '<p class="qkicker">Family, then face</p><h2 class="qname">' + a2.n + again + "</h2>";
+      if (G.stage === 0) {
+        html += '<div class="chips">' + chipHtml(0, "Personal") + chipHtml(1, "Real") + chipHtml(2, "Nominal") + "</div>";
+      } else {
+        var subs = FAMSUBS[G.pickedFam];
+        html += '<p class="stagenote">' + FAM[G.pickedFam].label + " ✓ — now, which kind?</p>" +
+          '<div class="chips">' + subs.map(function (s, i) { return chipHtml(i, SUB[s]); }).join("") + "</div>";
+      }
+    } else if (t === "t3") {
+      var r = RULES3[G.cur.id];
+      html += '<p class="qkicker">Which side of this account&rsquo;s page?</p>' +
+        '<h2 class="qname">' + r.n + again + "</h2>" +
+        '<p class="qevent">' + r.ev + "</p>" +
+        '<div class="chips">' +
+        chipHtml(0, "Debit", "the left side", "side-dr") +
+        chipHtml(1, "Credit", "the right side", "side-cr") +
+        "</div>";
+    } else {
+      var x = TXNS[G.cur.id];
+      html += '<p class="qkicker">Post the entry &middot; ₹' + x.a + "</p>" +
+        '<h2 class="qname" style="font-size:clamp(21px,4vw,28px)">' + x.t + again + "</h2>";
+      var opts = G.stage === 0 ? G.optOrder : G.optOrder.filter(function (o) { return o !== x.dr; });
+      G.liveOpts = opts;
+      html += (G.stage === 1 ? '<p class="stagenote">' + pill("dr") + " " + x.dr + " ✓ — now, credit which account?</p>"
+                             : '<p class="qevent">Which account is <b>debited</b>?</p>') +
+        '<div class="chips">' + opts.map(function (o, i) { return chipHtml(i, o); }).join("") + "</div>";
+    }
+
+    html += "</div>";
+    app.innerHTML = html;
+  }
+
+  /* ============ answering ============ */
+
+  function answer(i) {
+    var t = G.t;
+    if (t === "t1") {
+      var a = ACCOUNTS[G.cur.id];
+      var fams = ["personal", "real", "nominal"];
+      finish(fams[i] === a.f, t1Detail(a));
+    } else if (t === "t2") {
+      var a2 = ACCOUNTS[G.cur.id];
+      if (G.stage === 0) {
+        var fams2 = ["personal", "real", "nominal"];
+        if (fams2[i] === a2.f) { G.pickedFam = a2.f; G.stage = 1; renderPlay(); }
+        else finish(false, t2Detail(a2));
+      } else {
+        finish(FAMSUBS[G.pickedFam][i] === a2.s, t2Detail(a2));
+      }
+    } else if (t === "t3") {
+      var r = RULES3[G.cur.id];
+      finish(["dr", "cr"][i] === r.side, t3Detail(r));
+    } else {
+      var x = TXNS[G.cur.id];
+      var picked = G.liveOpts[i];
+      if (G.stage === 0) {
+        if (picked === x.dr) { G.stage = 1; renderPlay(); }
+        else finish(false, t4Detail(x));
+      } else {
+        finish(picked === x.cr, t4Detail(x));
+      }
+    }
+  }
+
+  function t1Detail(a) {
+    return '<p class="ans"><b>' + a.n + "</b> — " + FAM[a.f].label.toUpperCase() + " (" + FAM[a.f].tag + ") · " + SUB[a.s] + "</p>" +
+      '<p class="why">' + a.why + "</p>" + ruleQuote(a.f);
+  }
+  function t2Detail(a) { return t1Detail(a); }
+  function t3Detail(r) {
+    return '<p class="ans">' + pill(r.side) + " <b>" + r.n + "</b> — " + (r.side === "dr" ? "debit it (left)" : "credit it (right)") + "</p>" +
+      '<p class="why">' + r.why + "</p>";
+  }
+  function t4Detail(x) {
+    return '<div class="jline"><span>' + pill("dr") + " <b>" + x.dr + '</b></span><span class="amt">' + x.a + "</span></div>" +
+      '<p class="why">' + x.wd + "</p>" +
+      '<div class="jline indent"><span>To ' + x.cr + " " + pill("cr") + '</span><span class="amt">' + x.a + "</span></div>" +
+      '<p class="why">' + x.wc + "</p>" +
+      '<p class="rulequote">LEFT ' + x.a + " = RIGHT " + x.a + "</p>";
+  }
+
+  function finish(ok, detail) {
+    var t = G.t, id = G.cur.id, box = P.boxes[t][id] || 0;
+    if (ok) {
+      G.streak += 1;
+      if (G.streak > P.best) P.best = G.streak;
+      var gain = (G.cur.rq ? 5 : 10) + Math.min(G.streak, 5) * 2;
+      G.xp += gain; P.xp += gain;
+      P.boxes[t][id] = G.cur.rq ? Math.max(box, 1) : Math.min(box + 1, 2);
+      if (!G.cur.rq) G.firstTry += 1;
+      G.done += 1;
+    } else {
+      G.streak = 0;
+      P.boxes[t][id] = 0;
+      G.queue.push({ id: id, rq: true });
+    }
+    save();
+    G.phase = "fb";
+    var verdict = ok ? "✓ Correct" + (G.streak >= 3 ? " — streak ×" + G.streak : "") : "✗ Not this one — it comes back later";
+    app.innerHTML = hud() + '<div class="qcard">' +
+      '<div class="fb ' + (ok ? "ok" : "bad") + '" aria-live="polite">' +
+      '<p class="verdict">' + verdict + "</p>" + detail +
+      '<button type="button" class="btn" data-act="continue">Continue &nbsp;↵</button>' +
+      "</div></div>";
+    var btn = app.querySelector('[data-act="continue"]');
+    if (btn) btn.focus();
+  }
+
+  function renderEnd() {
+    var d = TRIALS[G.t], m = mastery(G.t);
+    var perfect = G.firstTry === G.total;
+    app.innerHTML =
+      '<div class="endcard">' +
+      '<p class="eyebrow">Trial ' + d.num + " complete</p>" +
+      "<h2>" + (perfect ? "Flawless round." : "Round cleared.") + "</h2>" +
+      '<div class="endstats">' +
+      "<div><b>" + G.firstTry + "/" + G.total + "</b>FIRST TRY</div>" +
+      "<div><b>+" + G.xp + "</b>XP</div>" +
+      "<div><b>" + pct(m) + "%</b>" + d.name.toUpperCase() + "</div>" +
+      "<div><b>" + rank() + "</b>RANK</div>" +
+      "</div>" +
+      '<p class="endnote">' + (m >= 1 ? "This trial is mastered — every item answered right twice. Keep it warm, or move on."
+        : "Items you missed dropped back to the bottom of the pile; each one needs two clean answers to count as mastered.") + "</p>" +
+      '<div class="endbtns">' +
+      '<button type="button" class="btn" data-act="start" data-t="' + G.t + '">Run it again</button>' +
+      '<button type="button" class="btn ghost" data-act="home">Back to the ledger</button>' +
+      "</div></div>";
+    G = null;
+  }
+
+  /* ============ events ============ */
+
+  app.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]");
+    if (!el) return;
+    var act = el.getAttribute("data-act");
+    if (act === "start") startTrial(el.getAttribute("data-t"));
+    else if (act === "ans" && G && G.phase === "q") answer(parseInt(el.getAttribute("data-i"), 10));
+    else if (act === "continue" && G) next();
+    else if (act === "home") renderHome();
+    else if (act === "reset") {
+      if (el.getAttribute("data-armed")) {
+        P = { xp: 0, best: 0, boxes: { t1: {}, t2: {}, t3: {}, t4: {} } };
+        save(); renderHome();
+      } else { el.setAttribute("data-armed", "1"); el.textContent = "Really reset? Click again"; }
+    }
+  });
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act='rules-close']");
+    if (el) closeRules();
+  });
+
+  peekBtn.addEventListener("click", function () {
+    if (G && G.phase === "q" && G.streak > 0) {
+      G.streak = 0;
+      ovlCost.textContent = "Streak spent. Knowledge gained.";
+    } else if (G) {
+      ovlCost.textContent = "Peeking mid-trial spends your streak.";
+    } else {
+      ovlCost.textContent = "Free to read between trials. Mid-trial, peeking spends your streak.";
+    }
+    overlay.classList.add("open");
+  });
+
+  function closeRules() {
+    overlay.classList.remove("open");
+    if (G) renderPlay();
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (overlay.classList.contains("open")) {
+      if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); closeRules(); }
+      return;
+    }
+    if (!G) return;
+    if (G.phase === "fb" && e.key === "Enter") { e.preventDefault(); next(); return; }
+    if (G.phase === "q" && /^[1-9]$/.test(e.key)) {
+      var chips = app.querySelectorAll(".chip");
+      var n = parseInt(e.key, 10) - 1;
+      if (chips[n]) { e.preventDefault(); chips[n].click(); }
+    }
+  });
+
+  renderHome();
+})();
+</script>
