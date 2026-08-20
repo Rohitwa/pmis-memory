@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "entity": "Axis Bank Ltd (NSE: AXISBANK)",
+    "basis": "Standalone, INR crore unless noted. Fiscal year ends 31 March.",
+    "as_of": "2026-08-20",
+    "window": "Q2 FY25 (Sep-2024) to Q1 FY27 (Jun-2026)",
+    "sources": "Axis Bank quarterly press releases, Q4FY26 & Q1FY27 earnings-call transcripts, FY25 integrated annual report, and financial press. Every figure traceable to primary filings except where flagged.",
+    "disclaimer": "Reconstruction for study. Peer figures are approximate/secondary and marked. Not investment advice."
+  },
+  "quarters": ["Q2 FY25", "Q3 FY25", "Q4 FY25", "Q1 FY26", "Q2 FY26", "Q3 FY26", "Q4 FY26", "Q1 FY27"],
+  "series": {
+    "nii":            [13483, 13606, 13811, 13560, 13745, 14287, 14457, 14646],
+    "nii_yoy":        [9, 9, 6, 1, 2, 5, 5, 8],
+    "nim":            [3.99, 3.93, 3.97, 3.80, 3.73, 3.64, 3.62, 3.46],
+    "pat":            [6918, 6304, 7117, 5806, 5090, 6490, 7071, 7114],
+    "pat_yoy":        [18, 4, -0.2, -4, -26, 3, -0.6, 23],
+    "roa":            [1.84, 1.64, 1.83, 1.47, 1.23, 1.49, 1.58, 1.51],
+    "roe":            [17.58, 15.37, 16.98, 13.14, 11.06, 13.68, 14.74, 14.16],
+    "advances":       [999979, 1014564, 1040811, 1059724, 1116703, 1159052, 1233570, 1261557],
+    "advances_yoy":   [11, 9, 8, 8, 12, 14, 19, 19],
+    "deposits":       [1086744, 1095883, 1172952, 1161615, 1203487, 1260786, 1335834, 1372936],
+    "deposits_yoy":   [14, 9, 9, 9, 11, 15, 14, 18],
+    "casa":           [41, 39, 41, 40, 40, 39, 40, 38],
+    "ldr":            [92.0, 92.6, 88.7, 91.2, 92.8, 91.9, 92.3, 91.9],
+    "retail_pct":     [60, 60, 59, 59, 57, 56, 55, 54],
+    "gnpa":           [1.44, 1.46, 1.28, 1.57, 1.46, 1.40, 1.23, 1.28],
+    "nnpa":           [0.34, 0.35, 0.33, 0.45, 0.44, 0.42, 0.37, 0.39],
+    "credit_cost":    [0.54, 0.80, 0.50, 1.38, 0.73, 0.76, 0.37, 0.63],
+    "fee_income":     [5508, 5455, 6338, 5746, 6037, 6100, 6561, 6156],
+    "car":            [16.61, 17.01, 17.07, 16.85, 16.55, 16.55, 16.42, 16.67],
+    "cet1":           [14.12, 14.61, 14.67, 14.68, 14.43, 14.50, 14.38, 14.64]
+  },
+  "loan_mix_q1fy27": {"Retail": 54, "SME / Commercial": 12, "Corporate / Wholesale": 34},
+  "loan_growth_yoy_q1fy27": {"Retail": 8, "SME / Commercial": 25, "Corporate / Wholesale": 38},
+  "revenue_mix_fy25": {"Net interest income": 68, "Fee income": 28, "Trading & other": 4},
+  "annual": {
+    "FY25": {"nii": 54348, "ppop": 42105, "fee": 22504, "pat": 26373, "eps": 84.77, "roa": 1.74, "roe": 16.52, "nim": 3.98, "advances": 1040811, "deposits": 1172952, "gnpa": 1.28, "nnpa": 0.33},
+    "FY26": {"nii": 56048, "ppop": 42817, "fee": 24444, "pat": 24457, "eps": 78.31, "roa": 1.45, "roe": 13.15, "nim": 3.65, "advances": 1233570, "deposits": 1335834, "gnpa": 1.23, "nnpa": 0.37}
+  },
+  "subsidiaries_fy26": [
+    {"name": "Axis Finance (NBFC)", "pat": 806, "yoy": 19, "note": "AUF +22% YoY; retail+MSME 57% of book; NNPA 0.36%"},
+    {"name": "Axis AMC", "pat": 596, "yoy": 19, "note": "QAAUM ~Rs 3.6 lakh cr (+12%)"},
+    {"name": "Axis Securities", "pat": 366, "yoy": -13, "note": "Broking; volumes normalized off FY25 high"},
+    {"name": "Axis Capital", "pat": 259, "yoy": 61, "note": "ECM / investment banking rebound"}
+  ],
+  "subsidiaries_total_fy26": {"pat": 2051, "yoy": 16, "roa_contrib_bps": 6, "roe_contrib_bps": 41},
+  "targets": {
+    "roe_aspiration_pct": 18,
+    "nim_through_cycle_pct": 3.8,
+    "loan_mix_target": "70:30 (Retail+SME : Wholesale), +/- 3-4%",
+    "note": "Management aspirations, not guidance. FY26 actuals: ROE 13.15%, NIM 3.65% — both below aspiration."
+  },
+  "one_offs": [
+    {"q": "Q1 FY26", "type": "Technical impact", "sign": "drag", "amount_cr": 821, "detail": "Tightened NPA recognition on cash-credit/OD & one-time-settled accounts -> gross slippage spiked to 3.13%, GNPA optically 1.57%, credit cost 1.38%. Recognition change, not underlying deterioration."},
+    {"q": "Q2 FY26", "type": "RBI-advised provision", "sign": "drag", "amount_cr": 1231, "detail": "One-time standard-asset provision on 2 discontinued crop-loan variants, per RBI advisory after FY25 inspection. PAT -26% to Rs 5,090 cr. Writeback possible by Mar-2028. RBI flagged no NPA divergence."},
+    {"q": "Q4 FY26", "type": "Citi tax benefit", "sign": "boost", "amount_cr": 2193, "detail": "Income-tax authorities allowed tax depreciation on Citi consumer intangibles (Rs 8,714 cr, amortized FY23). One-time PAT boost."},
+    {"q": "Q4 FY26", "type": "'West Asia' precautionary provision", "sign": "drag", "amount_cr": 2001, "detail": "Voluntary standard-asset buffer for macro/geopolitical uncertainty. Not credit-driven. Still undrawn as of Q1 FY27; management framed provision + tax benefit + trading loss as ~net-neutral."},
+    {"q": "Q4 FY26", "type": "Trading loss", "sign": "drag", "amount_cr": 606, "detail": "Depressed reported revenue and inflated the quarter's cost-to-income ratio."}
+  ],
+  "bottlenecks": [
+    {"rank": 1, "title": "NIM compression + structurally thinner liability franchise", "severity": "High", "binding": "Most binding",
+     "evidence": "NIM fell ~53 bps across the window, 3.99% (Q2FY25) -> 3.46% (Q1FY27, management-called 'cycle bottom'). Q1FY27 34bps YoY drop = 19bps repo cuts + 16bps mix. CASA thinned 41% -> 38%. Directly caps RoA and underpins the valuation discount.",
+     "mgmt_view": "3.8% 'through-cycle' NIM target 12-18 months post last rate cut; no hard bridge given."},
+    {"rank": 2, "title": "Deposit mobilization / high LDR", "severity": "Medium-High (easing)", "binding": "Was binding FY24-25, now loosening",
+     "evidence": "LDR ran 91-93% (high vs system). But Q1FY27 deposits +18% vs advances +19% is near-balanced, and cost of funds fell ~35 bps YoY as the rate cycle turned. Constraint has migrated into margin.",
+     "mgmt_view": "Shifted from chasing CASA ratio to granular, stable, lower-cost deposits; NTB balances +53% YoY."},
+    {"rank": 3, "title": "Asset-quality volatility & disclosure credibility", "severity": "Medium-High", "binding": "Multiple/reputational drag",
+     "evidence": "Three straight quarters of lumpy provisioning (Q1FY26 technical Rs 821cr; Q2FY26 RBI-advised Rs 1,231cr; Q4FY26 precautionary Rs 2,001cr). Underlying book is fine (GNPA 1.23-1.28%, NNPA ~0.39%, PCR ~70%) but earnings predictability suffered -> Nuvama downgrade to Hold, target cut to Rs 1,180.",
+     "mgmt_view": "'Slippages attributable to technical criteria will not result in an economic loss' (CFO); conservatism as 'strategic advantage'."},
+    {"rank": 4, "title": "Persistent valuation discount vs ICICI / HDFC", "severity": "Medium", "binding": "Symptom, self-reinforcing",
+     "evidence": "~30% P/E discount (Axis ~12-14x vs ICICI ~17x, HDFC ~19x). RoA ~1.5-1.85% vs ICICI ~2.4%, HDFC ~2.0%. The gap on RoA is real; re-rating hinges on NIM & earnings-consistency recovery.",
+     "mgmt_view": "GPS framework (Growth, Profitability, Sustainability); 18% ROE aspiration."},
+    {"rank": 5, "title": "Governance / CEO succession overhang", "severity": "Medium", "binding": "2027 cliff",
+     "evidence": "CEO Amitabh Chaudhry's term ends 31 Dec 2027, no named successor. Deputy MD Rajiv Anand retired Aug-2025 and became MD & CEO of IndusInd Bank — senior talent lost to a rival. Board runs with 2 EDs; RBI expects a 3rd.",
+     "mgmt_view": "NRC 'looking at' a third ED."},
+    {"rank": 6, "title": "Unsecured retail & MFI stress", "severity": "Low-Medium (normalizing)", "binding": "Contained",
+     "evidence": "Early flagger of cards/personal-loan stress in FY25; guided normalization by ~Q2FY26, Q1FY27 delinquencies improving. MFI is ~0.6-0.7% of total advances — immaterial vs MFI-heavy peers.",
+     "mgmt_view": "'Not material', within risk guardrails."},
+    {"rank": 7, "title": "Citibank integration", "severity": "Low (resolved)", "binding": "Largely behind",
+     "evidence": "Deal completed 2023 (~Rs 11,949 cr; Rs 5,728 cr Q4FY23 acquisition loss; ~Rs 1,500 cr integration cost; early deposit/AUM attrition). Technical migration done in 2024. Now cited mainly as a positive (top-3 cards) plus the FY26 tax benefit.",
+     "mgmt_view": "Underpins premium cards, Burgundy wealth, salary franchises."}
+  ],
+  "peers_approx": {
+    "note": "Approximate, from secondary aggregators as of ~mid-2026; validate before formal use.",
+    "rows": [
+      {"bank": "Axis Bank", "roa": 1.5, "roe": 14.2, "pe": 13, "nim": 3.46, "gnpa": 1.28},
+      {"bank": "ICICI Bank", "roa": 2.4, "roe": 17.9, "pe": 17, "nim": null, "gnpa": null},
+      {"bank": "HDFC Bank", "roa": 2.0, "roe": null, "pe": 19, "nim": 3.5, "gnpa": 1.2}
+    ]
+  }
+}
