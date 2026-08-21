@@ -22,6 +22,7 @@ TITLE = ParagraphStyle("title", parent=ss["Normal"], fontName="Helvetica-Bold",
                        fontSize=15, leading=19, textColor=NAVY, spaceAfter=3)
 SUB = ParagraphStyle("sub", parent=ss["Normal"], fontName="Helvetica",
                      fontSize=9.5, leading=13, textColor=SLATE, spaceAfter=14)
+SUB_TIGHT = ParagraphStyle("subtight", parent=SUB, spaceAfter=5)
 HEAD = ParagraphStyle("head", parent=ss["Normal"], fontName="Helvetica-Bold",
                       fontSize=11.5, leading=15, textColor=NAVY,
                       spaceBefore=12, spaceAfter=8)
@@ -32,11 +33,12 @@ SUBPOINT = ParagraphStyle("subpoint", parent=ss["Normal"], fontName="Helvetica",
                           fontSize=10, leading=14.5, textColor=INK,
                           leftIndent=33, bulletIndent=20, spaceAfter=5)
 
-# Each meeting: (filename, date label, "discussed with" line, sections)
+# Each meeting: (filename, workstream, date label, intro line(s), sections)
 # A section is (heading or None, [(text, level), ...]); level 0 = bullet, 1 = sub-bullet.
 MEETINGS = [
     (
         "omaxe-invoice-processing-mom-2026-08-20.pdf",
+        "Invoice Processing",
         "20th August, 2026",
         "Discussed with Raghu, Sandeep, Dileep and Udit",
         [(None, [
@@ -60,6 +62,7 @@ MEETINGS = [
     ),
     (
         "omaxe-invoice-processing-mom-2026-08-14.pdf",
+        "Invoice Processing",
         "14th August, 2026",
         "Discussed with — to be confirmed",
         [
@@ -104,10 +107,78 @@ MEETINGS = [
             ]),
         ],
     ),
+    (
+        "omaxe-perfo-processing-mom-2026-08-09.pdf",
+        "Perfo Processing",
+        "9th August, 2026",
+        ["Discussed with Kapil",
+         "<b>Scope</b> — Kapil’s work on Perfo processing, covering interest waiver, assured return "
+         "and its calculations from the term sheet, refund adjustment via affidavit processing, and "
+         "dealer commission and invoicing."],
+        [
+            ("Points discussed -", [
+                ("<b>No. of cases</b> — closed, open and pending, and <b>pending on whose head</b>", 0),
+                ("<b>Project wise, region wise</b> and overall views", 0),
+                ("<b>Date wise</b> view", 0),
+                ("<b>TAT breaches</b>, and the amount of breach in days", 0),
+                ("<b>Interest amount input</b>", 0),
+                ("<b>Report download with attachment</b>", 0),
+                ("Region wise / project wise <b>amount, waiver amount and discount</b>", 0),
+                ("<b>Drill down</b> — overall &gt; region &gt; project &gt; date", 0),
+                ("<b>TAT breaches</b>", 0),
+                ("<b>Project wise policy doc</b> — including interest rates, RERA and payment plan", 0),
+                ("<b>CRM reverts</b> in case of any findings based on policy", 0),
+                ("<b>Approved / rejected</b> after checks and balances", 0),
+                ("<b>Reduction rights</b> are there, but <b>increase rights are not</b> there", 0),
+                ("Where a <b>Perfo issue</b> is found, rights currently allow the case to be sent "
+                 "back only to the sender", 0),
+                ("User wants <b>forwarding rights</b> to the id", 1),
+                ("<b>Mail builder</b> based on the observation, so that the information can be "
+                 "shared with the users", 1),
+                ("<b>Case closure mail</b> and post approval analysis", 0),
+                ("Approval should be <b>on the go on phone</b> — preferred; print is not preferred, "
+                 "<b>paperless is the need</b>", 0),
+                ("User wants a <b>Gmail like interface</b> — multi select, click, and a detailed "
+                 "view appears to analyse and check", 0),
+                ("<b>Interest, penalty</b>", 0),
+                ("<b>Input type</b> — Excel with attachment", 0),
+            ]),
+            ("Product capabilities to be built -", [
+                ("<b>Case tracking and dashboard</b> -", 0),
+                ("Case status — closed / open / pending, with pendency mapped to the owner it is "
+                 "pending on", 1),
+                ("Drill down — overall &gt; region &gt; project &gt; date", 1),
+                ("Project wise, region wise, date wise and overall views", 1),
+                ("<b>TAT monitoring</b> -", 0),
+                ("TAT breach tracking, with the extent of breach in days", 1),
+                ("<b>Reporting</b> -", 0),
+                ("Region wise / project wise amount, waiver amount and discount", 1),
+                ("Report download with attachments", 1),
+                ("Post approval analysis", 1),
+                ("<b>Calculations and inputs</b> -", 0),
+                ("Interest amount input", 1),
+                ("Interest and penalty computation", 1),
+                ("Assured return calculation from the term sheet", 1),
+                ("Input via Excel with attachment", 1),
+                ("<b>Policy and controls</b> -", 0),
+                ("Project wise policy document — interest rates, RERA, payment plan", 1),
+                ("Validation of cases against the policy, with CRM revert on findings", 1),
+                ("Approve / reject after checks and balances", 1),
+                ("Rights — reduction allowed, increase not allowed", 1),
+                ("<b>Workflow and communication</b> -", 0),
+                ("Forwarding rights to another id, in addition to the current send back to sender", 1),
+                ("Mail builder driven by the observation recorded on the case", 1),
+                ("Case closure mail", 1),
+                ("<b>User experience</b> -", 0),
+                ("Approval on the go on mobile; paperless, no print", 1),
+                ("Gmail like case list — multi select, click through to a detailed view for analysis", 1),
+            ]),
+        ],
+    ),
 ]
 
 
-def make_decorator(date_label):
+def make_decorator(footer):
     def decorate(canvas, doc):
         canvas.saveState()
         canvas.setStrokeColor(RULE)
@@ -115,17 +186,19 @@ def make_decorator(date_label):
         canvas.line(MARGIN, MARGIN - 16, PAGE_W - MARGIN, MARGIN - 16)
         canvas.setFont("Helvetica", 7.8)
         canvas.setFillColor(SLATE)
-        canvas.drawString(MARGIN, MARGIN - 27,
-                          "MOM — Omaxe: Invoice Processing, %s" % date_label)
+        canvas.drawString(MARGIN, MARGIN - 27, footer)
         canvas.drawRightString(PAGE_W - MARGIN, MARGIN - 27, "Page %d" % doc.page)
         canvas.restoreState()
     return decorate
 
 
-def build(filename, date_label, attendees, sections):
+def build(filename, workstream, date_label, attendees, sections):
     path = "%s/%s" % (OUT_DIR, filename)
-    title = "MOM — Omaxe: Invoice Processing, %s" % date_label
-    story = [Paragraph(title, TITLE), Paragraph(attendees, SUB)]
+    title = "MOM — Omaxe: %s, %s" % (workstream, date_label)
+    intro = attendees if isinstance(attendees, (list, tuple)) else [attendees]
+    story = [Paragraph(title, TITLE)]
+    for i, line in enumerate(intro):
+        story.append(Paragraph(line, SUB if i == len(intro) - 1 else SUB_TIGHT))
     for heading, points in sections:
         if heading:
             story.append(Paragraph(heading, HEAD))
@@ -141,7 +214,7 @@ def build(filename, date_label, attendees, sections):
     frame = Frame(MARGIN, MARGIN, USABLE, PAGE_H - 2 * MARGIN, id="body",
                   leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
     doc.addPageTemplates([PageTemplate(id="main", frames=[frame],
-                                       onPage=make_decorator(date_label))])
+                                       onPage=make_decorator(title))])
     doc.build(story)
     print("built", path)
 
