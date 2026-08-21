@@ -144,14 +144,12 @@ MEETINGS = [
                 ("<b>Input type</b> — Excel with attachment", 0),
             ]),
             ("Product capabilities to be built -", [
-                ("<b>Case tracking and dashboard</b> -", 0),
+                ("<b>Dashboard and reporting</b> -", 0),
                 ("Case status — closed / open / pending, with pendency mapped to the owner it is "
                  "pending on", 1),
-                ("Drill down — overall &gt; region &gt; project &gt; date", 1),
-                ("Project wise, region wise, date wise and overall views", 1),
-                ("<b>TAT monitoring</b> -", 0),
+                ("Drill down — overall &gt; region &gt; project &gt; date, with project wise, "
+                 "region wise, date wise and overall views", 1),
                 ("TAT breach tracking, with the extent of breach in days", 1),
-                ("<b>Reporting</b> -", 0),
                 ("Region wise / project wise amount, waiver amount and discount", 1),
                 ("Report download with attachments", 1),
                 ("Post approval analysis", 1),

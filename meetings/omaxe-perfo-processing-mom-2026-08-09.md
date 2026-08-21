@@ -30,13 +30,10 @@
 
 ## Product capabilities to be built -
 
-- Case tracking and dashboard -
+- Dashboard and reporting -
   - Case status — closed / open / pending, with pendency mapped to the owner it is pending on
-  - Drill down — overall > region > project > date
-  - Project wise, region wise, date wise and overall views
-- TAT monitoring -
+  - Drill down — overall > region > project > date, with project wise, region wise, date wise and overall views
   - TAT breach tracking, with the extent of breach in days
-- Reporting -
   - Region wise / project wise amount, waiver amount and discount
   - Report download with attachments
   - Post approval analysis
