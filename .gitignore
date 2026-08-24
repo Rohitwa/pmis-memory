@@ -81,7 +81,8 @@ yantrai-vision-os-demo/
 yantrai_social_media_advisory.html
 
 # Claude Code internals
-.claude/
+.claude/*
+!.claude/commands/
 
 # Approval bot secrets
 pmis_v2/approval_config.yaml
