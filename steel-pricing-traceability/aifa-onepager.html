@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 210mm; height: 297mm;
+    background: #FFFFFF; color: #2A333D;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    display: flex; flex-direction: column;
+    padding: 18mm 16mm 14mm;
+  }
+  .head { display: flex; justify-content: space-between; align-items: baseline; }
+  .logo { font-size: 30px; font-weight: 700; letter-spacing: 0.02em; color: #1B222B; }
+  .logo span { color: #2E5A80; }
+  .tag { font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #5C6B7A; }
+  .rule { border: 0; border-top: 1.4px solid #1B222B; margin: 10px 0 0; }
+  .sub { font-size: 11.5px; color: #5C6B7A; margin: 12px 0 0; text-align: center; }
+  .fig { flex: 1; display: flex; align-items: center; justify-content: center; }
+  svg { width: 168mm; height: auto; }
+  .foot {
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #5C6B7A; text-align: center; border-top: 1px solid #D8DEE4; padding-top: 8px;
+  }
+  .foot b { color: #2E5A80; }
+</style>
+</head>
+<body>
+
+  <div class="head">
+    <div class="logo">Ai<span>FA</span></div>
+    <div class="tag">Real-time steel traceability</div>
+  </div>
+  <hr class="rule">
+  <p class="sub">Why steel price swings drain both margin and working capital — and the one fix underneath.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 660 640" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#5C6B7A"/>
+      </marker>
+      <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#2E5A80"/>
+      </marker>
+    </defs>
+
+    <!-- ROOT CAUSE -->
+    <rect x="150" y="14" width="360" height="66" rx="5" fill="#FFFFFF" stroke="#B26A12" stroke-width="1.8"/>
+    <text x="330" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#B26A12" letter-spacing="1">NO REAL-TIME TRACEABILITY</text>
+    <text x="330" y="62" text-anchor="middle" font-size="11" fill="#5C6B7A">of steel, from inventory to finished product</text>
+
+    <!-- leads to -->
+    <line x1="330" y1="80" x2="168" y2="138" stroke="#5C6B7A" stroke-width="1.3" marker-end="url(#a)"/>
+    <line x1="330" y1="80" x2="492" y2="138" stroke="#5C6B7A" stroke-width="1.3" marker-end="url(#a)"/>
+    <text x="330" y="122" text-anchor="middle" font-size="9.5" font-weight="600" letter-spacing="1.5" fill="#5C6B7A">LEADS TO</text>
+
+    <!-- CONSEQUENCES -->
+    <rect x="35" y="144" width="262" height="70" rx="5" fill="#FBF4EA" stroke="#B26A12" stroke-width="1.2"/>
+    <text x="166" y="173" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1B222B">Customers price on index</text>
+    <text x="166" y="193" text-anchor="middle" font-size="10.5" fill="#5C6B7A">price swings eat the margin</text>
+
+    <rect x="363" y="144" width="262" height="70" rx="5" fill="#FBF4EA" stroke="#B26A12" stroke-width="1.2"/>
+    <text x="494" y="173" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1B222B">Banks can't verify</text>
+    <text x="494" y="193" text-anchor="middle" font-size="10.5" fill="#5C6B7A">no short-term financing</text>
+
+    <!-- solved by -->
+    <line x1="166" y1="214" x2="308" y2="286" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+    <line x1="494" y1="214" x2="352" y2="286" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+    <text x="330" y="258" text-anchor="middle" font-size="9.5" font-weight="600" letter-spacing="1.5" fill="#2E5A80">SOLVED BY</text>
+
+    <!-- AiFA -->
+    <rect x="130" y="292" width="400" height="128" rx="6" fill="#E3ECF4" stroke="#2E5A80" stroke-width="2"/>
+    <text x="330" y="326" text-anchor="middle" font-size="21" font-weight="700" fill="#2E5A80" letter-spacing="0.5">AiFA</text>
+    <text x="330" y="346" text-anchor="middle" font-size="11" fill="#2A333D">agents structure the unstructured</text>
+    <rect x="158" y="362" width="96" height="24" rx="12" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1"/>
+    <text x="206" y="378" text-anchor="middle" font-size="10" fill="#2A333D">invoices</text>
+    <rect x="262" y="362" width="136" height="24" rx="12" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1"/>
+    <text x="330" y="378" text-anchor="middle" font-size="10" fill="#2A333D">test certificates</text>
+    <rect x="406" y="362" width="96" height="24" rx="12" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1"/>
+    <text x="454" y="378" text-anchor="middle" font-size="10" fill="#2A333D">BOMs</text>
+    <text x="330" y="406" text-anchor="middle" font-size="10.5" font-weight="600" fill="#2E5A80">→ live view of every kg, lot and price, across the chain</text>
+
+    <!-- delivers -->
+    <line x1="308" y1="420" x2="168" y2="492" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+    <line x1="352" y1="420" x2="492" y2="492" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+    <text x="330" y="464" text-anchor="middle" font-size="9.5" font-weight="600" letter-spacing="1.5" fill="#2E5A80">DELIVERS</text>
+
+    <!-- OUTCOMES -->
+    <rect x="35" y="498" width="262" height="70" rx="5" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.6"/>
+    <text x="166" y="527" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2E5A80">Claims settle on actuals</text>
+    <text x="166" y="547" text-anchor="middle" font-size="10.5" fill="#5C6B7A">recover what the index missed</text>
+
+    <rect x="363" y="498" width="262" height="70" rx="5" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.6"/>
+    <text x="494" y="527" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2E5A80">Financing unlocked</text>
+    <text x="494" y="547" text-anchor="middle" font-size="10.5" fill="#5C6B7A">banks lend on proof · cash in days</text>
+  </svg>
+  </div>
+
+  <div class="foot">trace the steel <b>→</b> prove the money <b>→</b> move the money</div>
+
+</body>
+</html>
