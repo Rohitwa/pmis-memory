@@ -1,0 +1,126 @@
+<title>Metal Cost Ledger Blueprint</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root {
+    --ink: #1B222B;
+    --body-c: #2A333D;
+    --muted: #5C6B7A;
+    --ground: #F6F8F9;
+    --surface: #FFFFFF;
+    --line: #D8DEE4;
+    --accent: #2E5A80;
+    --accent-soft: #E3ECF4;
+    --amber: #B26A12;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #E8EDF2; --body-c: #C6CFD8; --muted: #8B99A7;
+      --ground: #14181D; --surface: #1C2229; --line: #323C47;
+      --accent: #7FABD1; --accent-soft: #24313E; --amber: #D99A45;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #E8EDF2; --body-c: #C6CFD8; --muted: #8B99A7;
+    --ground: #14181D; --surface: #1C2229; --line: #323C47;
+    --accent: #7FABD1; --accent-soft: #24313E; --amber: #D99A45;
+  }
+  body {
+    background: var(--ground); color: var(--body-c);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1rem; line-height: 1.6;
+    margin: 0; padding: 3.25rem 1.25rem 4.5rem;
+  }
+  .page { max-width: 70ch; margin: 0 auto; }
+  .eyebrow {
+    font-family: Archivo, Arial, sans-serif; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 0.7rem;
+  }
+  h1 {
+    font-family: Archivo, Arial, sans-serif; font-weight: 700;
+    font-size: clamp(1.8rem, 4.2vw, 2.3rem); line-height: 1.15;
+    color: var(--ink); text-wrap: balance; margin: 0 0 0.5rem;
+  }
+  .standfirst { font-size: 1.08rem; font-style: italic; color: var(--muted); margin: 0 0 2rem; }
+  h2 {
+    font-family: Archivo, Arial, sans-serif; font-size: 0.76rem; font-weight: 600;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent);
+    border-top: 1px solid var(--line); padding-top: 1.3rem; margin: 2.1rem 0 0.7rem;
+  }
+  p { margin: 0 0 0.9rem; }
+  strong { color: var(--ink); font-weight: 600; }
+  .chain {
+    font-family: Archivo, Arial, sans-serif; font-size: 0.85rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+    padding: 0.85rem 1rem; overflow-x: auto; white-space: nowrap; color: var(--ink);
+  }
+  .chain span { color: var(--accent); font-weight: 700; padding: 0 0.35rem; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; margin: 1.1rem 0 0.4rem; }
+  @media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
+    border-top: 3px solid var(--accent); padding: 0.85rem 0.95rem;
+  }
+  .card h3 {
+    font-family: Archivo, Arial, sans-serif; font-size: 0.82rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin: 0 0 0.35rem;
+  }
+  .card p { font-size: 0.9rem; margin: 0; color: var(--body-c); }
+  ol.phases { margin: 0.4rem 0 0.9rem; padding-left: 1.3rem; }
+  ol.phases li { margin-bottom: 0.55rem; }
+  ul.plain { margin: 0.4rem 0 0.9rem; padding-left: 1.3rem; }
+  ul.plain li { margin-bottom: 0.4rem; }
+  .closing {
+    border-top: 1px solid var(--line); margin-top: 2.3rem; padding-top: 1.1rem;
+    font-family: Archivo, Arial, sans-serif; font-size: 0.72rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: center;
+  }
+</style>
+
+<div class="page">
+  <p class="eyebrow">Solution brief · one page</p>
+  <h1>Metal Cost Ledger Blueprint</h1>
+  <p class="standfirst">One system that traces the metal, proves the money, and moves the money — for component makers squeezed between market-priced inputs and index-priced outputs.</p>
+
+  <h2>The principle</h2>
+  <p>Every leak in the chain — untraceable part costs, disputed claims, unfinanceable receivables — has one root: <strong>verifying reality at part level was always too expensive</strong>, so the industry runs on proxies (indices, average costs, balance sheets). AI agents collapse the cost of verification. Nothing new is created; the paperwork that already exists becomes an asset.</p>
+
+  <h2>The core asset — a per-part ledger</h2>
+  <p>A continuously maintained genealogy for every part number shipped:</p>
+  <div class="chain">part <span>←</span> BOM metal content <span>←</span> purchase lots (heat no.) <span>←</span> actual landed cost, net of actual scrap</div>
+  <p style="margin-top:0.9rem">Set against customer price circulars and index publications, it yields the one number nobody has today: <strong>actual vs reimbursed metal cost, per part, per month</strong> — with the gap decomposed into timing lag, grade basis, recovery factor, and yield drift.</p>
+
+  <h2>How it is built</h2>
+  <ul class="plain">
+    <li><strong>Ingestion agents</strong> read the documents where the truth already lives: mill invoices, test certificates, POs and goods receipts, BOMs and drawings, price amendment letters, scrap sale invoices.</li>
+    <li><strong>Reconciliation agents</strong> map purchase lots to parts through BOM and consumption records — and flag gaps, grade substitutions, and yield drift for human review rather than guessing.</li>
+    <li><strong>No system integration to start.</strong> Documents in, ledger out. ERP hooks come only after the value is proven.</li>
+  </ul>
+
+  <h2>What the ledger powers</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Claim</h3>
+      <p>Price-adjustment claims auto-assembled in each customer's format, every line backed invoice-to-shipment. Settled fully and fast instead of negotiated late and partially. A person approves every submission.</p>
+    </div>
+    <div class="card">
+      <h3>Cash</h3>
+      <p>The proven claim becomes bankable: a financier advances against it in days and carries the wait, repaid when the amendment lands. Ledger-valued stock unlocks the same for inventory — including mill consignment, pay-on-consumption.</p>
+    </div>
+    <div class="card">
+      <h3>Terms</h3>
+      <p>Every clause — index choice, reset frequency, recovery factor, scrap convention — back-tested against price history to show its cost per year. Evidence in hand at the next renewal, plus a pass-through score lenders can price credit on.</p>
+    </div>
+  </div>
+
+  <h2>Rollout</h2>
+  <ol class="phases">
+    <li><strong>Metal margin audit</strong> — 4–6 weeks, one quarter of documents in, a per-part leakage number out. Proves the value before any platform commitment.</li>
+    <li><strong>Continuous ledger</strong> — live leakage tracking and claim automation as a running system.</li>
+    <li><strong>Finance layer</strong> — claim and inventory financing with partner institutions; extend the same mechanics one tier down the chain.</li>
+  </ol>
+
+  <h2>Guardrails</h2>
+  <p>Agents propose, people submit — no claim leaves without human sign-off. Each company's data stays in its own deployment. Accuracy is the product: one wrong claim costs more than a hundred right ones earn.</p>
+
+  <p class="closing">trace the metal → prove the money → move the money</p>
+</div>
