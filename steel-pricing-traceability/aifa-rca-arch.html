@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 210mm; height: 297mm;
+    background: #FFFFFF; color: #2A333D;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    display: flex; flex-direction: column;
+    padding: 15mm 16mm 12mm;
+  }
+  .head { display: flex; justify-content: space-between; align-items: baseline; }
+  .logo { font-size: 28px; font-weight: 700; letter-spacing: 0.02em; color: #1B222B; }
+  .logo span { color: #2E5A80; }
+  .tag { font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #5C6B7A; }
+  .rule { border: 0; border-top: 1.4px solid #1B222B; margin: 8px 0 0; }
+  .sub { font-size: 11px; color: #5C6B7A; margin: 9px 0 0; text-align: center; }
+  .fig { flex: 1; display: flex; align-items: center; justify-content: center; }
+  svg { width: 172mm; height: auto; }
+  .foot {
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #5C6B7A; text-align: center; border-top: 1px solid #D8DEE4; padding-top: 7px;
+  }
+  .foot b { color: #2E5A80; }
+</style>
+</head>
+<body>
+
+  <div class="head">
+    <div class="logo">Ai<span>FA</span></div>
+    <div class="tag">Root cause &rarr; solution &rarr; architecture</div>
+  </div>
+  <hr class="rule">
+  <p class="sub">Two losses, traced to their root — and the system that removes it.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 660 758" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#5C6B7A"/>
+      </marker>
+      <marker id="m" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#B26A12"/>
+      </marker>
+      <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#2E5A80"/>
+      </marker>
+    </defs>
+
+    <!-- ===== RCA LANES ===== -->
+    <text x="166" y="16" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#B26A12">PROBLEM 1 · MARGIN LOSS</text>
+    <text x="494" y="16" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#B26A12">PROBLEM 2 · CASH SHORTFALL</text>
+
+    <rect x="35" y="26" width="262" height="38" rx="4" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1.1"/>
+    <text x="166" y="49" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B222B">Paid on index, buy at market</text>
+
+    <line x1="166" y1="64" x2="166" y2="84" stroke="#5C6B7A" stroke-width="1.2" marker-end="url(#g)"/>
+    <text x="178" y="78" font-size="9" font-style="italic" fill="#5C6B7A">why</text>
+
+    <rect x="35" y="88" width="262" height="38" rx="4" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1.1"/>
+    <text x="166" y="111" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B222B">Actual cost per part can't be proven</text>
+
+    <line x1="166" y1="126" x2="166" y2="146" stroke="#5C6B7A" stroke-width="1.2" marker-end="url(#g)"/>
+    <text x="178" y="140" font-size="9" font-style="italic" fill="#5C6B7A">why</text>
+
+    <rect x="35" y="150" width="262" height="50" rx="4" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1.1"/>
+    <text x="166" y="171" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B222B">Metal loses identity in production</text>
+    <text x="166" y="189" text-anchor="middle" font-size="10" fill="#5C6B7A">proof scattered across papers</text>
+
+    <rect x="363" y="26" width="262" height="38" rx="4" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1.1"/>
+    <text x="494" y="49" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B222B">Cash out day 0 · cash in day 180</text>
+
+    <line x1="494" y1="64" x2="494" y2="84" stroke="#5C6B7A" stroke-width="1.2" marker-end="url(#g)"/>
+    <text x="506" y="78" font-size="9" font-style="italic" fill="#5C6B7A">why</text>
+
+    <rect x="363" y="88" width="262" height="38" rx="4" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1.1"/>
+    <text x="494" y="111" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B222B">Banks won't fund the wait</text>
+
+    <line x1="494" y1="126" x2="494" y2="146" stroke="#5C6B7A" stroke-width="1.2" marker-end="url(#g)"/>
+    <text x="506" y="140" font-size="9" font-style="italic" fill="#5C6B7A">why</text>
+
+    <rect x="363" y="150" width="262" height="50" rx="4" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1.1"/>
+    <text x="494" y="171" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B222B">Claim &amp; stock have no record</text>
+    <text x="494" y="189" text-anchor="middle" font-size="10" fill="#5C6B7A">nothing a lender can verify</text>
+
+    <!-- converge to root -->
+    <line x1="166" y1="200" x2="314" y2="244" stroke="#B26A12" stroke-width="1.3" marker-end="url(#m)"/>
+    <line x1="494" y1="200" x2="346" y2="244" stroke="#B26A12" stroke-width="1.3" marker-end="url(#m)"/>
+
+    <rect x="150" y="250" width="360" height="52" rx="5" fill="#FBF4EA" stroke="#B26A12" stroke-width="1.8"/>
+    <text x="330" y="271" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#B26A12">ONE ROOT CAUSE</text>
+    <text x="330" y="291" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1B222B">Steel movement isn't traceable in real time</text>
+
+    <!-- addressed by -->
+    <line x1="330" y1="302" x2="330" y2="338" stroke="#2E5A80" stroke-width="1.4" marker-end="url(#b)"/>
+    <text x="342" y="326" font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#2E5A80">ADDRESSED BY</text>
+
+    <!-- ===== ARCHITECTURE ===== -->
+    <rect x="35" y="346" width="590" height="392" rx="8" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.6"/>
+    <rect x="296" y="336" width="68" height="20" fill="#FFFFFF"/>
+    <text x="330" y="351" text-anchor="middle" font-size="14" font-weight="700" fill="#2E5A80">AiFA</text>
+
+    <!-- sources -->
+    <text x="330" y="382" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="1.5" fill="#5C6B7A">SOURCES · UNSTRUCTURED</text>
+    <rect x="109" y="392" width="78" height="24" rx="12" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1"/>
+    <text x="148" y="408" text-anchor="middle" font-size="9.5" fill="#2A333D">invoices</text>
+    <rect x="197" y="392" width="112" height="24" rx="12" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1"/>
+    <text x="253" y="408" text-anchor="middle" font-size="9.5" fill="#2A333D">test certificates</text>
+    <rect x="319" y="392" width="58" height="24" rx="12" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1"/>
+    <text x="348" y="408" text-anchor="middle" font-size="9.5" fill="#2A333D">BOMs</text>
+    <rect x="387" y="392" width="58" height="24" rx="12" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1"/>
+    <text x="416" y="408" text-anchor="middle" font-size="9.5" fill="#2A333D">GRNs</text>
+    <rect x="455" y="392" width="96" height="24" rx="12" fill="#FFFFFF" stroke="#C9D2DA" stroke-width="1"/>
+    <text x="503" y="408" text-anchor="middle" font-size="9.5" fill="#2A333D">price letters</text>
+
+    <line x1="330" y1="420" x2="330" y2="444" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+
+    <!-- agents -->
+    <text x="330" y="458" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="1.5" fill="#5C6B7A">AGENTS · STRUCTURE THE UNSTRUCTURED</text>
+    <rect x="61" y="468" width="170" height="48" rx="4" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.2"/>
+    <text x="146" y="488" text-anchor="middle" font-size="11" font-weight="700" fill="#1B222B">EXTRACT</text>
+    <text x="146" y="505" text-anchor="middle" font-size="9.5" fill="#5C6B7A">read every document</text>
+    <rect x="245" y="468" width="170" height="48" rx="4" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.2"/>
+    <text x="330" y="488" text-anchor="middle" font-size="11" font-weight="700" fill="#1B222B">RECONCILE</text>
+    <text x="330" y="505" text-anchor="middle" font-size="9.5" fill="#5C6B7A">map lot &rarr; part &rarr; price</text>
+    <rect x="429" y="468" width="170" height="48" rx="4" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.2"/>
+    <text x="514" y="488" text-anchor="middle" font-size="11" font-weight="700" fill="#1B222B">VERIFY</text>
+    <text x="514" y="505" text-anchor="middle" font-size="9.5" fill="#5C6B7A">flag gaps · human check</text>
+
+    <line x1="330" y1="516" x2="330" y2="540" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+
+    <!-- ledger -->
+    <text x="330" y="554" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="1.5" fill="#5C6B7A">LEDGER · SINGLE SOURCE OF TRUTH</text>
+    <rect x="130" y="564" width="400" height="54" rx="5" fill="#E3ECF4" stroke="#2E5A80" stroke-width="2"/>
+    <text x="330" y="586" text-anchor="middle" font-size="13" font-weight="700" fill="#2E5A80" letter-spacing="0.5">STEEL MOVEMENT LEDGER</text>
+    <text x="330" y="605" text-anchor="middle" font-size="10.5" fill="#2A333D">every kg · lot · price · part — live</text>
+
+    <line x1="308" y1="618" x2="176" y2="652" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+    <line x1="352" y1="618" x2="484" y2="652" stroke="#2E5A80" stroke-width="1.3" marker-end="url(#b)"/>
+
+    <!-- outcomes -->
+    <text x="330" y="650" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="1.5" fill="#5C6B7A">OUTCOMES</text>
+    <rect x="65" y="660" width="230" height="54" rx="4" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.5"/>
+    <text x="180" y="682" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2E5A80">Claims on actuals</text>
+    <text x="180" y="700" text-anchor="middle" font-size="9.5" fill="#5C6B7A">customers &middot; closes problem 1</text>
+    <rect x="365" y="660" width="230" height="54" rx="4" fill="#FFFFFF" stroke="#2E5A80" stroke-width="1.5"/>
+    <text x="480" y="682" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2E5A80">Proof for finance</text>
+    <text x="480" y="700" text-anchor="middle" font-size="9.5" fill="#5C6B7A">banks &middot; closes problem 2</text>
+  </svg>
+  </div>
+
+  <div class="foot">trace the steel <b>&rarr;</b> prove the money <b>&rarr;</b> move the money</div>
+
+</body>
+</html>
