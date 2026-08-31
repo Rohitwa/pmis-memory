@@ -1,0 +1,226 @@
+<title>The Leak and the Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap">
+<style>
+  :root {
+    --ink: #1B222B;
+    --body-c: #2A333D;
+    --muted: #5C6B7A;
+    --ground: #F6F8F9;
+    --surface: #FFFFFF;
+    --line: #D8DEE4;
+    --accent: #2E5A80;
+    --accent-soft: #E3ECF4;
+    --amber: #B26A12;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #E8EDF2;
+      --body-c: #C6CFD8;
+      --muted: #8B99A7;
+      --ground: #14181D;
+      --surface: #1C2229;
+      --line: #323C47;
+      --accent: #7FABD1;
+      --accent-soft: #24313E;
+      --amber: #D99A45;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #E8EDF2;
+    --body-c: #C6CFD8;
+    --muted: #8B99A7;
+    --ground: #14181D;
+    --surface: #1C2229;
+    --line: #323C47;
+    --accent: #7FABD1;
+    --accent-soft: #24313E;
+    --amber: #D99A45;
+  }
+  body {
+    background: var(--ground);
+    color: var(--body-c);
+    font-family: "Source Serif 4", Georgia, serif;
+    margin: 0;
+    padding: 3rem 1.25rem 4.5rem;
+    line-height: 1.6;
+  }
+  .page { max-width: 780px; margin: 0 auto; }
+  .eyebrow {
+    font-family: Archivo, Arial, sans-serif;
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 0.6rem;
+  }
+  h1 {
+    font-family: Archivo, Arial, sans-serif;
+    font-size: clamp(1.7rem, 4vw, 2.2rem); font-weight: 700;
+    color: var(--ink); margin: 0 0 2.2rem; text-wrap: balance;
+  }
+  figure {
+    margin: 0 0 2.8rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.5rem 1.25rem 1rem;
+  }
+  figure svg { display: block; max-width: 100%; height: auto; margin: 0 auto; color: var(--body-c); }
+  figcaption {
+    font-size: 0.95rem; color: var(--muted);
+    border-top: 1px solid var(--line);
+    margin-top: 1.1rem; padding-top: 0.8rem;
+  }
+  figcaption b { color: var(--ink); font-weight: 600; }
+  .fig-num {
+    font-family: Archivo, Arial, sans-serif;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent);
+    display: block; margin-bottom: 0.15rem;
+  }
+  .box { fill: var(--surface); stroke: currentColor; stroke-width: 1.2; }
+  .box-hero { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.6; }
+  .chip { fill: var(--surface); stroke: currentColor; stroke-width: 1; }
+  .dim { opacity: 0.45; }
+  .flow { stroke: currentColor; stroke-width: 1.4; fill: none; }
+  .flow-a { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+  .leak { stroke: var(--amber); stroke-width: 2; fill: none; }
+  .leak-t { fill: var(--amber); }
+  .ttl { font-family: Archivo, Arial, sans-serif; font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .ttl-a { font-family: Archivo, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: var(--accent); letter-spacing: 0.06em; }
+  .lbl { font-family: Archivo, Arial, sans-serif; font-size: 11px; fill: var(--muted); }
+  .lbl-i { font-family: Archivo, Arial, sans-serif; font-size: 11px; fill: currentColor; }
+</style>
+
+<div class="page">
+  <p class="eyebrow">Steel pricing traceability · schema</p>
+  <h1>The Leak and the Ledger</h1>
+
+  <!-- FIGURE 1 · THE PROBLEM -->
+  <figure>
+    <svg viewBox="0 0 720 258" role="img" aria-label="A component maker buys steel at live prices paid immediately, sells parts paid late at old index prices, and finances the gap — where margin and cash leak.">
+      <defs>
+        <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="currentColor"/>
+        </marker>
+        <marker id="ar-am" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--amber)"/>
+        </marker>
+      </defs>
+
+      <rect class="box" x="48" y="48" width="128" height="56" rx="4"/>
+      <text class="ttl" x="112" y="81" text-anchor="middle">MILL</text>
+
+      <rect class="box-hero" x="296" y="48" width="128" height="56" rx="4"/>
+      <text class="ttl" x="360" y="81" text-anchor="middle">MAKER</text>
+
+      <rect class="box" x="544" y="48" width="128" height="56" rx="4"/>
+      <text class="ttl" x="608" y="81" text-anchor="middle">OEM</text>
+
+      <line class="flow" x1="180" y1="64" x2="288" y2="64" marker-end="url(#ar)"/>
+      <text class="lbl" x="234" y="54" text-anchor="middle">steel · live price</text>
+      <line class="flow" x1="288" y1="92" x2="184" y2="92" marker-end="url(#ar)"/>
+      <text class="lbl" x="234" y="112" text-anchor="middle">cash · now</text>
+
+      <line class="flow" x1="428" y1="64" x2="536" y2="64" marker-end="url(#ar)"/>
+      <text class="lbl" x="482" y="54" text-anchor="middle">parts</text>
+      <line class="flow" x1="536" y1="92" x2="432" y2="92" marker-end="url(#ar)"/>
+      <text class="lbl" x="482" y="112" text-anchor="middle">cash · late · old index</text>
+
+      <line class="leak" x1="340" y1="108" x2="334" y2="134"/>
+      <line class="leak" x1="360" y1="108" x2="358" y2="138"/>
+      <line class="leak" x1="380" y1="108" x2="384" y2="134"/>
+      <text class="leak-t lbl" x="360" y="156" text-anchor="middle" style="fill: var(--amber); font-weight:600">the leak</text>
+
+      <line class="flow" x1="80" y1="210" x2="640" y2="210"/>
+      <line class="flow" x1="120" y1="203" x2="120" y2="217"/>
+      <line class="flow" x1="560" y1="203" x2="560" y2="217"/>
+      <line class="leak" x1="120" y1="210" x2="560" y2="210"/>
+      <text class="lbl" x="120" y="236" text-anchor="middle">day 0 · pays mill</text>
+      <text class="lbl" x="560" y="236" text-anchor="middle">day 90–180 · gets paid</text>
+      <text class="leak-t lbl" x="340" y="196" text-anchor="middle">maker finances this gap</text>
+    </svg>
+    <figcaption><span class="fig-num">1 · Problem</span>The maker buys at <b>live prices, cash now</b> — and is paid at <b>old index prices, months later</b>. Margin and cash leak in between.</figcaption>
+  </figure>
+
+  <!-- FIGURE 2 · THE ROOT CAUSE -->
+  <figure>
+    <svg viewBox="0 0 720 230" role="img" aria-label="The facts live in scattered paper that is too costly to verify, so prices, claims and loans are decided on proxies instead.">
+      <rect class="chip dim" x="48" y="40" width="112" height="26" rx="13"/>
+      <text class="lbl-i dim" x="104" y="57" text-anchor="middle">invoice</text>
+      <rect class="chip dim" x="48" y="76" width="112" height="26" rx="13"/>
+      <text class="lbl-i dim" x="104" y="93" text-anchor="middle">certificate</text>
+      <rect class="chip dim" x="48" y="112" width="112" height="26" rx="13"/>
+      <text class="lbl-i dim" x="104" y="129" text-anchor="middle">BOM</text>
+      <rect class="chip dim" x="48" y="148" width="112" height="26" rx="13"/>
+      <text class="lbl-i dim" x="104" y="165" text-anchor="middle">shipment</text>
+      <text class="lbl" x="104" y="200" text-anchor="middle">the facts · scattered</text>
+
+      <line class="flow" x1="172" y1="107" x2="312" y2="107" stroke-dasharray="4 4"/>
+      <line class="flow" x1="322" y1="97" x2="342" y2="117" stroke-width="2"/>
+      <line class="flow" x1="342" y1="97" x2="322" y2="117" stroke-width="2"/>
+      <text class="lbl" x="332" y="86" text-anchor="middle">too costly to verify</text>
+
+      <rect class="box" x="470" y="24" width="202" height="34" rx="4" stroke-dasharray="4 4"/>
+      <text class="lbl-i" x="571" y="45" text-anchor="middle">proxies · index · averages · history</text>
+      <line class="flow" x1="571" y1="58" x2="571" y2="86" marker-end="url(#ar2)"/>
+      <defs>
+        <marker id="ar2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <rect class="box" x="470" y="94" width="202" height="80" rx="4"/>
+      <text class="ttl" x="571" y="126" text-anchor="middle">DECISIONS</text>
+      <text class="lbl" x="571" y="150" text-anchor="middle">part price · claim · loan</text>
+    </svg>
+    <figcaption><span class="fig-num">2 · Root cause</span>The facts exist but are <b>too costly to verify</b> — so every decision runs on <b>proxies</b>. Each leak is the gap between a proxy and reality.</figcaption>
+  </figure>
+
+  <!-- FIGURE 3 · THE SOLUTION -->
+  <figure>
+    <svg viewBox="0 0 720 244" role="img" aria-label="AI agents read the same scattered documents into one per-part ledger of truth, which powers three things: claims paid fully, cash advanced now, and fairer contract terms.">
+      <rect class="chip" x="48" y="34" width="112" height="26" rx="13"/>
+      <text class="lbl-i" x="104" y="51" text-anchor="middle">invoice</text>
+      <rect class="chip" x="48" y="70" width="112" height="26" rx="13"/>
+      <text class="lbl-i" x="104" y="87" text-anchor="middle">certificate</text>
+      <rect class="chip" x="48" y="106" width="112" height="26" rx="13"/>
+      <text class="lbl-i" x="104" y="123" text-anchor="middle">BOM</text>
+      <rect class="chip" x="48" y="142" width="112" height="26" rx="13"/>
+      <text class="lbl-i" x="104" y="159" text-anchor="middle">shipment</text>
+
+      <line class="flow-a" x1="172" y1="97" x2="292" y2="105" marker-end="url(#ar-a)"/>
+      <text class="lbl" x="232" y="86" text-anchor="middle">agents read</text>
+      <defs>
+        <marker id="ar-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+        </marker>
+      </defs>
+
+      <rect class="box-hero" x="300" y="62" width="152" height="92" rx="5"/>
+      <text class="ttl-a" x="376" y="100" text-anchor="middle">LEDGER</text>
+      <text class="lbl" x="376" y="122" text-anchor="middle">per-part truth</text>
+      <text class="lbl" x="376" y="138" text-anchor="middle">metal · price · part</text>
+
+      <line class="flow-a" x1="456" y1="82" x2="536" y2="46" marker-end="url(#ar-a)"/>
+      <text class="lbl" x="496" y="50" text-anchor="middle">proof</text>
+      <line class="flow-a" x1="456" y1="108" x2="536" y2="118" marker-end="url(#ar-a)"/>
+      <text class="lbl" x="496" y="103" text-anchor="middle">collateral</text>
+      <line class="flow-a" x1="456" y1="134" x2="536" y2="190" marker-end="url(#ar-a)"/>
+      <text class="lbl" x="482" y="176" text-anchor="middle">evidence</text>
+
+      <rect class="box" x="544" y="24" width="152" height="44" rx="4"/>
+      <text class="ttl" x="620" y="42" text-anchor="middle">CLAIM</text>
+      <text class="lbl" x="620" y="58" text-anchor="middle">paid fully</text>
+
+      <rect class="box" x="544" y="98" width="152" height="44" rx="4"/>
+      <text class="ttl" x="620" y="116" text-anchor="middle">CASH</text>
+      <text class="lbl" x="620" y="132" text-anchor="middle">paid now</text>
+
+      <rect class="box" x="544" y="172" width="152" height="44" rx="4"/>
+      <text class="ttl" x="620" y="190" text-anchor="middle">TERMS</text>
+      <text class="lbl" x="620" y="206" text-anchor="middle">fairer next deal</text>
+    </svg>
+    <figcaption><span class="fig-num">3 · Solution</span>Agents make verification cheap: the same scattered paper becomes <b>one ledger of per-part truth</b> — spent three ways: <b>claim</b> (recover what's owed), <b>cash</b> (finance it today), <b>terms</b> (renegotiate with evidence).</figcaption>
+  </figure>
+
+  <p style="font-family: Archivo, Arial, sans-serif; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: center;">truth → recovery → liquidity → terms</p>
+</div>
