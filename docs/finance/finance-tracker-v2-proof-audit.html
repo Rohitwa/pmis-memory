@@ -1,0 +1,482 @@
+<title>Proof Gap Audit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#F5F8F6;
+    --surface:#FFFFFF;
+    --surface-2:#EDF2F0;
+    --ink:#14231E;
+    --ink-2:#4E5F59;
+    --ink-3:#7C8B85;
+    --rule:#D9E2DE;
+    --rule-2:#C3D0CB;
+    --accent:#0E5648;
+    --accent-soft:#DCEAE5;
+    --gap:#A33A22;
+    --gap-soft:#F6E2DC;
+    --ok:#2F6B45;
+    --ok-soft:#DFEBE2;
+    --watch:#8A6511;
+    --watch-soft:#F3E9CF;
+    --display:"Newsreader",Georgia,"Times New Roman",serif;
+    --body:"IBM Plex Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+    --col:74ch;
+    --wide:min(1080px,100%);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1513;--surface:#161E1B;--surface-2:#1D2724;
+      --ink:#E3EAE6;--ink-2:#A3B2AC;--ink-3:#7D8C86;
+      --rule:#2A3532;--rule-2:#3A4743;
+      --accent:#57C4A9;--accent-soft:#17302A;
+      --gap:#E0765A;--gap-soft:#331B14;
+      --ok:#69B583;--ok-soft:#152A1D;
+      --watch:#C9A44E;--watch-soft:#2C2412;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1513;--surface:#161E1B;--surface-2:#1D2724;
+    --ink:#E3EAE6;--ink-2:#A3B2AC;--ink-3:#7D8C86;
+    --rule:#2A3532;--rule-2:#3A4743;
+    --accent:#57C4A9;--accent-soft:#17302A;
+    --gap:#E0765A;--gap-soft:#331B14;
+    --ok:#69B583;--ok-soft:#152A1D;
+    --watch:#C9A44E;--watch-soft:#2C2412;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--ground);color:var(--ink);font-family:var(--body);
+       font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+       padding:0 20px 96px}
+  .wrap{max-width:var(--wide);margin:0 auto}
+  .col{max-width:var(--col)}
+  p,li{color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:600}
+  a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+  code,.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  code{font-size:.88em;background:var(--surface-2);padding:.1em .35em;border-radius:3px}
+
+  /* masthead */
+  header{padding:56px 0 0}
+  .eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+           color:var(--ink-3);font-weight:500}
+  h1{font-family:var(--display);font-weight:500;font-size:clamp(34px,5.4vw,52px);
+     line-height:1.06;letter-spacing:-.015em;margin:14px 0 0;text-wrap:balance}
+  h1 em{font-style:italic;color:var(--accent)}
+  .standfirst{font-family:var(--display);font-size:19px;line-height:1.5;
+              color:var(--ink-2);margin:18px 0 0;max-width:62ch}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin:26px 0 0;
+        padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+        font-size:12.5px;color:var(--ink-3)}
+  .meta b{color:var(--ink-2);font-weight:500}
+
+  h2{font-family:var(--display);font-weight:500;font-size:27px;line-height:1.2;
+     letter-spacing:-.01em;margin:0;text-wrap:balance}
+  h3{font-size:14px;font-weight:600;letter-spacing:.01em;margin:0;color:var(--ink)}
+  section{margin-top:56px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--ink-3);
+           padding-top:6px;flex:none}
+  .lede{margin:10px 0 0}
+
+  /* coverage */
+  .cov{margin-top:26px;display:flex;flex-direction:column;gap:0;
+       border-top:1px solid var(--rule)}
+  .cov-row{display:grid;grid-template-columns:minmax(150px,1.1fr) 96px minmax(120px,1.4fr) minmax(104px,auto);
+           gap:16px;align-items:center;padding:13px 0;border-bottom:1px solid var(--rule)}
+  .cov-name{font-weight:500;color:var(--ink);font-size:14px}
+  .cov-frac{font-family:var(--mono);font-size:13px;color:var(--ink-2);
+            font-variant-numeric:tabular-nums;white-space:nowrap}
+  .bar{height:9px;background:var(--gap-soft);border-radius:1px;overflow:hidden;
+       display:flex}
+  .bar i{display:block;background:var(--ok);height:100%}
+  .cov-val{font-family:var(--mono);font-size:13px;text-align:right;
+           color:var(--gap);white-space:nowrap}
+  .cov-val.none{color:var(--ink-3)}
+  .cov-foot{margin-top:14px;font-size:12.5px;color:var(--ink-3);max-width:70ch}
+
+  /* callout */
+  .flag{margin-top:26px;background:var(--surface);border:1px solid var(--rule);
+        border-left:3px solid var(--gap);padding:20px 22px;border-radius:2px}
+  .flag h3{margin-bottom:7px}
+  .flag p{margin:0;font-size:14.5px}
+  .flag + .flag{margin-top:12px}
+  .flag.watch{border-left-color:var(--watch)}
+  .flag.resolved{border-left-color:var(--ok)}
+
+  /* tables */
+  .scroll{overflow-x:auto;margin-top:22px;border:1px solid var(--rule);
+          border-radius:2px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+  caption{text-align:left;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+          color:var(--ink-3);padding:14px 16px 0;font-weight:500}
+  th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+     color:var(--ink-3);font-weight:600;padding:14px 14px 8px;
+     border-bottom:1px solid var(--rule-2);white-space:nowrap;vertical-align:bottom}
+  td{padding:9px 14px;border-bottom:1px solid var(--rule);vertical-align:top;
+     color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:0}
+  .r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;
+     white-space:nowrap;color:var(--ink)}
+  .d{font-family:var(--mono);font-size:12.5px;white-space:nowrap;color:var(--ink-3)}
+  .ref{font-family:var(--mono);font-size:12.5px;color:var(--ink);white-space:nowrap}
+  .who{white-space:nowrap;font-size:12.5px}
+  tr.big td{background:var(--gap-soft)}
+  tr.big .r{color:var(--gap);font-weight:500}
+  tfoot td{padding:11px 14px;border-top:1px solid var(--rule-2);
+           font-weight:600;color:var(--ink);font-size:13px}
+  tfoot .r{font-weight:600}
+
+  .pill{display:inline-block;font-size:10.5px;letter-spacing:.06em;
+        text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:2px;
+        white-space:nowrap}
+  .pill.gap{background:var(--gap-soft);color:var(--gap)}
+  .pill.ok{background:var(--ok-soft);color:var(--ok)}
+  .pill.watch{background:var(--watch-soft);color:var(--watch)}
+
+  /* fix list */
+  ol.fixes{list-style:none;counter-reset:f;padding:0;margin:24px 0 0;
+           display:flex;flex-direction:column;gap:0}
+  ol.fixes li{counter-increment:f;display:grid;
+              grid-template-columns:30px 1fr;gap:16px;
+              padding:16px 0;border-bottom:1px solid var(--rule)}
+  ol.fixes li:first-child{border-top:1px solid var(--rule)}
+  ol.fixes li::before{content:counter(f,decimal-leading-zero);
+              font-family:var(--mono);font-size:12px;color:var(--ink-3);padding-top:2px}
+  .fix-where{font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+             color:var(--ink-3);font-weight:600;margin-bottom:4px}
+  .fix-body{margin:0;font-size:14.5px}
+  .fix-body b{color:var(--ink)}
+
+  /* tree */
+  .tree{margin-top:24px;background:var(--surface);border:1px solid var(--rule);
+        border-radius:2px;padding:20px 22px;overflow-x:auto}
+  .tree pre{margin:0;font-family:var(--mono);font-size:12.5px;line-height:1.85;
+            color:var(--ink-2);white-space:pre}
+  .tree pre b{color:var(--ink);font-weight:500}
+  .tree pre span{color:var(--ink-3)}
+
+  .conv{margin-top:20px;background:var(--accent-soft);border-radius:2px;
+        padding:18px 22px;overflow-x:auto}
+  .conv .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+           color:var(--accent);font-weight:600;margin-bottom:8px}
+  .conv pre{margin:0;font-family:var(--mono);font-size:12.5px;line-height:1.7;
+            color:var(--ink);white-space:pre}
+
+  ul.plain{margin:14px 0 0;padding-left:20px}
+  ul.plain li{margin-bottom:7px}
+
+  footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);
+         font-size:12.5px;color:var(--ink-3);max-width:74ch}
+
+  @media (max-width:640px){
+    .cov-row{grid-template-columns:1fr auto;gap:6px 12px}
+    .bar{grid-column:1/-1;order:3}
+    .cov-val{order:2}
+    ol.fixes li{grid-template-columns:24px 1fr;gap:12px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Finance_Tracker v2 · document coverage</div>
+  <h1>48 of 61 entries have <em>no proof on file</em></h1>
+  <p class="standfirst">Every register in the tracker was checked row by row against the Proof column and against the files actually sitting in Drive. The PO register is complete. Nothing else is.</p>
+  <div class="meta">
+    <span><b>Entity</b> Luxedeco Ventures Pvt Ltd · YantrAI Labs</span>
+    <span><b>GSTIN</b> <span class="mono">07AAFCL3158E1ZN</span></span>
+    <span><b>Sheet as of</b> 2 Sep 2026</span>
+    <span><b>Audited</b> 3 Sep 2026</span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>Where the gaps are</h2></div>
+  <p class="lede col">Coverage by register. The green portion of each bar is entries whose Proof column resolves to a file that exists.</p>
+
+  <div class="cov">
+    <div class="cov-row">
+      <span class="cov-name">PO Register</span>
+      <span class="cov-frac">2 of 2</span>
+      <span class="bar"><i style="width:100%"></i></span>
+      <span class="cov-val none">complete</span>
+    </div>
+    <div class="cov-row">
+      <span class="cov-name">Invoice Register</span>
+      <span class="cov-frac">5 of 5</span>
+      <span class="bar"><i style="width:100%"></i></span>
+      <span class="cov-val none">complete</span>
+    </div>
+    <div class="cov-row">
+      <span class="cov-name">Receipts (Money In)</span>
+      <span class="cov-frac">0 of 6</span>
+      <span class="bar"><i style="width:0%"></i></span>
+      <span class="cov-val">₹5,73,075</span>
+    </div>
+    <div class="cov-row">
+      <span class="cov-name">Expenses</span>
+      <span class="cov-frac">6 of 37</span>
+      <span class="bar"><i style="width:16.2%"></i></span>
+      <span class="cov-val">₹1,33,899</span>
+    </div>
+    <div class="cov-row">
+      <span class="cov-name">Payouts</span>
+      <span class="cov-frac">0 of 11</span>
+      <span class="bar"><i style="width:0%"></i></span>
+      <span class="cov-val">₹4,46,848</span>
+    </div>
+  </div>
+  <p class="cov-foot">Undocumented value is per register and does not add up across them. An invoice and the receipt that settles it are the same money counted twice, so treat the four figures as four separate to-do lists, not a total.</p>
+
+  <div class="flag">
+    <h3>Every rupee Mohit has claimed is unsupported</h3>
+    <p>Mohit's reimbursable expenses total <span class="num">₹31,484</span> across nine rows, and not one has a bill attached. He has already been paid <span class="num">₹50,000</span>, which is <span class="num">₹18,516</span> ahead of his own claims. Four of those nine rows have an amount typed in where the description should be.</p>
+  </div>
+
+  <div class="flag resolved">
+    <h3>The largest invoice you have ever raised has been reconstructed</h3>
+    <p><span class="mono">LVPL/INV/2026-27/003</span> for <span class="num">₹3,54,000</span> was raised 13 Aug and is marked Paid, with <span class="num">₹30,000</span> of TDS deducted under 194J. No copy existed in Drive, in Gmail, or in any Claude artifact. It has been rebuilt from the PO, the SOW milestone terms and the tracker figures, and filed under <span class="mono">2026-08 Aug / 02 Invoices</span>. It still needs signature and stamp, and it should be reconciled against whatever copy Baxy holds.</p>
+  </div>
+
+  <div class="flag watch">
+    <h3>₹50,000 of TDS credit rests on documents you do not hold</h3>
+    <p>The tracker claims <span class="num">₹50,000</span> of 194J credit against Baxy. None of the six receipt rows has a bank advice or a TDS certificate attached, and the sheet's own note says to verify against Form 26AS before claiming at ITR.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>Invoice Register — 2 rebuilt, 0 missing</h2></div>
+  <div class="scroll">
+  <table>
+    <caption>Both blank Proof cells now have a document behind them</caption>
+    <thead><tr><th>Invoice No</th><th>Date</th><th>Client</th><th>Doc type</th><th class="r">Total</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="ref">LVPL/INV/2026-27/003</td><td class="d">13-Aug-26</td>
+        <td>Baxy Limited</td><td>Tax Invoice</td><td class="r">₹3,54,000</td>
+        <td><span class="pill ok">Rebuilt and filed</span> — still to fetch: Form 16A / 26AS entry for the ₹30,000 TDS</td>
+      </tr>
+      <tr>
+        <td class="ref">LVPL/PI/2026-27/003</td><td class="d">04-Aug-26</td>
+        <td>Acer Logistics (T) Ltd</td><td>Proforma</td><td class="r">₹11,076</td>
+        <td><span class="pill ok">Rebuilt and filed</span> — still to fetch: FIRC or BRC for the export, and the LUT acknowledgement</td>
+      </tr>
+    </tbody>
+    <tfoot><tr><td colspan="4">Undocumented</td><td class="r">₹0</td><td></td></tr></tfoot>
+  </table>
+  </div>
+  <p class="lede col">Neither invoice existed as a file. Drive held no PDF created after 20 July, Gmail carried no invoice to Baxy after that date and none to Acer at all, and the Claude artifact gallery had no invoice page. Both were reconstructed from primary sources: Baxy PO 2300007575 and the SOW milestone schedule for the first, and the ICICI inward-remittance advice for the second, which supplied Acer's registered address, the NCBA Tanzania originating bank and purpose code P0802. They match the layout of the four invoices already on file.</p>
+  <div class="flag watch">
+    <h3>The Acer receipt is dated four days before the money moved</h3>
+    <p>The tracker records the Acer <span class="num">₹11,075</span> as received 04-Aug. The ICICI advice puts the value date at 12-Aug, and the funds only credited after disposal instructions were returned on 21-Aug. The proforma is correctly dated 04-Aug; it is the receipt row that needs moving.</p>
+  </div>
+  <p class="lede col">A third gap is structural rather than missing paper. The note on <span class="mono">LVPL/PI/2026-27/001</span> says tax invoice <span class="mono">LVPL/INV/2026-27/001</span> was raised on 20 July, and that PDF is in Drive, but the register has no row for it. A tax invoice that exists outside the register is a GST filing exposure.</p>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>Receipts and Payouts — 17 missing, all of them</h2></div>
+  <p class="lede col">Both registers are entirely undocumented. Everything here settles against one account, ICICI <span class="mono">135405004088</span>, so a single statement export for July and August closes most of it in one pass.</p>
+
+  <div class="scroll">
+  <table>
+    <caption>Receipts (Money In) — 6 of 6 undocumented</caption>
+    <thead><tr><th>Date</th><th>From</th><th>Against</th><th class="r">Received</th><th class="r">TDS</th><th>What to fetch</th></tr></thead>
+    <tbody>
+      <tr><td class="d">06-Jul-26</td><td>Baxy Limited</td><td class="ref">PI/001</td><td class="r">₹1,00,000</td><td class="r">—</td><td>Bank credit advice</td></tr>
+      <tr><td class="d">20-Jul-26</td><td>Baxy Limited</td><td class="ref">PI/001</td><td class="r">₹8,000</td><td class="r">₹10,000</td><td>Advice + Form 16A · UTR still missing</td></tr>
+      <tr><td class="d">20-Jul-26</td><td>Baxy Limited</td><td class="ref">INV/002</td><td class="r">₹1,08,000</td><td class="r">₹10,000</td><td>Advice + Form 16A · UTR still missing</td></tr>
+      <tr><td class="d">20-Jul-26</td><td>Bluestone</td><td class="ref">PI/002</td><td class="r">₹22,000</td><td class="r">—</td><td>Bank credit advice</td></tr>
+      <tr><td class="d">04-Aug-26</td><td>Acer Logistics (T)</td><td class="ref">PI/003</td><td class="r">₹11,075</td><td class="r">—</td><td>Inward remittance advice + FIRC/BRC</td></tr>
+      <tr class="big"><td class="d">13-Aug-26</td><td>Baxy Limited</td><td class="ref">INV/003</td><td class="r">₹3,24,000</td><td class="r">₹30,000</td><td>Bank credit advice + Form 16A</td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="3">Undocumented</td><td class="r">₹5,73,075</td><td class="r">₹50,000</td><td></td></tr></tfoot>
+  </table>
+  </div>
+
+  <div class="scroll">
+  <table>
+    <caption>Payouts — 11 of 11 undocumented</caption>
+    <thead><tr><th>Ref</th><th>Date</th><th>Person</th><th>Type</th><th class="r">Amount</th><th>Bank ref on file</th></tr></thead>
+    <tbody>
+      <tr><td class="ref">P001</td><td class="d">30-Jun-26</td><td class="who">Rohit</td><td>Salary</td><td class="r">₹5,100</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P002</td><td class="d">30-Jun-26</td><td class="who">Mohit</td><td>Salary</td><td class="r">₹5,100</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P003</td><td class="d">07-Jul-26</td><td class="who">Rohit</td><td>Advance</td><td class="r">₹43,648</td><td><span class="pill ok">UTR recorded</span></td></tr>
+      <tr><td class="ref">P004</td><td class="d">20-Jul-26</td><td class="who">Rohit</td><td>Salary</td><td class="r">₹25,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P005</td><td class="d">20-Jul-26</td><td class="who">Mohit</td><td>Salary</td><td class="r">₹25,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P006</td><td class="d">24-Jul-26</td><td class="who">Rohit</td><td>Reimbursement</td><td class="r">₹25,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P007</td><td class="d">24-Jul-26</td><td class="who">Mohit</td><td>Reimbursement</td><td class="r">₹50,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P008</td><td class="d">05-Aug-26</td><td class="who">Rohit</td><td>Salary</td><td class="r">₹25,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr class="big"><td class="ref">P009</td><td class="d">16-Aug-26</td><td class="who">Rohit</td><td>Salary</td><td class="r">₹1,00,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr class="big"><td class="ref">P010</td><td class="d">16-Aug-26</td><td class="who">Mohit</td><td>Salary</td><td class="r">₹1,25,000</td><td><span class="pill gap">none</span></td></tr>
+      <tr><td class="ref">P011</td><td class="d">17-Aug-26</td><td class="who">Rohit</td><td>Reimbursement</td><td class="r">₹18,000</td><td><span class="pill gap">none</span></td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="4">Undocumented</td><td class="r">₹4,46,848</td><td></td></tr></tfoot>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>Expenses — 31 of 37 missing</h2></div>
+  <p class="lede col">Shaded rows are ₹5,000 or more. Those eleven rows carry <span class="num">₹1,24,044</span> of the <span class="num">₹1,33,899</span> total, and they are the ones a CA will ask about first because they are where input tax credit and deductibility actually live. The small food and cab rows matter less individually, but 27 of these rows are marked reimbursable, which means <span class="num">₹88,285</span> has been or will be paid to a founder against no bill.</p>
+
+  <div class="scroll">
+  <table>
+    <caption>Expense rows with a blank Proof column</caption>
+    <thead><tr><th>Date</th><th>Paid by</th><th>Description</th><th class="r">Amount</th><th>What to fetch</th></tr></thead>
+    <tbody>
+      <tr class="big"><td class="d">05-Aug-26</td><td class="who">Company</td><td>Office payments</td><td class="r">₹34,200</td><td>Vendor tax invoice — this row has no vendor or category either</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Rohit</td><td>Claude subscription, Jun + Jul 2026</td><td class="r">₹24,400</td><td>Anthropic billing invoice with GSTIN — ITC claimable</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Company</td><td>JustDesk co-working payment</td><td class="r">₹21,240</td><td>JustDesk tax invoice</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Company</td><td>JustDesk refund</td><td class="r">−₹19,826</td><td>Credit note — a refund without one will not survive review</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Mohit</td><td>12960 <span class="pill watch">no description</span></td><td class="r">₹12,960</td><td>Unknown until described — ask Mohit what this was</td></tr>
+      <tr class="big"><td class="d">24-Aug-26</td><td class="who">Rohit</td><td>Claude bill, August</td><td class="r">₹12,000</td><td>Anthropic billing invoice with GSTIN</td></tr>
+      <tr class="big"><td class="d">31-Aug-26</td><td class="who">Company</td><td>Payment to CA</td><td class="r">₹10,000</td><td>CA's invoice — professional fees may attract 194J TDS on your side</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Mohit</td><td>Claude subscription, Jun + Jul</td><td class="r">₹9,600</td><td>Anthropic invoice · possible duplicate of Rohit's ₹24,400 row</td></tr>
+      <tr class="big"><td class="d">24-Aug-26</td><td class="who">Rohit</td><td>Apollo.io bill, August</td><td class="r">₹7,670</td><td>Apollo.io invoice · category is wrong, see fix 06</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Rohit</td><td>Co-working payment</td><td class="r">₹5,900</td><td>Vendor tax invoice</td></tr>
+      <tr class="big"><td class="d">23-Jul-26</td><td class="who">Mohit</td><td>5900 <span class="pill watch">no description</span></td><td class="r">₹5,900</td><td>Same amount as Rohit's co-working row — check for a double claim</td></tr>
+      <tr><td class="d">08-Jul-26</td><td class="who">Rohit</td><td>My expenses <span class="pill watch">vague</span></td><td class="r">₹250</td><td>Card or UPI statement line</td></tr>
+      <tr><td class="d">08-Jul-26</td><td class="who">Mohit</td><td>400 rs hotel bill bhubaneshwar</td><td class="r">₹400</td><td>Hotel receipt</td></tr>
+      <tr><td class="d">09-Jul-26</td><td class="who">Rohit</td><td>Coffee at Delhi airport</td><td class="r">₹390</td><td>Card slip or UPI line</td></tr>
+      <tr><td class="d">10-Jul-26</td><td class="who">Rohit</td><td>Uber to hotel, Bhubaneswar</td><td class="r">₹443</td><td>Uber trip receipt from ride history</td></tr>
+      <tr><td class="d">10-Jul-26</td><td class="who">Mohit</td><td>725 uber</td><td class="r">₹725</td><td>Uber trip receipt from ride history</td></tr>
+      <tr><td class="d">10-Jul-26</td><td class="who">Mohit</td><td>Food</td><td class="r">₹190</td><td>Receipt or UPI line</td></tr>
+      <tr><td class="d">10-Jul-26</td><td class="who">Mohit</td><td>Cab</td><td class="r">₹450</td><td>Trip receipt</td></tr>
+      <tr><td class="d">11-Jul-26</td><td class="who">Mohit</td><td>Cab</td><td class="r">₹409</td><td>Trip receipt</td></tr>
+      <tr><td class="d">15-Jul-26</td><td class="who">Rohit</td><td>Coffee and drink, Bhubaneswar airport</td><td class="r">₹510</td><td>Card slip</td></tr>
+      <tr><td class="d">15-Jul-26</td><td class="who">Rohit</td><td>Taxi home from Delhi airport</td><td class="r">₹724</td><td>Trip receipt</td></tr>
+      <tr><td class="d">22-Jul-26</td><td class="who">Rohit</td><td>Coffee, Galleria market, meeting with Pankaj</td><td class="r">₹799</td><td>Card slip</td></tr>
+      <tr><td class="d">22-Jul-26</td><td class="who">Rohit</td><td>Forca Amor, office coffee</td><td class="r">₹476</td><td>Card slip</td></tr>
+      <tr><td class="d">23-Jul-26</td><td class="who">Rohit</td><td>Canteen, Alt-F centre</td><td class="r">₹225</td><td>Receipt</td></tr>
+      <tr><td class="d">23-Jul-26</td><td class="who">Rohit</td><td>Parking</td><td class="r">₹450</td><td>Receipt</td></tr>
+      <tr><td class="d">23-Jul-26</td><td class="who">Rohit</td><td>Meeting with Pankaj (430 + 290)</td><td class="r">₹720</td><td>Two card slips — consider splitting into two rows</td></tr>
+      <tr><td class="d">23-Jul-26</td><td class="who">Mohit</td><td>850 <span class="pill watch">no description</span></td><td class="r">₹850</td><td>Unknown until described</td></tr>
+      <tr><td class="d">24-Jul-26</td><td class="who">Rohit</td><td>Food, Alt-F</td><td class="r">₹140</td><td>Receipt</td></tr>
+      <tr><td class="d">07-Aug-26</td><td class="who">Rohit</td><td>Uber</td><td class="r">₹430</td><td>Uber trip receipt</td></tr>
+      <tr><td class="d">07-Aug-26</td><td class="who">Rohit</td><td>Food with Pankaj</td><td class="r">₹850</td><td>Card slip</td></tr>
+      <tr><td class="d">07-Aug-26</td><td class="who">Rohit</td><td>Office foods, coffee and others</td><td class="r">₹424</td><td>Card slip</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="3">Undocumented · 31 rows</td><td class="r">₹1,33,899</td><td></td></tr>
+      <tr><td colspan="3">of which reimbursable to a founder</td><td class="r">₹88,285</td><td></td></tr>
+    </tfoot>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>Corrections to make in the sheet</h2></div>
+  <p class="lede col">These came out of the same pass. None of them are about missing files; they are places where the tracker contradicts itself or the data will not hold up.</p>
+
+  <ol class="fixes">
+    <li>
+      <div class="fix-where">Config · TDS deducted, FY 2026-27 to date</div>
+      <p class="fix-body">Shows <b>5000000%</b>. The cell is percent-formatted and holds a rupee figure. It should read <b>₹50,000</b>. Reformat as currency.</p>
+    </li>
+    <li>
+      <div class="fix-where">Bank Reconciliation · TDS column</div>
+      <p class="fix-body">The 20-Jul, 24-Jul and 05-Aug rows all still show TDS of <b>₹2,000</b>. Both the Config note and the Receipts tab now say the correct figure is <b>₹20,000</b> for the 20-Jul credit. The reconciliation tab was not updated with the rest.</p>
+    </li>
+    <li>
+      <div class="fix-where">Invoice Register · LVPL/PI/2026-27/001</div>
+      <p class="fix-body">Status says <b>Part-Paid</b>, but Received is ₹1,18,000, Outstanding is ₹0 and the row's own note says the invoice is fully settled. Change the status to <b>Paid</b>.</p>
+    </li>
+    <li>
+      <div class="fix-where">Invoice Register · LVPL/PI/2026-27/001 · Proof</div>
+      <p class="fix-body">The proforma row was linked to the <b>tax invoice</b> PDF, while the matching proforma sat unlinked in Drive. Both are now filed under <span class="mono">2026-07 Jul / 02 Invoices</span>. Point this row at the proforma: <a class="mono" href="https://drive.google.com/file/d/1ZlL94j8ftY6xXGNFVGCVkd97jcoxd97w/view">…1ZlL94j8ftY6…</a></p>
+    </li>
+    <li>
+      <div class="fix-where">Invoice Register · missing row</div>
+      <p class="fix-body">Tax invoice <b>LVPL/INV/2026-27/001</b> has a PDF in Drive and is referenced in the PI/001 note, but has no row of its own. Add it, or record why the proforma row stands in for it. Its proof link is <a class="mono" href="https://drive.google.com/file/d/1JzLZUQJEos4K1oUr8Y8GtRTsRIV3AM47/view">…1JzLZUQJEos4…</a></p>
+    </li>
+    <li>
+      <div class="fix-where">Expenses · 24-Aug-26 · Apollo.io</div>
+      <p class="fix-body">Expense Category is set to <b>Rohit</b>, which is not one of the values in the category list. It should be <b>Software &amp; Subscriptions</b>.</p>
+    </li>
+    <li>
+      <div class="fix-where">Expenses · 09-Jul-26 · Swiggy</div>
+      <p class="fix-body">Split as ex-GST <b>₹72.42</b> plus GST <b>₹317.58</b>. That is 438% tax, so the two figures are transposed or simply wrong. It is also the only expense row with any GST split at all. The category reads Travel against a food vendor.</p>
+    </li>
+    <li>
+      <div class="fix-where">Expenses · four Mohit rows</div>
+      <p class="fix-body">The 23-Jul rows for <b>12960</b>, <b>5900</b> and <b>850</b> carry the amount in the description field and nothing else. Two of them mirror amounts Rohit claimed the same day, so check for double claims before reimbursing further.</p>
+    </li>
+    <li>
+      <div class="fix-where">Expenses · 09-Jul-26 · ₹837</div>
+      <p class="fix-body">The description is <b>22:30 $9 tee Tal ll 642%</b>, which is garbled capture, not a description. The receipt image is on file, so this one only needs someone to open it and retype the line. It is now named <span class="mono">2026-07-09_Expense_UNIDENTIFIED_837_Rohit.jpg</span> so it is easy to find.</p>
+    </li>
+    <li>
+      <div class="fix-where">Invoice Register · LVPL/PI/2026-27/002</div>
+      <p class="fix-body">Bluestone IGST of <b>₹3,960</b> is <b>41 days overdue</b> and is your only outstanding receivable. Worth a chase this week regardless of the paperwork.</p>
+    </li>
+    <li>
+      <div class="fix-where">Bank Reconciliation · 05-Aug-26</div>
+      <p class="fix-body">The bank column goes to <b>−₹1,462</b>. The sheet already flags this as a likely unlogged inflow. Until it is found, the founder settlement figures downstream of it are not reliable.</p>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>How the attachments are filed now</h2></div>
+  <p class="lede col">All thirteen original attachments were moved out of the flat Finance Tracker Bills folder into month, then entry type. The month is the month the entry is dated, not the month the file was uploaded. <strong>Every existing Proof link in the sheet still works</strong> — Drive keeps a file's link when you move or rename it, so nothing had to be repointed except the one proforma in fix 04. Two further files, the reconstructed August invoices, were added afterwards.</p>
+
+  <div class="tree"><pre><b>Finance Tracker Bills/</b>
+├── <span>_README — filing convention</span>
+├── <b>2026-06 Jun/</b>
+│   └── <b>05 Payouts/</b>                        <span>empty · P001, P002 salary advices</span>
+├── <b>2026-07 Jul/</b>
+│   ├── <b>01 POs/</b>
+│   │   ├── 2026-07-06_PO_Baxy_2300007575.pdf
+│   │   └── 2026-07-07_PO_Bluestone_SOSERV-2627-00000316.pdf
+│   ├── <b>02 Invoices/</b>
+│   │   ├── 2026-07-06_Proforma_Baxy_LVPL-PI-2026-27-001.pdf
+│   │   ├── 2026-07-07_Proforma_Bluestone_LVPL-PI-2026-27-002.pdf
+│   │   ├── 2026-07-20_TaxInvoice_Baxy_LVPL-INV-2026-27-001_Advance.pdf
+│   │   ├── 2026-07-20_TaxInvoice_Baxy_LVPL-INV-2026-27-002_PrePoC.pdf
+│   │   └── <b>_Superseded/</b>
+│   │       └── <span>…INV-2026-27-002_PrePoC_v1_SUPERSEDED.pdf</span>
+│   ├── <b>03 Receipts (Money In)/</b>             <span>empty · 4 July credits</span>
+│   ├── <b>04 Expenses/</b>
+│   │   ├── 2026-07-07_Expense_MakeMyTrip_Hotel-Bhubaneswar_5344_Rohit.pdf
+│   │   ├── 2026-07-07_Expense_PaytmFlights_DEL-BBI-Rohit_19221_Rohit.pdf
+│   │   ├── 2026-07-07_Expense_PaytmFlights_DEL-BBI-Mohit_17892_Rohit.pdf
+│   │   ├── 2026-07-09_Expense_Uber_304_Rohit.jpg
+│   │   ├── 2026-07-09_Expense_Swiggy_390_Rohit.jpg
+│   │   └── 2026-07-09_Expense_UNIDENTIFIED_837_Rohit.jpg
+│   └── <b>05 Payouts/</b>                        <span>empty · P003–P007</span>
+└── <b>2026-08 Aug/</b>
+    ├── <b>01 POs/</b>                              <span>empty</span>
+    ├── <b>02 Invoices/</b>
+    │   ├── 2026-08-04_Proforma_Acer_LVPL-PI-2026-27-003_Licence.pdf
+    │   └── 2026-08-13_TaxInvoice_Baxy_LVPL-INV-2026-27-003_PostRollout.pdf
+    ├── <b>03 Receipts (Money In)/</b>              <span>empty · Acer + Baxy Aug credits</span>
+    ├── <b>04 Expenses/</b>                         <span>empty</span>
+    └── <b>05 Payouts/</b>                          <span>empty · P008–P011</span>
+</pre></div>
+
+  <div class="conv">
+    <div class="k">Naming convention</div>
+    <pre>&lt;YYYY-MM-DD&gt;_&lt;Type&gt;_&lt;Party&gt;_&lt;Reference&gt;[_&lt;Amount&gt;][_&lt;Paid by&gt;].&lt;ext&gt;
+
+Type    PO · Proforma · TaxInvoice · Receipt · Expense · Payout
+Date    the document's own date, never the upload date
+Amount  rupees, no separators — 5344, not 5,344.00</pre>
+  </div>
+
+  <p class="lede col">Three of the six expense receipts were all named <span class="mono">Expenses-Rohit_2026-07-09_Rohit.jpg</span>, so the only way to tell them apart was to open each one and read the amount. They are now named for their vendor and value. The superseded first version of the Pre-PoC tax invoice was pulled out of the working folder rather than deleted.</p>
+
+  <h3 style="margin-top:30px">On sharing</h3>
+  <ul class="plain">
+    <li>The structure is ready to hand to a CA or an auditor as-is, and the README travels with it.</li>
+    <li>I can share the folder with a specific person by email address, at reader, commenter or writer. Say the word and the address.</li>
+    <li>I cannot switch it to <em>anyone with the link</em> — that toggle is not exposed to me. You would set that from Drive's own share dialog on <span class="mono">Finance Tracker Bills</span>, and it inherits down to every month and type folder.</li>
+  </ul>
+</section>
+
+<footer>
+  Audited against Finance_Tracker v2 as it stood on 3 September 2026, covering all five money registers: PO, Invoice, Receipts, Expenses and Payouts. Coverage means the Proof column resolves to a file that exists in Drive; it does not mean the document was opened and verified against the amount. Two files were in the folder but linked from no row, and both are now placed and identified. Nothing in the sheet's own cells was altered — the corrections in section 05 are yours to apply.
+</footer>
+</div>

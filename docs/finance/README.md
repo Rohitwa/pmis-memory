@@ -12,13 +12,31 @@ each, 11 corrections to make in the sheet, and the new Drive filing structure.
 | Register            | Documented | Undocumented value |
 | ------------------- | ---------- | ------------------ |
 | PO Register         | 2 of 2     | —                  |
-| Invoice Register    | 3 of 5     | ₹3,65,076          |
+| Invoice Register    | 5 of 5     | — (2 rebuilt)      |
 | Receipts (Money In) | 0 of 6     | ₹5,73,075          |
 | Expenses            | 6 of 37    | ₹1,33,899          |
 | Payouts             | 0 of 11    | ₹4,46,848          |
 
 Undocumented value is per register and does not sum across them — an invoice and
 the receipt that settles it are the same money seen twice.
+
+## Invoices rebuilt
+
+Two invoices existed only as tracker rows: no PDF in Drive, no copy in Gmail, and
+no matching Claude artifact. Both were reconstructed from primary sources and
+filed under `2026-08 Aug/02 Invoices/`.
+
+| Invoice               | Date      | Client       | Value      | Rebuilt from                                          |
+| --------------------- | --------- | ------------ | ---------- | ----------------------------------------------------- |
+| `LVPL/INV/2026-27/003` | 13-Aug-26 | Baxy Limited | ₹3,54,000  | PO 2300007575, SOW milestone 3 terms, tracker figures |
+| `LVPL/PI/2026-27/003`  | 04-Aug-26 | Acer (T) Ltd | USD 116.00 | ICICI inward-remittance advice, SOW of 22 Jul 2026    |
+
+The Acer advice also supplied the registered address, the NCBA Tanzania
+originating bank and purpose code P0802. Both PDFs still need signature and
+stamp, and the Baxy one should be reconciled against the copy Baxy holds.
+
+`scripts/` is not used for these — the generator lived in the session scratchpad,
+since a reconstruction is a one-off, not a recurring job.
 
 ## Drive filing convention
 
