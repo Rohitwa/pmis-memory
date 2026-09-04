@@ -93,6 +93,32 @@ say. Reach for `text` whenever Sheets might reinterpret the value.
 | HTTP 404 | The `/exec` URL is wrong, or the deployment was deleted |
 | Edits stop taking effect after a change | The script was saved but not redeployed as a new version |
 
+## Uploading files
+
+The Google Drive connector only accepts file bytes inline in a single call,
+which tops out well below the size of a scanned invoice. The bridge takes a
+file as a sequence of base64 chunks instead, so size stops being the limit.
+
+```bash
+python3 pmis_v2/tools/drive_uploader.py invoice.pdf \
+  --folder 1XAWv9AhxtqsfL2x9hK3fj4ZWzDBPdHGg \
+  --name 2026-08-11_TaxInvoice_Baxy_LVPL-INV-2026-27-065.pdf
+```
+
+The client reads the file straight off disk, so the bytes never pass through a
+conversation. A 380 KB invoice goes as nine chunks.
+
+Three things guard it. Uploads may only land inside the bills tree, whatever
+folder id is supplied, so a leaked URL and secret still cannot write elsewhere
+in the Drive. The caller declares the expected byte count and the bridge
+compares it against what it assembled, so a dropped or truncated chunk fails
+the upload rather than leaving a damaged document in Drive. And chunks live in
+the script cache for an hour, so an interrupted upload expires instead of
+lingering.
+
+This needs the Drive scope. After pasting the new `Code.gs`, run any function
+once from the editor to trigger re-authorization, then deploy a new version.
+
 ## Optional: sharing the attachments
 
 `ShareDrive.gs` is a separate, editor-run helper that puts the Finance Tracker

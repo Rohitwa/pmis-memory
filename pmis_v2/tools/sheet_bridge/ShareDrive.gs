@@ -25,7 +25,7 @@
  * links stop working for everyone outside your account.
  */
 
-var BILLS_FOLDER_ID = '1MK-YmWpkfVg2p49mUg-fokKGVHZG8y8r';  // Finance Tracker Bills
+// BILLS_FOLDER_ID is declared in Code.gs; Apps Script shares globals project-wide.
 var TRACKER_SHEET_ID = '1zI_HyfC3xM0tDkleFnAgeDsAp8tamzezi7KTBdlcrzk';  // Finance_Tracker v2
 
 /**

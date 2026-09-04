@@ -33,6 +33,9 @@ var ALLOWED_SHEETS = [
   '1zI_HyfC3xM0tDkleFnAgeDsAp8tamzezi7KTBdlcrzk'  // Finance_Tracker v2
 ];
 
+// Uploads may only land inside this tree, whatever folder id a caller supplies.
+var BILLS_FOLDER_ID = '1MK-YmWpkfVg2p49mUg-fokKGVHZG8y8r';  // Finance Tracker Bills
+
 var AUDIT_TAB = '_BridgeLog';
 var MAX_OPS = 100;
 
@@ -53,6 +56,12 @@ function doPost(e) {
       return reply({ok: false, error: 'unauthorised'});
     }
 
+    // Uploads target a Drive folder, not a spreadsheet, so they branch before
+    // the spreadsheet allowlist check.
+    if (req.mode === 'upload') {
+      return reply(doUpload(req));
+    }
+
     var id = req.spreadsheetId;
     if (!id || ALLOWED_SHEETS.indexOf(id) === -1) {
       return reply({ok: false, error: 'spreadsheetId not in allowlist'});
@@ -71,6 +80,101 @@ function doPost(e) {
   } catch (err) {
     return reply({ok: false, error: String(err)});
   }
+}
+
+/**
+ * Chunked file upload.
+ *
+ * The Drive connector only accepts file bytes inline in a single call, which
+ * caps out well below the size of a scanned invoice. This accepts a file as a
+ * sequence of base64 chunks instead, so the caller streams it from disk and the
+ * bytes never have to fit in one request.
+ *
+ * Chunks land in the script cache keyed by uploadId, and the last one assembles
+ * and writes the file. The caller sends the expected decoded byte count; a
+ * mismatch fails the upload rather than leaving a truncated document in Drive.
+ *
+ * Requires the Drive scope, so re-authorize after adding this.
+ */
+function doUpload(req) {
+  var uploadId = String(req.uploadId || '');
+  if (!/^[A-Za-z0-9_-]{8,64}$/.test(uploadId)) {
+    return {ok: false, error: 'bad uploadId'};
+  }
+
+  var seq = Number(req.seq), total = Number(req.total);
+  if (!(seq >= 0 && total > 0 && seq < total && total <= 400)) {
+    return {ok: false, error: 'bad seq/total'};
+  }
+  if (typeof req.chunk !== 'string' || !req.chunk.length) {
+    return {ok: false, error: 'empty chunk'};
+  }
+
+  var folder;
+  try {
+    folder = DriveApp.getFolderById(String(req.folderId));
+  } catch (e) {
+    return {ok: false, error: 'folder not found: ' + e};
+  }
+  if (!isUnderBills(folder)) {
+    return {ok: false, error: 'target folder is outside the bills tree'};
+  }
+
+  var cache = CacheService.getScriptCache();
+  cache.put('up:' + uploadId + ':' + seq, req.chunk, 3600);
+
+  if (seq < total - 1) {
+    return {ok: true, mode: 'upload', received: seq, of: total, done: false};
+  }
+
+  // Last chunk in: reassemble.
+  var keys = [];
+  for (var i = 0; i < total; i++) keys.push('up:' + uploadId + ':' + i);
+  var got = cache.getAll(keys);
+
+  var parts = [];
+  for (var j = 0; j < total; j++) {
+    var part = got['up:' + uploadId + ':' + j];
+    if (part === null || part === undefined) {
+      return {ok: false, error: 'chunk ' + j + ' of ' + total + ' missing or expired, restart the upload'};
+    }
+    parts.push(part);
+  }
+  cache.removeAll(keys);
+
+  var bytes;
+  try {
+    bytes = Utilities.base64Decode(parts.join(''));
+  } catch (e) {
+    return {ok: false, error: 'base64 did not decode: ' + e};
+  }
+
+  var expected = Number(req.bytes);
+  if (expected && bytes.length !== expected) {
+    return {ok: false, error: 'size mismatch, got ' + bytes.length + ' expected ' + expected};
+  }
+
+  var name = String(req.filename || 'upload.bin');
+  var blob = Utilities.newBlob(bytes, String(req.mimeType || 'application/octet-stream'), name);
+  var file = folder.createFile(blob);
+
+  return {
+    ok: true, mode: 'upload', done: true,
+    fileId: file.getId(), name: file.getName(),
+    size: Number(file.getSize()), url: file.getUrl()
+  };
+}
+
+/** Keeps uploads inside the bills tree, whatever folder id is supplied. */
+function isUnderBills(folder) {
+  var seen = 0;
+  var cur = folder;
+  while (cur && seen++ < 20) {
+    if (cur.getId() === BILLS_FOLDER_ID) return true;
+    var parents = cur.getParents();
+    cur = parents.hasNext() ? parents.next() : null;
+  }
+  return false;
 }
 
 /** GET is a liveness probe only. It never reveals sheet contents. */
