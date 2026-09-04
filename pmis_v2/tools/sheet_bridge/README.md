@@ -14,9 +14,14 @@ authenticate with a shared secret.
 3. Edit `ALLOWED_SHEETS` so it lists exactly the spreadsheet IDs you want
    writable. The ID is the long string in the sheet URL between `/d/` and
    `/edit`.
-4. **Project Settings > Script properties > Add script property**: name
-   `SHARED_SECRET`, value a long random string. Generate one with
-   `openssl rand -hex 32`. The secret never goes in `Code.gs`.
+4. Create the shared secret. Pick `generateSecret` in the editor's function
+   dropdown and press **Run**, then open the execution log and copy the value
+   it prints. It stores itself in Script properties, so there is nothing to
+   paste back into Google, and the log is your one chance to copy it.
+
+   To do it by hand instead, run `openssl rand -hex 32` in a terminal and add
+   the output under **Project Settings > Script properties** as a property
+   named `SHARED_SECRET`. Either way the secret never goes in `Code.gs`.
 5. **Deploy > New deployment > Web app**, with:
    - Execute as: **Me**
    - Who has access: **Anyone**
@@ -90,7 +95,8 @@ say. Reach for `text` whenever Sheets might reinterpret the value.
 
 ## Rotating
 
-Change `SHARED_SECRET` in Script properties and update `PROME_SHEET_SECRET`.
+Delete `SHARED_SECRET` under Project settings, run `generateSecret` again, and
+update `PROME_SHEET_SECRET` with the new value.
 To invalidate the URL as well, archive the deployment and create a new one.
 Revoke everything at once from the Apps Script project's **Deploy > Manage
 deployments**.

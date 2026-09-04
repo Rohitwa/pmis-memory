@@ -78,6 +78,33 @@ function doGet() {
   return reply({ok: true, service: 'prome-sheet-bridge', ops: ['read', 'write']});
 }
 
+/**
+ * Run this once from the editor to create the shared secret.
+ *
+ *   Pick generateSecret in the function dropdown > Run, then open the
+ *   execution log and copy the printed value into PROME_SHEET_SECRET.
+ *
+ * It stores the secret in Script Properties for you, so there is nothing to
+ * paste back into Google. It prints the value once because that is the only
+ * moment you can copy it; after this the property is the sole record.
+ *
+ * Entropy comes from Utilities.getUuid, which is a type-4 UUID backed by a
+ * secure generator. Two of them concatenated give a 64-character hex string.
+ * Math.random would NOT be safe here.
+ */
+function generateSecret() {
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('SHARED_SECRET')) {
+    Logger.log(
+      'A secret already exists. To rotate it, delete SHARED_SECRET under ' +
+      'Project Settings > Script properties, then run this again.');
+    return;
+  }
+  var secret = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  props.setProperty('SHARED_SECRET', secret);
+  Logger.log('SHARED_SECRET stored. Copy this into PROME_SHEET_SECRET:\n\n' + secret);
+}
+
 function doRead(ss, ops) {
   var out = [];
   for (var i = 0; i < ops.length; i++) {
