@@ -119,6 +119,14 @@ def upload(path, folder_id, name=None, mime=None, quiet=False):
         if not quiet and not result.get("done"):
             print("  sent %d/%d" % (seq + 1, len(chunks)), file=sys.stderr)
 
+    # A bridge still running the pre-upload code answers 'spreadsheetId not in
+    # allowlist', since the old doPost treats anything that is not a read as a
+    # sheet write. Name that case rather than reporting a confusing size error.
+    if not result.get("done"):
+        _fail("bridge accepted the chunks but never wrote the file, which "
+              "usually means the deployment is serving the pre-upload code. "
+              "Redeploy the current Code.gs. Raw reply: %s" % json.dumps(result))
+
     # The bridge compares the assembled length against what we declared, so a
     # matching size here means every chunk arrived and decoded.
     if result.get("size") != len(raw):
