@@ -93,6 +93,27 @@ say. Reach for `text` whenever Sheets might reinterpret the value.
 | HTTP 404 | The `/exec` URL is wrong, or the deployment was deleted |
 | Edits stop taking effect after a change | The script was saved but not redeployed as a new version |
 
+## Optional: sharing the attachments
+
+`ShareDrive.gs` is a separate, editor-run helper that puts the Finance Tracker
+Bills folder behind a public link, or takes it back private. It is not wired
+into the web app, so the deployed bridge is unaffected.
+
+Adding it makes the whole script project request Drive access, which is broader
+than the sheet-only bridge needs. Delete the file and the extra scope drops away
+at the next authorization.
+
+Read the header before running it. The bills folder carries the company bank
+account and IFSC, the SWIFT code, GSTIN and PAN, client purchase orders naming
+their staff, and flight PNRs. `ANYONE_WITH_LINK` requires no Google sign-in.
+
+`makeBillsPrivateAgain` is a real revoke: previously shared links stop
+resolving.
+
+The same thing is four clicks in the Drive UI, on the folder's Share dialog
+under General access. Use the script when you want the change logged and
+applied to each file explicitly rather than by inheritance.
+
 ## Rotating
 
 Delete `SHARED_SECRET` under Project settings, run `generateSecret` again, and
