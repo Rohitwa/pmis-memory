@@ -26,15 +26,42 @@
  */
 
 var BILLS_FOLDER_ID = '1MK-YmWpkfVg2p49mUg-fokKGVHZG8y8r';  // Finance Tracker Bills
+var TRACKER_SHEET_ID = '1zI_HyfC3xM0tDkleFnAgeDsAp8tamzezi7KTBdlcrzk';  // Finance_Tracker v2
 
-/** Anyone holding a link can view. Not listed in Google Search. */
+/**
+ * Anyone holding a link can VIEW. Not listed in Google Search, and not
+ * editable — which is the whole point. A ledger or an invoice that any
+ * passer-by can rewrite is worth nothing as evidence.
+ *
+ * Run this to fix a folder that was shared as Editor by mistake; it downgrades
+ * the existing anyone-with-link grant to view-only rather than adding a second
+ * one.
+ */
 function shareBillsPublicly() {
-  applySharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW, 'PUBLIC (anyone with link, view only)');
+  applySharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW, 'PUBLIC (anyone with link, VIEW ONLY)');
 }
 
 /** Back to owner-only. Every previously shared link stops resolving. */
 function makeBillsPrivateAgain() {
   applySharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE, 'PRIVATE (owner only)');
+}
+
+/**
+ * The tracker spreadsheet is not inside the bills folder, so folder-level
+ * sharing never touches it. Keep it separate from the attachments: the bills
+ * are evidence others may need to read, the sheet is the working ledger.
+ */
+function makeTrackerPrivateAgain() {
+  var f = DriveApp.getFileById(TRACKER_SHEET_ID);
+  f.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+  Logger.log('Finance_Tracker v2 is now PRIVATE (owner only): %s', f.getUrl());
+}
+
+/** Read-only link for the tracker, if you do want to circulate it. */
+function shareTrackerReadOnly() {
+  var f = DriveApp.getFileById(TRACKER_SHEET_ID);
+  f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  Logger.log('Finance_Tracker v2 is now VIEW ONLY for anyone with the link: %s', f.getUrl());
 }
 
 /**
