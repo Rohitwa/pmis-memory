@@ -133,9 +133,9 @@ python3 pmis_v2/cli.py session store '{
 
 `pitch-agent/` is an installed copy of [Rohitwa/B2B_Sales](https://github.com/Rohitwa/B2B_Sales) (upstream commit in `pitch-agent/UPSTREAM.txt`). Its whole program is `pitch-agent/AGENTS.md`. When the user's message is a PitchGraph command — `setup`, `pitch`, `qualify`, `rewrite`, `batch`, `board`, `followup`, `park`, `revive`, `feedback`, `learnings`, `forget`, `consolidate`, `strategy`, `help` — or clearly one of those intents (research a prospect, draft an outreach note, score a lead list):
 
-1. Run `session begin` as usual (Step 1 above), then **read `pitch-agent/AGENTS.md` and follow it exactly**, with all its file paths relative to `pitch-agent/`.
+1. **Read `pitch-agent/AGENTS.md` and follow it exactly**, with all its file paths relative to `pitch-agent/`. Do **not** run the ProMe `session` steps (begin / log-response / store / end) for PitchGraph commands — this system is self-contained.
 2. `pitch-agent/strategy/`, `pitch-agent/graph/` and `pitch-agent/runs/` are git-ignored (this repo is public; they hold pricing, ICP logic and prospect data). They live only on the user's machine — never commit them.
-3. **Bridge to ProMe memory.** After every `pitch`, `qualify`, `feedback` or `consolidate` run, also `session store` the reusable insight under super context **"B2B Cold Outreach"**: one context per persona slice (e.g. "CFO | consumer durables"), one anchor per lever/frame/phrase that landed or failed, with the win/try record in the content. The graph is the fast, per-slice memory; ProMe is the cross-domain one — keep both.
+3. **Separate memory.** PitchGraph keeps its own database: `pitch-agent/graph/graph.json` (nodes, edges, learning counts) and `pitch-agent/runs/` (one file per research run). Never write pitch learnings, prospects or strategy into ProMe (`memory.db`, `session store`), and never read ProMe to draft a pitch. The two systems stay independent.
 4. The MAS ICP scorecard (seven weighted criteria, three gates, tier bands) is the qualification rubric; it is summarised in `pitch-agent/strategy/product_profile.md`. Use it as the `symbiosis` sanity check.
 5. **Browser for stage ① (persona).** The Claude in Chrome integration is local-only: it needs Chrome and Claude Code on the same machine (native messaging host), so it never works in Claude Code on the web or Remote Control. On the Mac, start with `claude --chrome` in this folder (or `/chrome` → "Enabled by default") and let stage ① read LinkedIn profiles, posts and firm blogs through the browser tools; grant the extension access to linkedin.com when asked and handle any login or CAPTCHA yourself. In a cloud session, ask the user to paste the person's posts instead and mark confidence LOW — never fabricate a voice.
 6. To update the agent: re-copy `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `craft_rules.md` from upstream and bump `UPSTREAM.txt`. Never overwrite `strategy/`, `graph/`, `runs/`.
@@ -152,7 +152,7 @@ Ops UI tabs (all on 8200): `/` Monitor (7-organ health), `/dashboard` (stat card
 
 ## Important
 
-- Always run `session begin` before doing any work — never skip this
+- Always run `session begin` before doing any work — never skip this (exception: PitchGraph commands, which use their own memory in `pitch-agent/`)
 - Never ask "should I store this?" — just store key learnings automatically
 - When user says thanks → prompt for rating before closing
 - When user expresses frustration → treat as thumbs down, ask what specifically failed
