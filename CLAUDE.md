@@ -22,6 +22,7 @@ Memory/
 │   ├── consolidation/              ← Nightly 5-pass optimization
 │   ├── claude_integration/         ← Prompt composer
 │   └── templates/                  ← Dashboard HTML
+├── pitch-agent/                    ← PitchGraph B2B outreach agent (AGENTS.md is the program)
 ├── archives/                       ← V1 deprecated + exploration files
 └── [project folders]               ← Vision AI, Hindi App, etc.
 ```
@@ -127,6 +128,16 @@ python3 pmis_v2/cli.py session store '{
 
 **4. Weight assignment** — importance relative to siblings
 - 0.9 = critical, key driver | 0.7 = important | 0.5 = moderate | 0.3 = minor
+
+## PitchGraph — B2B outreach agent (`pitch-agent/`)
+
+`pitch-agent/` is an installed copy of [Rohitwa/B2B_Sales](https://github.com/Rohitwa/B2B_Sales) (upstream commit in `pitch-agent/UPSTREAM.txt`). Its whole program is `pitch-agent/AGENTS.md`. When the user's message is a PitchGraph command — `setup`, `pitch`, `qualify`, `rewrite`, `batch`, `board`, `followup`, `park`, `revive`, `feedback`, `learnings`, `forget`, `consolidate`, `strategy`, `help` — or clearly one of those intents (research a prospect, draft an outreach note, score a lead list):
+
+1. Run `session begin` as usual (Step 1 above), then **read `pitch-agent/AGENTS.md` and follow it exactly**, with all its file paths relative to `pitch-agent/`.
+2. `pitch-agent/strategy/`, `pitch-agent/graph/` and `pitch-agent/runs/` are git-ignored (this repo is public; they hold pricing, ICP logic and prospect data). They live only on the user's machine — never commit them.
+3. **Bridge to ProMe memory.** After every `pitch`, `qualify`, `feedback` or `consolidate` run, also `session store` the reusable insight under super context **"B2B Cold Outreach"**: one context per persona slice (e.g. "CFO | consumer durables"), one anchor per lever/frame/phrase that landed or failed, with the win/try record in the content. The graph is the fast, per-slice memory; ProMe is the cross-domain one — keep both.
+4. The MAS ICP scorecard (seven weighted criteria, three gates, tier bands) is the qualification rubric; it is summarised in `pitch-agent/strategy/product_profile.md`. Use it as the `symbiosis` sanity check.
+5. To update the agent: re-copy `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `craft_rules.md` from upstream and bump `UPSTREAM.txt`. Never overwrite `strategy/`, `graph/`, `runs/`.
 
 ## Dashboard
 

@@ -1,0 +1,11 @@
+# Your private data — never committed, never shared.
+# The agent creates these on your machine; they stay there.
+strategy/
+graph/
+runs/
+product_profile.md
+resonance_map.json
+
+# OS noise
+.DS_Store
+Thumbs.db

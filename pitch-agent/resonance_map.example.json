@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "owner": "local-private",
+  "note": "Persona -> language resonance map. Keyed by '<role>|<industry>'. Private to this user; never shared. Starts empty; the skill fills it from your feedback over time. On first run, copy this file to resonance_map.json.",
+  "slices": {}
+}
