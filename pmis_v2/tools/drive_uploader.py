@@ -27,6 +27,7 @@ import json
 import mimetypes
 import os
 import ssl
+import time
 import sys
 import urllib.error
 import urllib.request
@@ -39,6 +40,11 @@ TIMEOUT = 120
 # smaller chunk also keeps each POST comfortably inside the Apps Script limits.
 CHUNK = 60_000
 MAX_CHUNKS = 400
+# Apps Script sometimes answers a valid POST with one of these; retry rather
+# than lose the upload.
+RETRY_CODES = (404, 429, 500, 502, 503, 504)
+RETRIES = 5
+BACKOFF = 2
 
 
 def _fail(msg, code=1):
@@ -60,20 +66,34 @@ def _config():
 
 def _post(url, payload):
     body = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        url, data=body, method="POST",
-        headers={"Content-Type": "application/json"},
-    )
     ctx = ssl.create_default_context(
         cafile=str(PROXY_CA) if PROXY_CA.exists() else None
     )
-    try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as resp:
-            raw = resp.read().decode("utf-8")
-    except urllib.error.HTTPError as exc:
-        _fail("bridge returned HTTP %s: %s" % (exc.code, exc.read()[:400]))
-    except urllib.error.URLError as exc:
-        _fail("cannot reach bridge: %s" % exc.reason)
+    # Apps Script intermittently answers a POST with a 404 or a 5xx even though
+    # the deployment is live and reads on the same URL succeed. A long upload
+    # makes many POSTs, so one flaky reply would otherwise abandon the whole
+    # file. Retry the same chunk a few times before giving up; chunks carry a
+    # sequence number, so a retry that did land is simply overwritten.
+    last = None
+    for attempt in range(RETRIES):
+        req = urllib.request.Request(
+            url, data=body, method="POST",
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as resp:
+                raw = resp.read().decode("utf-8")
+            break
+        except urllib.error.HTTPError as exc:
+            last = "bridge returned HTTP %s: %s" % (exc.code, exc.read()[:400])
+            if exc.code not in RETRY_CODES:
+                _fail(last)
+        except urllib.error.URLError as exc:
+            last = "cannot reach bridge: %s" % exc.reason
+        if attempt < RETRIES - 1:
+            time.sleep(BACKOFF * (2 ** attempt))
+    else:
+        _fail("%s (gave up after %d attempts)" % (last, RETRIES))
 
     try:
         return json.loads(raw)
