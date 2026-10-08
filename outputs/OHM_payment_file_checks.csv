@@ -1,0 +1,23 @@
+Check,Items under check
+Quotation checks,"Number of quotes fits the amount (up to R10,000: one quote from approved supplier database; R10,000–R30,000 incl. VAT: three quotes; R30,000–R499,999: three quotes on 80/20 system)"
+Quotation checks,Quote received by the RFQ closing date and time (late quotes not considered)
+Quotation checks,Quote is still valid (not older than 1 month)
+Quotation checks,Calculations on the quotation are correct
+Supplier compliance documents,"All documents the RFQ asked for are attached (CIPC registration, certified ID copies of owners, tax compliance status with PIN, B-BBEE certificate or sworn affidavit, SBD 4, latest CSD report)"
+Supplier compliance documents,CSD report is recent (not older than 30 days at submission)
+Supplier compliance documents,Tax compliance status / PIN is valid and not expired by the payment date
+Supplier compliance documents,B-BBEE certificate or sworn affidavit has not expired (affidavit valid 12 months from signing)
+Supplier compliance documents,Certified copies are recent (certification stamp not older than 6 months)
+Supplier compliance documents,"SBD 4 is attached, fully completed (all YES/NO answered) and signed"
+Supplier compliance documents,No director is a state employee and supplier is not on the restricted list
+Supplier identity and VAT,"Same supplier on every document (company registration number matches on quote, order, invoice, CSD, payment)"
+Supplier identity and VAT,VAT charged only if supplier is a VAT vendor; VAT number matches the CSD report
+Approvals and delegation,"Requisition approved at the right level (Deputy Manager up to R30,000; Manager up to R100,000; Executive Manager R100,000–R200,000; Deputy Secretary R200,000–R250,000; Accounting Officer R250,000+), with name and rank shown"
+Approvals and delegation,"Purchase order approved by Deputy Manager, Manager and CFO in SCM (approval record present in file)"
+Invoice and payment,Invoice date comes after the quote and the order date (otherwise motivation approved by AO/CFO)
+Invoice and payment,Paid within 30 days of receiving the invoice
+Invoice and payment,"Quote, order, invoice and payment amounts agree"
+Invoice and payment,"Paid to the supplier's own bank account (account on remittance matches quote, invoice and CSD report)"
+File completeness and audit,"Every page in the file belongs to this payment (order, invoice, control form, supporting documents; nothing from another payment)"
+File completeness and audit,Pre-audit done and checklist signed
+File completeness and audit,Post-audit done and checklist signed by the auditor
