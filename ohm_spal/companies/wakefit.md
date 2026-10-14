@@ -69,6 +69,110 @@ Working capital (SBI note, from DRHP): inventory days 91 / 103 / 104 (FY23–25)
 
 Read-through: the turnaround is real. Gross margin climbed 13 points in three years as own channels replaced marketplaces and plants were consolidated, and operating EBITDA went from −11.5% to 7.5%. The next phase is harder. Foam chemicals spiked 30–160% in March 2026 and management guided to about 30% mattress COGS inflation once old inventory is used up. Eighty more leased stores and a Jumbo format add fixed cost and depreciation ahead of revenue. The stock has fallen a third below the IPO price, so every quarter is now judged on margin, not growth.
 
+## 1A. Inside the books: what is moving the bottom line
+
+Source: restated financials and notes in the June 2025 DRHP (FY22, FY23, FY24, 9M FY25), the Q3 FY26 and FY26 exchange filings. All figures ₹ crore. 9M FY25 revenue ₹971 cr. Each item is tagged **F** (finance or accounting) or **O** (operations, people, controls), because the user's question is which of these are not finance problems at all.
+
+### 1A.1 The expense lines, and which way they are moving
+
+| Line (₹ cr) | FY22 | FY23 | FY24 | 9M FY25 | % of 9M revenue | Direction | Tag |
+|---|---|---|---|---|---|---|---|
+| Advertising and promotion | 61.2 | 95.9 | 77.4 | 82.7 | 8.5% | Cut hard in FY24, creeping back; FY26 Q4 at 7.3%, guided 7–9% as competitors spend | O (commercial) |
+| Courier and delivery | 58.1 | 65.9 | 82.2 | 75.0 | 7.7% | Flat as % of revenue; bulky goods floor | O |
+| Marketplace commission | 40.4 | 49.3 | 48.9 | 47.8 | 4.9% | Flat in rupees for 3 years while revenue grew 57%: the owned-channel shift is working | F/O |
+| Contract labour | 27.4 | 36.4 | 40.6 | 47.6 | 4.9% | Growing faster than revenue (+17% annualised vs +29% revenue in FY25, but up 74% since FY22) | O (people) |
+| Job work (outsourced manufacturing) | 13.2 | 14.8 | 19.7 | 15.0 | 1.5% | Falling as plants consolidate | O |
+| Employee benefits | n.a. | 106 | 135 | 125.8 | 13.0% | Includes ESOP ₹11.7 cr in 9M; ESOP guided ₹12 cr in FY27 | O/F |
+| Professional and consultancy | 8.1 | 13.0 | 12.8 | 12.7 | 1.3% | IPO-related; should fall post-listing | F |
+| Power and fuel | 5.1 | 9.0 | 11.1 | 11.5 | 1.2% | Rising with plant load | O |
+| Repairs: buildings | 0.4 | 1.6 | 5.3 | 8.3 | 0.9% | **Up 5x in two years**; this is the store estate ageing and churning | O |
+| Travelling | 2.2 | 5.4 | 7.3 | 10.0 | 1.0% | Rising with store rollout and field teams | O |
+| Software support | 5.7 | 8.6 | 9.9 | 9.8 | 1.0% | SAP and platforms | F/O |
+| Payment gateway | 6.1 | 7.0 | 8.1 | 8.4 | 0.9% | ~3.5% of website sales; EMI and BNPL costs sit here | F |
+| Short-term rent (outside Ind AS 116) | 3.2 | 3.8 | 4.5 | 7.2 | 0.7% | Warehouses and holding points | O |
+| Stores and spares | 5.9 | 6.6 | 5.5 | 3.9 | 0.4% | Falling | O |
+| Warranty | 0.9 | 1.2 | 1.5 | 1.4 | 0.1% | Provision balance ₹5.1 cr and rising each year | O (quality) |
+| PPE written off | – | 0.3 | 0.04 | 0.85 | | Store fit-outs scrapped on closure | O |
+| Doubtful advances provided | 1.0 | – | – | 0.6 | | Supplier advances not recovered | O/F |
+| FX loss | – | 1.35 | (0.9 gain) | 0.2 | | 38% of raw material is imported, unhedged | F |
+| **Total other expenses** | 246.9 | 334.0 | 351.8 | 359.2 | 37.0% | | |
+
+Below the operating line:
+
+| Line (₹ cr) | FY23 | FY24 | FY25 | 9M FY25 | Note | Tag |
+|---|---|---|---|---|---|---|
+| Depreciation, of which right-of-use (stores) | 47 | 64 | 96 | 66.5 (ROU 36.9) | Lease component of D&A guided ~₹66.5 cr for FY26 alone | F (driven by O) |
+| Finance cost, of which lease interest | 13 | 17 | 30 | 18.8 (18.3) | Almost entirely store leases; no bank debt | F (driven by O) |
+| Other income | 7.4 | 31.0 | 31–32 | 23.3 | Interest on deposits, mutual-fund gains, lease-termination gains | F |
+
+### 1A.2 Five things the headline numbers hide
+
+1. **The store estate is the real fixed cost, and it sits below EBITDA.** Lease liabilities grew from ₹103 cr (FY22) to ₹265 cr (Dec-2024). Under Ind AS 116 the rent appears as ₹37 cr of ROU depreciation plus ₹18 cr of lease interest in nine months, roughly ₹73 cr a year, heading toward ₹95 cr in FY26 and doubling again if 80 stores a year continue. Operating EBITDA of 7.5% is reported before all of it. The IPO fresh issue earmarked ₹145 cr just to pay leases on stores that already exist. [O: real estate decisions; F: presentation]
+
+2. **Other income is carrying PBT.** FY25 loss before tax was ₹35 cr after ₹31 cr of other income. The operating business lost about ₹66 cr. With ₹959 cr of investable cash after the IPO, treasury income will run at ₹60–70 cr a year and will make PBT look better than the stores and plants are. Separate the two when reading any quarter. [F]
+
+3. **The FY26 profit of ₹189 cr includes a ₹98 cr deferred tax asset.** At Dec-2024 the company had ₹100.6 cr of unrecognised deferred tax assets, mostly on ₹91 cr of carried-forward losses, and the auditors wrote that there was "no reasonable certainty" of enough future taxable profit to use them. Sixteen months later the company recognised ₹98 cr of it in a single quarter. It is non-cash, it is legitimate if the forecasts hold, and it reverses if they do not. Underlying FY26 PAT is about ₹91 cr. [F]
+
+4. **Inventory has a provision problem that was never discussed.** The management provision for slow-moving and non-moving stock was ₹1.9 cr at Mar-2022, ₹38.2 cr at Mar-2023, ₹28.5 cr at Mar-2024 and ₹27.5 cr at Dec-2024, against gross inventory of ₹193 cr, so 14% of stock is provided against today and it was about 25% in FY23. The FY23 charge of roughly ₹36 cr went through cost of materials and changes in inventory and is a large part of why FY23 gross margin was 42.7%. Raw material inventory then doubled from ₹61 cr to ₹105 cr in nine months to Dec-2024 as chemicals were pre-bought, which is why nine-month operating cash flow was only ₹6.5 cr on a ₹62 cr inventory build. [O: planning and SKU control; F: provisioning]
+
+5. **Marketplace commission has not fallen in rupees.** ₹49 cr in FY23, ₹49 cr in FY24, ₹48 cr in 9M FY25. The owned-channel story is true as a percentage but the external channel is still paying the same cheque. [F/O]
+
+### 1A.3 Controls and governance: what the auditors said
+
+| Finding | Years | Why it matters to the bottom line | Tag |
+|---|---|---|---|
+| Quarterly stock statements filed with banks did not agree with the books | FY22, FY23, FY24, every year | Inventory is the hypothecated security for working-capital lines and the asset with a 14–25% provision. If the bank statement and the ledger disagree, nobody has one number for stock. | O (controls) |
+| No internal audit system | FY24 (required under Section 138) | A ₹1,000 cr company with 5 plants, 98 stores and 7 warehouses ran without an internal audit function until listing preparation | O |
+| Accounting software had no audit trail (edit log) | FY24 | Entries could be changed without a record; SAP is cited elsewhere, so this points to peripheral systems or configuration | O/F |
+| Delays in statutory dues; GST of ₹0.96 cr under dispute from FY20; ESI, TDS, professional tax and labour welfare fund irregular for 12 months | FY22–FY24 | Small amounts, but recurring | F |
+| Cash losses | FY22, FY23 | ₹47.2 cr cash loss in FY23 | F |
+| Store employee fabricated bills worth ₹4.1 lakh (Patna, FIR Jan-2025) | FY25 | Tiny amount, but it is the store-level control sample the DRHP had to disclose, with 165 stores and 80 more coming | O |
+| CFO Navesh Gupta resigned with last day 31 Dec 2025, the month of listing; Parul Gupta (ex-Myntra, Syngene) CFO from Feb-2026 | FY26 | A finance leadership change at listing, disclosed in the RHP | F |
+
+None of these required restatement. Together they say the same thing: the control environment lagged the growth, and inventory was where it showed.
+
+### 1A.4 Operational findings that end up in the P&L
+
+| Finding | Evidence | Where it lands | Tag |
+|---|---|---|---|
+| **Attrition of 35–65% among staff and 33–54% among own labour** | DRHP table: staff 64.6% (FY22), 54.4% (FY23), 41.4% (FY24), 35.4% (9M FY25); skilled/unskilled labour 41%, 54%, 33%, 43% | Hiring, training, store productivity, quality consistency; employee cost up 23% in FY25 | O (people) |
+| **84% of the shop floor is contract labour** | 3,049 contract labourers vs 581 own skilled and unskilled labour at Dec-2024 | Contract labour charges ₹47.6 cr in 9M and growing faster than revenue; flexibility bought at the cost of yield and quality control | O (people) |
+| **Store closures at 12–19% of openings** | 6 closed vs 48 opened in 9M FY25; 8 closed vs 42 opened in FY26; reason given "low revenue generation" and relocation; capex per store ₹45 lakh plus fit-out written off plus lease exit | PPE write-offs, lease termination, rent paid during ramp on a store that never matured | O (site selection) |
+| **Mattress returns are re-processed at the factory** | 100-day return policy on owned channels; returned mattresses "sent back to the factory for re-processing"; furniture handled with replacement parts | Reverse logistics inside the ₹100 cr courier line; reprocessing labour and material; warranty provision rising | O (quality, logistics) |
+| **Spring mattress line at 0% utilisation; chairs at 47%** | DRHP capacity table, 9M FY25 | Paid-for capacity earning nothing; depreciation without revenue | O (plant) |
+| **Raw material 38% imported, no long-term contracts, pre-buying as the hedge** | DRHP; FY26 release: "proactively stocking raw materials" | Inventory build, FX exposure, provisioning risk when prices fall after a pre-buy | O (procurement) |
+| **Pollution show-cause notices at Hosur (Facility V)** | Water Act and Air Act notices on consent-to-establish conditions; replied, no further action | Compliance cost and a plant-continuity risk on the newest mattress line (84% utilised) | O (compliance) |
+| **Two consumer notices on health effects from mattresses** | Back and body pain claims; replied, no further correspondence | Reputational; closed | O (quality) |
+| **Seasonal discounting hits Q3 gross margin** | Q3 FY26: "GP margin impacted due to seasonal offers and discounts" | Festival-quarter margin is structurally lower; price hikes in Mar–Apr 2026 are the offset | O (commercial) |
+| **Exports negligible** | ₹2.6 cr in 9M FY25 via marketplaces; pilots only | No diversification from Indian discretionary demand | O |
+
+### 1A.5 What is actually eating the bottom line, ranked
+
+Annualised on FY25–FY26 run-rates. "Finance" means the fix is in treasury, accounting or pricing; "operations" means the fix is in plants, stores, people or procurement.
+
+| Rank | Item | Annual size (₹ cr) | Finance or operations | Trend |
+|---|---|---|---|---|
+| 1 | Store leases (ROU depreciation + lease interest) | ~95 in FY26, heading to ~150+ by FY28 | Operations (real estate and site selection), shown as finance | Doubling |
+| 2 | Advertising and promotion | ~110–120 | Commercial | Rising with competitor intensity |
+| 3 | Courier, delivery and reverse logistics | ~100 | Operations | Flat %, rising rupees |
+| 4 | Contract labour and job work | ~85 | Operations (people) | Rising faster than revenue |
+| 5 | Marketplace commission | ~64 | Channel | Flat rupees |
+| 6 | Raw material inflation (polyol, TDI) from H1 FY27 | Management: ~30% on mattress COGS, i.e. ₹100+ cr gross before pricing | Procurement and pricing | New in FY27 |
+| 7 | Slow-moving inventory provision | ₹27–38 cr standing; ₹36 cr charge in FY23 | Operations (planning), accounting | Stable but large |
+| 8 | Store closures | 14 stores in 21 months × ₹45 lakh capex + ramp losses | Operations | 19% of openings in FY26 |
+| 9 | ESOP expense | 3.3 (FY26) → 12 (FY27) | Accounting, non-cash | Rising |
+| 10 | Repairs to buildings | ~11 | Operations (estate) | 5x in two years |
+| 11 | Payment gateway | ~11 | Finance | Rising with website share |
+| 12 | Professional fees | ~17 | Finance, IPO-related | Should fall |
+| 13 | Warranty and quality | provision ₹5 cr, expense ~₹2 cr | Operations (quality) | Rising |
+| 14 | FX on imported inputs | ±1–2 | Finance | Unhedged, 38% of RM |
+
+Offsetting, and worth separating: other income of ₹31 cr in FY25 rising to ₹60–70 cr post-IPO, and the one-time ₹98 cr deferred tax asset in FY26.
+
+### 1A.6 Read-through for S-PAL
+
+Six of the top eight items are operational, not financial: leases are a site-selection decision, logistics and contract labour are plant and warehouse decisions, inventory provisioning is a planning decision, closures are an estate decision, and raw-material pre-buying is a procurement decision. The finance items (other income, deferred tax, ESOP, gateway fees) change how the numbers look; the operational items change what the numbers are. The auditor findings tie the two together: for three years the one asset that carried both a bank charge and a double-digit provision, inventory, had two different numbers in the books and the bank filing.
+
 ## 2. Sector baseline: structural P&L levers for a vertically integrated home-products brand in India
 
 Scope: a ₹1,500 cr mattress-led brand with furniture and furnishings, five plants, a leased store estate growing 50% a year, bulky-goods logistics, and chemical inputs priced off crude and imported.
@@ -160,6 +264,8 @@ Ranked by estimated P&L impact over the next 12–24 months. No OHM assumption a
 | 10 | P1 Channel mix to owned | Realisation | Positive, diminishing | 72% owned; the remaining shift is slower and MBO reach is wanted |
 | 11 | W5/O6 Return on capital and controls | Valuation | Pressure | Stock −33% vs IPO; ROCE near zero; auditor qualifications in the DRHP make controls a board topic |
 | 12 | V6 Demand softness | Revenue | Risk | Management flagged in Q4 FY26 |
+
+Note: Section 1A adds four items that the sector view alone would not rank: the lease-driven cost below EBITDA, the slow-moving inventory provision, the attrition and contract-labour profile, and the inventory control findings from the auditors.
 
 Next step: OHM context for this account, then steps 4 and 5.
 
