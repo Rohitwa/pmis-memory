@@ -1,0 +1,33 @@
+{% extends "wiki_base.html" %}
+{% block title %}S-PAL — ProMe{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="/wiki/">memory</a> &rsaquo; S-PAL</div>
+<h1>S-PAL</h1>
+<p>{{ total }} compan{{ 'y' if total == 1 else 'ies' }}. Specific P&amp;L levers per enterprise, filtered to what OHM controls, sized, and distilled to one line for the owner.</p>
+
+{% for c in companies %}
+<div class="card" style="padding:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;">
+    <h3 style="font-size:16px;"><a href="/wiki/spal/{{ c.slug }}">{{ c.company }}</a>
+      {% if c.brand and c.brand != c.company %}<span class="sub" style="font-weight:400;">&middot; {{ c.brand }}</span>{% endif %}</h3>
+    <span class="tag" style="border-color:{{ c.status_color }}; color:{{ c.status_color }}; font-size:11px;">{{ c.status or 'In research' }}</span>
+  </div>
+  <div class="sub" style="margin-top:2px;">{{ c.location }}{% if c.sector %} &middot; {{ c.sector }}{% endif %}{% if c.revenue_base %} &middot; {{ c.revenue_base }}{% endif %}</div>
+  {% if c.tagline %}
+  <blockquote style="margin:14px 0 6px; padding:12px 16px; border-left:3px solid var(--green); background:var(--bg2); border-radius:0 6px 6px 0; font-size:15px; color:var(--fg); line-height:1.5;">
+    {{ c.tagline }}
+  </blockquote>
+  <div class="sub">Tagline {{ c.tagline_date or '' }} &middot; <a href="/wiki/spal/{{ c.slug }}#where-the-tagline-comes-from">where it comes from</a></div>
+  {% else %}
+  <div class="sub" style="margin-top:10px; font-style:italic;">No tagline yet.</div>
+  {% endif %}
+</div>
+{% endfor %}
+
+{% if total == 0 %}
+<p>No company pages found. Add a markdown file under <code>ohm_spal/companies/</code> using <code>ohm_spal/_template.md</code>.</p>
+{% endif %}
+
+<p class="sub" style="margin-top:32px; font-size:12px; color:var(--fg3);">Pages are read from <code>ohm_spal/companies/*.md</code> on each request. Edit the file, reload the page.</p>
+{% endblock %}

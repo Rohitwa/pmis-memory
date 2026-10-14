@@ -1,10 +1,66 @@
-# S-PAL (Steps 1–3): Auto Ignition Ltd (AUTO-LEK), Prithla / Palwal, Haryana
+---
+company: Auto Ignition Ltd
+slug: auto_ignition_ltd
+brand: AUTO-LEK
+location: Prithla, Palwal, Haryana
+sector: Auto electricals (starter motors, alternators) for tractors, gensets, EV
+revenue_base: "₹450 cr (FY25, CRISIL est.)"
+status: Tagline agreed
+ohm_modules:
+  - 35-point outflow controls
+  - Metal stock tracking and tagging (RM to FG)
+tagline: "A tech that lifts Auto Ignition's bottom line by up to 20% and frees ₹12 crore of working capital, saving over a crore a year in interest."
+tagline_date: 2026-10-14
+prepared: 2026-10-14
+owner_contact: Ishaan Sarine, Managing Director
+---
 
-**Status:** Steps 1–5 complete. OHM scope received 14 Oct 2026: (a) outflow controls and cash flow via a 35-point transaction check; (b) metal-rate realisation via tracking and tagging of metal stock from raw material to finished product. Claim under test: up to 1% bottom-line improvement, improved cash flow, metal-rate parity with OEMs.
-**Prepared:** 14 Oct 2026
-**Evidence key:** [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)
+## Where the tagline comes from
+
+Three claims, each traced to a number and a source. Base case unless stated.
+
+### "Bottom line by up to 20%"
+
+| Step | Figure | Source |
+|---|---|---|
+| EBITDA uplift from metal-rate parity (lot-level claim on OEM price-variation clauses) | ₹1.5–4.0 cr, base ₹2.4 cr | 2–5% leakage on ~₹153 cr index-linked metal, 40–60% recovered. Metal share is a sector assumption. |
+| EBITDA uplift from 35-point outflow controls | ₹0.5–1.2 cr, base ₹0.8 cr | 0.2–0.5% leakage on ~₹380 cr outflows, 50–70% recovered. Sector norm. |
+| Interest saved on working capital released | ₹0.9–1.5 cr, base ₹1.2 cr | See the ₹12 crore claim below. |
+| **Total pre-tax uplift** | **₹2.9–6.7 cr, base ₹4.4 cr** | |
+| Divided by FY24 profit after tax | ₹21.7 cr | CRISIL rating rationale, Apr 2025 |
+| **Result** | **~20% (range 13–31%)** | Say "15 to 20%" if pressed; the base case is pre-tax against a post-tax denominator. |
+
+Why this lever exists here: starters and alternators are among the most metal-intensive parts a tractor OEM buys. OEMs compensate metal on standard weight with a one to two quarter lag and not in full (CRISIL sector view). Auto Ignition's margin has already slipped from 9.6% to 7.5–8% while copper sits at record levels.
+
+### "Frees ₹12 crore of working capital"
+
+| Lever | Days moved | Daily value | Cash released |
+|---|---|---|---|
+| Payables: release only at due date, no early or duplicate payments, advances adjusted | +5 to +8 | ₹0.96 cr/day (₹350 cr annual spend ÷ 365) | ₹4.8–7.7 cr |
+| Metal inventory: lot-level ageing and visibility across four plants | −5 to −8 | ₹0.76 cr/day (₹279 cr material cost ÷ 365) | ₹3.8–6.1 cr |
+| Price-variation claims settle one cycle faster | −3 to −5 on PV slice | PV portion of receivables only | ₹1.0–2.0 cr |
+| **Total** | | | **₹9.6–15.8 cr, base ₹12.5 cr** |
+
+Context: CRISIL reports receivables 75–100 days, inventory 50–60, payables 45–50, gross current assets 170+ days, and names "large working capital requirement" as the company's second rating weakness. ₹12.5 cr is 20–30% of current drawdown on bank lines.
+
+### "Saving over a crore a year in interest"
+
+| Input | Value | Source |
+|---|---|---|
+| Working-capital lines | ₹66 cr (HSBC ₹35 cr, DBS ₹31 cr) | CRISIL |
+| Utilisation | ~74%, so ~₹49 cr drawn | CRISIL, 12 months to Feb 2025 |
+| Cost of lines | ~9.5% | A-minus borrower, sector norm |
+| Cash released × rate | ₹12.5 cr × 9.5% | **₹1.2 cr per year** (range ₹0.9–1.5 cr) |
+
+The cash release is one-time and lives on the balance sheet. The interest saving recurs every year the working-capital gap stays shrunk, and sits on the finance-cost line below EBITDA.
+
+### What the tagline does not claim
+
+OHM does not move the largest lever at this account, the tractor cycle (FY27 domestic tractor growth forecast at 1–4% after 23.5% in FY26). It also does not drive the Supa and Satara plant ramp or the EV line. Say this in the room; it builds credibility with an owner who already knows it.
 
 ---
+
+# Full S-PAL analysis
 
 ## 0. Identity check (read first)
 

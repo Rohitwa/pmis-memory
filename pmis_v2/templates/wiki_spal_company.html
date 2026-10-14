@@ -1,0 +1,56 @@
+{% extends "wiki_base.html" %}
+{% block title %}{{ company }} — S-PAL{% endblock %}
+
+{% block content %}
+<style>
+.spal-tagline { margin:16px 0 8px; padding:20px 24px; border-left:4px solid var(--green); background:var(--bg2); border-radius:0 8px 8px 0; font-size:20px; line-height:1.45; color:var(--fg); font-weight:500; }
+.spal-tagline-meta { font-size:12px; color:var(--fg3); margin-bottom:24px; }
+.spal-sources h2 { border:none; font-size:18px; margin-top:8px; }
+.spal-sources h3 { font-size:15px; color:var(--fg); margin-top:22px; }
+.spal-analysis { margin-top:40px; padding-top:8px; border-top:2px solid var(--border); }
+.spal-analysis h1 { font-size:22px; margin:24px 0 8px; }
+.spal-toc { font-size:12px; color:var(--fg3); margin:8px 0 20px; line-height:1.9; }
+.spal-toc a { color:var(--fg2); }
+details.spal-fold > summary { cursor:pointer; font-size:13px; color:var(--fg2); padding:10px 0; list-style:none; }
+details.spal-fold > summary::before { content:"▸ "; }
+details.spal-fold[open] > summary::before { content:"▾ "; }
+.wiki-content table { font-size:12.5px; }
+.wiki-content td, .wiki-content th { vertical-align:top; }
+code { background:var(--bg3); padding:1px 5px; border-radius:3px; font-size:12px; }
+</style>
+
+<div class="breadcrumb"><a href="/wiki/">memory</a> &rsaquo; <a href="/wiki/spal/">S-PAL</a> &rsaquo; {{ company }}</div>
+<h1>{{ company }}</h1>
+<div class="meta-bar">
+  {% if brand and brand != company %}<span class="tag">{{ brand }}</span>{% endif %}
+  {% if location %}<span class="tag">{{ location }}</span>{% endif %}
+  {% if revenue_base %}<span class="tag">{{ revenue_base }}</span>{% endif %}
+  <span class="tag" style="border-color:{{ status_color }}; color:{{ status_color }};">{{ status or 'In research' }}</span>
+  {% for m in ohm_modules or [] %}<span class="tag" style="background:#eff6ff; border-color:#bfdbfe; color:var(--blue);">OHM: {{ m }}</span>{% endfor %}
+</div>
+
+{% if tagline %}
+<div class="spal-tagline">{{ tagline }}</div>
+<div class="spal-tagline-meta">Agreed {{ tagline_date or prepared }}{% if owner_contact %} &middot; for {{ owner_contact }}{% endif %}</div>
+{% else %}
+<p><em>No tagline yet. Status: {{ status or 'In research' }}.</em></p>
+{% endif %}
+
+<div class="spal-sources">
+{{ sources_html | safe }}
+</div>
+
+{% if analysis_html %}
+<div class="spal-analysis">
+<details class="spal-fold" open>
+<summary>Full S-PAL analysis (steps 1–5 and sources)</summary>
+{% if toc %}
+<div class="spal-toc">{% for id, t in toc %}<a href="#{{ id }}">{{ t }}</a>{% if not loop.last %} &middot; {% endif %}{% endfor %}</div>
+{% endif %}
+{{ analysis_html | safe }}
+</details>
+</div>
+{% endif %}
+
+<p class="sub" style="margin-top:40px; font-size:12px; color:var(--fg3);">Source file: <code>ohm_spal/companies/{{ slug }}.md</code></p>
+{% endblock %}

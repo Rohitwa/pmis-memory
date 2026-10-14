@@ -1148,6 +1148,29 @@ def _markdown_to_html(md: str) -> str:
     return '\n'.join(result)
 
 
+# ================================================================
+# S-PAL WIKI (ohm_spal/companies/*.md)
+# ================================================================
+
+import spal_wiki as _spal
+
+
+@app.get("/wiki/spal", response_class=HTMLResponse)
+@app.get("/wiki/spal/", response_class=HTMLResponse)
+async def wiki_spal_index(request: Request):
+    """S-PAL index: every company with its tagline."""
+    return templates.TemplateResponse(request, "wiki_spal_index.html", _spal.render_index())
+
+
+@app.get("/wiki/spal/{slug}", response_class=HTMLResponse)
+async def wiki_spal_company(request: Request, slug: str):
+    """S-PAL company page: tagline, where it comes from, full analysis."""
+    data = _spal.render_company(slug)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"S-PAL page '{slug}' not found")
+    return templates.TemplateResponse(request, "wiki_spal_company.html", data)
+
+
 @app.get("/wiki/node/{node_id}/backend", response_class=JSONResponse)
 async def wiki_node_backend(node_id: str):
     """Backend data panel for a node (JSON)."""
