@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>S-PAL Wiki</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+/* Layout: one reading column; tagline as the hero of each company; analysis folded below. */
+:root {
+  --bg: #f7f6f3; --surface: #ffffff; --bg2: #eeece7; --line: #d9d5cc;
+  --fg: #1c1b19; --fg2: #4b4842; --fg3: #7d786f;
+  --accent: #a4552a; --accent-soft: #f3e4da; --accent-ink: #7d3d1a;
+  --good: #2f7d4f; --info: #2b5aa6; --warn: #b07a17;
+  --display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161614; --surface: #1f1e1b; --bg2: #262522; --line: #3a3833;
+  --fg: #ece9e2; --fg2: #c4bfb4; --fg3: #8d877b;
+  --accent: #d98a4e; --accent-soft: #3a2a1e; --accent-ink: #f0b482;
+  --good: #6cc08f; --info: #7ea5e8; --warn: #e0b24a;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #161614; --surface: #1f1e1b; --bg2: #262522; --line: #3a3833;
+  --fg: #ece9e2; --fg2: #c4bfb4; --fg3: #8d877b;
+  --accent: #d98a4e; --accent-soft: #3a2a1e; --accent-ink: #f0b482;
+  --good: #6cc08f; --info: #7ea5e8; --warn: #e0b24a;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow-x: clip; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6;
+  padding-block: 0 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--info); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 880px; margin: 0 auto; min-width: 0; }
+
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding: 20px 0 14px; border-bottom: 1px solid var(--line); }
+.top .brand { font-family: var(--display); font-size: 22px; font-weight: 600; letter-spacing: -0.2px; color: var(--fg); }
+.top .brand small { font-family: var(--body); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--fg3); margin-left: 10px; }
+.top .built { font-size: 12px; color: var(--fg3); font-variant-numeric: tabular-nums; }
+
+h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-family: var(--display); font-size: 30px; font-weight: 600; }
+h2 { font-family: var(--display); font-size: 21px; font-weight: 600; margin-top: 36px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 15.5px; font-weight: 600; margin-top: 22px; color: var(--fg); }
+p { margin: 10px 0; color: var(--fg2); max-width: 70ch; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+code { font-family: var(--mono); font-size: 12.5px; background: var(--bg2); padding: 1px 5px; border-radius: 3px; }
+pre { overflow-x: auto; background: var(--bg2); padding: 12px; border-radius: 6px; }
+ul, ol { padding-left: 22px; color: var(--fg2); }
+li { margin: 4px 0; }
+blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--line); color: var(--fg2); }
+
+.lede { font-size: 16px; color: var(--fg2); margin: 18px 0 26px; max-width: 65ch; }
+.index-list { display: grid; gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.card-head a { font-family: var(--display); font-size: 19px; font-weight: 600; color: var(--fg); }
+.card .sub { font-size: 12.5px; color: var(--fg3); margin-top: 2px; }
+.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.good { color: var(--good); } .pill.info { color: var(--info); } .pill.warn { color: var(--warn); } .pill.muted { color: var(--fg3); }
+.tagline { font-family: var(--display); font-size: 18px; line-height: 1.45; color: var(--fg); margin: 14px 0 6px; padding: 12px 16px;
+  border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+.tagline.hero { font-size: 23px; padding: 20px 24px; margin: 20px 0 8px; }
+.tagline-meta { font-size: 12px; color: var(--fg3); }
+
+.company { margin-top: 48px; padding-top: 8px; }
+.company-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.meta { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 4px; }
+.meta span { font-size: 12px; color: var(--fg2); background: var(--bg2); border: 1px solid var(--line); border-radius: 4px; padding: 2px 9px; }
+.meta span.ohm { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
+.sources h2 { border: 0; font-size: 19px; margin-top: 26px; }
+.sources h3 { font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--accent-ink); }
+
+.tbl { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
+th { text-align: left; padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fg3); background: var(--bg2); border-bottom: 1px solid var(--line); font-weight: 600; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--fg); font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+
+details.fold { margin-top: 32px; border-top: 2px solid var(--line); }
+details.fold > summary { cursor: pointer; list-style: none; padding: 14px 0; font-size: 13px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.6px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "\25B8  "; color: var(--accent); }
+details.fold[open] > summary::before { content: "\25BE  "; }
+.toc { font-size: 12.5px; color: var(--fg3); line-height: 1.9; margin-bottom: 8px; }
+.toc a { color: var(--fg2); }
+.analysis h1 { font-size: 22px; margin-top: 18px; }
+.foot { margin-top: 48px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg3); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+@media (max-width: 480px) { h1 { font-size: 25px; } .tagline.hero { font-size: 19px; padding: 14px 16px; } }
+</style>
+</head>
+<body>
+<a id="top"></a><header class="top"><div class="brand">S-PAL<small>OHM value drivers</small></div><div class="built">Built 2026-10-14</div></header>
+<main class="wrap">
+<h1 style="margin-top:28px">Companies</h1>
+<p class="lede">1 company. Specific P&amp;L levers per enterprise, filtered to what OHM controls, sized, and distilled to one line for the owner. Each tagline is traced to its numbers and sources below.</p>
+<div class="index-list">
+<article class="card"><div class="card-head"><a href="#auto_ignition_ltd">Auto Ignition Ltd</a> <span class="sub">&middot; AUTO-LEK</span><span class="pill good">Tagline agreed</span></div><div class="sub">Prithla, Palwal, Haryana &middot; Auto electricals (starter motors, alternators) for tractors, gensets, EV &middot; ₹450 cr (FY25, CRISIL est.)</div><div class="tagline">A tech that lifts Auto Ignition&#x27;s bottom line by up to 20% and frees ₹12 crore of working capital, saving over a crore a year in interest.</div><div class="tagline-meta">Tagline 2026-10-14 &middot; <a href="#auto_ignition_ltd">where it comes from</a></div></article>
+</div>
+<section class="company" id="auto_ignition_ltd"><div class="company-head"><h1>Auto Ignition Ltd</h1><span class="pill good">Tagline agreed</span></div><div class="meta"><span>AUTO-LEK</span><span>Prithla, Palwal, Haryana</span><span>₹450 cr (FY25, CRISIL est.)</span><span class="ohm">OHM: 35-point outflow controls</span><span class="ohm">OHM: Metal stock tracking and tagging (RM to FG)</span></div><div class="tagline hero">A tech that lifts Auto Ignition&#x27;s bottom line by up to 20% and frees ₹12 crore of working capital, saving over a crore a year in interest.</div><div class="tagline-meta">Agreed 2026-10-14 &middot; for Ishaan Sarine, Managing Director</div><div class="sources"><h2 id="where-the-tagline-comes-from">Where the tagline comes from</h2>
+<p>Three claims, each traced to a number and a source. Base case unless stated.</p>
+<h3 id="bottom-line-by-up-to-20">"Bottom line by up to 20%"</h3>
+<div class="tbl"><table>
+<thead><tr><th>Step</th><th>Figure</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>EBITDA uplift from metal-rate parity (lot-level claim on OEM price-variation clauses)</td><td>₹1.5–4.0 cr, base ₹2.4 cr</td><td>2–5% leakage on ~₹153 cr index-linked metal, 40–60% recovered. Metal share is a sector assumption.</td></tr>
+<tr><td>EBITDA uplift from 35-point outflow controls</td><td>₹0.5–1.2 cr, base ₹0.8 cr</td><td>0.2–0.5% leakage on ~₹380 cr outflows, 50–70% recovered. Sector norm.</td></tr>
+<tr><td>Interest saved on working capital released</td><td>₹0.9–1.5 cr, base ₹1.2 cr</td><td>See the ₹12 crore claim below.</td></tr>
+<tr><td><strong>Total pre-tax uplift</strong></td><td><strong>₹2.9–6.7 cr, base ₹4.4 cr</strong></td><td></td></tr>
+<tr><td>Divided by FY24 profit after tax</td><td>₹21.7 cr</td><td>CRISIL rating rationale, Apr 2025</td></tr>
+<tr><td><strong>Result</strong></td><td><strong>~20% (range 13–31%)</strong></td><td>Say "15 to 20%" if pressed; the base case is pre-tax against a post-tax denominator.</td></tr>
+</tbody></table></div>
+<p>Why this lever exists here: starters and alternators are among the most metal-intensive parts a tractor OEM buys. OEMs compensate metal on standard weight with a one to two quarter lag and not in full (CRISIL sector view). Auto Ignition's margin has already slipped from 9.6% to 7.5–8% while copper sits at record levels.</p>
+<h3 id="frees-12-crore-of-working-capital">"Frees ₹12 crore of working capital"</h3>
+<div class="tbl"><table>
+<thead><tr><th>Lever</th><th>Days moved</th><th>Daily value</th><th>Cash released</th></tr></thead>
+<tbody>
+<tr><td>Payables: release only at due date, no early or duplicate payments, advances adjusted</td><td>+5 to +8</td><td>₹0.96 cr/day (₹350 cr annual spend ÷ 365)</td><td>₹4.8–7.7 cr</td></tr>
+<tr><td>Metal inventory: lot-level ageing and visibility across four plants</td><td>−5 to −8</td><td>₹0.76 cr/day (₹279 cr material cost ÷ 365)</td><td>₹3.8–6.1 cr</td></tr>
+<tr><td>Price-variation claims settle one cycle faster</td><td>−3 to −5 on PV slice</td><td>PV portion of receivables only</td><td>₹1.0–2.0 cr</td></tr>
+<tr><td><strong>Total</strong></td><td></td><td></td><td><strong>₹9.6–15.8 cr, base ₹12.5 cr</strong></td></tr>
+</tbody></table></div>
+<p>Context: CRISIL reports receivables 75–100 days, inventory 50–60, payables 45–50, gross current assets 170+ days, and names "large working capital requirement" as the company's second rating weakness. ₹12.5 cr is 20–30% of current drawdown on bank lines.</p>
+<h3 id="saving-over-a-crore-a-year-in-interest">"Saving over a crore a year in interest"</h3>
+<div class="tbl"><table>
+<thead><tr><th>Input</th><th>Value</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Working-capital lines</td><td>₹66 cr (HSBC ₹35 cr, DBS ₹31 cr)</td><td>CRISIL</td></tr>
+<tr><td>Utilisation</td><td>~74%, so ~₹49 cr drawn</td><td>CRISIL, 12 months to Feb 2025</td></tr>
+<tr><td>Cost of lines</td><td>~9.5%</td><td>A-minus borrower, sector norm</td></tr>
+<tr><td>Cash released × rate</td><td>₹12.5 cr × 9.5%</td><td><strong>₹1.2 cr per year</strong> (range ₹0.9–1.5 cr)</td></tr>
+</tbody></table></div>
+<p>The cash release is one-time and lives on the balance sheet. The interest saving recurs every year the working-capital gap stays shrunk, and sits on the finance-cost line below EBITDA.</p>
+<h3 id="what-the-tagline-does-not-claim">What the tagline does not claim</h3>
+<p>OHM does not move the largest lever at this account, the tractor cycle (FY27 domestic tractor growth forecast at 1–4% after 23.5% in FY26). It also does not drive the Supa and Satara plant ramp or the EV line. Say this in the room; it builds credibility with an owner who already knows it.</p>
+<hr></div><details class="fold" open><summary>Full S-PAL analysis (steps 1–5 and sources)</summary><div class="toc"><a href="#auto_ignition_ltd-0">0. Identity check (read first)</a> &middot; <a href="#auto_ignition_ltd-1">1. Company snapshot [C]</a> &middot; <a href="#auto_ignition_ltd-2">2. Sector baseline: structural P&amp;L levers for an Indian Tier-1 auto-electrical supplier</a> &middot; <a href="#auto_ignition_ltd-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a> &middot; <a href="#auto_ignition_ltd-4">4. Ranked S-PAL shortlist (pre-OHM filter)</a> &middot; <a href="#auto_ignition_ltd-5">5. Step 4: OHM controllability filter</a> &middot; <a href="#auto_ignition_ltd-6">6. Step 5: Value sizing</a> &middot; <a href="#auto_ignition_ltd-7">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<h2 id="auto_ignition_ltd-0">0. Identity check (read first)</h2>
+<p>The brief said "Auto Ignition – Gurgaon". Public records place Auto Ignition Ltd's head office and Plant 1 at 49 Km Milestone, NH-19, Prithla, Palwal (Faridabad belt), not Gurgaon. No Gurgaon office is listed on the company website, CRISIL rationale, Automechanika exhibitor record, or ZoomInfo.</p>
+<p>The Gurgaon-based starter-motor / alternator maker is <strong>Jumps Auto Industries Ltd</strong> (Sector 37, Gurgaon; export-oriented, 50+ countries). If the account is actually Jumps Auto, this document needs to be redone. This document proceeds on <strong>Auto Ignition Ltd</strong>, which is the only company of that name.</p>
+<hr>
+<h2 id="auto_ignition_ltd-1">1. Company snapshot [C]</h2>
+<div class="tbl"><table>
+<thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Legal entity</td><td>Auto Ignition Ltd, unlisted public company, inc. 5 Aug 1971, Sarine family promoters</td><td>CRISIL Apr-2025, Motor India Aug-2021</td></tr>
+<tr><td>Brand</td><td>AUTO-LEK (ICE), AUTO-LEK Electric (EV)</td><td>autolek.com</td></tr>
+<tr><td>Subsidiary</td><td>Auto-Lek Electric Pvt Ltd (inc. Sep 2022): EV drivetrains, AC / engine-cooling motors</td><td>CRISIL</td></tr>
+<tr><td>MD</td><td>Ishaan Sarine (since 2013, third generation)</td><td>autolek.com, Motor India</td></tr>
+<tr><td>President &amp; CEO</td><td>Rajendra Abhange (ex-Gabriel India, ex-Bosch)</td><td>Engineering Review Sep-2023</td></tr>
+<tr><td>Plants</td><td>Prithla (HQ, Haryana); Rudrapur (Uttarakhand); Supa, Ahmednagar (Maharashtra, EV); Satara (Maharashtra)</td><td>autolek.com, CRISIL</td></tr>
+<tr><td>Core products</td><td>Starter motors 1.0–9.5 kW; alternators 23–250 A; wiper motors &amp; washer kits (acquired division); HVAC/blower/cooling-fan motors; EV BLDC/PMSM/hub motors up to 12 kW; L3/L5 e-axles</td><td>autolek.com, Engineering Review</td></tr>
+<tr><td>Core segment</td><td>Tractors: "dominant share" of domestic tractor OEMs; supplies almost all Indian tractor and genset makers</td><td>CRISIL, Motor India</td></tr>
+<tr><td>Named OEMs</td><td>Mahindra &amp; Mahindra, TAFE, Escorts (Kubota), International Tractors (Sonalika); 3 of the world's top-3 tractor OEMs and world's #2 genset maker as export customers</td><td>CRISIL, Motor India</td></tr>
+<tr><td>New segments</td><td>Passenger vehicles, EVs, buses (recent partly debt-funded capex)</td><td>CRISIL</td></tr>
+<tr><td>Exports</td><td>25–30 countries; N &amp; S America, UK/Europe, South Africa, Middle East</td><td>Engineering Review, Motor India</td></tr>
+<tr><td>Headcount</td><td>~1,000 (2021 article) vs 594 (Tracxn, Apr-2026) vs 389 India-based (GPTW). Spread suggests large contract-labour share or a reduction; unverified</td><td>multiple</td></tr>
+<tr><td>Credit rating</td><td>CRISIL A-/Stable (reaffirmed Apr-2025); bank lines enhanced ₹40 cr → ₹83 cr</td><td>CRISIL</td></tr>
+</tbody></table></div>
+<h3 id="financial-trajectory-group-crore-c">Financial trajectory (group, ₹ crore) [C]</h3>
+<div class="tbl"><table>
+<thead><tr><th>Metric</th><th>FY23</th><th>FY24</th><th>FY25 (CRISIL est.)</th><th>CRISIL medium-term expectation</th></tr></thead>
+<tbody>
+<tr><td>Operating income</td><td>420.0</td><td>391.9</td><td>~450 (11M actual 384)</td><td>&gt;550 is an upgrade trigger</td></tr>
+<tr><td>Operating (EBITDA) margin</td><td>n.a.</td><td>9.6%</td><td>7.5–8.0%</td><td>8.5–9.0% post capex ramp; ~11% upgrade trigger; &lt;7% downgrade trigger</td></tr>
+<tr><td>PAT</td><td>33.1 (7.9%)</td><td>21.7 (5.5%)</td><td>n.a.</td><td>—</td></tr>
+<tr><td>Gearing (debt / net worth)</td><td>0.08x</td><td>0.32x</td><td>~0.5x</td><td>—</td></tr>
+<tr><td>Interest cover</td><td>56x</td><td>12.8x</td><td>~9x</td><td>—</td></tr>
+<tr><td>Net worth</td><td>n.a.</td><td>177</td><td>~192</td><td>&gt;218 by FY26</td></tr>
+<tr><td>Gross current assets (days)</td><td>145–180</td><td>145–180</td><td>—</td><td>170–175</td></tr>
+<tr><td>Receivables / inventory / payables (days)</td><td>—</td><td>75–100 / 50–60 / 45–50</td><td>—</td><td>—</td></tr>
+<tr><td>Bank-limit utilisation</td><td>—</td><td>—</td><td>~74% (12M to Feb-25)</td><td>—</td></tr>
+<tr><td>Cash accrual</td><td>—</td><td>—</td><td>—</td><td>₹20–30 cr / yr vs ₹7–8 cr debt service</td></tr>
+</tbody></table></div>
+<p>Read-through: revenue dipped 7% in FY24 with the tractor down-cycle, recovered in FY25 on the acquired alternator/wiper division and volume. Margin has compressed ~200 bps (9.6% → ~7.5–8%) while debt has risen for the PV/EV/bus capex. The 2021 ambition of ₹1,000 cr by ~2026 is roughly half achieved. The business is now carrying new-segment fixed cost on a core franchise whose growth is about to decelerate (see 2.1).</p>
+<hr>
+<h2 id="auto_ignition_ltd-2">2. Sector baseline: structural P&amp;L levers for an Indian Tier-1 auto-electrical supplier</h2>
+<p>Scope note: Auto Ignition straddles three end-markets (tractor ~core, genset, on-road/EV new) and one product-technology transition (rotating electricals → e-motors). Sector levers below are organised by P&amp;L line. Each is marked [C] where there is company evidence, [S] where it is sector-assumed.</p>
+<h3 id="2-1-top-line-volume">2.1 Top line: volume</h3>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>V1</td><td><strong>Tractor OEM off-take (cyclicality)</strong></td><td>FY26 domestic tractor wholesale +23.5% (ICRA). FY27 forecast only +1–4% (ICRA) to flat (YES Securities): high base, below-normal monsoon risk, GST-cut pre-buy fading, destocking. TREM-V deferred to Apr-2028 for 30–50 HP, removing a pre-buy tailwind.</td><td>CRISIL's #1 weakness is tractor concentration. FY24 revenue fell 7% on the last down-cycle. FY27 is set up as a flat-to-low-growth year on the core.</td><td>[C]</td></tr>
+<tr><td>V2</td><td><strong>Share-of-wallet at the big-4 tractor OEMs</strong></td><td>Tractor rotating electricals is a 3–4 player market (Lucas TVS, Bosch/SEG, Auto-Lek, imports). Lucas TVS is pushing heavy-duty gear-reduction starters for developing markets (Apr-2025 tech show).</td><td>"Dominant share" today; defence of share is the single largest revenue determinant. Only Indian maker of direct-on and gear-reduction starters (planetary &amp; offset) – a defensible technical moat if sustained.</td><td>[C]</td></tr>
+<tr><td>V3</td><td><strong>Genset demand mix shift</strong></td><td>Data-centre build-out (1,150 MW Dec-24 → ~2,000 MW Mar-27) pushes genset growth to &gt;750 kVA. Grid adequacy is eroding small-kVA outage-driven demand. CPCB IV+ raised genset factory prices ~15–20% and content per unit.</td><td>Auto-Lek's starter range tops out at 9.5 kW / 250 A, i.e. small-to-mid kVA. Share of the growth segment (large kVA, Cummins/KOEL/Caterpillar dominated) is unverified.</td><td>[S]</td></tr>
+<tr><td>V4</td><td><strong>New-segment ramp: PV, bus, EV</strong></td><td>EV components ex-battery are only 4.6% of domestic OEM supplies (ACMA). E-2W growth slowed to 12–13% in FY26 on magnet shortage. SIAM asked to defer traction-motor localisation from Sep-2026 to Apr-2027.</td><td>Capex is sunk (Supa plant, debt-funded). Revenue from these segments is "not quantified" by CRISIL, i.e. still small. Ramp speed is the swing factor between the 7.5% and 11% margin scenarios.</td><td>[C]</td></tr>
+<tr><td>V5</td><td><strong>Export volume</strong></td><td>ACMA exports ~USD 24 bn in FY26 (+5%), Europe strongest. Supply-chain diversification away from China is a tailwind. Rupee-weakness helps.</td><td>25–30 countries, three top-3 global tractor OEMs on the book. Exhibiting Automechanika Frankfurt Sep-2026. Export share of revenue unknown.</td><td>[C]</td></tr>
+<tr><td>V6</td><td><strong>Aftermarket volume</strong></td><td>Aftermarket is the most resilient channel (ACMA). Tractor/genset parc is large and the harsh-duty replacement cycle is short.</td><td>Company originated in the tractor aftermarket; has a dealer app with warranty claims and catalogues. Aftermarket share of revenue unknown.</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-2-top-line-price-realisation">2.2 Top line: price / realisation</h3>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>P1</td><td><strong>OEM annual price-down</strong></td><td>Standard Indian OEM practice: 1–3% per year productivity give-back on running parts, enforced at annual negotiations.</td><td>Concentrated customer base (big-4 tractor OEMs) = low bargaining power. Assumed in force.</td><td>[S]</td></tr>
+<tr><td>P2</td><td><strong>Raw-material pass-through (copper, steel, aluminium)</strong></td><td>Copper +28% to ~$12.5k/t (2026), later ~$14.7k/t. Pass-through to OEMs lags 1–2 quarters and is partial (CRISIL); 25 of 59 listed ancillaries saw margin shrink in FY26 despite +12.5% revenue. CRISIL sees sector margins cut 100–150 bps to 10.5–11%.</td><td>Starters and alternators are copper-and-steel-intensive. FY25 margin compression of ~200 bps is consistent with un-recovered input inflation. Whether contracts are copper-indexed is unknown.</td><td>[C]</td></tr>
+<tr><td>P3</td><td><strong>Mix: content per unit</strong></td><td>CPCB IV+ gensets and TREM-IV/V tractors carry more electrical content (higher-amp alternators, more actuators and sensors).</td><td>Alternator range extended to 250 A; wiper/washer and HVAC/blower motors add content per vehicle. Mix-up is a realisable price lever.</td><td>[C]</td></tr>
+<tr><td>P4</td><td><strong>Export realisation / FX</strong></td><td>Export pricing is typically 15–30% above domestic for equivalent parts; FX gain on INR depreciation.</td><td>Export share unknown; cannot size.</td><td>[S]</td></tr>
+</tbody></table></div>
+<h3 id="2-3-bottom-line-cost-of-goods">2.3 Bottom line: cost of goods</h3>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>Material cost ratio (typically 60–68% of revenue for rotating electricals)</strong></td><td>Copper windings, electrical steel laminations, magnets, aluminium housings. VA/VE, lamination yield, scrap recovery and alternate sourcing are the main controllables.</td><td>Highest-weight cost lever. No public data on BOM ratio.</td><td>[S]</td></tr>
+<tr><td>C2</td><td><strong>Rare-earth magnet exposure (EV line)</strong></td><td>India imports 100% of sintered NdFeB; 85% from China. 2025 export curbs cut e-2W output. Govt approved ₹7,280 cr scheme for 6,000 tpa domestic capacity; production from end-2026.</td><td>Auto-Lek Electric is BLDC/PMSM based (magnet-dependent). It announced a <strong>magnetless axial-flux motor &gt;5 kW</strong> for select OEMs in 2023, which, if productionised, is a differentiated hedge. Status unverified.</td><td>[C]</td></tr>
+<tr><td>C3</td><td><strong>Capacity utilisation / fixed-cost absorption across 4 plants</strong></td><td>Multi-plant footprint with a sub-scale EV plant is a classic under-absorption trap in the ramp years.</td><td>Supa (EV) and Satara are new; Prithla and Rudrapur carry the tractor cycle. Operating leverage is the mechanism behind CRISIL's 7.5% → 9% margin path.</td><td>[C]</td></tr>
+<tr><td>C4</td><td><strong>Quality cost: PPM, rework, warranty</strong></td><td>Tractor/genset duty cycles (dust, moisture, vibration) make field failures expensive; OEM warranty charge-backs are debited to suppliers.</td><td>Durability is the company's stated founding strength; adverse-environment testing in-house; claims 100% delivery rating (self-reported). Warranty cost unknown.</td><td>[C]</td></tr>
+<tr><td>C5</td><td><strong>Labour productivity and contract-labour mix</strong></td><td>Haryana/Uttarakhand plants typically run 40–60% contract labour; productivity and attrition are the levers.</td><td>Headcount figures diverge widely (389–1,000), consistent with heavy contract use. Lean/KPI programme and Industry 4.0 traceability are in place per CEO.</td><td>[C]</td></tr>
+<tr><td>C6</td><td><strong>Energy cost</strong></td><td>Captive solar is now standard for margin and ESG.</td><td>Solar plant installed (CEO interview). Residual grid-power cost at 4 plants unknown.</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-4-bottom-line-operating-expenses-and-below-the-line">2.4 Bottom line: operating expenses and below-the-line</h3>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td><strong>R&amp;D and engineering spend vs. new-product revenue</strong></td><td>Suppliers crossing from ICE to EV typically run R&amp;D at 2–4% of revenue for 3–5 years before payback.</td><td>Govt-recognised R&amp;D centre; patents filed; EV drivetrain, hub motors and e-axles in portfolio. New-product revenue conversion is the KPI.</td><td>[C]</td></tr>
+<tr><td>O2</td><td><strong>Management bandwidth on strategic projects</strong></td><td>—</td><td>25 strategic projects across 5 pillars, 30 managers at 40% time, monthly KPI reviews, planned shift to Team-Oriented Problem Solving. Large programme load relative to a ~₹450 cr company.</td><td>[C]</td></tr>
+<tr><td>O3</td><td><strong>Interest cost</strong></td><td>—</td><td>Interest cover fell 56x → 12.8x → ~9x as debt rose for capex. Debt service ₹7–8 cr/yr vs accrual ₹20–30 cr. Manageable but no longer trivial.</td><td>[C]</td></tr>
+<tr><td>O4</td><td><strong>Depreciation step-up from new plants</strong></td><td>—</td><td>Supa/Satara capex will add depreciation that only operating leverage can absorb.</td><td>[S]</td></tr>
+</tbody></table></div>
+<h3 id="2-5-balance-sheet-cash-working-capital">2.5 Balance sheet / cash: working capital</h3>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>W1</td><td><strong>Receivable days</strong></td><td>Tractor and genset OEMs are slow payers; 75–100 days is long for the sector (listed peers run 45–70).</td><td>CRISIL names "large working capital requirement" as the #2 weakness. Receivables 75–100 days. Each 10-day reduction ≈ ₹12 cr of cash at ₹450 cr revenue.</td><td>[C]</td></tr>
+<tr><td>W2</td><td><strong>Inventory days</strong></td><td>Multi-plant + 4 product families + aftermarket SKUs inflate inventory.</td><td>50–60 days. Multi-plant footprint and new product lines push this up.</td><td>[C]</td></tr>
+<tr><td>W3</td><td><strong>Payable days / supplier financing</strong></td><td>—</td><td>45–50 days; shorter than receivables, so the company funds its OEMs. Bank-limit utilisation ~74%.</td><td>[C]</td></tr>
+<tr><td>W4</td><td><strong>Cash conversion → growth funding</strong></td><td>—</td><td>GCA days 170–175 expected. Working capital is the binding constraint on funding the ₹1,000 cr ambition without more debt.</td><td>[C]</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="auto_ignition_ltd-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
+<p>Items tagged [S] above carry no company-specific evidence. They are retained because they are structurally true of every Indian Tier-1 auto-electrical supplier and should be confirmed in the first discovery conversation:</p>
+<ol><li>OEM annual price-down terms (P1) — assumed 1–3%/yr.</li><li>Material cost ratio (C1) — assumed 60–68% of revenue.</li><li>Genset segment position in large-kVA growth (V3) — assumed weak given product range.</li><li>Export realisation premium and FX (P4) — assumed present, share unknown.</li><li>Depreciation step-up (O4) — assumed from capex timing.</li></ol>
+<p>Two unverified company facts that materially change the picture and should be confirmed early:</p>
+<ul><li>Status of the magnetless axial-flux motor (C2): if real and in production, it is both a cost hedge and a differentiated export product.</li><li>Seller and scale of the acquired alternator/wiper division: it drove FY25 growth; its integration state affects C3, C4 and W2.</li></ul>
+<hr>
+<h2 id="auto_ignition_ltd-4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<p>Ranked by estimated P&amp;L impact over the next 12–24 months, before filtering for what OHM can control.</p>
+<div class="tbl"><table>
+<thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction of pressure</th><th>Why it ranks here</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>V1 Tractor cycle + V2 share defence</td><td>Revenue</td><td>Negative FY27</td><td>Core franchise; ~70%+ of revenue by inference; FY27 growth 0–4% after +23.5%</td></tr>
+<tr><td>2</td><td>P2 / C1 Material cost and pass-through</td><td>Gross margin</td><td>Negative</td><td>Copper at record; lag 1–2 qtrs; sector margins down 100–150 bps; company already at 7.5–8% vs 11% target</td></tr>
+<tr><td>3</td><td>W1–W4 Working capital</td><td>Cash / interest</td><td>Negative</td><td>170+ GCA days; receivables up to 100 days; funds the OEMs; limits growth capex headroom</td></tr>
+<tr><td>4</td><td>C3 / O4 Fixed-cost absorption at new plants</td><td>EBITDA</td><td>Negative until ramp</td><td>Supa/Satara under-absorbed; this is the swing between 7.5% and 9–11% margin</td></tr>
+<tr><td>5</td><td>V4 New-segment ramp (PV, bus, EV)</td><td>Revenue + margin</td><td>Positive if executed</td><td>Only route to ₹550 cr+ and the rating upgrade; magnet supply and OEM localisation timelines are the gating risks</td></tr>
+<tr><td>6</td><td>C4 Quality / warranty cost</td><td>COGS</td><td>Latent</td><td>Harsh-duty applications; concentrated OEMs can charge back; differentiator if kept low</td></tr>
+<tr><td>7</td><td>P3 Content-per-unit mix</td><td>Revenue</td><td>Positive</td><td>CPCB IV+ / TREM norms raise electrical content; alternator range to 250 A; wiper/HVAC add-ons</td></tr>
+<tr><td>8</td><td>V5 / V6 Export and aftermarket mix</td><td>Revenue + margin</td><td>Positive</td><td>Higher-margin channels; counter-cyclical to domestic tractors</td></tr>
+<tr><td>9</td><td>C5 Labour productivity</td><td>COGS</td><td>Neutral</td><td>Lean/KPI programme exists; contract-labour mix unknown</td></tr>
+<tr><td>10</td><td>O2 Programme load</td><td>Opex / execution</td><td>Risk</td><td>25 projects for a ₹450 cr company; execution dilution risk</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="auto_ignition_ltd-5">5. Step 4: OHM controllability filter</h2>
+<p>OHM scope for this account:</p>
+<ul><li><strong>Module A, Outflow controls:</strong> a 35-point check applied across transactions (procure-to-pay, payment release, debit/credit notes, advances, freight, services).</li><li><strong>Module B, Metal-rate parity:</strong> lot-level tracking and tagging of metal stock (copper, electrical steel, aluminium, magnets) from raw-material receipt through WIP to finished goods, so that consumption, yield, scrap and purchase rate can be substantiated against OEM price-variation (PV) clauses.</li></ul>
+<p>Filter applied to the ranked shortlist in Section 4. "Controls" means OHM is the primary mechanism; "Influences" means OHM supplies evidence or discipline that helps another function move the lever; "No" means OHM has no effect and the lever stays with the business.</p>
+<div class="tbl"><table>
+<thead><tr><th>Rank</th><th>Lever</th><th>OHM effect</th><th>Module</th><th>Mechanism</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>V1/V2 Tractor cycle and share defence</td><td><strong>No</strong></td><td>—</td><td>Market and commercial. OHM is silent here; do not claim it.</td></tr>
+<tr><td>2</td><td>P2/C1 Material cost and metal pass-through</td><td><strong>Controls</strong></td><td>B</td><td>This is OHM's core lever. See 5.1.</td></tr>
+<tr><td>3</td><td>W1–W4 Working capital</td><td><strong>Controls (payables, inventory), Influences (receivables)</strong></td><td>A + B</td><td>Payment release only at due date, no premature or duplicate outflows (A); metal inventory visibility by lot and age cuts excess RM/WIP (B); substantiated PV claims settle faster, which shortens the PV-claim tail inside receivables (B).</td></tr>
+<tr><td>4</td><td>C3/O4 Fixed-cost absorption at new plants</td><td><strong>No</strong></td><td>—</td><td>Volume ramp. Not OHM.</td></tr>
+<tr><td>5</td><td>V4 New-segment ramp</td><td><strong>No</strong> (minor influence)</td><td>B</td><td>Magnet lot-tracking helps manage the rare-earth exposure of the EV line, but does not drive the ramp.</td></tr>
+<tr><td>6</td><td>C4 Quality and warranty cost</td><td><strong>Influences</strong></td><td>B</td><td>Lot-level traceability of metal inputs supports root-cause on field failures and narrows warranty debit scope. Secondary.</td></tr>
+<tr><td>7</td><td>P3 Content-per-unit mix</td><td><strong>No</strong></td><td>—</td><td>Product and engineering.</td></tr>
+<tr><td>8</td><td>V5/V6 Export and aftermarket mix</td><td><strong>No</strong></td><td>—</td><td>Commercial.</td></tr>
+<tr><td>9</td><td>C5 Labour productivity</td><td><strong>No</strong></td><td>—</td><td>Operations.</td></tr>
+<tr><td>10</td><td>O2 Programme load</td><td><strong>Influences</strong></td><td>A</td><td>Transaction-level controls remove a class of management review effort; small.</td></tr>
+<tr><td>—</td><td>O3 Interest cost (new, surfaced by filter)</td><td><strong>Controls</strong></td><td>A + B</td><td>Cash released from payables and inventory reduces working-capital borrowing (bank lines ~74% utilised).</td></tr>
+</tbody></table></div>
+<p>Net: OHM moves three of the top-ten levers directly (metal pass-through, working capital, interest cost) and influences two (warranty, programme load). It does not touch the single largest lever, the tractor cycle. The pitch should say so explicitly; it builds credibility with a CFO who already knows that.</p>
+<h3 id="5-1-why-metal-rate-parity-is-the-lever-that-matters-at-auto-ignition">5.1 Why metal-rate parity is the lever that matters at Auto Ignition</h3>
+<p>Starter motors and alternators are among the most metal-intensive parts a tractor OEM buys. Copper windings, electrical-steel laminations, steel shafts and housings, aluminium die-castings and (on the EV line) NdFeB magnets. Indian OEM supply agreements compensate suppliers for metal movements through a PV clause tied to a published index (MCX/LME copper, steel benchmarks), reset quarterly or half-yearly, on a <strong>standard metal weight per part</strong> agreed at nomination.</p>
+<p>Leakage between the clause and the P&amp;L comes from four places, all of which require lot-level evidence to close:</p>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Leakage mechanism</th><th>What goes wrong without tagging</th><th>What OHM changes</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td><strong>Lag asymmetry</strong></td><td>OEM resets on the index with a one to two quarter lag. Supplier holds 50–60 days of stock. On a rising index the supplier is under-compensated for the quarter; on a falling index OEMs apply the cut immediately while the supplier consumes high-cost stock. CRISIL's sector view: pass-through "with a lag of one to two quarters and not always in full".</td><td>Each lot carries its landed rate. Consumption in the period is valued at actual lot rate, giving a defensible claim for the gap and a factual basis to negotiate the reset frequency.</td></tr>
+<tr><td>L2</td><td><strong>Weight and yield basis</strong></td><td>PV is paid on standard weight. Actual consumption includes lamination stamping yield loss, winding scrap, machining allowances. Typical gap 3–8% of standard weight. Without lot-level consumption data the supplier cannot substantiate the true metal content and absorbs the difference.</td><td>RM-to-FG tagging produces actual consumption per part number, which supports revision of standard weights at the next nomination and PV reconciliation in the interim.</td></tr>
+<tr><td>L3</td><td><strong>Scrap realisation</strong></td><td>5–10% of metal input becomes process scrap. Scrap is sold by weight at plant level, often below benchmark, and rarely reconciled against input.</td><td>Scrap is tagged to source lot and metal grade; sale is reconciled to input and benchmarked to index.</td></tr>
+<tr><td>L4</td><td><strong>Uncompensated Tier-2 metal</strong></td><td>Bought-out sub-assemblies (bearings, drives, solenoids, magnets) carry metal that Tier-2s re-price upward, but the OEM PV clause does not cover them.</td><td>Metal content of bought-outs is tagged, so the supplier can claim them under the PV clause or push back on Tier-2 pricing with evidence.</td></tr>
+</tbody></table></div>
+<p>"Parity with OEMs" is therefore not a pricing negotiation. It is the ability to prove, transaction by transaction, that the metal the OEM compensated for equals the metal Auto Ignition actually paid for and consumed.</p>
+<h3 id="5-2-what-the-35-point-check-needs-to-catch-at-this-account">5.2 What the 35-point check needs to catch at this account</h3>
+<p>The 35 points have not been shared, so this is the target list of outflow leakages at an auto-electrical Tier-1 of this size, to be mapped against the actual checks:</p>
+<ul><li>Three-way match failures (PO, GRN, invoice) and rate deviations against PO or rate contract.</li><li>Duplicate or near-duplicate vendor invoices across four plants.</li><li>Payments released before due date, or without using agreed credit period.</li><li>Advances to vendors and tooling suppliers not adjusted against subsequent invoices.</li><li>Missed cash discounts and missed vendor debit notes (rejections, short supply, freight recovery).</li><li>Freight and logistics overbilling across four plants and export shipments.</li><li>Contract-labour billing against attendance (headcount spread of 389 to 1,000 suggests heavy contract use).</li><li>Capex invoice release against milestone completion at Supa and Satara.</li><li>GST input-credit mismatches that delay or lose credit.</li><li>Statutory and bank-charge outflows.</li></ul>
+<hr>
+<h2 id="auto_ignition_ltd-6">6. Step 5: Value sizing</h2>
+<p>Base: FY25 group operating income ~₹450 crore (CRISIL). All assumptions are stated; company data for the [S] items will tighten the ranges in discovery.</p>
+<h3 id="6-1-assumptions">6.1 Assumptions</h3>
+<div class="tbl"><table>
+<thead><tr><th>Item</th><th>Value</th><th>Basis</th></tr></thead>
+<tbody>
+<tr><td>Revenue</td><td>₹450 cr</td><td>CRISIL FY25 estimate</td></tr>
+<tr><td>Current operating margin</td><td>7.5–8.0%</td><td>CRISIL</td></tr>
+<tr><td>Material cost</td><td>62% of revenue ≈ ₹279 cr</td><td>[S] sector norm for rotating electricals, 60–68%</td></tr>
+<tr><td>Index-linked metal within material cost</td><td>55% ≈ ₹153 cr</td><td>[S] copper ~37%, steel ~40%, aluminium ~15%, magnets/other ~8%</td></tr>
+<tr><td>Total addressable outflows (material + services + contract labour + capex)</td><td>~₹380 cr</td><td>derived</td></tr>
+<tr><td>Working-capital borrowing cost</td><td>~9.5%</td><td>A- rated, bank lines</td></tr>
+<tr><td>Receivables / inventory / payables days</td><td>75–100 / 50–60 / 45–50</td><td>CRISIL</td></tr>
+</tbody></table></div>
+<h3 id="6-2-bottom-line-ebitda-uplift">6.2 Bottom line (EBITDA) uplift</h3>
+<div class="tbl"><table>
+<thead><tr><th>Source</th><th>Leakage pool</th><th>Leakage rate</th><th>Recovery by OHM</th><th>Annual EBITDA</th><th>bps of revenue</th></tr></thead>
+<tbody>
+<tr><td>Metal-rate parity (L1–L4)</td><td>₹153 cr index-linked metal</td><td>2–5% of pool</td><td>40–60%</td><td>₹1.5–4.0 cr</td><td>35–90</td></tr>
+<tr><td>Outflow controls (35-point check)</td><td>₹380 cr outflows</td><td>0.2–0.5%</td><td>50–70%</td><td>₹0.5–1.2 cr</td><td>10–27</td></tr>
+<tr><td><strong>Total EBITDA</strong></td><td></td><td></td><td></td><td><strong>₹2.0–5.2 cr</strong></td><td><strong>45–115</strong></td></tr>
+</tbody></table></div>
+<p>Reading: the "up to 1%" claim sits at the upper-middle of this range. The <strong>base case is roughly 70 bps</strong>; 100 bps requires either copper to stay volatile (which widens L1) or a large standard-weight gap (L2). State the claim as "50 to 100 bps, base case 70" rather than a flat 1%; it survives a CFO's scrutiny better.</p>
+<h3 id="6-3-cash-flow">6.3 Cash flow</h3>
+<div class="tbl"><table>
+<thead><tr><th>Source</th><th>Mechanism</th><th>Days</th><th>Cash released (one-time)</th></tr></thead>
+<tbody>
+<tr><td>Payables discipline</td><td>Release at due date, stop premature payments, adjust advances</td><td>+5 to +8 days on ₹350 cr annual spend</td><td>₹4.8–7.7 cr</td></tr>
+<tr><td>Metal inventory</td><td>Lot-level ageing and consumption visibility cuts excess RM and WIP</td><td>−5 to −8 days on ₹279 cr material cost</td><td>₹3.8–6.1 cr</td></tr>
+<tr><td>PV-claim settlement</td><td>Substantiated claims settle one cycle faster</td><td>−3 to −5 days on the PV-claim portion of receivables</td><td>₹1.0–2.0 cr</td></tr>
+<tr><td><strong>Total cash released</strong></td><td></td><td></td><td><strong>₹9.6–15.8 cr</strong></td></tr>
+<tr><td>Interest saved at 9.5%</td><td>On working-capital lines (~₹49 cr drawn of ₹66 cr)</td><td></td><td><strong>₹0.9–1.5 cr / yr (20–33 bps, PBT line)</strong></td></tr>
+</tbody></table></div>
+<p>Reading: ₹10–16 crore is 20–30% of current working-capital drawdown. That moves CRISIL's "large working capital requirement" weakness in the right direction and lowers gearing without any equity or new debt.</p>
+<h3 id="6-4-combined-value-statement-for-the-account">6.4 Combined value statement for the account</h3>
+<div class="tbl"><table>
+<thead><tr><th>Line</th><th>Low</th><th>Base</th><th>High</th></tr></thead>
+<tbody>
+<tr><td>EBITDA uplift (bps of revenue)</td><td>45</td><td>70</td><td>115</td></tr>
+<tr><td>EBITDA uplift (₹ cr / yr)</td><td>2.0</td><td>3.2</td><td>5.2</td></tr>
+<tr><td>Interest saving (₹ cr / yr)</td><td>0.9</td><td>1.2</td><td>1.5</td></tr>
+<tr><td><strong>Total P&amp;L impact (₹ cr / yr)</strong></td><td><strong>2.9</strong></td><td><strong>4.4</strong></td><td><strong>6.7</strong></td></tr>
+<tr><td>One-time cash released (₹ cr)</td><td>9.6</td><td>12.5</td><td>15.8</td></tr>
+</tbody></table></div>
+<p>For context: FY24 PAT was ₹21.7 cr. A base-case ₹4.4 cr pre-tax uplift is roughly 15–20% of PAT. Against the CRISIL framework, OHM's 70 bps is most of the gap between today's 7.5–8.0% margin and the 8.5–9.0% the rating expects post ramp-up, and it is the buffer above the 7% downgrade trigger in a flat FY27 tractor year.</p>
+<h3 id="6-5-what-to-validate-in-discovery-data-requests">6.5 What to validate in discovery (data requests)</h3>
+<ol><li>PV clause terms by OEM: index, reset frequency, standard weights, coverage of bought-outs. (Sizes L1, L2, L4.)</li><li>Metal purchase ledger by grade for the last 8 quarters, with lot rates. (Sizes L1.)</li><li>BOM standard metal weight vs. actual issue quantity for the top 20 part numbers. (Sizes L2.)</li><li>Scrap sale register vs. metal input, by plant. (Sizes L3.)</li><li>AP ageing, payment-run data and advance ledger for 12 months across four plants. (Sizes the 35-point pool.)</li><li>Working-capital drawdown by month and interest rate. (Sizes 6.3.)</li></ol>
+<h3 id="6-6-objections-to-prepare-for">6.6 Objections to prepare for</h3>
+<ul><li>"Our OEMs already compensate us on metal." Answer: on standard weight, with a lag, and not on bought-outs. Ask for the last four PV reconciliations.</li><li>"We have an ERP with lot control." Answer: lot numbers exist; lot rate carried through to consumption valuation and PV claim usually does not. Ask how the last claim was computed.</li><li>"The 1% is small." Answer: it is 15–20% of PAT, and the cash release is 20–30% of working-capital debt, in a year when the core market is forecast flat.</li></ul>
+<hr>
+<h2 id="auto_ignition_ltd-7">Sources</h2>
+<ul><li>CRISIL Ratings, Auto Ignition Ltd rating rationale, 11 Apr 2025: <a href="https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/AutoIgnitionLimited_April%2011_%202025_RR_366973.html" target="_blank" rel="noopener">https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/AutoIgnitionLimited_April%2011_%202025_RR_366973.html</a></li><li>Auto Ignition Ltd website: <a href="https://www.autolek.com/" target="_blank" rel="noopener">https://www.autolek.com/</a></li><li>Motor India, "Auto Ignition completes 50 successful years", Aug 2021: <a href="https://www.motorindiaonline.in/auto-ignition-completes-50-successful-years-looks-forward-to-exciting-future-ahead/" target="_blank" rel="noopener">https://www.motorindiaonline.in/auto-ignition-completes-50-successful-years-looks-forward-to-exciting-future-ahead/</a></li><li>Engineering Review, Rajendra Abhange profile, Sep 2023: <a href="https://www.engmag.in/rajendra-abhange-president-ceo-auto-ignition-ltd/" target="_blank" rel="noopener">https://www.engmag.in/rajendra-abhange-president-ceo-auto-ignition-ltd/</a></li><li>Tracxn legal-entity profile: <a href="https://tracxn.com/d/legal-entities/india/auto-ignition-limited/__ylKtElWEFs1h_xCC27GSHBtU98eb_WUq2VN87LG4YZQ" target="_blank" rel="noopener">https://tracxn.com/d/legal-entities/india/auto-ignition-limited/__ylKtElWEFs1h_xCC27GSHBtU98eb_WUq2VN87LG4YZQ</a></li><li>Great Place to Work profile: <a href="https://www.greatplacetowork.in/great/company/auto-ignition-limited" target="_blank" rel="noopener">https://www.greatplacetowork.in/great/company/auto-ignition-limited</a></li><li>Automechanika Frankfurt exhibitor listing: <a href="https://automechanika.messefrankfurt.com/content/messefrankfurt-redaktion/automechanika/frankfurt/en/exhibitor-search.detail.html/auto-ignition-ltd.html" target="_blank" rel="noopener">https://automechanika.messefrankfurt.com/content/messefrankfurt-redaktion/automechanika/frankfurt/en/exhibitor-search.detail.html/auto-ignition-ltd.html</a></li><li>Jumps Auto Industries (Gurgaon): <a href="https://jumpsindia.com/" target="_blank" rel="noopener">https://jumpsindia.com/</a></li><li>ICRA tractor outlook FY27 via Autocar Pro: <a href="https://www.autocarpro.in/news/indian-tractor-industry-growth-seen-at-1-4-percent-in-fy2027-icra-134265" target="_blank" rel="noopener">https://www.autocarpro.in/news/indian-tractor-industry-growth-seen-at-1-4-percent-in-fy2027-icra-134265</a></li><li>YES Securities tractor view: <a href="https://www.newkerala.com/news/a/tractor-industry-growth-stay-flat-fy27-amid-price-220.htm" target="_blank" rel="noopener">https://www.newkerala.com/news/a/tractor-industry-growth-stay-flat-fy27-amid-price-220.htm</a></li><li>ACMA FY26 industry performance: <a href="https://www.zeebiz.com/automobile/news-indias-auto-component-industry-crosses-rs-76-lakh-crore-turnover-in-fy26-doubles-in-five-years-acma-398517/amp" target="_blank" rel="noopener">https://www.zeebiz.com/automobile/news-indias-auto-component-industry-crosses-rs-76-lakh-crore-turnover-in-fy26-doubles-in-five-years-acma-398517/amp</a></li><li>ACMA H1 FY26 press release: <a href="https://acma.in/uploads/press-release/FINAL%20-%20Press%20Release%20-%20ACMA_H1_FY26.pdf" target="_blank" rel="noopener">https://acma.in/uploads/press-release/FINAL%20-%20Press%20Release%20-%20ACMA_H1_FY26.pdf</a></li><li>CRISIL auto-component margin outlook, Jun 2026: <a href="https://www.crisilratings.com/en/home/newsroom/press-releases/2026/06/auto-component-margins-seen-at-10pt5-11percent-amid-west-asia-conflict.html" target="_blank" rel="noopener">https://www.crisilratings.com/en/home/newsroom/press-releases/2026/06/auto-component-margins-seen-at-10pt5-11percent-amid-west-asia-conflict.html</a></li><li>Business Standard, input costs squeeze component makers: <a href="https://www.business-standard.com/industry/auto/rising-input-costs-squeeze-margins-auto-component-makers-125122600580_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/auto/rising-input-costs-squeeze-margins-auto-component-makers-125122600580_1.html</a></li><li>Autocar Pro, metal price spike: <a href="https://www.autocarpro.in/news/steel-aluminium-copper-prices-spike-putting-auto-industry-margins-at-risk-132236" target="_blank" rel="noopener">https://www.autocarpro.in/news/steel-aluminium-copper-prices-spike-putting-auto-industry-margins-at-risk-132236</a></li><li>Whalesbook FY26 ancillary margins: <a href="https://www.whalesbook.com/news/English/auto/Indian-Auto-Ancillary-Sector-Revenue-Rose-125percent-in-FY26/6a41eab4fb97bcde4ce58664" target="_blank" rel="noopener">https://www.whalesbook.com/news/English/auto/Indian-Auto-Ancillary-Sector-Revenue-Rose-125percent-in-FY26/6a41eab4fb97bcde4ce58664</a></li><li>Business Standard, rare-earth shortage and e-2W production: <a href="https://www.business-standard.com/industry/auto/rare-earth-magnet-shortage-india-ev-two-wheeler-production-q2-125081000151_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/auto/rare-earth-magnet-shortage-india-ev-two-wheeler-production-q2-125081000151_1.html</a></li><li>bne IntelliNews / CRISIL e-2W growth: <a href="https://www.intellinews.com/indian-electric-two-wheelers-growth-to-slow-to-12-13-in-fy2026-on-magnet-shortage-428526" target="_blank" rel="noopener">https://www.intellinews.com/indian-electric-two-wheelers-growth-to-slow-to-12-13-in-fy2026-on-magnet-shortage-428526</a></li><li>Outlook Business, India rare-earth magnet production: <a href="https://www.outlookbusiness.com/industry/india-rare-earth-magnet-production-2026" target="_blank" rel="noopener">https://www.outlookbusiness.com/industry/india-rare-earth-magnet-production-2026</a></li><li>IMARC India diesel genset market: <a href="https://www.imarcgroup.com/india-diesel-genset-market" target="_blank" rel="noopener">https://www.imarcgroup.com/india-diesel-genset-market</a></li><li>Ken Research India DG sets: <a href="https://www.kenresearch.com/industry-reports/india-diesel-generator-sets-market" target="_blank" rel="noopener">https://www.kenresearch.com/industry-reports/india-diesel-generator-sets-market</a></li><li>Lucas TVS tech show via CB Insights: <a href="https://www.cbinsights.com/company/lucas-tvs" target="_blank" rel="noopener">https://www.cbinsights.com/company/lucas-tvs</a></li></ul></div></details><p class="foot"><a href="#top">&larr; All companies</a> &middot; Source: <code>ohm_spal/companies/auto_ignition_ltd.md</code></p></section>
+<p class="foot">Pages are generated from <code>ohm_spal/companies/*.md</code> by <code>ohm_spal/build_html.py</code>.</p></main></body>
+</html>

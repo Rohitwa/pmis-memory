@@ -54,3 +54,15 @@ enough; no restart needed.
    on the cash released.
 
 Then write the tagline, and trace every claim in it back to steps 4–5.
+
+## Local HTML build
+
+```
+python3 ohm_spal/build_html.py
+```
+
+Writes `ohm_spal/html/index.html` (all companies on one page, tagline first,
+full analysis folded below each) and `ohm_spal/html/<slug>.html` (one page per
+company). Open `index.html` in any browser; no server needed. Re-run after
+editing a company page. `--fragment` also writes `index.fragment.html`, the
+same page without the document skeleton, for publishing as an artifact.
