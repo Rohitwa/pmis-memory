@@ -37,12 +37,15 @@ code { background:var(--bg3); padding:1px 5px; border-radius:3px; font-size:12px
 {% endif %}
 
 <div class="spal-sources">
-{{ sources_html | safe }}
+{{ sources_intro_html | safe }}
+{% for title, body in sources_sections %}
+<details class="spal-fold"><summary>{{ title }}</summary>{{ body | safe }}</details>
+{% endfor %}
 </div>
 
 {% if analysis_html %}
 <div class="spal-analysis">
-<details class="spal-fold" open>
+<details class="spal-fold">
 <summary>Full S-PAL analysis (steps 1–5 and sources)</summary>
 {% if toc %}
 <div class="spal-toc">{% for id, t in toc %}<a href="#{{ id }}">{{ t }}</a>{% if not loop.last %} &middot; {% endif %}{% endfor %}</div>

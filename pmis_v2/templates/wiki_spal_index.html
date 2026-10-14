@@ -9,7 +9,7 @@
 {% for c in companies %}
 <div class="card" style="padding:20px;">
   <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;">
-    <h3 style="font-size:16px;"><a href="/wiki/spal/{{ c.slug }}">{{ c.company }}</a>
+    <h3 style="font-size:16px;">{{ c.serial }}. <a href="/wiki/spal/{{ c.slug }}">{{ c.company }}</a>
       {% if c.brand and c.brand != c.company %}<span class="sub" style="font-weight:400;">&middot; {{ c.brand }}</span>{% endif %}</h3>
     <span class="tag" style="border-color:{{ c.status_color }}; color:{{ c.status_color }}; font-size:11px;">{{ c.status or 'In research' }}</span>
   </div>

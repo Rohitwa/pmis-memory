@@ -5,112 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>S-PAL Wiki</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Mono&display=swap">
 <style>
-/* Layout: one reading column; tagline as the hero of each company; analysis folded below. */
+/* Plain reference-page layout, after Wikipedia: white page, serif headings with a rule, blue links, grey-bordered tables. */
 :root {
-  --bg: #f7f6f3; --surface: #ffffff; --bg2: #eeece7; --line: #d9d5cc;
-  --fg: #1c1b19; --fg2: #4b4842; --fg3: #7d786f;
-  --accent: #a4552a; --accent-soft: #f3e4da; --accent-ink: #7d3d1a;
-  --good: #2f7d4f; --info: #2b5aa6; --warn: #b07a17;
-  --display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
-  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --bg: #ffffff; --fg: #202122; --fg2: #54595d; --link: #3366cc; --rule: #a2a9b1;
+  --tbl-bg: #f8f9fa; --tbl-head: #eaecf0; --box: #f8f9fa;
+  --serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --sans: sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #161614; --surface: #1f1e1b; --bg2: #262522; --line: #3a3833;
-  --fg: #ece9e2; --fg2: #c4bfb4; --fg3: #8d877b;
-  --accent: #d98a4e; --accent-soft: #3a2a1e; --accent-ink: #f0b482;
-  --good: #6cc08f; --info: #7ea5e8; --warn: #e0b24a;
-  color-scheme: dark; } }
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #161614; --surface: #1f1e1b; --bg2: #262522; --line: #3a3833;
-  --fg: #ece9e2; --fg2: #c4bfb4; --fg3: #8d877b;
-  --accent: #d98a4e; --accent-soft: #3a2a1e; --accent-ink: #f0b482;
-  --good: #6cc08f; --info: #7ea5e8; --warn: #e0b24a;
-  color-scheme: dark; }
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; overflow-x: clip; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6;
-  padding-block: 0 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-a { color: var(--info); text-decoration: none; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
-a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.wrap { max-width: 880px; margin: 0 auto; min-width: 0; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.page { max-width: 960px; margin: 0 auto; min-width: 0; }
+.sitehead { font-size: 12px; color: var(--fg2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sitehead b { color: var(--fg); font-family: var(--serif); font-size: 15px; font-weight: normal; }
 
-.top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  padding: 20px 0 14px; border-bottom: 1px solid var(--line); }
-.top .brand { font-family: var(--display); font-size: 22px; font-weight: 600; letter-spacing: -0.2px; color: var(--fg); }
-.top .brand small { font-family: var(--body); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--fg3); margin-left: 10px; }
-.top .built { font-size: 12px; color: var(--fg3); font-variant-numeric: tabular-nums; }
+h1, h2 { font-family: var(--serif); font-weight: normal; line-height: 1.3; margin: 0; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h1 { font-size: 28px; margin: 14px 0 4px; }
+h2 { font-size: 21px; margin: 24px 0 8px; }
+h3 { font-size: 15px; font-weight: bold; margin: 18px 0 6px; }
+p { margin: 8px 0; max-width: 75ch; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
+code { font-family: monospace; font-size: 12.5px; background: var(--tbl-bg); padding: 0 3px; }
+pre { overflow-x: auto; background: var(--tbl-bg); padding: 10px; border: 1px solid var(--rule); }
+ul, ol { padding-left: 24px; }
+li { margin: 2px 0; }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--rule); color: var(--fg2); }
+.sub { font-size: 12.5px; color: var(--fg2); margin: 2px 0 10px; }
 
-h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
-h1 { font-family: var(--display); font-size: 30px; font-weight: 600; }
-h2 { font-family: var(--display); font-size: 21px; font-weight: 600; margin-top: 36px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
-h3 { font-size: 15.5px; font-weight: 600; margin-top: 22px; color: var(--fg); }
-p { margin: 10px 0; color: var(--fg2); max-width: 70ch; }
-hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
-code { font-family: var(--mono); font-size: 12.5px; background: var(--bg2); padding: 1px 5px; border-radius: 3px; }
-pre { overflow-x: auto; background: var(--bg2); padding: 12px; border-radius: 6px; }
-ul, ol { padding-left: 22px; color: var(--fg2); }
-li { margin: 4px 0; }
-blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--line); color: var(--fg2); }
+.tbl { overflow-x: auto; margin: 10px 0; }
+table { border-collapse: collapse; font-size: 13px; background: var(--tbl-bg); border: 1px solid var(--rule); min-width: 480px; }
+table.full { width: 100%; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; vertical-align: top; text-align: left; }
+th { background: var(--tbl-head); font-weight: bold; }
+td { font-variant-numeric: tabular-nums; }
+td.num { text-align: right; width: 1%; white-space: nowrap; }
 
-.lede { font-size: 16px; color: var(--fg2); margin: 18px 0 26px; max-width: 65ch; }
-.index-list { display: grid; gap: 14px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; min-width: 0; }
-.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.card-head a { font-family: var(--display); font-size: 19px; font-weight: 600; color: var(--fg); }
-.card .sub { font-size: 12.5px; color: var(--fg3); margin-top: 2px; }
-.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; }
-.pill.good { color: var(--good); } .pill.info { color: var(--info); } .pill.warn { color: var(--warn); } .pill.muted { color: var(--fg3); }
-.tagline { font-family: var(--display); font-size: 18px; line-height: 1.45; color: var(--fg); margin: 14px 0 6px; padding: 12px 16px;
-  border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
-.tagline.hero { font-size: 23px; padding: 20px 24px; margin: 20px 0 8px; }
-.tagline-meta { font-size: 12px; color: var(--fg3); }
+.tagline { border: 1px solid var(--rule); background: var(--box); padding: 10px 14px; margin: 12px 0 4px; font-family: var(--serif); font-size: 18px; line-height: 1.45; max-width: none; }
 
-.company { margin-top: 48px; padding-top: 8px; }
-.company-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.meta { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 4px; }
-.meta span { font-size: 12px; color: var(--fg2); background: var(--bg2); border: 1px solid var(--line); border-radius: 4px; padding: 2px 9px; }
-.meta span.ohm { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
-.sources h2 { border: 0; font-size: 19px; margin-top: 26px; }
-.sources h3 { font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--accent-ink); }
+details { margin: 6px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+details.sec > summary { font-size: 15px; font-weight: bold; }
+details.full > summary { font-family: var(--serif); font-size: 21px; font-weight: normal; border-bottom: 1px solid var(--rule); margin-top: 24px; padding-bottom: 6px; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::before { content: "[show] "; font-family: var(--sans); font-size: 12px; color: var(--link); }
+details.full[open] > summary::before { content: "[hide] "; }
+.analysis h1 { font-size: 21px; }
+.toc { border: 1px solid var(--rule); background: var(--tbl-bg); display: inline-block; padding: 8px 14px; margin: 10px 0; font-size: 13px; }
+.toc b { display: block; margin-bottom: 4px; }
+.toc a { display: block; }
+.foot { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--fg2); }
 
-.tbl { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
-th { text-align: left; padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fg3); background: var(--bg2); border-bottom: 1px solid var(--line); font-weight: 600; }
-td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--fg); font-variant-numeric: tabular-nums; }
-tr:last-child td { border-bottom: 0; }
-
-details.fold { margin-top: 32px; border-top: 2px solid var(--line); }
-details.fold > summary { cursor: pointer; list-style: none; padding: 14px 0; font-size: 13px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.6px; }
-details.fold > summary::-webkit-details-marker { display: none; }
-details.fold > summary::before { content: "\25B8  "; color: var(--accent); }
-details.fold[open] > summary::before { content: "\25BE  "; }
-.toc { font-size: 12.5px; color: var(--fg3); line-height: 1.9; margin-bottom: 8px; }
-.toc a { color: var(--fg2); }
-.analysis h1 { font-size: 22px; margin-top: 18px; }
-.foot { margin-top: 48px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg3); }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-@media (max-width: 480px) { h1 { font-size: 25px; } .tagline.hero { font-size: 19px; padding: 14px 16px; } }
+/* Single-file navigation: a company section shows only when targeted; the index hides then. */
+.company { display: none; }
+.company:target { display: block; }
+body:has(.company:target) #index { display: none; }
+.standalone .company { display: block; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .tagline { font-size: 16px; } }
 </style>
 </head>
 <body>
-<a id="top"></a><header class="top"><div class="brand">S-PAL<small>OHM value drivers</small></div><div class="built">Built 2026-10-14</div></header>
-<main class="wrap">
-<h1 style="margin-top:28px">Companies</h1>
-<p class="lede">2 companies. Specific P&amp;L levers per enterprise, filtered to what OHM controls, sized, and distilled to one line for the owner. Each tagline is traced to its numbers and sources below.</p>
-<div class="index-list">
-<article class="card"><div class="card-head"><a href="#auto_ignition_ltd">Auto Ignition Ltd</a> <span class="sub">&middot; AUTO-LEK</span><span class="pill good">Tagline agreed</span></div><div class="sub">Prithla, Palwal, Haryana &middot; Auto electricals (starter motors, alternators) for tractors, gensets, EV &middot; ₹450 cr (FY25, CRISIL est.)</div><div class="tagline">A tech that lifts Auto Ignition&#x27;s bottom line by up to 20% and frees ₹12 crore of working capital, saving over a crore a year in interest.</div><div class="tagline-meta">Tagline 2026-10-14 &middot; <a href="#auto_ignition_ltd">where it comes from</a></div></article>
-<article class="card"><div class="card-head"><a href="#the_whole_truth">The Whole Truth Foods</a> <span class="sub">&middot; The Whole Truth</span><span class="pill muted">In research</span></div><div class="sub">Andheri East, Mumbai, Maharashtra &middot; Clean-label packaged food (protein powder, protein bars, nut butter, cocoa bars, muesli, kids nutrition) &middot; ₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt)</div><div class="sub" style="margin-top:10px;font-style:italic;">No tagline yet.</div></article>
-</div>
-<section class="company" id="auto_ignition_ltd"><div class="company-head"><h1>Auto Ignition Ltd</h1><span class="pill good">Tagline agreed</span></div><div class="meta"><span>AUTO-LEK</span><span>Prithla, Palwal, Haryana</span><span>₹450 cr (FY25, CRISIL est.)</span><span class="ohm">OHM: 35-point outflow controls</span><span class="ohm">OHM: Metal stock tracking and tagging (RM to FG)</span></div><div class="tagline hero">A tech that lifts Auto Ignition&#x27;s bottom line by up to 20% and frees ₹12 crore of working capital, saving over a crore a year in interest.</div><div class="tagline-meta">Agreed 2026-10-14 &middot; for Ishaan Sarine, Managing Director</div><div class="sources"><h2 id="where-the-tagline-comes-from">Where the tagline comes from</h2>
-<p>Three claims, each traced to a number and a source. Base case unless stated.</p>
-<h3 id="bottom-line-by-up-to-20">"Bottom line by up to 20%"</h3>
-<div class="tbl"><table>
+<div class="sitehead"><span><b><a href="#index" style="color:inherit">S-PAL Wiki</a></b> &middot; OHM value drivers by enterprise</span><span>Built 2026-10-14</span></div>
+<div class="page">
+<section id="index"><h1>S-PAL Wiki</h1>
+<p class="sub">Specific P&amp;L levers per enterprise, filtered to what OHM controls, sized, and distilled to one line for the owner. Select a company.</p>
+<div class="tbl"><table class="full"><thead><tr><th>#</th><th>Company</th><th>Location</th><th>Status</th></tr></thead><tbody><tr><td class="num">1</td><td><a href="#auto_ignition_ltd">Auto Ignition Ltd</a></td><td>Prithla, Palwal, Haryana</td><td>Tagline agreed</td></tr><tr><td class="num">2</td><td><a href="#the_whole_truth">The Whole Truth Foods</a></td><td>Andheri East, Mumbai, Maharashtra</td><td>In research</td></tr></tbody></table></div>
+</section>
+<section class="company" id="auto_ignition_ltd"><p class="sub"><a href="#index">&larr; Index</a></p><h1>1. Auto Ignition Ltd</h1><p class="sub">AUTO-LEK &middot; Prithla, Palwal, Haryana &middot; ₹450 cr (FY25, CRISIL est.) &middot; Status: Tagline agreed &middot; Prepared 2026-10-14</p><div class="tagline">A tech that lifts Auto Ignition&#x27;s bottom line by up to 20% and frees ₹12 crore of working capital, saving over a crore a year in interest.</div><p class="sub">Agreed 2026-10-14 &middot; for Ishaan Sarine, Managing Director</p><p class="sub">OHM scope: 35-point outflow controls; Metal stock tracking and tagging (RM to FG)</p><div class="sources"><h2 id="where-the-tagline-comes-from">Where the tagline comes from</h2>
+<p>Three claims, each traced to a number and a source. Base case unless stated.</p><details class="sec"><summary>&quot;Bottom line by up to 20%&quot;</summary><div class="tbl"><table class="full">
 <thead><tr><th>Step</th><th>Figure</th><th>Source</th></tr></thead>
 <tbody>
 <tr><td>EBITDA uplift from metal-rate parity (lot-level claim on OEM price-variation clauses)</td><td>₹1.5–4.0 cr, base ₹2.4 cr</td><td>2–5% leakage on ~₹153 cr index-linked metal, 40–60% recovered. Metal share is a sector assumption.</td></tr>
@@ -120,9 +94,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>Divided by FY24 profit after tax</td><td>₹21.7 cr</td><td>CRISIL rating rationale, Apr 2025</td></tr>
 <tr><td><strong>Result</strong></td><td><strong>~20% (range 13–31%)</strong></td><td>Say "15 to 20%" if pressed; the base case is pre-tax against a post-tax denominator.</td></tr>
 </tbody></table></div>
-<p>Why this lever exists here: starters and alternators are among the most metal-intensive parts a tractor OEM buys. OEMs compensate metal on standard weight with a one to two quarter lag and not in full (CRISIL sector view). Auto Ignition's margin has already slipped from 9.6% to 7.5–8% while copper sits at record levels.</p>
-<h3 id="frees-12-crore-of-working-capital">"Frees ₹12 crore of working capital"</h3>
-<div class="tbl"><table>
+<p>Why this lever exists here: starters and alternators are among the most metal-intensive parts a tractor OEM buys. OEMs compensate metal on standard weight with a one to two quarter lag and not in full (CRISIL sector view). Auto Ignition's margin has already slipped from 9.6% to 7.5–8% while copper sits at record levels.</p></details><details class="sec"><summary>&quot;Frees ₹12 crore of working capital&quot;</summary><div class="tbl"><table class="full">
 <thead><tr><th>Lever</th><th>Days moved</th><th>Daily value</th><th>Cash released</th></tr></thead>
 <tbody>
 <tr><td>Payables: release only at due date, no early or duplicate payments, advances adjusted</td><td>+5 to +8</td><td>₹0.96 cr/day (₹350 cr annual spend ÷ 365)</td><td>₹4.8–7.7 cr</td></tr>
@@ -130,9 +102,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>Price-variation claims settle one cycle faster</td><td>−3 to −5 on PV slice</td><td>PV portion of receivables only</td><td>₹1.0–2.0 cr</td></tr>
 <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>₹9.6–15.8 cr, base ₹12.5 cr</strong></td></tr>
 </tbody></table></div>
-<p>Context: CRISIL reports receivables 75–100 days, inventory 50–60, payables 45–50, gross current assets 170+ days, and names "large working capital requirement" as the company's second rating weakness. ₹12.5 cr is 20–30% of current drawdown on bank lines.</p>
-<h3 id="saving-over-a-crore-a-year-in-interest">"Saving over a crore a year in interest"</h3>
-<div class="tbl"><table>
+<p>Context: CRISIL reports receivables 75–100 days, inventory 50–60, payables 45–50, gross current assets 170+ days, and names "large working capital requirement" as the company's second rating weakness. ₹12.5 cr is 20–30% of current drawdown on bank lines.</p></details><details class="sec"><summary>&quot;Saving over a crore a year in interest&quot;</summary><div class="tbl"><table class="full">
 <thead><tr><th>Input</th><th>Value</th><th>Source</th></tr></thead>
 <tbody>
 <tr><td>Working-capital lines</td><td>₹66 cr (HSBC ₹35 cr, DBS ₹31 cr)</td><td>CRISIL</td></tr>
@@ -140,16 +110,14 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>Cost of lines</td><td>~9.5%</td><td>A-minus borrower, sector norm</td></tr>
 <tr><td>Cash released × rate</td><td>₹12.5 cr × 9.5%</td><td><strong>₹1.2 cr per year</strong> (range ₹0.9–1.5 cr)</td></tr>
 </tbody></table></div>
-<p>The cash release is one-time and lives on the balance sheet. The interest saving recurs every year the working-capital gap stays shrunk, and sits on the finance-cost line below EBITDA.</p>
-<h3 id="what-the-tagline-does-not-claim">What the tagline does not claim</h3>
-<p>OHM does not move the largest lever at this account, the tractor cycle (FY27 domestic tractor growth forecast at 1–4% after 23.5% in FY26). It also does not drive the Supa and Satara plant ramp or the EV line. Say this in the room; it builds credibility with an owner who already knows it.</p>
-<hr></div><details class="fold" open><summary>Full S-PAL analysis (steps 1–5 and sources)</summary><div class="toc"><a href="#auto_ignition_ltd-0">0. Identity check (read first)</a> &middot; <a href="#auto_ignition_ltd-1">1. Company snapshot [C]</a> &middot; <a href="#auto_ignition_ltd-2">2. Sector baseline: structural P&amp;L levers for an Indian Tier-1 auto-electrical supplier</a> &middot; <a href="#auto_ignition_ltd-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a> &middot; <a href="#auto_ignition_ltd-4">4. Ranked S-PAL shortlist (pre-OHM filter)</a> &middot; <a href="#auto_ignition_ltd-5">5. Step 4: OHM controllability filter</a> &middot; <a href="#auto_ignition_ltd-6">6. Step 5: Value sizing</a> &middot; <a href="#auto_ignition_ltd-7">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
-<h2 id="auto_ignition_ltd-0">0. Identity check (read first)</h2>
+<p>The cash release is one-time and lives on the balance sheet. The interest saving recurs every year the working-capital gap stays shrunk, and sits on the finance-cost line below EBITDA.</p></details><details class="sec"><summary>What the tagline does not claim</summary><p>OHM does not move the largest lever at this account, the tractor cycle (FY27 domestic tractor growth forecast at 1–4% after 23.5% in FY26). It also does not drive the Supa and Satara plant ramp or the EV line. Say this in the room; it builds credibility with an owner who already knows it.</p>
+<hr></details></div><details class="full"><summary>Full S-PAL analysis</summary><div class="toc"><b>Contents</b><a href="#auto_ignition_ltd-s0">0. Identity check (read first)</a><a href="#auto_ignition_ltd-s1">1. Company snapshot [C]</a><a href="#auto_ignition_ltd-s2">2. Sector baseline: structural P&amp;L levers for an Indian Tier-1 auto-electrical supplier</a><a href="#auto_ignition_ltd-s3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a><a href="#auto_ignition_ltd-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</a><a href="#auto_ignition_ltd-s5">5. Step 4: OHM controllability filter</a><a href="#auto_ignition_ltd-s6">6. Step 5: Value sizing</a><a href="#auto_ignition_ltd-s7">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<h2 id="auto_ignition_ltd-s0">0. Identity check (read first)</h2>
 <p>The brief said "Auto Ignition – Gurgaon". Public records place Auto Ignition Ltd's head office and Plant 1 at 49 Km Milestone, NH-19, Prithla, Palwal (Faridabad belt), not Gurgaon. No Gurgaon office is listed on the company website, CRISIL rationale, Automechanika exhibitor record, or ZoomInfo.</p>
 <p>The Gurgaon-based starter-motor / alternator maker is <strong>Jumps Auto Industries Ltd</strong> (Sector 37, Gurgaon; export-oriented, 50+ countries). If the account is actually Jumps Auto, this document needs to be redone. This document proceeds on <strong>Auto Ignition Ltd</strong>, which is the only company of that name.</p>
 <hr>
-<h2 id="auto_ignition_ltd-1">1. Company snapshot [C]</h2>
-<div class="tbl"><table>
+<h2 id="auto_ignition_ltd-s1">1. Company snapshot [C]</h2>
+<div class="tbl"><table class="full">
 <thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
 <tbody>
 <tr><td>Legal entity</td><td>Auto Ignition Ltd, unlisted public company, inc. 5 Aug 1971, Sarine family promoters</td><td>CRISIL Apr-2025, Motor India Aug-2021</td></tr>
@@ -167,7 +135,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>Credit rating</td><td>CRISIL A-/Stable (reaffirmed Apr-2025); bank lines enhanced ₹40 cr → ₹83 cr</td><td>CRISIL</td></tr>
 </tbody></table></div>
 <h3 id="financial-trajectory-group-crore-c">Financial trajectory (group, ₹ crore) [C]</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Metric</th><th>FY23</th><th>FY24</th><th>FY25 (CRISIL est.)</th><th>CRISIL medium-term expectation</th></tr></thead>
 <tbody>
 <tr><td>Operating income</td><td>420.0</td><td>391.9</td><td>~450 (11M actual 384)</td><td>&gt;550 is an upgrade trigger</td></tr>
@@ -183,10 +151,10 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 </tbody></table></div>
 <p>Read-through: revenue dipped 7% in FY24 with the tractor down-cycle, recovered in FY25 on the acquired alternator/wiper division and volume. Margin has compressed ~200 bps (9.6% → ~7.5–8%) while debt has risen for the PV/EV/bus capex. The 2021 ambition of ₹1,000 cr by ~2026 is roughly half achieved. The business is now carrying new-segment fixed cost on a core franchise whose growth is about to decelerate (see 2.1).</p>
 <hr>
-<h2 id="auto_ignition_ltd-2">2. Sector baseline: structural P&amp;L levers for an Indian Tier-1 auto-electrical supplier</h2>
+<h2 id="auto_ignition_ltd-s2">2. Sector baseline: structural P&amp;L levers for an Indian Tier-1 auto-electrical supplier</h2>
 <p>Scope note: Auto Ignition straddles three end-markets (tractor ~core, genset, on-road/EV new) and one product-technology transition (rotating electricals → e-motors). Sector levers below are organised by P&amp;L line. Each is marked [C] where there is company evidence, [S] where it is sector-assumed.</p>
 <h3 id="2-1-top-line-volume">2.1 Top line: volume</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>V1</td><td><strong>Tractor OEM off-take (cyclicality)</strong></td><td>FY26 domestic tractor wholesale +23.5% (ICRA). FY27 forecast only +1–4% (ICRA) to flat (YES Securities): high base, below-normal monsoon risk, GST-cut pre-buy fading, destocking. TREM-V deferred to Apr-2028 for 30–50 HP, removing a pre-buy tailwind.</td><td>CRISIL's #1 weakness is tractor concentration. FY24 revenue fell 7% on the last down-cycle. FY27 is set up as a flat-to-low-growth year on the core.</td><td>[C]</td></tr>
@@ -197,7 +165,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>V6</td><td><strong>Aftermarket volume</strong></td><td>Aftermarket is the most resilient channel (ACMA). Tractor/genset parc is large and the harsh-duty replacement cycle is short.</td><td>Company originated in the tractor aftermarket; has a dealer app with warranty claims and catalogues. Aftermarket share of revenue unknown.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-2-top-line-price-realisation">2.2 Top line: price / realisation</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>P1</td><td><strong>OEM annual price-down</strong></td><td>Standard Indian OEM practice: 1–3% per year productivity give-back on running parts, enforced at annual negotiations.</td><td>Concentrated customer base (big-4 tractor OEMs) = low bargaining power. Assumed in force.</td><td>[S]</td></tr>
@@ -206,7 +174,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>P4</td><td><strong>Export realisation / FX</strong></td><td>Export pricing is typically 15–30% above domestic for equivalent parts; FX gain on INR depreciation.</td><td>Export share unknown; cannot size.</td><td>[S]</td></tr>
 </tbody></table></div>
 <h3 id="2-3-bottom-line-cost-of-goods">2.3 Bottom line: cost of goods</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>C1</td><td><strong>Material cost ratio (typically 60–68% of revenue for rotating electricals)</strong></td><td>Copper windings, electrical steel laminations, magnets, aluminium housings. VA/VE, lamination yield, scrap recovery and alternate sourcing are the main controllables.</td><td>Highest-weight cost lever. No public data on BOM ratio.</td><td>[S]</td></tr>
@@ -217,7 +185,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>C6</td><td><strong>Energy cost</strong></td><td>Captive solar is now standard for margin and ESG.</td><td>Solar plant installed (CEO interview). Residual grid-power cost at 4 plants unknown.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-4-bottom-line-operating-expenses-and-below-the-line">2.4 Bottom line: operating expenses and below-the-line</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>O1</td><td><strong>R&amp;D and engineering spend vs. new-product revenue</strong></td><td>Suppliers crossing from ICE to EV typically run R&amp;D at 2–4% of revenue for 3–5 years before payback.</td><td>Govt-recognised R&amp;D centre; patents filed; EV drivetrain, hub motors and e-axles in portfolio. New-product revenue conversion is the KPI.</td><td>[C]</td></tr>
@@ -226,7 +194,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>O4</td><td><strong>Depreciation step-up from new plants</strong></td><td>—</td><td>Supa/Satara capex will add depreciation that only operating leverage can absorb.</td><td>[S]</td></tr>
 </tbody></table></div>
 <h3 id="2-5-balance-sheet-cash-working-capital">2.5 Balance sheet / cash: working capital</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>W1</td><td><strong>Receivable days</strong></td><td>Tractor and genset OEMs are slow payers; 75–100 days is long for the sector (listed peers run 45–70).</td><td>CRISIL names "large working capital requirement" as the #2 weakness. Receivables 75–100 days. Each 10-day reduction ≈ ₹12 cr of cash at ₹450 cr revenue.</td><td>[C]</td></tr>
@@ -235,15 +203,15 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>W4</td><td><strong>Cash conversion → growth funding</strong></td><td>—</td><td>GCA days 170–175 expected. Working capital is the binding constraint on funding the ₹1,000 cr ambition without more debt.</td><td>[C]</td></tr>
 </tbody></table></div>
 <hr>
-<h2 id="auto_ignition_ltd-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
+<h2 id="auto_ignition_ltd-s3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
 <p>Items tagged [S] above carry no company-specific evidence. They are retained because they are structurally true of every Indian Tier-1 auto-electrical supplier and should be confirmed in the first discovery conversation:</p>
 <ol><li>OEM annual price-down terms (P1) — assumed 1–3%/yr.</li><li>Material cost ratio (C1) — assumed 60–68% of revenue.</li><li>Genset segment position in large-kVA growth (V3) — assumed weak given product range.</li><li>Export realisation premium and FX (P4) — assumed present, share unknown.</li><li>Depreciation step-up (O4) — assumed from capex timing.</li></ol>
 <p>Two unverified company facts that materially change the picture and should be confirmed early:</p>
 <ul><li>Status of the magnetless axial-flux motor (C2): if real and in production, it is both a cost hedge and a differentiated export product.</li><li>Seller and scale of the acquired alternator/wiper division: it drove FY25 growth; its integration state affects C3, C4 and W2.</li></ul>
 <hr>
-<h2 id="auto_ignition_ltd-4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<h2 id="auto_ignition_ltd-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
 <p>Ranked by estimated P&amp;L impact over the next 12–24 months, before filtering for what OHM can control.</p>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction of pressure</th><th>Why it ranks here</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>V1 Tractor cycle + V2 share defence</td><td>Revenue</td><td>Negative FY27</td><td>Core franchise; ~70%+ of revenue by inference; FY27 growth 0–4% after +23.5%</td></tr>
@@ -258,11 +226,11 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>10</td><td>O2 Programme load</td><td>Opex / execution</td><td>Risk</td><td>25 projects for a ₹450 cr company; execution dilution risk</td></tr>
 </tbody></table></div>
 <hr>
-<h2 id="auto_ignition_ltd-5">5. Step 4: OHM controllability filter</h2>
+<h2 id="auto_ignition_ltd-s5">5. Step 4: OHM controllability filter</h2>
 <p>OHM scope for this account:</p>
 <ul><li><strong>Module A, Outflow controls:</strong> a 35-point check applied across transactions (procure-to-pay, payment release, debit/credit notes, advances, freight, services).</li><li><strong>Module B, Metal-rate parity:</strong> lot-level tracking and tagging of metal stock (copper, electrical steel, aluminium, magnets) from raw-material receipt through WIP to finished goods, so that consumption, yield, scrap and purchase rate can be substantiated against OEM price-variation (PV) clauses.</li></ul>
 <p>Filter applied to the ranked shortlist in Section 4. "Controls" means OHM is the primary mechanism; "Influences" means OHM supplies evidence or discipline that helps another function move the lever; "No" means OHM has no effect and the lever stays with the business.</p>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Rank</th><th>Lever</th><th>OHM effect</th><th>Module</th><th>Mechanism</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>V1/V2 Tractor cycle and share defence</td><td><strong>No</strong></td><td>—</td><td>Market and commercial. OHM is silent here; do not claim it.</td></tr>
@@ -281,7 +249,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <h3 id="5-1-why-metal-rate-parity-is-the-lever-that-matters-at-auto-ignition">5.1 Why metal-rate parity is the lever that matters at Auto Ignition</h3>
 <p>Starter motors and alternators are among the most metal-intensive parts a tractor OEM buys. Copper windings, electrical-steel laminations, steel shafts and housings, aluminium die-castings and (on the EV line) NdFeB magnets. Indian OEM supply agreements compensate suppliers for metal movements through a PV clause tied to a published index (MCX/LME copper, steel benchmarks), reset quarterly or half-yearly, on a <strong>standard metal weight per part</strong> agreed at nomination.</p>
 <p>Leakage between the clause and the P&amp;L comes from four places, all of which require lot-level evidence to close:</p>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Leakage mechanism</th><th>What goes wrong without tagging</th><th>What OHM changes</th></tr></thead>
 <tbody>
 <tr><td>L1</td><td><strong>Lag asymmetry</strong></td><td>OEM resets on the index with a one to two quarter lag. Supplier holds 50–60 days of stock. On a rising index the supplier is under-compensated for the quarter; on a falling index OEMs apply the cut immediately while the supplier consumes high-cost stock. CRISIL's sector view: pass-through "with a lag of one to two quarters and not always in full".</td><td>Each lot carries its landed rate. Consumption in the period is valued at actual lot rate, giving a defensible claim for the gap and a factual basis to negotiate the reset frequency.</td></tr>
@@ -294,10 +262,10 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <p>The 35 points have not been shared, so this is the target list of outflow leakages at an auto-electrical Tier-1 of this size, to be mapped against the actual checks:</p>
 <ul><li>Three-way match failures (PO, GRN, invoice) and rate deviations against PO or rate contract.</li><li>Duplicate or near-duplicate vendor invoices across four plants.</li><li>Payments released before due date, or without using agreed credit period.</li><li>Advances to vendors and tooling suppliers not adjusted against subsequent invoices.</li><li>Missed cash discounts and missed vendor debit notes (rejections, short supply, freight recovery).</li><li>Freight and logistics overbilling across four plants and export shipments.</li><li>Contract-labour billing against attendance (headcount spread of 389 to 1,000 suggests heavy contract use).</li><li>Capex invoice release against milestone completion at Supa and Satara.</li><li>GST input-credit mismatches that delay or lose credit.</li><li>Statutory and bank-charge outflows.</li></ul>
 <hr>
-<h2 id="auto_ignition_ltd-6">6. Step 5: Value sizing</h2>
+<h2 id="auto_ignition_ltd-s6">6. Step 5: Value sizing</h2>
 <p>Base: FY25 group operating income ~₹450 crore (CRISIL). All assumptions are stated; company data for the [S] items will tighten the ranges in discovery.</p>
 <h3 id="6-1-assumptions">6.1 Assumptions</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Item</th><th>Value</th><th>Basis</th></tr></thead>
 <tbody>
 <tr><td>Revenue</td><td>₹450 cr</td><td>CRISIL FY25 estimate</td></tr>
@@ -309,7 +277,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>Receivables / inventory / payables days</td><td>75–100 / 50–60 / 45–50</td><td>CRISIL</td></tr>
 </tbody></table></div>
 <h3 id="6-2-bottom-line-ebitda-uplift">6.2 Bottom line (EBITDA) uplift</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Source</th><th>Leakage pool</th><th>Leakage rate</th><th>Recovery by OHM</th><th>Annual EBITDA</th><th>bps of revenue</th></tr></thead>
 <tbody>
 <tr><td>Metal-rate parity (L1–L4)</td><td>₹153 cr index-linked metal</td><td>2–5% of pool</td><td>40–60%</td><td>₹1.5–4.0 cr</td><td>35–90</td></tr>
@@ -318,7 +286,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 </tbody></table></div>
 <p>Reading: the "up to 1%" claim sits at the upper-middle of this range. The <strong>base case is roughly 70 bps</strong>; 100 bps requires either copper to stay volatile (which widens L1) or a large standard-weight gap (L2). State the claim as "50 to 100 bps, base case 70" rather than a flat 1%; it survives a CFO's scrutiny better.</p>
 <h3 id="6-3-cash-flow">6.3 Cash flow</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Source</th><th>Mechanism</th><th>Days</th><th>Cash released (one-time)</th></tr></thead>
 <tbody>
 <tr><td>Payables discipline</td><td>Release at due date, stop premature payments, adjust advances</td><td>+5 to +8 days on ₹350 cr annual spend</td><td>₹4.8–7.7 cr</td></tr>
@@ -329,7 +297,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 </tbody></table></div>
 <p>Reading: ₹10–16 crore is 20–30% of current working-capital drawdown. That moves CRISIL's "large working capital requirement" weakness in the right direction and lowers gearing without any equity or new debt.</p>
 <h3 id="6-4-combined-value-statement-for-the-account">6.4 Combined value statement for the account</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Line</th><th>Low</th><th>Base</th><th>High</th></tr></thead>
 <tbody>
 <tr><td>EBITDA uplift (bps of revenue)</td><td>45</td><td>70</td><td>115</td></tr>
@@ -344,16 +312,16 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <h3 id="6-6-objections-to-prepare-for">6.6 Objections to prepare for</h3>
 <ul><li>"Our OEMs already compensate us on metal." Answer: on standard weight, with a lag, and not on bought-outs. Ask for the last four PV reconciliations.</li><li>"We have an ERP with lot control." Answer: lot numbers exist; lot rate carried through to consumption valuation and PV claim usually does not. Ask how the last claim was computed.</li><li>"The 1% is small." Answer: it is 15–20% of PAT, and the cash release is 20–30% of working-capital debt, in a year when the core market is forecast flat.</li></ul>
 <hr>
-<h2 id="auto_ignition_ltd-7">Sources</h2>
-<ul><li>CRISIL Ratings, Auto Ignition Ltd rating rationale, 11 Apr 2025: <a href="https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/AutoIgnitionLimited_April%2011_%202025_RR_366973.html" target="_blank" rel="noopener">https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/AutoIgnitionLimited_April%2011_%202025_RR_366973.html</a></li><li>Auto Ignition Ltd website: <a href="https://www.autolek.com/" target="_blank" rel="noopener">https://www.autolek.com/</a></li><li>Motor India, "Auto Ignition completes 50 successful years", Aug 2021: <a href="https://www.motorindiaonline.in/auto-ignition-completes-50-successful-years-looks-forward-to-exciting-future-ahead/" target="_blank" rel="noopener">https://www.motorindiaonline.in/auto-ignition-completes-50-successful-years-looks-forward-to-exciting-future-ahead/</a></li><li>Engineering Review, Rajendra Abhange profile, Sep 2023: <a href="https://www.engmag.in/rajendra-abhange-president-ceo-auto-ignition-ltd/" target="_blank" rel="noopener">https://www.engmag.in/rajendra-abhange-president-ceo-auto-ignition-ltd/</a></li><li>Tracxn legal-entity profile: <a href="https://tracxn.com/d/legal-entities/india/auto-ignition-limited/__ylKtElWEFs1h_xCC27GSHBtU98eb_WUq2VN87LG4YZQ" target="_blank" rel="noopener">https://tracxn.com/d/legal-entities/india/auto-ignition-limited/__ylKtElWEFs1h_xCC27GSHBtU98eb_WUq2VN87LG4YZQ</a></li><li>Great Place to Work profile: <a href="https://www.greatplacetowork.in/great/company/auto-ignition-limited" target="_blank" rel="noopener">https://www.greatplacetowork.in/great/company/auto-ignition-limited</a></li><li>Automechanika Frankfurt exhibitor listing: <a href="https://automechanika.messefrankfurt.com/content/messefrankfurt-redaktion/automechanika/frankfurt/en/exhibitor-search.detail.html/auto-ignition-ltd.html" target="_blank" rel="noopener">https://automechanika.messefrankfurt.com/content/messefrankfurt-redaktion/automechanika/frankfurt/en/exhibitor-search.detail.html/auto-ignition-ltd.html</a></li><li>Jumps Auto Industries (Gurgaon): <a href="https://jumpsindia.com/" target="_blank" rel="noopener">https://jumpsindia.com/</a></li><li>ICRA tractor outlook FY27 via Autocar Pro: <a href="https://www.autocarpro.in/news/indian-tractor-industry-growth-seen-at-1-4-percent-in-fy2027-icra-134265" target="_blank" rel="noopener">https://www.autocarpro.in/news/indian-tractor-industry-growth-seen-at-1-4-percent-in-fy2027-icra-134265</a></li><li>YES Securities tractor view: <a href="https://www.newkerala.com/news/a/tractor-industry-growth-stay-flat-fy27-amid-price-220.htm" target="_blank" rel="noopener">https://www.newkerala.com/news/a/tractor-industry-growth-stay-flat-fy27-amid-price-220.htm</a></li><li>ACMA FY26 industry performance: <a href="https://www.zeebiz.com/automobile/news-indias-auto-component-industry-crosses-rs-76-lakh-crore-turnover-in-fy26-doubles-in-five-years-acma-398517/amp" target="_blank" rel="noopener">https://www.zeebiz.com/automobile/news-indias-auto-component-industry-crosses-rs-76-lakh-crore-turnover-in-fy26-doubles-in-five-years-acma-398517/amp</a></li><li>ACMA H1 FY26 press release: <a href="https://acma.in/uploads/press-release/FINAL%20-%20Press%20Release%20-%20ACMA_H1_FY26.pdf" target="_blank" rel="noopener">https://acma.in/uploads/press-release/FINAL%20-%20Press%20Release%20-%20ACMA_H1_FY26.pdf</a></li><li>CRISIL auto-component margin outlook, Jun 2026: <a href="https://www.crisilratings.com/en/home/newsroom/press-releases/2026/06/auto-component-margins-seen-at-10pt5-11percent-amid-west-asia-conflict.html" target="_blank" rel="noopener">https://www.crisilratings.com/en/home/newsroom/press-releases/2026/06/auto-component-margins-seen-at-10pt5-11percent-amid-west-asia-conflict.html</a></li><li>Business Standard, input costs squeeze component makers: <a href="https://www.business-standard.com/industry/auto/rising-input-costs-squeeze-margins-auto-component-makers-125122600580_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/auto/rising-input-costs-squeeze-margins-auto-component-makers-125122600580_1.html</a></li><li>Autocar Pro, metal price spike: <a href="https://www.autocarpro.in/news/steel-aluminium-copper-prices-spike-putting-auto-industry-margins-at-risk-132236" target="_blank" rel="noopener">https://www.autocarpro.in/news/steel-aluminium-copper-prices-spike-putting-auto-industry-margins-at-risk-132236</a></li><li>Whalesbook FY26 ancillary margins: <a href="https://www.whalesbook.com/news/English/auto/Indian-Auto-Ancillary-Sector-Revenue-Rose-125percent-in-FY26/6a41eab4fb97bcde4ce58664" target="_blank" rel="noopener">https://www.whalesbook.com/news/English/auto/Indian-Auto-Ancillary-Sector-Revenue-Rose-125percent-in-FY26/6a41eab4fb97bcde4ce58664</a></li><li>Business Standard, rare-earth shortage and e-2W production: <a href="https://www.business-standard.com/industry/auto/rare-earth-magnet-shortage-india-ev-two-wheeler-production-q2-125081000151_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/auto/rare-earth-magnet-shortage-india-ev-two-wheeler-production-q2-125081000151_1.html</a></li><li>bne IntelliNews / CRISIL e-2W growth: <a href="https://www.intellinews.com/indian-electric-two-wheelers-growth-to-slow-to-12-13-in-fy2026-on-magnet-shortage-428526" target="_blank" rel="noopener">https://www.intellinews.com/indian-electric-two-wheelers-growth-to-slow-to-12-13-in-fy2026-on-magnet-shortage-428526</a></li><li>Outlook Business, India rare-earth magnet production: <a href="https://www.outlookbusiness.com/industry/india-rare-earth-magnet-production-2026" target="_blank" rel="noopener">https://www.outlookbusiness.com/industry/india-rare-earth-magnet-production-2026</a></li><li>IMARC India diesel genset market: <a href="https://www.imarcgroup.com/india-diesel-genset-market" target="_blank" rel="noopener">https://www.imarcgroup.com/india-diesel-genset-market</a></li><li>Ken Research India DG sets: <a href="https://www.kenresearch.com/industry-reports/india-diesel-generator-sets-market" target="_blank" rel="noopener">https://www.kenresearch.com/industry-reports/india-diesel-generator-sets-market</a></li><li>Lucas TVS tech show via CB Insights: <a href="https://www.cbinsights.com/company/lucas-tvs" target="_blank" rel="noopener">https://www.cbinsights.com/company/lucas-tvs</a></li></ul></div></details><p class="foot"><a href="#top">&larr; All companies</a> &middot; Source: <code>ohm_spal/companies/auto_ignition_ltd.md</code></p></section>
-<section class="company" id="the_whole_truth"><div class="company-head"><h1>The Whole Truth Foods</h1><span class="pill muted">In research</span></div><div class="meta"><span>The Whole Truth</span><span>Andheri East, Mumbai, Maharashtra</span><span>₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt)</span></div><p><em>No tagline yet. Status: In research.</em></p><div class="sources"><h2 id="tagline-pending">Tagline pending</h2>
+<h2 id="auto_ignition_ltd-s7">Sources</h2>
+<ul><li>CRISIL Ratings, Auto Ignition Ltd rating rationale, 11 Apr 2025: <a href="https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/AutoIgnitionLimited_April%2011_%202025_RR_366973.html" target="_blank" rel="noopener">https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/AutoIgnitionLimited_April%2011_%202025_RR_366973.html</a></li><li>Auto Ignition Ltd website: <a href="https://www.autolek.com/" target="_blank" rel="noopener">https://www.autolek.com/</a></li><li>Motor India, "Auto Ignition completes 50 successful years", Aug 2021: <a href="https://www.motorindiaonline.in/auto-ignition-completes-50-successful-years-looks-forward-to-exciting-future-ahead/" target="_blank" rel="noopener">https://www.motorindiaonline.in/auto-ignition-completes-50-successful-years-looks-forward-to-exciting-future-ahead/</a></li><li>Engineering Review, Rajendra Abhange profile, Sep 2023: <a href="https://www.engmag.in/rajendra-abhange-president-ceo-auto-ignition-ltd/" target="_blank" rel="noopener">https://www.engmag.in/rajendra-abhange-president-ceo-auto-ignition-ltd/</a></li><li>Tracxn legal-entity profile: <a href="https://tracxn.com/d/legal-entities/india/auto-ignition-limited/__ylKtElWEFs1h_xCC27GSHBtU98eb_WUq2VN87LG4YZQ" target="_blank" rel="noopener">https://tracxn.com/d/legal-entities/india/auto-ignition-limited/__ylKtElWEFs1h_xCC27GSHBtU98eb_WUq2VN87LG4YZQ</a></li><li>Great Place to Work profile: <a href="https://www.greatplacetowork.in/great/company/auto-ignition-limited" target="_blank" rel="noopener">https://www.greatplacetowork.in/great/company/auto-ignition-limited</a></li><li>Automechanika Frankfurt exhibitor listing: <a href="https://automechanika.messefrankfurt.com/content/messefrankfurt-redaktion/automechanika/frankfurt/en/exhibitor-search.detail.html/auto-ignition-ltd.html" target="_blank" rel="noopener">https://automechanika.messefrankfurt.com/content/messefrankfurt-redaktion/automechanika/frankfurt/en/exhibitor-search.detail.html/auto-ignition-ltd.html</a></li><li>Jumps Auto Industries (Gurgaon): <a href="https://jumpsindia.com/" target="_blank" rel="noopener">https://jumpsindia.com/</a></li><li>ICRA tractor outlook FY27 via Autocar Pro: <a href="https://www.autocarpro.in/news/indian-tractor-industry-growth-seen-at-1-4-percent-in-fy2027-icra-134265" target="_blank" rel="noopener">https://www.autocarpro.in/news/indian-tractor-industry-growth-seen-at-1-4-percent-in-fy2027-icra-134265</a></li><li>YES Securities tractor view: <a href="https://www.newkerala.com/news/a/tractor-industry-growth-stay-flat-fy27-amid-price-220.htm" target="_blank" rel="noopener">https://www.newkerala.com/news/a/tractor-industry-growth-stay-flat-fy27-amid-price-220.htm</a></li><li>ACMA FY26 industry performance: <a href="https://www.zeebiz.com/automobile/news-indias-auto-component-industry-crosses-rs-76-lakh-crore-turnover-in-fy26-doubles-in-five-years-acma-398517/amp" target="_blank" rel="noopener">https://www.zeebiz.com/automobile/news-indias-auto-component-industry-crosses-rs-76-lakh-crore-turnover-in-fy26-doubles-in-five-years-acma-398517/amp</a></li><li>ACMA H1 FY26 press release: <a href="https://acma.in/uploads/press-release/FINAL%20-%20Press%20Release%20-%20ACMA_H1_FY26.pdf" target="_blank" rel="noopener">https://acma.in/uploads/press-release/FINAL%20-%20Press%20Release%20-%20ACMA_H1_FY26.pdf</a></li><li>CRISIL auto-component margin outlook, Jun 2026: <a href="https://www.crisilratings.com/en/home/newsroom/press-releases/2026/06/auto-component-margins-seen-at-10pt5-11percent-amid-west-asia-conflict.html" target="_blank" rel="noopener">https://www.crisilratings.com/en/home/newsroom/press-releases/2026/06/auto-component-margins-seen-at-10pt5-11percent-amid-west-asia-conflict.html</a></li><li>Business Standard, input costs squeeze component makers: <a href="https://www.business-standard.com/industry/auto/rising-input-costs-squeeze-margins-auto-component-makers-125122600580_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/auto/rising-input-costs-squeeze-margins-auto-component-makers-125122600580_1.html</a></li><li>Autocar Pro, metal price spike: <a href="https://www.autocarpro.in/news/steel-aluminium-copper-prices-spike-putting-auto-industry-margins-at-risk-132236" target="_blank" rel="noopener">https://www.autocarpro.in/news/steel-aluminium-copper-prices-spike-putting-auto-industry-margins-at-risk-132236</a></li><li>Whalesbook FY26 ancillary margins: <a href="https://www.whalesbook.com/news/English/auto/Indian-Auto-Ancillary-Sector-Revenue-Rose-125percent-in-FY26/6a41eab4fb97bcde4ce58664" target="_blank" rel="noopener">https://www.whalesbook.com/news/English/auto/Indian-Auto-Ancillary-Sector-Revenue-Rose-125percent-in-FY26/6a41eab4fb97bcde4ce58664</a></li><li>Business Standard, rare-earth shortage and e-2W production: <a href="https://www.business-standard.com/industry/auto/rare-earth-magnet-shortage-india-ev-two-wheeler-production-q2-125081000151_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/auto/rare-earth-magnet-shortage-india-ev-two-wheeler-production-q2-125081000151_1.html</a></li><li>bne IntelliNews / CRISIL e-2W growth: <a href="https://www.intellinews.com/indian-electric-two-wheelers-growth-to-slow-to-12-13-in-fy2026-on-magnet-shortage-428526" target="_blank" rel="noopener">https://www.intellinews.com/indian-electric-two-wheelers-growth-to-slow-to-12-13-in-fy2026-on-magnet-shortage-428526</a></li><li>Outlook Business, India rare-earth magnet production: <a href="https://www.outlookbusiness.com/industry/india-rare-earth-magnet-production-2026" target="_blank" rel="noopener">https://www.outlookbusiness.com/industry/india-rare-earth-magnet-production-2026</a></li><li>IMARC India diesel genset market: <a href="https://www.imarcgroup.com/india-diesel-genset-market" target="_blank" rel="noopener">https://www.imarcgroup.com/india-diesel-genset-market</a></li><li>Ken Research India DG sets: <a href="https://www.kenresearch.com/industry-reports/india-diesel-generator-sets-market" target="_blank" rel="noopener">https://www.kenresearch.com/industry-reports/india-diesel-generator-sets-market</a></li><li>Lucas TVS tech show via CB Insights: <a href="https://www.cbinsights.com/company/lucas-tvs" target="_blank" rel="noopener">https://www.cbinsights.com/company/lucas-tvs</a></li></ul></div></details><p class="foot">Source file: <code>ohm_spal/companies/auto_ignition_ltd.md</code></p></section>
+<section class="company" id="the_whole_truth"><p class="sub"><a href="#index">&larr; Index</a></p><h1>2. The Whole Truth Foods</h1><p class="sub">The Whole Truth &middot; Andheri East, Mumbai, Maharashtra &middot; ₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt) &middot; Status: In research &middot; Prepared 2026-10-14</p><p><i>No tagline yet. Status: In research.</i></p><div class="sources"><h2 id="tagline-pending">Tagline pending</h2>
 <p>Steps 1–3 are complete below. OHM context for this account has not been given yet, so no controllability filter, no sizing, and no tagline. Nothing in this page assumes any OHM capability.</p>
-<hr></div><details class="fold" open><summary>Full S-PAL analysis (steps 1–5 and sources)</summary><div class="toc"><a href="#the_whole_truth-0">0. Identity check</a> &middot; <a href="#the_whole_truth-1">1. Company snapshot [C]</a> &middot; <a href="#the_whole_truth-2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</a> &middot; <a href="#the_whole_truth-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a> &middot; <a href="#the_whole_truth-4">4. Ranked S-PAL shortlist (pre-OHM filter)</a> &middot; <a href="#the_whole_truth-5">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<hr></div><details class="full"><summary>Full S-PAL analysis</summary><div class="toc"><b>Contents</b><a href="#the_whole_truth-s0">0. Identity check</a><a href="#the_whole_truth-s1">1. Company snapshot [C]</a><a href="#the_whole_truth-s2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</a><a href="#the_whole_truth-s3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a><a href="#the_whole_truth-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</a><a href="#the_whole_truth-s5">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
 <p><strong>Evidence key:</strong> [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)</p>
-<h2 id="the_whole_truth-0">0. Identity check</h2>
+<h2 id="the_whole_truth-s0">0. Identity check</h2>
 <p>The Whole Truth Foods is the brand of <strong>FITSHIT Health Solutions Pvt Ltd</strong>, Saki Vihar Road, Andheri East, Mumbai. Founded by Shashank Mehta (ex-Hindustan Unilever) with co-founder Rachna Aggarwal; last day at Unilever 9 July 2019, first sale 19 October 2019. No ambiguity with another company of the same name.</p>
-<h2 id="the_whole_truth-1">1. Company snapshot [C]</h2>
-<div class="tbl"><table>
+<h2 id="the_whole_truth-s1">1. Company snapshot [C]</h2>
+<div class="tbl"><table class="full">
 <thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
 <tbody>
 <tr><td>Legal entity</td><td>FITSHIT Health Solutions Pvt Ltd, Mumbai</td><td>Company manufacturing page</td></tr>
@@ -372,7 +340,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>2026 supply shock</td><td>Company post on Iran war: pistachio rates +50%; dates (Oman/Saudi via Dubai port) supply hit; polymer packaging +40% and "long term"; factory attendance −30% from LPG shortage</td><td>Storyboard18</td></tr>
 </tbody></table></div>
 <h3 id="financial-trajectory-standalone-crore-roc-filings-c">Financial trajectory (standalone, ₹ crore, RoC filings) [C]</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Metric</th><th>FY24</th><th>FY25</th><th>Change</th></tr></thead>
 <tbody>
 <tr><td>Revenue from operations</td><td>65</td><td>216</td><td>+232%</td></tr>
@@ -393,10 +361,10 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 </tbody></table></div>
 <p>Read-through: revenue tripled while the loss grew only ₹4 cr, so operating leverage is real. But the business is still spending ₹1.15 to earn ₹1, operating cash burn was ₹88 cr against a closing cash pile of ₹141 cr, and the Series D (roughly ₹430 cr at the time) arrived with "profitability" and "IPO" as the stated next steps. The gap from −13% EBITDA to break-even is the whole story for the next 24 months, and it has to be closed while whey, the input behind half the revenue, has roughly tripled in cost.</p>
 <p>A structural note on revenue [S]: quick commerce platforms in India run an inventory-led model, buying from the brand at a margin. The brand's reported revenue is therefore already net of the platform margin on roughly 40% of sales, which is why reported marketplace fees are only ₹9 cr. The ~39% gross margin should be read as a blended figure across channels with very different realisations.</p>
-<h2 id="the_whole_truth-2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</h2>
+<h2 id="the_whole_truth-s2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</h2>
 <p>Scope: a ₹200–500 cr venture-funded food brand selling high-protein and clean-label products to affluent urban consumers across quick commerce, marketplaces, own site and early offline, with a mix of own and contract manufacturing. Levers are organised by P&amp;L line.</p>
 <h3 id="2-1-top-line-volume">2.1 Top line: volume</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>V1</td><td><strong>Category growth: protein and healthy snacking</strong></td><td>India healthy snacks estimated at US$4.5–4.75 bn in 2026 growing 7–8% a year (TechSci, Grand View); protein-specific segment estimates ~₹4,000 cr growing ~20% (SuperYou founder). Quick commerce is turning protein bars into an impulse buy.</td><td>Rides the fastest part of the category: bars (#1) and powder (half of revenue). FY25 growth of 232% is far ahead of category, so share gain, not category growth, drove it.</td><td>[C]</td></tr>
@@ -407,7 +375,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>V6</td><td><strong>Trust and claim headroom</strong></td><td>Clean-label brands grow on claims; FSSAI and ASCI are tightening on "no added sugar", "cleanest", "healthiest".</td><td>The brand's thesis is claims. Two regulatory actions in 2025–26 constrain the vocabulary it can grow with.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-2-top-line-price-and-realisation">2.2 Top line: price and realisation</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>P1</td><td><strong>Platform take rates and trade spend</strong></td><td>QC all-in 30–35% of selling price including visibility fees; Blinkit listing ₹25k/SKU/state and ₹2–3 lakh/month minimum ads reported; Amazon 15–25%. Zepto terms negotiable, Blinkit formulaic.</td><td>65% of sales go through platforms. Realisation per unit is set by platform margin and ad fees, not by MRP. Reported marketplace fees ₹9 cr understate this because QC margin sits above the revenue line.</td><td>[C]</td></tr>
@@ -417,7 +385,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>P5</td><td><strong>Channel mix shift to own site</strong></td><td>Own site yields 28–32% margin vs ~16% on QC in worked sector examples.</td><td>Own site is 25%, held there "even today". Every point of mix shift to own site is a realisation gain.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-3-bottom-line-cost-of-goods">2.3 Bottom line: cost of goods</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>C1</td><td><strong>Whey protein cost</strong></td><td>Imported WPC rose from ~₹700–800/kg (2024) to ~₹2,300–3,000/kg (mid-2026); India imports 80–90% of supplement-grade whey in dollars; rupee 74 → ~97 adds 10–15%. Brands absorbed much of it.</td><td>Protein powder is ~half of revenue. This is the single largest COGS exposure in the company and the likeliest reason gross margin slipped from ~42% to ~39% while scaling.</td><td>[C]</td></tr>
@@ -429,7 +397,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>C7</td><td><strong>Yield and recipe cost engineering</strong></td><td>Reformulation (blends, cheaper protein sources) is how the category absorbed whey inflation.</td><td>Brand's clean-label promise limits reformulation options; a structural constraint others don't have.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-4-bottom-line-operating-expenses">2.4 Bottom line: operating expenses</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>O1</td><td><strong>Advertising and marketing efficiency</strong></td><td>Indian D2C food brands run A&amp;M at 15–40% of revenue; Kapiva spent ₹188 cr on ₹342 cr. ROAS 3–5x considered healthy; CAC has doubled in recent years.</td><td>A&amp;M ₹41 cr = 19% of revenue, up 2x on 3.3x revenue, so efficiency improved. Founder's rules (no paid for 3 months, CM2 positive) are the control. Performance marketing 10–15% of top line.</td><td>[C]</td></tr>
@@ -439,7 +407,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>O5</td><td><strong>Launch cost and category breadth</strong></td><td>Each new category needs R&amp;D, tooling, listings (₹25k/SKU/state on QC), and 3 months unpaid.</td><td>Kids range adds at least 6 SKUs across two age bands; more launches promised.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-5-balance-sheet-and-cash">2.5 Balance sheet and cash</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>W1</td><td><strong>Inventory across own plants and contract manufacturers</strong></td><td>Food D2C inventory 45–90 days; multi-site and short shelf life push it up.</td><td>Current assets ₹270 cr vs revenue ₹216 cr. Breakdown not public; inventory is likely the second largest item after cash.</td><td>[S]</td></tr>
@@ -448,14 +416,14 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>W4</td><td><strong>Cash burn and runway</strong></td><td>Profitability now a condition of Indian consumer IPOs.</td><td>Operating cash outflow ₹88 cr in FY25 vs cash ₹141 cr, then ~₹430 cr Series D. Burn must fall toward zero for the stated IPO path.</td><td>[C]</td></tr>
 <tr><td>W5</td><td><strong>Capex for in-house manufacturing</strong></td><td>In-house food plants: ₹30–100 cr per line depending on category.</td><td>Series D explicitly funds in-house capacity; amount undisclosed.</td><td>[C]</td></tr>
 </tbody></table></div>
-<h2 id="the_whole_truth-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
+<h2 id="the_whole_truth-s3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
 <p>Items tagged [S] carry no company-specific evidence and should be confirmed in discovery:</p>
 <ol><li>Revenue recognition net of QC platform margin (affects how gross margin and P1 are read).</li><li>Pack-size and grammage changes (P3).</li><li>Promotion and discount funding (P4).</li><li>Wastage and expiry rate (C5).</li><li>Inventory days and split between own plants and contract manufacturers (W1).</li><li>Whey purchase terms and any hedging (W3).</li></ol>
 <p>Company facts that would materially change the picture and are worth confirming early:</p>
 <ul><li>Gross margin by category: powder vs bars vs others. If powder is half of revenue at a lower margin, the whey problem is bigger than the blended 39% suggests.</li><li>Actual QC take rate and visibility spend by platform, and what the ₹9 cr marketplace line covers.</li><li>Current channel mix (the 40/25/25/10 figure is from January 2026).</li><li>Inventory and packaging write-down from the label change.</li><li>Series D use-of-funds split between plant capex and working capital.</li></ul>
-<h2 id="the_whole_truth-4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<h2 id="the_whole_truth-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
 <p>Ranked by estimated P&amp;L impact over the next 12–24 months. No OHM assumption applied.</p>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction</th><th>Why it ranks here</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>C1 Whey protein cost</td><td>Gross margin</td><td>Negative, large</td><td>Input behind ~half of revenue has roughly tripled; clean-label promise limits reformulation; gross margin already down ~3 pts</td></tr>
@@ -472,7 +440,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>12</td><td>W1/W2 Inventory and platform receivables</td><td>Cash</td><td>Negative</td><td>₹270 cr current assets; multi-site stock with short shelf life; 65% of sales on platform credit</td></tr>
 </tbody></table></div>
 <p>Next step: OHM context for this account, then steps 4 and 5.</p>
-<h2 id="the_whole_truth-5">Sources</h2>
-<ul><li>Entrackr, The Whole Truth records 3.3x revenue growth to ₹216 Cr in FY25: <a href="https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738" target="_blank" rel="noopener">https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738</a></li><li>BW Disrupt, FY25 results and expense breakdown: <a href="https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945" target="_blank" rel="noopener">https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945</a></li><li>Sajith Pai, PMF Convo #21 with Shashank Mehta (Jan 2026): <a href="https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/" target="_blank" rel="noopener">https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/</a></li><li>Company manufacturing page (facilities and contract manufacturers): <a href="https://thewholetruthfoods.com/pages/manufacturing" target="_blank" rel="noopener">https://thewholetruthfoods.com/pages/manufacturing</a></li><li>Storyboard18, Series D led by Sofina and Sauce.vc: <a href="https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm</a></li><li>Entrackr, Series D: <a href="https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658" target="_blank" rel="noopener">https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658</a></li><li>Inc42, Series D and IPO readiness: <a href="https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/" target="_blank" rel="noopener">https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/</a></li><li>Storyboard18, kids nutrition launch (Feb 2026): <a href="https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm</a></li><li>Storyboard18, Iran conflict impact post: <a href="https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm</a></li><li>Storyboard18, clean-label scrutiny (May 2026): <a href="https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm</a></li><li>Social Samosa, "no added sugar" label change after FSSAI notice: <a href="https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188" target="_blank" rel="noopener">https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188</a></li><li>afaqs, why The Whole Truth dropped the claim: <a href="https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186" target="_blank" rel="noopener">https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186</a></li><li>The Core, whey protein supply crunch: <a href="https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605" target="_blank" rel="noopener">https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605</a></li><li>Business Standard, protein boom and whey import prices: <a href="https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html" target="_blank" rel="noopener">https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html</a></li><li>Business Standard, FMCG margin squeeze 2026: <a href="https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html</a></li><li>Base, quick commerce impact on D2C margins: <a href="https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/" target="_blank" rel="noopener">https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/</a></li><li>Confetti, Blinkit vs Zepto for sellers: <a href="https://confetti.design/blog/blinkit-vs-zepto-for-sellers" target="_blank" rel="noopener">https://confetti.design/blog/blinkit-vs-zepto-for-sellers</a></li><li>TechSci, India healthy snacks market: <a href="https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html" target="_blank" rel="noopener">https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html</a></li><li>Grand View, India healthy snacks outlook: <a href="https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india" target="_blank" rel="noopener">https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india</a></li><li>Indian Retailer, SuperYou and the protein snack category: <a href="https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein" target="_blank" rel="noopener">https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein</a></li><li>Entrackr, Kapiva FY25 (A&amp;M benchmark): <a href="https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403" target="_blank" rel="noopener">https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403</a></li><li>Tracxn company profile: <a href="https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw" target="_blank" rel="noopener">https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw</a></li></ul></div></details><p class="foot"><a href="#top">&larr; All companies</a> &middot; Source: <code>ohm_spal/companies/the_whole_truth.md</code></p></section>
-<p class="foot">Pages are generated from <code>ohm_spal/companies/*.md</code> by <code>ohm_spal/build_html.py</code>.</p></main></body>
+<h2 id="the_whole_truth-s5">Sources</h2>
+<ul><li>Entrackr, The Whole Truth records 3.3x revenue growth to ₹216 Cr in FY25: <a href="https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738" target="_blank" rel="noopener">https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738</a></li><li>BW Disrupt, FY25 results and expense breakdown: <a href="https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945" target="_blank" rel="noopener">https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945</a></li><li>Sajith Pai, PMF Convo #21 with Shashank Mehta (Jan 2026): <a href="https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/" target="_blank" rel="noopener">https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/</a></li><li>Company manufacturing page (facilities and contract manufacturers): <a href="https://thewholetruthfoods.com/pages/manufacturing" target="_blank" rel="noopener">https://thewholetruthfoods.com/pages/manufacturing</a></li><li>Storyboard18, Series D led by Sofina and Sauce.vc: <a href="https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm</a></li><li>Entrackr, Series D: <a href="https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658" target="_blank" rel="noopener">https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658</a></li><li>Inc42, Series D and IPO readiness: <a href="https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/" target="_blank" rel="noopener">https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/</a></li><li>Storyboard18, kids nutrition launch (Feb 2026): <a href="https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm</a></li><li>Storyboard18, Iran conflict impact post: <a href="https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm</a></li><li>Storyboard18, clean-label scrutiny (May 2026): <a href="https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm</a></li><li>Social Samosa, "no added sugar" label change after FSSAI notice: <a href="https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188" target="_blank" rel="noopener">https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188</a></li><li>afaqs, why The Whole Truth dropped the claim: <a href="https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186" target="_blank" rel="noopener">https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186</a></li><li>The Core, whey protein supply crunch: <a href="https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605" target="_blank" rel="noopener">https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605</a></li><li>Business Standard, protein boom and whey import prices: <a href="https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html" target="_blank" rel="noopener">https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html</a></li><li>Business Standard, FMCG margin squeeze 2026: <a href="https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html</a></li><li>Base, quick commerce impact on D2C margins: <a href="https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/" target="_blank" rel="noopener">https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/</a></li><li>Confetti, Blinkit vs Zepto for sellers: <a href="https://confetti.design/blog/blinkit-vs-zepto-for-sellers" target="_blank" rel="noopener">https://confetti.design/blog/blinkit-vs-zepto-for-sellers</a></li><li>TechSci, India healthy snacks market: <a href="https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html" target="_blank" rel="noopener">https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html</a></li><li>Grand View, India healthy snacks outlook: <a href="https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india" target="_blank" rel="noopener">https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india</a></li><li>Indian Retailer, SuperYou and the protein snack category: <a href="https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein" target="_blank" rel="noopener">https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein</a></li><li>Entrackr, Kapiva FY25 (A&amp;M benchmark): <a href="https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403" target="_blank" rel="noopener">https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403</a></li><li>Tracxn company profile: <a href="https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw" target="_blank" rel="noopener">https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw</a></li></ul></div></details><p class="foot">Source file: <code>ohm_spal/companies/the_whole_truth.md</code></p></section>
+<p class="foot">Generated from <code>ohm_spal/companies/*.md</code> by <code>ohm_spal/build_html.py</code>.</p></div></body>
 </html>

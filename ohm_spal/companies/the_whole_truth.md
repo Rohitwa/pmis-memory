@@ -1,6 +1,7 @@
 ---
 company: The Whole Truth Foods
 slug: the_whole_truth
+serial: 2
 brand: The Whole Truth
 location: Andheri East, Mumbai, Maharashtra
 sector: Clean-label packaged food (protein powder, protein bars, nut butter, cocoa bars, muesli, kids nutrition)

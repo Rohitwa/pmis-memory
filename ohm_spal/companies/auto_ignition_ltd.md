@@ -1,6 +1,7 @@
 ---
 company: Auto Ignition Ltd
 slug: auto_ignition_ltd
+serial: 1
 brand: AUTO-LEK
 location: Prithla, Palwal, Haryana
 sector: Auto electricals (starter motors, alternators) for tractors, gensets, EV

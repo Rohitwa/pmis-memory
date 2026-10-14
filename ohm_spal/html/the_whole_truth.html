@@ -5,108 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Whole Truth Foods — S-PAL</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Mono&display=swap">
 <style>
-/* Layout: one reading column; tagline as the hero of each company; analysis folded below. */
+/* Plain reference-page layout, after Wikipedia: white page, serif headings with a rule, blue links, grey-bordered tables. */
 :root {
-  --bg: #f7f6f3; --surface: #ffffff; --bg2: #eeece7; --line: #d9d5cc;
-  --fg: #1c1b19; --fg2: #4b4842; --fg3: #7d786f;
-  --accent: #a4552a; --accent-soft: #f3e4da; --accent-ink: #7d3d1a;
-  --good: #2f7d4f; --info: #2b5aa6; --warn: #b07a17;
-  --display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
-  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --bg: #ffffff; --fg: #202122; --fg2: #54595d; --link: #3366cc; --rule: #a2a9b1;
+  --tbl-bg: #f8f9fa; --tbl-head: #eaecf0; --box: #f8f9fa;
+  --serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --sans: sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #161614; --surface: #1f1e1b; --bg2: #262522; --line: #3a3833;
-  --fg: #ece9e2; --fg2: #c4bfb4; --fg3: #8d877b;
-  --accent: #d98a4e; --accent-soft: #3a2a1e; --accent-ink: #f0b482;
-  --good: #6cc08f; --info: #7ea5e8; --warn: #e0b24a;
-  color-scheme: dark; } }
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #161614; --surface: #1f1e1b; --bg2: #262522; --line: #3a3833;
-  --fg: #ece9e2; --fg2: #c4bfb4; --fg3: #8d877b;
-  --accent: #d98a4e; --accent-soft: #3a2a1e; --accent-ink: #f0b482;
-  --good: #6cc08f; --info: #7ea5e8; --warn: #e0b24a;
-  color-scheme: dark; }
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; overflow-x: clip; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6;
-  padding-block: 0 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-a { color: var(--info); text-decoration: none; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
-a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.wrap { max-width: 880px; margin: 0 auto; min-width: 0; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.page { max-width: 960px; margin: 0 auto; min-width: 0; }
+.sitehead { font-size: 12px; color: var(--fg2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sitehead b { color: var(--fg); font-family: var(--serif); font-size: 15px; font-weight: normal; }
 
-.top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  padding: 20px 0 14px; border-bottom: 1px solid var(--line); }
-.top .brand { font-family: var(--display); font-size: 22px; font-weight: 600; letter-spacing: -0.2px; color: var(--fg); }
-.top .brand small { font-family: var(--body); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--fg3); margin-left: 10px; }
-.top .built { font-size: 12px; color: var(--fg3); font-variant-numeric: tabular-nums; }
+h1, h2 { font-family: var(--serif); font-weight: normal; line-height: 1.3; margin: 0; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h1 { font-size: 28px; margin: 14px 0 4px; }
+h2 { font-size: 21px; margin: 24px 0 8px; }
+h3 { font-size: 15px; font-weight: bold; margin: 18px 0 6px; }
+p { margin: 8px 0; max-width: 75ch; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
+code { font-family: monospace; font-size: 12.5px; background: var(--tbl-bg); padding: 0 3px; }
+pre { overflow-x: auto; background: var(--tbl-bg); padding: 10px; border: 1px solid var(--rule); }
+ul, ol { padding-left: 24px; }
+li { margin: 2px 0; }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--rule); color: var(--fg2); }
+.sub { font-size: 12.5px; color: var(--fg2); margin: 2px 0 10px; }
 
-h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
-h1 { font-family: var(--display); font-size: 30px; font-weight: 600; }
-h2 { font-family: var(--display); font-size: 21px; font-weight: 600; margin-top: 36px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
-h3 { font-size: 15.5px; font-weight: 600; margin-top: 22px; color: var(--fg); }
-p { margin: 10px 0; color: var(--fg2); max-width: 70ch; }
-hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
-code { font-family: var(--mono); font-size: 12.5px; background: var(--bg2); padding: 1px 5px; border-radius: 3px; }
-pre { overflow-x: auto; background: var(--bg2); padding: 12px; border-radius: 6px; }
-ul, ol { padding-left: 22px; color: var(--fg2); }
-li { margin: 4px 0; }
-blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--line); color: var(--fg2); }
+.tbl { overflow-x: auto; margin: 10px 0; }
+table { border-collapse: collapse; font-size: 13px; background: var(--tbl-bg); border: 1px solid var(--rule); min-width: 480px; }
+table.full { width: 100%; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; vertical-align: top; text-align: left; }
+th { background: var(--tbl-head); font-weight: bold; }
+td { font-variant-numeric: tabular-nums; }
+td.num { text-align: right; width: 1%; white-space: nowrap; }
 
-.lede { font-size: 16px; color: var(--fg2); margin: 18px 0 26px; max-width: 65ch; }
-.index-list { display: grid; gap: 14px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; min-width: 0; }
-.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.card-head a { font-family: var(--display); font-size: 19px; font-weight: 600; color: var(--fg); }
-.card .sub { font-size: 12.5px; color: var(--fg3); margin-top: 2px; }
-.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; }
-.pill.good { color: var(--good); } .pill.info { color: var(--info); } .pill.warn { color: var(--warn); } .pill.muted { color: var(--fg3); }
-.tagline { font-family: var(--display); font-size: 18px; line-height: 1.45; color: var(--fg); margin: 14px 0 6px; padding: 12px 16px;
-  border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
-.tagline.hero { font-size: 23px; padding: 20px 24px; margin: 20px 0 8px; }
-.tagline-meta { font-size: 12px; color: var(--fg3); }
+.tagline { border: 1px solid var(--rule); background: var(--box); padding: 10px 14px; margin: 12px 0 4px; font-family: var(--serif); font-size: 18px; line-height: 1.45; max-width: none; }
 
-.company { margin-top: 48px; padding-top: 8px; }
-.company-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.meta { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 4px; }
-.meta span { font-size: 12px; color: var(--fg2); background: var(--bg2); border: 1px solid var(--line); border-radius: 4px; padding: 2px 9px; }
-.meta span.ohm { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
-.sources h2 { border: 0; font-size: 19px; margin-top: 26px; }
-.sources h3 { font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--accent-ink); }
+details { margin: 6px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+details.sec > summary { font-size: 15px; font-weight: bold; }
+details.full > summary { font-family: var(--serif); font-size: 21px; font-weight: normal; border-bottom: 1px solid var(--rule); margin-top: 24px; padding-bottom: 6px; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::before { content: "[show] "; font-family: var(--sans); font-size: 12px; color: var(--link); }
+details.full[open] > summary::before { content: "[hide] "; }
+.analysis h1 { font-size: 21px; }
+.toc { border: 1px solid var(--rule); background: var(--tbl-bg); display: inline-block; padding: 8px 14px; margin: 10px 0; font-size: 13px; }
+.toc b { display: block; margin-bottom: 4px; }
+.toc a { display: block; }
+.foot { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--fg2); }
 
-.tbl { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
-th { text-align: left; padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fg3); background: var(--bg2); border-bottom: 1px solid var(--line); font-weight: 600; }
-td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--fg); font-variant-numeric: tabular-nums; }
-tr:last-child td { border-bottom: 0; }
-
-details.fold { margin-top: 32px; border-top: 2px solid var(--line); }
-details.fold > summary { cursor: pointer; list-style: none; padding: 14px 0; font-size: 13px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.6px; }
-details.fold > summary::-webkit-details-marker { display: none; }
-details.fold > summary::before { content: "\25B8  "; color: var(--accent); }
-details.fold[open] > summary::before { content: "\25BE  "; }
-.toc { font-size: 12.5px; color: var(--fg3); line-height: 1.9; margin-bottom: 8px; }
-.toc a { color: var(--fg2); }
-.analysis h1 { font-size: 22px; margin-top: 18px; }
-.foot { margin-top: 48px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg3); }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-@media (max-width: 480px) { h1 { font-size: 25px; } .tagline.hero { font-size: 19px; padding: 14px 16px; } }
+/* Single-file navigation: a company section shows only when targeted; the index hides then. */
+.company { display: none; }
+.company:target { display: block; }
+body:has(.company:target) #index { display: none; }
+.standalone .company { display: block; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .tagline { font-size: 16px; } }
 </style>
 </head>
-<body>
-<header class="top"><div class="brand">S-PAL<small>OHM value drivers</small></div><div class="built">Built 2026-10-14</div></header><main class="wrap"><section class="company" id="the_whole_truth"><div class="company-head"><h1>The Whole Truth Foods</h1><span class="pill muted">In research</span></div><div class="meta"><span>The Whole Truth</span><span>Andheri East, Mumbai, Maharashtra</span><span>₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt)</span></div><p><em>No tagline yet. Status: In research.</em></p><div class="sources"><h2 id="tagline-pending">Tagline pending</h2>
+<body class="standalone">
+<div class="sitehead"><span><b><a href="index.html" style="color:inherit">S-PAL Wiki</a></b> &middot; OHM value drivers by enterprise</span><span>Built 2026-10-14</span></div><div class="page"><section class="company" id="the_whole_truth"><p class="sub"><a href="index.html">&larr; Index</a></p><h1>2. The Whole Truth Foods</h1><p class="sub">The Whole Truth &middot; Andheri East, Mumbai, Maharashtra &middot; ₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt) &middot; Status: In research &middot; Prepared 2026-10-14</p><p><i>No tagline yet. Status: In research.</i></p><div class="sources"><h2 id="tagline-pending">Tagline pending</h2>
 <p>Steps 1–3 are complete below. OHM context for this account has not been given yet, so no controllability filter, no sizing, and no tagline. Nothing in this page assumes any OHM capability.</p>
-<hr></div><details class="fold" open><summary>Full S-PAL analysis (steps 1–5 and sources)</summary><div class="toc"><a href="#the_whole_truth-0">0. Identity check</a> &middot; <a href="#the_whole_truth-1">1. Company snapshot [C]</a> &middot; <a href="#the_whole_truth-2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</a> &middot; <a href="#the_whole_truth-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a> &middot; <a href="#the_whole_truth-4">4. Ranked S-PAL shortlist (pre-OHM filter)</a> &middot; <a href="#the_whole_truth-5">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<hr></div><details class="full"><summary>Full S-PAL analysis</summary><div class="toc"><b>Contents</b><a href="#the_whole_truth-s0">0. Identity check</a><a href="#the_whole_truth-s1">1. Company snapshot [C]</a><a href="#the_whole_truth-s2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</a><a href="#the_whole_truth-s3">3. Fallback rule applied: where sector assumptions substitute for company evidence</a><a href="#the_whole_truth-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</a><a href="#the_whole_truth-s5">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
 <p><strong>Evidence key:</strong> [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)</p>
-<h2 id="the_whole_truth-0">0. Identity check</h2>
+<h2 id="the_whole_truth-s0">0. Identity check</h2>
 <p>The Whole Truth Foods is the brand of <strong>FITSHIT Health Solutions Pvt Ltd</strong>, Saki Vihar Road, Andheri East, Mumbai. Founded by Shashank Mehta (ex-Hindustan Unilever) with co-founder Rachna Aggarwal; last day at Unilever 9 July 2019, first sale 19 October 2019. No ambiguity with another company of the same name.</p>
-<h2 id="the_whole_truth-1">1. Company snapshot [C]</h2>
-<div class="tbl"><table>
+<h2 id="the_whole_truth-s1">1. Company snapshot [C]</h2>
+<div class="tbl"><table class="full">
 <thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
 <tbody>
 <tr><td>Legal entity</td><td>FITSHIT Health Solutions Pvt Ltd, Mumbai</td><td>Company manufacturing page</td></tr>
@@ -125,7 +103,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>2026 supply shock</td><td>Company post on Iran war: pistachio rates +50%; dates (Oman/Saudi via Dubai port) supply hit; polymer packaging +40% and "long term"; factory attendance −30% from LPG shortage</td><td>Storyboard18</td></tr>
 </tbody></table></div>
 <h3 id="financial-trajectory-standalone-crore-roc-filings-c">Financial trajectory (standalone, ₹ crore, RoC filings) [C]</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Metric</th><th>FY24</th><th>FY25</th><th>Change</th></tr></thead>
 <tbody>
 <tr><td>Revenue from operations</td><td>65</td><td>216</td><td>+232%</td></tr>
@@ -146,10 +124,10 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 </tbody></table></div>
 <p>Read-through: revenue tripled while the loss grew only ₹4 cr, so operating leverage is real. But the business is still spending ₹1.15 to earn ₹1, operating cash burn was ₹88 cr against a closing cash pile of ₹141 cr, and the Series D (roughly ₹430 cr at the time) arrived with "profitability" and "IPO" as the stated next steps. The gap from −13% EBITDA to break-even is the whole story for the next 24 months, and it has to be closed while whey, the input behind half the revenue, has roughly tripled in cost.</p>
 <p>A structural note on revenue [S]: quick commerce platforms in India run an inventory-led model, buying from the brand at a margin. The brand's reported revenue is therefore already net of the platform margin on roughly 40% of sales, which is why reported marketplace fees are only ₹9 cr. The ~39% gross margin should be read as a blended figure across channels with very different realisations.</p>
-<h2 id="the_whole_truth-2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</h2>
+<h2 id="the_whole_truth-s2">2. Sector baseline: structural P&amp;L levers for a premium clean-label D2C food brand in India</h2>
 <p>Scope: a ₹200–500 cr venture-funded food brand selling high-protein and clean-label products to affluent urban consumers across quick commerce, marketplaces, own site and early offline, with a mix of own and contract manufacturing. Levers are organised by P&amp;L line.</p>
 <h3 id="2-1-top-line-volume">2.1 Top line: volume</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>V1</td><td><strong>Category growth: protein and healthy snacking</strong></td><td>India healthy snacks estimated at US$4.5–4.75 bn in 2026 growing 7–8% a year (TechSci, Grand View); protein-specific segment estimates ~₹4,000 cr growing ~20% (SuperYou founder). Quick commerce is turning protein bars into an impulse buy.</td><td>Rides the fastest part of the category: bars (#1) and powder (half of revenue). FY25 growth of 232% is far ahead of category, so share gain, not category growth, drove it.</td><td>[C]</td></tr>
@@ -160,7 +138,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>V6</td><td><strong>Trust and claim headroom</strong></td><td>Clean-label brands grow on claims; FSSAI and ASCI are tightening on "no added sugar", "cleanest", "healthiest".</td><td>The brand's thesis is claims. Two regulatory actions in 2025–26 constrain the vocabulary it can grow with.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-2-top-line-price-and-realisation">2.2 Top line: price and realisation</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>P1</td><td><strong>Platform take rates and trade spend</strong></td><td>QC all-in 30–35% of selling price including visibility fees; Blinkit listing ₹25k/SKU/state and ₹2–3 lakh/month minimum ads reported; Amazon 15–25%. Zepto terms negotiable, Blinkit formulaic.</td><td>65% of sales go through platforms. Realisation per unit is set by platform margin and ad fees, not by MRP. Reported marketplace fees ₹9 cr understate this because QC margin sits above the revenue line.</td><td>[C]</td></tr>
@@ -170,7 +148,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>P5</td><td><strong>Channel mix shift to own site</strong></td><td>Own site yields 28–32% margin vs ~16% on QC in worked sector examples.</td><td>Own site is 25%, held there "even today". Every point of mix shift to own site is a realisation gain.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-3-bottom-line-cost-of-goods">2.3 Bottom line: cost of goods</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>C1</td><td><strong>Whey protein cost</strong></td><td>Imported WPC rose from ~₹700–800/kg (2024) to ~₹2,300–3,000/kg (mid-2026); India imports 80–90% of supplement-grade whey in dollars; rupee 74 → ~97 adds 10–15%. Brands absorbed much of it.</td><td>Protein powder is ~half of revenue. This is the single largest COGS exposure in the company and the likeliest reason gross margin slipped from ~42% to ~39% while scaling.</td><td>[C]</td></tr>
@@ -182,7 +160,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>C7</td><td><strong>Yield and recipe cost engineering</strong></td><td>Reformulation (blends, cheaper protein sources) is how the category absorbed whey inflation.</td><td>Brand's clean-label promise limits reformulation options; a structural constraint others don't have.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-4-bottom-line-operating-expenses">2.4 Bottom line: operating expenses</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>O1</td><td><strong>Advertising and marketing efficiency</strong></td><td>Indian D2C food brands run A&amp;M at 15–40% of revenue; Kapiva spent ₹188 cr on ₹342 cr. ROAS 3–5x considered healthy; CAC has doubled in recent years.</td><td>A&amp;M ₹41 cr = 19% of revenue, up 2x on 3.3x revenue, so efficiency improved. Founder's rules (no paid for 3 months, CM2 positive) are the control. Performance marketing 10–15% of top line.</td><td>[C]</td></tr>
@@ -192,7 +170,7 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>O5</td><td><strong>Launch cost and category breadth</strong></td><td>Each new category needs R&amp;D, tooling, listings (₹25k/SKU/state on QC), and 3 months unpaid.</td><td>Kids range adds at least 6 SKUs across two age bands; more launches promised.</td><td>[C]</td></tr>
 </tbody></table></div>
 <h3 id="2-5-balance-sheet-and-cash">2.5 Balance sheet and cash</h3>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
 <tbody>
 <tr><td>W1</td><td><strong>Inventory across own plants and contract manufacturers</strong></td><td>Food D2C inventory 45–90 days; multi-site and short shelf life push it up.</td><td>Current assets ₹270 cr vs revenue ₹216 cr. Breakdown not public; inventory is likely the second largest item after cash.</td><td>[S]</td></tr>
@@ -201,14 +179,14 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>W4</td><td><strong>Cash burn and runway</strong></td><td>Profitability now a condition of Indian consumer IPOs.</td><td>Operating cash outflow ₹88 cr in FY25 vs cash ₹141 cr, then ~₹430 cr Series D. Burn must fall toward zero for the stated IPO path.</td><td>[C]</td></tr>
 <tr><td>W5</td><td><strong>Capex for in-house manufacturing</strong></td><td>In-house food plants: ₹30–100 cr per line depending on category.</td><td>Series D explicitly funds in-house capacity; amount undisclosed.</td><td>[C]</td></tr>
 </tbody></table></div>
-<h2 id="the_whole_truth-3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
+<h2 id="the_whole_truth-s3">3. Fallback rule applied: where sector assumptions substitute for company evidence</h2>
 <p>Items tagged [S] carry no company-specific evidence and should be confirmed in discovery:</p>
 <ol><li>Revenue recognition net of QC platform margin (affects how gross margin and P1 are read).</li><li>Pack-size and grammage changes (P3).</li><li>Promotion and discount funding (P4).</li><li>Wastage and expiry rate (C5).</li><li>Inventory days and split between own plants and contract manufacturers (W1).</li><li>Whey purchase terms and any hedging (W3).</li></ol>
 <p>Company facts that would materially change the picture and are worth confirming early:</p>
 <ul><li>Gross margin by category: powder vs bars vs others. If powder is half of revenue at a lower margin, the whey problem is bigger than the blended 39% suggests.</li><li>Actual QC take rate and visibility spend by platform, and what the ₹9 cr marketplace line covers.</li><li>Current channel mix (the 40/25/25/10 figure is from January 2026).</li><li>Inventory and packaging write-down from the label change.</li><li>Series D use-of-funds split between plant capex and working capital.</li></ul>
-<h2 id="the_whole_truth-4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<h2 id="the_whole_truth-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
 <p>Ranked by estimated P&amp;L impact over the next 12–24 months. No OHM assumption applied.</p>
-<div class="tbl"><table>
+<div class="tbl"><table class="full">
 <thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction</th><th>Why it ranks here</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>C1 Whey protein cost</td><td>Gross margin</td><td>Negative, large</td><td>Input behind ~half of revenue has roughly tripled; clean-label promise limits reformulation; gross margin already down ~3 pts</td></tr>
@@ -225,6 +203,6 @@ details.fold[open] > summary::before { content: "\25BE  "; }
 <tr><td>12</td><td>W1/W2 Inventory and platform receivables</td><td>Cash</td><td>Negative</td><td>₹270 cr current assets; multi-site stock with short shelf life; 65% of sales on platform credit</td></tr>
 </tbody></table></div>
 <p>Next step: OHM context for this account, then steps 4 and 5.</p>
-<h2 id="the_whole_truth-5">Sources</h2>
-<ul><li>Entrackr, The Whole Truth records 3.3x revenue growth to ₹216 Cr in FY25: <a href="https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738" target="_blank" rel="noopener">https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738</a></li><li>BW Disrupt, FY25 results and expense breakdown: <a href="https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945" target="_blank" rel="noopener">https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945</a></li><li>Sajith Pai, PMF Convo #21 with Shashank Mehta (Jan 2026): <a href="https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/" target="_blank" rel="noopener">https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/</a></li><li>Company manufacturing page (facilities and contract manufacturers): <a href="https://thewholetruthfoods.com/pages/manufacturing" target="_blank" rel="noopener">https://thewholetruthfoods.com/pages/manufacturing</a></li><li>Storyboard18, Series D led by Sofina and Sauce.vc: <a href="https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm</a></li><li>Entrackr, Series D: <a href="https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658" target="_blank" rel="noopener">https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658</a></li><li>Inc42, Series D and IPO readiness: <a href="https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/" target="_blank" rel="noopener">https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/</a></li><li>Storyboard18, kids nutrition launch (Feb 2026): <a href="https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm</a></li><li>Storyboard18, Iran conflict impact post: <a href="https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm</a></li><li>Storyboard18, clean-label scrutiny (May 2026): <a href="https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm</a></li><li>Social Samosa, "no added sugar" label change after FSSAI notice: <a href="https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188" target="_blank" rel="noopener">https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188</a></li><li>afaqs, why The Whole Truth dropped the claim: <a href="https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186" target="_blank" rel="noopener">https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186</a></li><li>The Core, whey protein supply crunch: <a href="https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605" target="_blank" rel="noopener">https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605</a></li><li>Business Standard, protein boom and whey import prices: <a href="https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html" target="_blank" rel="noopener">https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html</a></li><li>Business Standard, FMCG margin squeeze 2026: <a href="https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html</a></li><li>Base, quick commerce impact on D2C margins: <a href="https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/" target="_blank" rel="noopener">https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/</a></li><li>Confetti, Blinkit vs Zepto for sellers: <a href="https://confetti.design/blog/blinkit-vs-zepto-for-sellers" target="_blank" rel="noopener">https://confetti.design/blog/blinkit-vs-zepto-for-sellers</a></li><li>TechSci, India healthy snacks market: <a href="https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html" target="_blank" rel="noopener">https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html</a></li><li>Grand View, India healthy snacks outlook: <a href="https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india" target="_blank" rel="noopener">https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india</a></li><li>Indian Retailer, SuperYou and the protein snack category: <a href="https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein" target="_blank" rel="noopener">https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein</a></li><li>Entrackr, Kapiva FY25 (A&amp;M benchmark): <a href="https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403" target="_blank" rel="noopener">https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403</a></li><li>Tracxn company profile: <a href="https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw" target="_blank" rel="noopener">https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw</a></li></ul></div></details><p class="foot"><a href="index.html">&larr; All companies</a> &middot; Source: <code>ohm_spal/companies/the_whole_truth.md</code></p></section></main></body>
+<h2 id="the_whole_truth-s5">Sources</h2>
+<ul><li>Entrackr, The Whole Truth records 3.3x revenue growth to ₹216 Cr in FY25: <a href="https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738" target="_blank" rel="noopener">https://entrackr.com/fintrackr/the-whole-truth-records-33x-revenue-growth-to-rs-216-cr-in-fy25-11032738</a></li><li>BW Disrupt, FY25 results and expense breakdown: <a href="https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945" target="_blank" rel="noopener">https://www.bwdisrupt.com/article/the-whole-truth-revenue-jumps-3-3x-to-rs-216-cr-in-fy25-net-loss-at-rs-28-cr-590945</a></li><li>Sajith Pai, PMF Convo #21 with Shashank Mehta (Jan 2026): <a href="https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/" target="_blank" rel="noopener">https://sajithpai.com/pmf-convo-21-shashank-mehta-the-whole-truth/</a></li><li>Company manufacturing page (facilities and contract manufacturers): <a href="https://thewholetruthfoods.com/pages/manufacturing" target="_blank" rel="noopener">https://thewholetruthfoods.com/pages/manufacturing</a></li><li>Storyboard18, Series D led by Sofina and Sauce.vc: <a href="https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/the-whole-truth-raises-51-million-in-series-d-funding-led-by-sofina-sauce-vc-88808.htm</a></li><li>Entrackr, Series D: <a href="https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658" target="_blank" rel="noopener">https://entrackr.com/news/the-whole-truth-raises-51-mn-in-series-d-funding-11074658</a></li><li>Inc42, Series D and IPO readiness: <a href="https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/" target="_blank" rel="noopener">https://inc42.com/buzz/the-whole-truth-raises-51-mn-to-get-public-market-ready/</a></li><li>Storyboard18, kids nutrition launch (Feb 2026): <a href="https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-makers/trust-in-kids-food-is-broken-the-whole-truth-enters-kids-nutrition-with-new-milk-mixes-snack-bars-and-protein-blocks-90195.htm</a></li><li>Storyboard18, Iran conflict impact post: <a href="https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/rates-are-up-by-50-the-whole-truth-foods-flags-iran-conflict-impact-on-supply-costs-workforce-94021.htm</a></li><li>Storyboard18, clean-label scrutiny (May 2026): <a href="https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm" target="_blank" rel="noopener">https://www.storyboard18.com/brand-marketing/clean-label-boom-faces-a-reality-check-the-whole-truth-finds-itself-at-the-center-of-a-food-marketing-debate-ws-l-97731.htm</a></li><li>Social Samosa, "no added sugar" label change after FSSAI notice: <a href="https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188" target="_blank" rel="noopener">https://www.socialsamosa.com/industry-updates/the-whole-truth-no-added-sugar-fssai-11871188</a></li><li>afaqs, why The Whole Truth dropped the claim: <a href="https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186" target="_blank" rel="noopener">https://www.afaqs.com/afaqs-explains/why-did-the-whole-truth-drop-its-no-sugar-added-claim-11874186</a></li><li>The Core, whey protein supply crunch: <a href="https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605" target="_blank" rel="noopener">https://www.thecore.in/business/whey-protein-prices-india-rise-2026-supply-crunch-explained-868605</a></li><li>Business Standard, protein boom and whey import prices: <a href="https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html" target="_blank" rel="noopener">https://www.business-standard.com/amp/economy/news/protein-boom-pushes-whey-prices-higher-as-india-relies-on-imports-126092901134_1.html</a></li><li>Business Standard, FMCG margin squeeze 2026: <a href="https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html" target="_blank" rel="noopener">https://www.business-standard.com/industry/news/india-s-fmcg-sector-faces-margin-squeeze-as-costs-spike-amid-strong-demand-126072200088_1.html</a></li><li>Base, quick commerce impact on D2C margins: <a href="https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/" target="_blank" rel="noopener">https://base.com/en-IN/blog/quick-commerce-impact-on-d2c-margins-in-india/</a></li><li>Confetti, Blinkit vs Zepto for sellers: <a href="https://confetti.design/blog/blinkit-vs-zepto-for-sellers" target="_blank" rel="noopener">https://confetti.design/blog/blinkit-vs-zepto-for-sellers</a></li><li>TechSci, India healthy snacks market: <a href="https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html" target="_blank" rel="noopener">https://www.techsciresearch.com/report/india-healthy-snacks-market/27972.html</a></li><li>Grand View, India healthy snacks outlook: <a href="https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india" target="_blank" rel="noopener">https://www.grandviewresearch.com/horizon/outlook/healthy-snacks-market/india</a></li><li>Indian Retailer, SuperYou and the protein snack category: <a href="https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein" target="_blank" rel="noopener">https://www.indianretailer.com/article/retail-business/fmcg/superyou-challenges-rs-50000-crore-biscuit-market-indias-first-protein</a></li><li>Entrackr, Kapiva FY25 (A&amp;M benchmark): <a href="https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403" target="_blank" rel="noopener">https://entrackr.com/fintrackr/kapiva-spends-rs-188-cr-on-advertising-in-fy25-posts-rs-342-cr-revenue-10965403</a></li><li>Tracxn company profile: <a href="https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw" target="_blank" rel="noopener">https://tracxn.com/d/companies/the-whole-truth-foods/__TIY6A_8xEdSTM28Nd01JQdUHwx-Us688i-HMp5ZUovw</a></li></ul></div></details><p class="foot">Source file: <code>ohm_spal/companies/the_whole_truth.md</code></p></section></div></body>
 </html>

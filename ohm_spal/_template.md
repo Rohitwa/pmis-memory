@@ -1,6 +1,7 @@
 ---
 company: <Legal name>
 slug: <lowercase_slug>
+serial: <next number in the index>
 brand: <Brand if different>
 location: <City, State>
 sector: <One line>

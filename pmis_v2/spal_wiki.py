@@ -58,7 +58,9 @@ def list_companies() -> List[Dict]:
         c = load_company(p.stem)
         if c:
             out.append(c)
-    out.sort(key=lambda c: str(c.get("prepared") or ""), reverse=True)
+    out.sort(key=lambda c: (int(c.get("serial") or 10**6), str(c.get("prepared") or ""), c["slug"]))
+    for i, c in enumerate(out, 1):
+        c["serial"] = int(c.get("serial") or i)
     return out
 
 
@@ -174,6 +176,14 @@ def render_markdown(md: str) -> str:
     return "\n".join(out)
 
 
+def split_h3(md: str):
+    """Split markdown into (intro, [(title, body_md), ...]) on H3 headings."""
+    parts = re.split(r"^### (.+)$", md, flags=re.MULTILINE)
+    intro = parts[0]
+    sections = [(parts[i].strip(), parts[i + 1]) for i in range(1, len(parts) - 1, 2)]
+    return intro, sections
+
+
 def split_sections(body_md: str):
     """Return (tagline_sources_md, rest_md). The tagline-sources block is
     everything before the first H1 in the body."""
@@ -210,6 +220,10 @@ def render_company(slug: str) -> Optional[Dict]:
         return None
     sources_md, analysis_md = split_sections(c["body_md"])
     c["sources_html"] = render_markdown(sources_md)
+    intro_md, secs = split_h3(sources_md)
+    c["sources_intro_html"] = render_markdown(intro_md)
+    c["sources_sections"] = [(t, render_markdown(b)) for t, b in secs]
+    c["serial"] = next((x["serial"] for x in list_companies() if x["slug"] == slug), None)
     c["analysis_html"] = render_markdown(analysis_md)
     c["status_color"] = STATUS_COLORS.get(str(c.get("status")), "var(--fg3)")
     # TOC from H2s in the analysis
