@@ -6,17 +6,65 @@ brand: The Whole Truth
 location: Andheri East, Mumbai, Maharashtra
 sector: Clean-label packaged food (protein powder, protein bars, nut butter, cocoa bars, muesli, kids nutrition)
 revenue_base: "₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt)"
-status: In research
-ohm_modules: []
-tagline: ""
-tagline_date:
+status: Sized
+ohm_modules:
+  - Outflow transaction controls
+  - Procurement and working-capital visibility (real-time, breakage detection)
+tagline: "A tech that cuts The Whole Truth's outflows by 3%, worth ₹7 crore a year and a quarter of last year's loss, and ends the ₹60 crore working-capital surprises that come with buying whey, dates and packaging on last month's numbers."
+tagline_date: 2026-10-14
 prepared: 2026-10-14
 owner_contact: Shashank Mehta, Founder & CEO
 ---
 
-## Tagline pending
+## Where the tagline comes from
 
-Steps 1–3 are complete below. OHM context for this account has not been given yet, so no controllability filter, no sizing, and no tagline. Nothing in this page assumes any OHM capability.
+Proposed line, pending Rohit's sign-off. Three claims, each traced to a number and a source. FY25 base unless stated. OHM scope assumed: outflow transaction controls plus procurement and working-capital visibility.
+
+### "Cuts outflows by 3%, worth ₹7 crore a year"
+
+| Step | Figure | Source |
+|---|---|---|
+| Outflow base: FY25 total expenses | ₹248 cr | RoC filings via Entrackr |
+| Procurement: lot-level cost visibility, contract-manufacturer billing vs. yield, buy-timing on whey, dates, nuts, packaging | 2.5–4% of ₹131 cr materials = ₹3.3–5.2 cr | Sector norm for procurement visibility programmes; company runs 9 sites, 7 of them contract manufacturers |
+| Transaction controls on non-material outflows (A&M ₹41 cr, employee ₹30 cr, marketplace ₹9 cr, transport ₹9 cr, other ~₹28 cr) | 1–2% of ₹117 cr = ₹1.2–2.3 cr | Duplicate, early and unmatched payments; agency and ad invoices; freight; platform deductions. Sector norm. |
+| Inventory write-off and expiry avoided | 1–2% of ₹131 cr = ₹1.3–2.6 cr | Clean-label shelf life, multi-site stock, label-change repacking. Sector assumption [S]. |
+| **Total** | **₹5.8–10.1 cr; base ₹7.4 cr = 3.0% of outflows** | |
+
+### "A quarter of last year's loss"
+
+| Step | Figure | Source |
+|---|---|---|
+| FY25 net loss | ₹28 cr | RoC filings |
+| ₹7.4 cr ÷ ₹28 cr | 26% | |
+| Same uplift as margin | +3.4 points of revenue; EBITDA margin from −13.4% to about −10% | |
+
+Why it matters to this owner: profitability is the stated next milestone and the gate to the IPO. A quarter of the loss removed without touching price, product or marketing is the cleanest step toward it.
+
+### "Ends the ₹60 crore working-capital surprises"
+
+| Step | Figure | Source |
+|---|---|---|
+| FY25 net loss | −₹28 cr | RoC filings |
+| FY25 operating cash flow | −₹88 cr | RoC filings via BW Disrupt |
+| Gap, read as working capital built faster than plan (inventory, platform receivables, advances) | ~₹60 cr | Derived; exact split not public |
+| Non-cash current assets at March 2025 (current assets ₹270 cr less cash ₹141 cr) | ~₹129 cr, about 218 days of revenue | RoC filings; derived |
+| Cash released by visibility and controls | Inventory −10 to −15 days of material cost (₹0.36 cr/day): ₹3.6–5.4 cr. Platform receivables −5 to −10 days on 65% of revenue (₹0.38 cr/day): ₹1.9–3.8 cr. Payables +5 to +8 days on ₹230 cr non-employee outflows (₹0.63 cr/day): ₹3.2–5.0 cr. | **₹8.7–14.2 cr, base ₹11 cr** |
+| Interest effect | Small: the company is cash-rich after the Series D, so the value is lower burn and a narrower plan-vs-cash gap, not interest saved | |
+
+"Surprises" is the right word rather than "savings": the owner's problem is that cash moved ₹60 cr further than profit did, and he found out at year end. The claim is that the gap becomes visible as it forms and stays inside a planned band.
+
+### "Buying whey, dates and packaging on last month's numbers"
+
+| Input | Evidence |
+|---|---|
+| Whey | Imported WPC ~₹700–800/kg in 2024 to ~₹2,300–3,000/kg mid-2026; powder is about half of revenue; founder: "raw material prices have gone up too high" |
+| Dates and pistachio | Company's own 2026 post: pistachio +50%, dates supply via Dubai port hit |
+| Packaging | Company's own post: polymer +40%, "long term" |
+| Label change | Company said the switch to "sweetened with dates" needed time "because of procurement lead times and existing inventory" |
+
+### What the tagline does not claim
+
+OHM does not change the whey price, the platform take rate, or the advertising budget. It does not sell more product. Those three are the largest levers at this company and stay with the founder. OHM shortens the time between an event in procurement or operations and the response, and stops leakage in the outflows that already happen.
 
 ---
 
@@ -165,7 +213,55 @@ Ranked by estimated P&L impact over the next 12–24 months. No OHM assumption a
 | 11 | V4/O5 Launch cadence | Revenue and opex | Two-sided | Kids range and more launches promised; each adds listings, SKUs, inventory |
 | 12 | W1/W2 Inventory and platform receivables | Cash | Negative | ₹270 cr current assets; multi-site stock with short shelf life; 65% of sales on platform credit |
 
-Next step: OHM context for this account, then steps 4 and 5.
+## 5. Step 4: OHM controllability filter
+
+OHM scope for this account (assumed, to be confirmed): Module A, outflow transaction controls; Module B, procurement and working-capital visibility with breakage detection across own plants, contract manufacturers and platform stock.
+
+| Rank | Lever | OHM effect | Module | Mechanism |
+|---|---|---|---|---|
+| 1 | C1 Whey protein cost | **Influences** | B | Cannot move the price. Can move buy timing, lot-level landed cost, and the lag between a price move and a pack or price decision. |
+| 2 | P1/V2 Platform take rate and QC dependence | **Influences (small)** | A | Reconciliation of platform deductions, chargebacks and ad invoices. Terms themselves are not OHM's. |
+| 3 | O1 Advertising and marketing | **Influences (small)** | A | Agency and ad-platform invoice controls. Budget and ROAS stay with marketing. |
+| 4 | W4 Cash burn to profitability | **Controls** | A + B | The ₹7.4 cr outflow reduction and ₹11 cr working-capital release both land here. |
+| 5 | C4/W5 In-house manufacturing ramp | **Influences** | B, A | Contract-manufacturer yield, wastage and billing visible as it happens; capex invoices released against milestones. |
+| 6 | C2/C3 Nuts, dates, packaging shocks | **Influences** | B | Stock cover and supplier exposure by input, so a port closure or polymer move is seen in days, not at month end. |
+| 7 | V6/O4 Regulatory claim constraints | **Influences** | B | Old-label inventory and packaging quantified and run down with minimum write-off. |
+| 8 | P5 Channel mix toward own site | **No** | — | Commercial. |
+| 9 | V3 Offline expansion | **No** | — | Commercial. |
+| 10 | O2 Employee cost | **No** | — | Contract-labour billing is the only touchpoint. |
+| 11 | V4/O5 Launch cadence | **Influences (small)** | B | SKU-level inventory on new launches. |
+| 12 | W1/W2 Inventory and platform receivables | **Controls** | B, A | Multi-site inventory by lot and age; platform receivable and deduction reconciliation. |
+
+Net: OHM controls two levers (cash burn, inventory and receivables) and influences seven. It does not touch the three largest P&L levers (whey price, platform terms, marketing budget). The pitch says so.
+
+## 6. Step 5: Value sizing
+
+Base: FY25 revenue ₹216 cr, total expenses ₹248 cr, net loss ₹28 cr, operating cash flow −₹88 cr.
+
+| Line | Low | Base | High |
+|---|---|---|---|
+| Outflow reduction (₹ cr / yr) | 5.8 | 7.4 | 10.1 |
+| As % of total outflows | 2.3% | 3.0% | 4.1% |
+| As share of FY25 loss | 21% | 26% | 36% |
+| EBITDA margin effect (points of revenue) | +2.7 | +3.4 | +4.7 |
+| Working capital released, one-time (₹ cr) | 8.7 | 11 | 14.2 |
+
+The 3% claim is the base case. The high case needs the inventory write-off assumption to hold at the upper end, which discovery should confirm before it is used.
+
+### Data requests for discovery
+
+1. Expense ledger by head for FY25 and FY26 to date, with the "other expenses" line broken out. Sizes the controls pool.
+2. Purchase register for whey, dates, nuts and packaging with lot rates and dates. Sizes procurement visibility.
+3. Contract-manufacturer billing vs. yield and wastage by site for 12 months.
+4. Inventory ageing by site and SKU; write-offs and expiry in FY25.
+5. Platform statements (Blinkit, Zepto, Instamart, Amazon) with deductions for 6 months.
+6. Monthly cash flow vs. plan for FY25, to decompose the ₹60 cr gap.
+
+### Objections to prepare for
+
+- "We run CM2 positive every month; we have visibility." Answer: on contribution per order, yes. On stock at seven contract manufacturers and cash in platform receivables, the FY25 cash flow says otherwise.
+- "3% is small." Answer: it is a quarter of the loss, and it is the one lever that does not require touching whey, Blinkit or the ad budget.
+- "We are cash-rich after the Series D." Answer: the IPO story needs quarters of plan-vs-actual discipline, and a ₹60 cr cash surprise is the kind of thing that delays a listing.
 
 ## Sources
 
