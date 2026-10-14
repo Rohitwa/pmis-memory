@@ -1,6 +1,6 @@
 # S-PAL (Steps 1–3): Auto Ignition Ltd (AUTO-LEK), Prithla / Palwal, Haryana
 
-**Status:** Steps 1–3 complete. Step 4 (OHM controllability filter) and Step 5 (value sizing) pending OHM context from Rohit.
+**Status:** Steps 1–5 complete. OHM scope received 14 Oct 2026: (a) outflow controls and cash flow via a 35-point transaction check; (b) metal-rate realisation via tracking and tagging of metal stock from raw material to finished product. Claim under test: up to 1% bottom-line improvement, improved cash flow, metal-rate parity with OEMs.
 **Prepared:** 14 Oct 2026
 **Evidence key:** [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)
 
@@ -139,7 +139,129 @@ Ranked by estimated P&L impact over the next 12–24 months, before filtering fo
 | 9 | C5 Labour productivity | COGS | Neutral | Lean/KPI programme exists; contract-labour mix unknown |
 | 10 | O2 Programme load | Opex / execution | Risk | 25 projects for a ₹450 cr company; execution dilution risk |
 
-Next step: supply the OHM context for this account and I will run Step 4 (which of these OHM can move, and by what mechanism) and Step 5 (sizing).
+
+---
+
+## 5. Step 4: OHM controllability filter
+
+OHM scope for this account:
+- **Module A, Outflow controls:** a 35-point check applied across transactions (procure-to-pay, payment release, debit/credit notes, advances, freight, services).
+- **Module B, Metal-rate parity:** lot-level tracking and tagging of metal stock (copper, electrical steel, aluminium, magnets) from raw-material receipt through WIP to finished goods, so that consumption, yield, scrap and purchase rate can be substantiated against OEM price-variation (PV) clauses.
+
+Filter applied to the ranked shortlist in Section 4. "Controls" means OHM is the primary mechanism; "Influences" means OHM supplies evidence or discipline that helps another function move the lever; "No" means OHM has no effect and the lever stays with the business.
+
+| Rank | Lever | OHM effect | Module | Mechanism |
+|---|---|---|---|---|
+| 1 | V1/V2 Tractor cycle and share defence | **No** | — | Market and commercial. OHM is silent here; do not claim it. |
+| 2 | P2/C1 Material cost and metal pass-through | **Controls** | B | This is OHM's core lever. See 5.1. |
+| 3 | W1–W4 Working capital | **Controls (payables, inventory), Influences (receivables)** | A + B | Payment release only at due date, no premature or duplicate outflows (A); metal inventory visibility by lot and age cuts excess RM/WIP (B); substantiated PV claims settle faster, which shortens the PV-claim tail inside receivables (B). |
+| 4 | C3/O4 Fixed-cost absorption at new plants | **No** | — | Volume ramp. Not OHM. |
+| 5 | V4 New-segment ramp | **No** (minor influence) | B | Magnet lot-tracking helps manage the rare-earth exposure of the EV line, but does not drive the ramp. |
+| 6 | C4 Quality and warranty cost | **Influences** | B | Lot-level traceability of metal inputs supports root-cause on field failures and narrows warranty debit scope. Secondary. |
+| 7 | P3 Content-per-unit mix | **No** | — | Product and engineering. |
+| 8 | V5/V6 Export and aftermarket mix | **No** | — | Commercial. |
+| 9 | C5 Labour productivity | **No** | — | Operations. |
+| 10 | O2 Programme load | **Influences** | A | Transaction-level controls remove a class of management review effort; small. |
+| — | O3 Interest cost (new, surfaced by filter) | **Controls** | A + B | Cash released from payables and inventory reduces working-capital borrowing (bank lines ~74% utilised). |
+
+Net: OHM moves three of the top-ten levers directly (metal pass-through, working capital, interest cost) and influences two (warranty, programme load). It does not touch the single largest lever, the tractor cycle. The pitch should say so explicitly; it builds credibility with a CFO who already knows that.
+
+### 5.1 Why metal-rate parity is the lever that matters at Auto Ignition
+
+Starter motors and alternators are among the most metal-intensive parts a tractor OEM buys. Copper windings, electrical-steel laminations, steel shafts and housings, aluminium die-castings and (on the EV line) NdFeB magnets. Indian OEM supply agreements compensate suppliers for metal movements through a PV clause tied to a published index (MCX/LME copper, steel benchmarks), reset quarterly or half-yearly, on a **standard metal weight per part** agreed at nomination.
+
+Leakage between the clause and the P&L comes from four places, all of which require lot-level evidence to close:
+
+| # | Leakage mechanism | What goes wrong without tagging | What OHM changes |
+|---|---|---|---|
+| L1 | **Lag asymmetry** | OEM resets on the index with a one to two quarter lag. Supplier holds 50–60 days of stock. On a rising index the supplier is under-compensated for the quarter; on a falling index OEMs apply the cut immediately while the supplier consumes high-cost stock. CRISIL's sector view: pass-through "with a lag of one to two quarters and not always in full". | Each lot carries its landed rate. Consumption in the period is valued at actual lot rate, giving a defensible claim for the gap and a factual basis to negotiate the reset frequency. |
+| L2 | **Weight and yield basis** | PV is paid on standard weight. Actual consumption includes lamination stamping yield loss, winding scrap, machining allowances. Typical gap 3–8% of standard weight. Without lot-level consumption data the supplier cannot substantiate the true metal content and absorbs the difference. | RM-to-FG tagging produces actual consumption per part number, which supports revision of standard weights at the next nomination and PV reconciliation in the interim. |
+| L3 | **Scrap realisation** | 5–10% of metal input becomes process scrap. Scrap is sold by weight at plant level, often below benchmark, and rarely reconciled against input. | Scrap is tagged to source lot and metal grade; sale is reconciled to input and benchmarked to index. |
+| L4 | **Uncompensated Tier-2 metal** | Bought-out sub-assemblies (bearings, drives, solenoids, magnets) carry metal that Tier-2s re-price upward, but the OEM PV clause does not cover them. | Metal content of bought-outs is tagged, so the supplier can claim them under the PV clause or push back on Tier-2 pricing with evidence. |
+
+"Parity with OEMs" is therefore not a pricing negotiation. It is the ability to prove, transaction by transaction, that the metal the OEM compensated for equals the metal Auto Ignition actually paid for and consumed.
+
+### 5.2 What the 35-point check needs to catch at this account
+
+The 35 points have not been shared, so this is the target list of outflow leakages at an auto-electrical Tier-1 of this size, to be mapped against the actual checks:
+
+- Three-way match failures (PO, GRN, invoice) and rate deviations against PO or rate contract.
+- Duplicate or near-duplicate vendor invoices across four plants.
+- Payments released before due date, or without using agreed credit period.
+- Advances to vendors and tooling suppliers not adjusted against subsequent invoices.
+- Missed cash discounts and missed vendor debit notes (rejections, short supply, freight recovery).
+- Freight and logistics overbilling across four plants and export shipments.
+- Contract-labour billing against attendance (headcount spread of 389 to 1,000 suggests heavy contract use).
+- Capex invoice release against milestone completion at Supa and Satara.
+- GST input-credit mismatches that delay or lose credit.
+- Statutory and bank-charge outflows.
+
+---
+
+## 6. Step 5: Value sizing
+
+Base: FY25 group operating income ~₹450 crore (CRISIL). All assumptions are stated; company data for the [S] items will tighten the ranges in discovery.
+
+### 6.1 Assumptions
+
+| Item | Value | Basis |
+|---|---|---|
+| Revenue | ₹450 cr | CRISIL FY25 estimate |
+| Current operating margin | 7.5–8.0% | CRISIL |
+| Material cost | 62% of revenue ≈ ₹279 cr | [S] sector norm for rotating electricals, 60–68% |
+| Index-linked metal within material cost | 55% ≈ ₹153 cr | [S] copper ~37%, steel ~40%, aluminium ~15%, magnets/other ~8% |
+| Total addressable outflows (material + services + contract labour + capex) | ~₹380 cr | derived |
+| Working-capital borrowing cost | ~9.5% | A- rated, bank lines |
+| Receivables / inventory / payables days | 75–100 / 50–60 / 45–50 | CRISIL |
+
+### 6.2 Bottom line (EBITDA) uplift
+
+| Source | Leakage pool | Leakage rate | Recovery by OHM | Annual EBITDA | bps of revenue |
+|---|---|---|---|---|---|
+| Metal-rate parity (L1–L4) | ₹153 cr index-linked metal | 2–5% of pool | 40–60% | ₹1.5–4.0 cr | 35–90 |
+| Outflow controls (35-point check) | ₹380 cr outflows | 0.2–0.5% | 50–70% | ₹0.5–1.2 cr | 10–27 |
+| **Total EBITDA** | | | | **₹2.0–5.2 cr** | **45–115** |
+
+Reading: the "up to 1%" claim sits at the upper-middle of this range. The **base case is roughly 70 bps**; 100 bps requires either copper to stay volatile (which widens L1) or a large standard-weight gap (L2). State the claim as "50 to 100 bps, base case 70" rather than a flat 1%; it survives a CFO's scrutiny better.
+
+### 6.3 Cash flow
+
+| Source | Mechanism | Days | Cash released (one-time) |
+|---|---|---|---|
+| Payables discipline | Release at due date, stop premature payments, adjust advances | +5 to +8 days on ₹350 cr annual spend | ₹4.8–7.7 cr |
+| Metal inventory | Lot-level ageing and consumption visibility cuts excess RM and WIP | −5 to −8 days on ₹279 cr material cost | ₹3.8–6.1 cr |
+| PV-claim settlement | Substantiated claims settle one cycle faster | −3 to −5 days on the PV-claim portion of receivables | ₹1.0–2.0 cr |
+| **Total cash released** | | | **₹9.6–15.8 cr** |
+| Interest saved at 9.5% | On working-capital lines (~₹49 cr drawn of ₹66 cr) | | **₹0.9–1.5 cr / yr (20–33 bps, PBT line)** |
+
+Reading: ₹10–16 crore is 20–30% of current working-capital drawdown. That moves CRISIL's "large working capital requirement" weakness in the right direction and lowers gearing without any equity or new debt.
+
+### 6.4 Combined value statement for the account
+
+| Line | Low | Base | High |
+|---|---|---|---|
+| EBITDA uplift (bps of revenue) | 45 | 70 | 115 |
+| EBITDA uplift (₹ cr / yr) | 2.0 | 3.2 | 5.2 |
+| Interest saving (₹ cr / yr) | 0.9 | 1.2 | 1.5 |
+| **Total P&L impact (₹ cr / yr)** | **2.9** | **4.4** | **6.7** |
+| One-time cash released (₹ cr) | 9.6 | 12.5 | 15.8 |
+
+For context: FY24 PAT was ₹21.7 cr. A base-case ₹4.4 cr pre-tax uplift is roughly 15–20% of PAT. Against the CRISIL framework, OHM's 70 bps is most of the gap between today's 7.5–8.0% margin and the 8.5–9.0% the rating expects post ramp-up, and it is the buffer above the 7% downgrade trigger in a flat FY27 tractor year.
+
+### 6.5 What to validate in discovery (data requests)
+
+1. PV clause terms by OEM: index, reset frequency, standard weights, coverage of bought-outs. (Sizes L1, L2, L4.)
+2. Metal purchase ledger by grade for the last 8 quarters, with lot rates. (Sizes L1.)
+3. BOM standard metal weight vs. actual issue quantity for the top 20 part numbers. (Sizes L2.)
+4. Scrap sale register vs. metal input, by plant. (Sizes L3.)
+5. AP ageing, payment-run data and advance ledger for 12 months across four plants. (Sizes the 35-point pool.)
+6. Working-capital drawdown by month and interest rate. (Sizes 6.3.)
+
+### 6.6 Objections to prepare for
+
+- "Our OEMs already compensate us on metal." Answer: on standard weight, with a lag, and not on bought-outs. Ask for the last four PV reconciliations.
+- "We have an ERP with lot control." Answer: lot numbers exist; lot rate carried through to consumption valuation and PV claim usually does not. Ask how the last claim was computed.
+- "The 1% is small." Answer: it is 15–20% of PAT, and the cash release is 20–30% of working-capital debt, in a year when the core market is forecast flat.
 
 ---
 
