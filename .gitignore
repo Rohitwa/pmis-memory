@@ -91,3 +91,4 @@ proxy/tokens.json
 proxy/node_modules/
 proxy/.wrangler/
 !ohm_spal/html/*.html
+ohm_spal/html/index.fragment.html
