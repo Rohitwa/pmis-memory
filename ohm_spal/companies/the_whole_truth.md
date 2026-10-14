@@ -6,11 +6,11 @@ brand: The Whole Truth
 location: Andheri East, Mumbai, Maharashtra
 sector: Clean-label packaged food (protein powder, protein bars, nut butter, cocoa bars, muesli, kids nutrition)
 revenue_base: "₹216 cr (FY25, RoC filings via Entrackr / BW Disrupt)"
-status: Sized
+status: Tagline agreed
 ohm_modules:
   - Outflow transaction controls
   - Procurement and working-capital visibility (real-time, breakage detection)
-tagline: "A tech that cuts The Whole Truth's outflows by 3%, worth ₹7 crore a year and a quarter of last year's loss, and ends the ₹60 crore working-capital surprises that come with buying whey, dates and packaging on last month's numbers."
+tagline: "A tech that cuts The Whole Truth's outflows by 3%, worth ₹7 crore a year, cuts working capital requirements by 25% and brings better business controls."
 tagline_date: 2026-10-14
 prepared: 2026-10-14
 owner_contact: Shashank Mehta, Founder & CEO
@@ -18,7 +18,7 @@ owner_contact: Shashank Mehta, Founder & CEO
 
 ## Where the tagline comes from
 
-Proposed line, pending Rohit's sign-off. Three claims, each traced to a number and a source. FY25 base unless stated. OHM scope assumed: outflow transaction controls plus procurement and working-capital visibility.
+Agreed 14 Oct 2026. Three claims, each traced to a number and a source. FY25 base unless stated. OHM scope: outflow transaction controls plus procurement and working-capital visibility.
 
 ### "Cuts outflows by 3%, worth ₹7 crore a year"
 
@@ -29,38 +29,35 @@ Proposed line, pending Rohit's sign-off. Three claims, each traced to a number a
 | Transaction controls on non-material outflows (A&M ₹41 cr, employee ₹30 cr, marketplace ₹9 cr, transport ₹9 cr, other ~₹28 cr) | 1–2% of ₹117 cr = ₹1.2–2.3 cr | Duplicate, early and unmatched payments; agency and ad invoices; freight; platform deductions. Sector norm. |
 | Inventory write-off and expiry avoided | 1–2% of ₹131 cr = ₹1.3–2.6 cr | Clean-label shelf life, multi-site stock, label-change repacking. Sector assumption [S]. |
 | **Total** | **₹5.8–10.1 cr; base ₹7.4 cr = 3.0% of outflows** | |
-
-### "A quarter of last year's loss"
-
-| Step | Figure | Source |
-|---|---|---|
-| FY25 net loss | ₹28 cr | RoC filings |
-| ₹7.4 cr ÷ ₹28 cr | 26% | |
-| Same uplift as margin | +3.4 points of revenue; EBITDA margin from −13.4% to about −10% | |
+| Context: FY25 net loss | ₹28 cr, so ₹7.4 cr is about a quarter of it; +3.4 points of EBITDA margin (−13.4% to about −10%) | RoC filings |
 
 Why it matters to this owner: profitability is the stated next milestone and the gate to the IPO. A quarter of the loss removed without touching price, product or marketing is the cleanest step toward it.
 
-### "Ends the ₹60 crore working-capital surprises"
+### "Cuts working capital requirements by 25%"
 
 | Step | Figure | Source |
 |---|---|---|
 | FY25 net loss | −₹28 cr | RoC filings |
 | FY25 operating cash flow | −₹88 cr | RoC filings via BW Disrupt |
 | Gap, read as working capital built faster than plan (inventory, platform receivables, advances) | ~₹60 cr | Derived; exact split not public |
-| Non-cash current assets at March 2025 (current assets ₹270 cr less cash ₹141 cr) | ~₹129 cr, about 218 days of revenue | RoC filings; derived |
-| Cash released by visibility and controls | Inventory −10 to −15 days of material cost (₹0.36 cr/day): ₹3.6–5.4 cr. Platform receivables −5 to −10 days on 65% of revenue (₹0.38 cr/day): ₹1.9–3.8 cr. Payables +5 to +8 days on ₹230 cr non-employee outflows (₹0.63 cr/day): ₹3.2–5.0 cr. | **₹8.7–14.2 cr, base ₹11 cr** |
-| Interest effect | Small: the company is cash-rich after the Series D, so the value is lower burn and a narrower plan-vs-cash gap, not interest saved | |
+| **25% of that ₹60 cr build** | **₹15 cr** | The basis for the claim |
+| Cash released by visibility and controls | Inventory −10 to −15 days of material cost (₹0.36 cr/day): ₹3.6–5.4 cr. Platform receivables −5 to −10 days on 65% of revenue (₹0.38 cr/day): ₹1.9–3.8 cr. Payables +5 to +8 days on ₹230 cr non-employee outflows (₹0.63 cr/day): ₹3.2–5.0 cr. | ₹8.7–14.2 cr, base ₹11 cr |
+| Cross-check | ₹15 cr sits at the top of the sized range. Defensible as the high case; say "20 to 25%" if pressed. | |
+| Not the basis | Total non-cash current assets were ~₹129 cr at March 2025 (current assets ₹270 cr less cash ₹141 cr). 25% of that would be ₹32 cr, which the sizing does not support. The claim is 25% of the incremental requirement, not of the whole balance. | |
 
-"Surprises" is the right word rather than "savings": the owner's problem is that cash moved ₹60 cr further than profit did, and he found out at year end. The claim is that the gap becomes visible as it forms and stays inside a planned band.
+Why it matters: cash moved ₹60 cr further than profit did in FY25 and the owner found out at year end. The claim is that the next ₹60 cr becomes ₹45 cr, and that the gap is visible as it forms rather than at the close.
 
-### "Buying whey, dates and packaging on last month's numbers"
+### "Brings better business controls"
 
-| Input | Evidence |
+| Control | What it covers at this company |
 |---|---|
-| Whey | Imported WPC ~₹700–800/kg in 2024 to ~₹2,300–3,000/kg mid-2026; powder is about half of revenue; founder: "raw material prices have gone up too high" |
-| Dates and pistachio | Company's own 2026 post: pistachio +50%, dates supply via Dubai port hit |
-| Packaging | Company's own post: polymer +40%, "long term" |
-| Label change | Company said the switch to "sweetened with dates" needed time "because of procurement lead times and existing inventory" |
+| Outflow transaction checks | Three-way match on 9 sites, duplicate and early payments, advances to contract manufacturers, agency and ad-platform invoices, freight, platform deductions and chargebacks |
+| Procurement visibility | Lot-level landed cost and stock cover for whey (about half of revenue, price roughly tripled since 2024), dates and pistachio (2026 supply hit), polymer packaging (+40%) |
+| Contract-manufacturer visibility | Yield, wastage and billing at seven outsourced sites as it happens, not at month end |
+| Inventory and label control | Stock by lot and age across sites; old-label inventory run down with minimum write-off after the FSSAI "sweetened with dates" change |
+| Plan-vs-actual | Monthly cash flow against plan, the discipline an IPO story needs |
+
+Evidence that these are missing today: the company said the label change needed time "because of procurement lead times and existing inventory"; the founder said "raw material prices have gone up too high" for protein powder economics; the ₹60 cr cash gap above.
 
 ### What the tagline does not claim
 
