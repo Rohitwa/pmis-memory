@@ -6,12 +6,12 @@ brand: Flipspaces
 location: "Mumbai, Maharashtra; Bengaluru; New York; Dubai"
 sector: Tech-led commercial interior design-and-build (offices, retail, hospitality, education, healthcare)
 revenue_base: "₹319 cr (FY25, Inc42 from filings); FY26 target ₹500 cr; FY27 target ₹1,000 cr"
-status: Sized
+status: Tagline agreed
 ohm_modules:
   - Real-time bill, payment and client-invoice checks (22 controls per voucher)
   - Project-margin visibility against BoQ and PO while the project runs
   - Statutory controls (GST 2B match, MSME 45-day clock, cash limits)
-tagline: "A stack that keeps about ₹5 crore a year from leaking out of Flipspaces' projects while they are still running, a third of its EBITDA, by checking every vendor bill against the BoQ, the PO and the tax rules before the money moves."
+tagline: "You run hundreds of projects a year, and the gaps that become cost overruns surface only after the project is over. We have built a stack that brings project controls into real time, worth 150 to 200 bps of margin on the bottom line."
 tagline_date: 2026-10-15
 prepared: 2026-10-15
 owner_contact: "Kunal Sharma, Founder & CEO; Ankur Muchhal, Co-founder & Head of US Business"
@@ -19,52 +19,43 @@ owner_contact: "Kunal Sharma, Founder & CEO; Ankur Muchhal, Co-founder & Head of
 
 ## Where the tagline comes from
 
-Proposed line, pending Rohit's sign-off. Built from the "Ohm for Flipspaces" onboarding note of 12 Oct 2026 (another chat) plus public updates to October 2026. Flipspaces is private and has not published audited FY25 accounts, so the base is the FY25 revenue reported from filings and management's stated margin.
+Agreed 15 Oct 2026. Three claims, each traced to a number and a source. Built from the "Ohm for Flipspaces" onboarding note of 12 Oct 2026 plus public updates to October 2026. Flipspaces is private and has not published audited FY25 accounts, so the base is the FY25 revenue reported from filings and management's stated margin.
 
-### "About ₹5 crore a year"
-
-| Step | Figure | Source |
-|---|---|---|
-| FY25 revenue | ₹319 cr (FY24 ₹191 cr) | Inc42 company page, from filings |
-| Outflows to vendors, contractors and staff | ~85% of revenue, about ₹270 cr | Design-and-build is cost-heavy; Flipspaces orchestrates and vendors build |
-| Leakage stopped: duplicates, over-billing against PO and BoQ, unbilled change orders, GST credit lost, MSME penalties, unadjusted advances, site cash | 1–3% of outflows | OHM benchmark; 1% floor, 3% ceiling |
-| **Range** | **₹2.7–8.1 cr a year; base 2% = ₹5.4 cr** | |
-| At the FY26 target of ₹500 cr | ₹4.3–12.8 cr; base ₹8.5 cr | Same rates on ₹425 cr of outflows |
-
-### "A third of its EBITDA"
-
-| Step | Figure | Source |
-|---|---|---|
-| EBITDA margin FY25 | "around 5 to 6 per cent" | Kunal Sharma, BW Disrupt, Feb 2026 |
-| EBITDA FY25 | ₹16–19 cr on ₹319 cr | Derived |
-| ₹5.4 cr ÷ ₹16–19 cr | 28–34% | |
-| Floor case ₹2.7 cr | 14–17% of EBITDA | Say "a sixth to a third" if pressed |
-
-Why this lands: the company turned EBITDA-positive only in FY25, FY24 was a ₹8 cr net loss, and the IPO is now three years out. Every rupee of leakage comes straight off a thin, new margin that investors and the eventual prospectus will scrutinise.
-
-### "While they are still running"
+### "Hundreds of projects a year"
 
 | Evidence | Source |
 |---|---|
-| Flipspaces' own Sr VP Operations posting names the gap: "strengthen commercial controls around budgeting, billing, change orders, cost overruns, and project closure" | beBee job posting |
-| Run as SBUs, each with its own EBITDA target; a loss on one project hides inside the unit's month until closure | CXOToday |
-| Fit-out cost overruns come from scope changes, procurement escalation, rework and delay; BoQs finalised late, vendor bids after design approval | 2025 literature review; Altre |
-| Roughly 80% of Indian fit-outs still run on email, manual BoQs and WhatsApp groups; bills reach finance late and in many formats | Altre |
+| 1,000+ projects delivered (cumulative) | LinkedIn company page |
+| Revenue ₹319 cr in FY25 across SME, mid and large commercial mandates; ₹200 cr of mandates across 130,000 sq ft announced in one June 2026 release | Inc42, company release |
+| Run as SBUs, each a P&L centre; 20+ cities; India, US and now UAE | CXOToday, EnterpriseAM |
 
-Today each leak is found at month-end, closure or audit. The claim is that the check happens on the day the bill arrives, with the live project margin beside it.
+"Hundreds a year" is the safe reading of a 1,000+ cumulative count on a business that has tripled in two years. Do not say "a thousand a year".
 
-### "Checking every vendor bill against the BoQ, the PO and the tax rules"
+### "Gaps that become cost overruns surface only after the project is over"
 
-| Check | What it catches | Why it matters here |
+| Evidence | Source |
+|---|---|
+| Flipspaces' own Sr VP Operations posting: "strengthen commercial controls around budgeting, billing, change orders, cost overruns, and project closure" | beBee job posting |
+| SBU P&Ls are reviewed by unit and month; a loss on one project hides inside the unit's month until closure | CXOToday on SBU structure |
+| Fit-out overruns come from scope change, procurement escalation, rework and delay; BoQs finalised late, vendor bids after design approval | 2025 literature review; Altre |
+| About 80% of Indian fit-outs still run on email, manual BoQs and WhatsApp groups; bills reach finance late and in many formats | Altre |
+| Peer proxy: Eleganz Interiors, same size and model, shows negative operating cash flow against positive profit, retention receivable at 11% of revenue, MSME dues at 21% of payables | Eleganz prospectus, Acuité |
+
+The six leaks, each found today at month-end, closure or audit: BoQ overrun, over-billing, unbilled change orders, GST and MSME penalties, advances and site cash, slow closure.
+
+### "150 to 200 bps of margin on the bottom line"
+
+| Step | Figure | Source |
 |---|---|---|
-| Bill vs PO vs BoQ line | Overrun, over-billing, rate above the best rate paid elsewhere | SBU P&L accuracy; project margin |
-| Bill vs client scope | Vendor work not in the client's contract: an unbilled change order | Recovers revenue, not just cost |
-| GSTR-2B and vendor filing status | Credit that must be reversed with 18% interest; DRC-01C notices | Many small vendors, many filing errors |
-| Udyam status and the 45-day clock | Section 43B(h) disallowance; late-payment interest at 3x bank rate | Most site contractors are micro or small enterprises |
-| Advances and site cash | Advances left unadjusted; cash above ₹10,000 a day (Section 40A(3)) | Each site runs an imprest |
-| Closure checklist | Retention, final client bill, final vendor settlement left open after handover | Cash locked after the project ends |
+| FY25 revenue | ₹319 cr | Inc42, from filings |
+| Outflows to vendors, contractors and staff | ~85% of revenue, about ₹270 cr | Design-and-build is cost-heavy; Flipspaces orchestrates and vendors build |
+| Leakage stopped at the bill: duplicates, over-billing against PO and BoQ, unbilled change orders, GST credit lost, MSME penalties, unadjusted advances, site cash | 1–3% of outflows = ₹2.7–8.1 cr; base 2% = ₹5.4 cr | OHM benchmark; 22 checks per voucher |
+| **150–200 bps of revenue** | **₹4.8–6.4 cr a year**, bracketing the ₹5.4 cr base case | Derived |
+| Against EBITDA | FY25 EBITDA 5–6% = ₹16–19 cr, so 150–200 bps is roughly a quarter to a third of EBITDA | BW Disrupt, Kunal Sharma, Feb 2026 |
+| At the FY26 target of ₹500 cr | ₹7.5–10 cr a year at the same bps | |
+| Against software cost | About ₹5.4 lakh a year for an illustrative 13 seats | Onboarding note |
 
-VIZWORLD already holds the procurement side digitally, so the PO and BoQ exist to match against. That is what makes real-time checking feasible here and not at a WhatsApp-run competitor.
+"Of margin" is deliberate: basis points are of revenue and land on the bottom line. The company turned EBITDA-positive only in FY25, FY24 was a ₹8 cr net loss, and the IPO is three years out, so every rupee of leakage comes straight off a thin, new margin that the eventual prospectus will scrutinise.
 
 ### What the tagline does not claim
 
