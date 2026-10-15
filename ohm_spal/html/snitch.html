@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snitch Apparels Pvt Ltd — S-PAL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Plain reference-page layout, after Wikipedia: white page, serif headings with a rule, blue links, grey-bordered tables. */
+:root {
+  --bg: #ffffff; --fg: #202122; --fg2: #54595d; --link: #3366cc; --rule: #a2a9b1;
+  --tbl-bg: #f8f9fa; --tbl-head: #eaecf0; --box: #f8f9fa;
+  --serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --sans: sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow-x: clip; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.page { max-width: 960px; margin: 0 auto; min-width: 0; }
+.sitehead { font-size: 12px; color: var(--fg2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sitehead b { color: var(--fg); font-family: var(--serif); font-size: 15px; font-weight: normal; }
+
+h1, h2 { font-family: var(--serif); font-weight: normal; line-height: 1.3; margin: 0; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h1 { font-size: 28px; margin: 14px 0 4px; }
+h2 { font-size: 21px; margin: 24px 0 8px; }
+h3 { font-size: 15px; font-weight: bold; margin: 18px 0 6px; }
+p { margin: 8px 0; max-width: 75ch; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
+code { font-family: monospace; font-size: 12.5px; background: var(--tbl-bg); padding: 0 3px; }
+pre { overflow-x: auto; background: var(--tbl-bg); padding: 10px; border: 1px solid var(--rule); }
+ul, ol { padding-left: 24px; }
+li { margin: 2px 0; }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--rule); color: var(--fg2); }
+.sub { font-size: 12.5px; color: var(--fg2); margin: 2px 0 10px; }
+
+.tbl { overflow-x: auto; margin: 10px 0; }
+table { border-collapse: collapse; font-size: 13px; background: var(--tbl-bg); border: 1px solid var(--rule); min-width: 480px; }
+table.full { width: 100%; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; vertical-align: top; text-align: left; }
+th { background: var(--tbl-head); font-weight: bold; }
+td { font-variant-numeric: tabular-nums; }
+td.num { text-align: right; width: 1%; white-space: nowrap; }
+
+.tagline { border: 1px solid var(--rule); background: var(--box); padding: 10px 14px; margin: 12px 0 4px; font-family: var(--serif); font-size: 18px; line-height: 1.45; max-width: none; }
+
+details { margin: 6px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+details.sec > summary { font-size: 15px; font-weight: bold; }
+details.full > summary { font-family: var(--serif); font-size: 21px; font-weight: normal; border-bottom: 1px solid var(--rule); margin-top: 24px; padding-bottom: 6px; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::before { content: "[show] "; font-family: var(--sans); font-size: 12px; color: var(--link); }
+details.full[open] > summary::before { content: "[hide] "; }
+.analysis h1 { font-size: 21px; }
+.toc { border: 1px solid var(--rule); background: var(--tbl-bg); display: inline-block; padding: 8px 14px; margin: 10px 0; font-size: 13px; }
+.toc b { display: block; margin-bottom: 4px; }
+.toc a { display: block; }
+.foot { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--fg2); }
+
+/* Single-file navigation: a company section shows only when targeted; the index hides then. */
+.company { display: none; }
+.company:target { display: block; }
+body:has(.company:target) #index { display: none; }
+.standalone .company { display: block; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .tagline { font-size: 16px; } }
+</style>
+</head>
+<body class="standalone">
+<div class="sitehead"><span><b><a href="index.html" style="color:inherit">S-PAL Wiki</a></b> &middot; OHM value drivers by enterprise</span><span>Built 2026-10-15</span></div><div class="page"><section class="company" id="snitch"><p class="sub"><a href="index.html">&larr; Index</a></p><h1>5. Snitch Apparels Pvt Ltd</h1><p class="sub">Snitch &middot; Bengaluru, Karnataka &middot; ₹498 cr (FY25, RoC filings); ₹900 cr (FY26, unaudited, management) &middot; Status: In research &middot; Prepared 2026-10-15</p><p><i>No tagline yet. Status: In research.</i></p><div class="sources"><h2 id="tagline-pending">Tagline pending</h2>
+<p>Steps 1–3 are complete below. OHM context for this account has not been given yet, so no controllability filter, no sizing, and no tagline. Nothing in this page assumes any OHM capability.</p>
+<hr></div><details class="full"><summary>Full S-PAL analysis</summary><div class="toc"><b>Contents</b><a href="#snitch-s0">0. Identity check</a><a href="#snitch-s1">1. Company snapshot [C]</a><a href="#snitch-s2">2. Sector baseline: structural P&amp;L levers for an omnichannel fast-fashion brand in India</a><a href="#snitch-s3">3. Fallback rule applied</a><a href="#snitch-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</a><a href="#snitch-s5">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<p><strong>Evidence key:</strong> [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)</p>
+<h2 id="snitch-s0">0. Identity check</h2>
+<p>Snitch Apparels Pvt Ltd, Bengaluru (CIN U18109KA2022PTC163969). Founder Siddharth Dungarwal, who ran a garment buying house for Arvind, Madura and V-Mart from 2012 to 2019, launched Snitch as B2B in late 2019 and went D2C in July 2020 with 35 SKUs. Shark Tank India all-shark deal in 2023. Private; Series B of about $40M led by 360 ONE Asset in June 2025 at a ₹2,500 cr valuation; total raised about $53M; not raising now; IPO target FY30.</p>
+<h2 id="snitch-s1">1. Company snapshot [C]</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Model</td><td>Trend-first men's fast fashion: small-batch drops, restock only what sells, design-to-shelf cited at 15–20 days; 5,000+ SKUs including perfumes, eyewear, jewellery, footwear; Snitch Plus for plus sizes</td><td>Inc42 feature, trade press</td></tr>
+<tr><td>Sourcing</td><td>Described as in-house and vertically integrated; production via micro-factories and hubs in Bengaluru, Tirupur, Surat and Ludhiana; founder's buying-house roots</td><td>Inc42, secondary sources</td></tr>
+<tr><td>Channels (FY26)</td><td>About 60% online, 40% offline; offline growing ~75% a year; quick commerce ("Snitch Quick", Oct-2025) about 10% of online revenue, fulfilled from stores in Bengaluru, Delhi, Gurugram, Ahmedabad</td><td>Outlook Business / Inc42, Apr-2026</td></tr>
+<tr><td>Online split</td><td>Dated interview: ~70% marketplaces (Myntra, Ajio), ~30% own site and app</td><td>Indian Retailer (older)</td></tr>
+<tr><td>Stores</td><td>100th store Jan-2026 (HSR Layout, Bengaluru); 115 at Apr-2026; 131 at Aug-2026 after Kolkata, Pune, Nashik, Patiala, Noida; founder target 300 by end-2026. Mix ~60% franchise, 40% company-owned, moving toward 50:50 (dated). Mall stores 1,800–2,000 sq ft, high-street 4,000–5,000 sq ft; capex ~₹3,000 per sq ft</td><td>Indian Retailer, Apparel Resources, BW Retail World, Inc42</td></tr>
+<tr><td>Customers</td><td>~3 lakh customers a month, 1.6 mn served, 18 mn online sessions a month; repeat rate ~45%, retention above 65%; loyalty programme Snitch X</td><td>Inc42</td></tr>
+<tr><td>People</td><td>Headcount sources disagree widely: 347 (Oct-2025), 608 (Mar-2026), 1,138 (Apr-2026, Tracxn), 1,226 (Revelio); growth in store staff is the likely driver</td><td>Tracxn, Revelio, Company Check</td></tr>
+<tr><td>Warehousing</td><td>Bengaluru warehouse; 50,000 sq ft expansion announced 2024; GST registration shows warehouse/depot, retail and wholesale</td><td>Tracxn, GST listing</td></tr>
+<tr><td>International</td><td>Online sales in West Asia; planned offline stores there deferred for geopolitical reasons</td><td>Outlook Business</td></tr>
+<tr><td>Targets</td><td>FY26 ₹900 cr (said ₹1,000 cr earlier); FY27 ~₹1,400 cr; IPO by FY30</td><td>Inc42, BW Disrupt, Outlook</td></tr>
+<tr><td>Customer-facing friction</td><td>Review sites carry recurring complaints on returns, refunds and fabric quality; anecdotal, not a measured rate</td><td>Trustpilot, Play Store</td></tr>
+</tbody></table></div>
+<h3 id="financial-trajectory-crore-c">Financial trajectory (₹ crore) [C]</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Metric</th><th>FY21</th><th>FY24</th><th>FY25 (RoC)</th><th>FY26 (unaudited)</th></tr></thead>
+<tbody>
+<tr><td>Revenue from operations</td><td>11</td><td>241</td><td>498</td><td>~900 (+80%)</td></tr>
+<tr><td>Other income</td><td></td><td></td><td>7.5</td><td></td></tr>
+<tr><td>Procurement (cost of goods)</td><td></td><td>&lt;115</td><td>230 (46% of revenue; 45% of expenses)</td><td></td></tr>
+<tr><td>Implied gross margin</td><td></td><td></td><td>~54%</td><td></td></tr>
+<tr><td>Advertising and marketing</td><td></td><td>~35</td><td>83 (17% of revenue)</td><td></td></tr>
+<tr><td>Employee benefits</td><td></td><td>~18</td><td>65 (13% of revenue)</td><td></td></tr>
+<tr><td>Other overheads (rent, marketplace fees, logistics, telephone, misc.)</td><td></td><td></td><td>~130 (26% of revenue), derived</td><td></td></tr>
+<tr><td>Total expenses</td><td></td><td>236</td><td>508</td><td></td></tr>
+<tr><td>EBITDA margin</td><td></td><td></td><td>−1% (RoC); founder cites ~₹30 cr unaudited</td><td>2–3% (₹18–27 cr)</td></tr>
+<tr><td>Net result</td><td></td><td>+4.3</td><td>−1.7</td><td>not disclosed</td></tr>
+<tr><td>ROCE</td><td></td><td></td><td>−5.8%</td><td></td></tr>
+<tr><td>Expense per ₹1 of revenue</td><td></td><td>0.98</td><td>1.02</td><td></td></tr>
+<tr><td>Total current assets (Mar-2025)</td><td></td><td></td><td>226</td><td></td></tr>
+</tbody></table></div>
+<p>Read-through: revenue doubled in FY25 and nearly doubled again in FY26, and the company has stayed within a point or two of break-even throughout. That is the whole story. The founder's claim of "profitable since inception" and the RoC's −1% EBITDA are both true to within rounding. At ₹900 cr with a 2–3% margin, a one-point swing in procurement, marketing or inventory write-down is the difference between profit and loss. Current assets of ₹226 cr against ₹498 cr of revenue say that inventory and receivables already hold about 45% of a year's sales, in a fast-fashion model that is supposed to carry almost no dead stock.</p>
+<p>A note on the two FY25 numbers: the RoC filing shows revenue ₹498 cr and a ₹1.7 cr loss; the founder told Inc42 ₹520 cr and ₹30 cr EBITDA, unaudited. The page uses the filing.</p>
+<h2 id="snitch-s2">2. Sector baseline: structural P&amp;L levers for an omnichannel fast-fashion brand in India</h2>
+<p>Scope: a ₹500–1,000 cr men's fashion brand with small-batch sourcing from garment hubs, 5,000+ SKUs, a store estate growing 70–100% a year through franchise and own stores, marketplaces as the largest online channel, and quick commerce fulfilled from stores. Benchmarks from The Souled Store (₹492 cr FY25), Bewakoof, Rare Rabbit and Zudio.</p>
+<h3 id="2-1-top-line-volume">2.1 Top line: volume</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>V1</td><td><strong>Store rollout and productivity</strong></td><td>Fashion stores need 12–18 months to mature; franchise stores carry partner margin and inventory risk sits on the partner or the brand depending on terms.</td><td>100 → 131 stores in eight months, 300 targeted. Offline is 40% of revenue and growing 75% a year. Franchise ~60%. First store profitable "within months" per founder.</td><td>[C]</td></tr>
+<tr><td>V2</td><td><strong>Marketplace dependence</strong></td><td>Myntra and Ajio take 25–40% commission and control search, promotions and returns policy.</td><td>~70% of online revenue, so roughly 40% of total, runs through two marketplaces.</td><td>[C]</td></tr>
+<tr><td>V3</td><td><strong>New styles and SKU breadth</strong></td><td>Fast fashion lives on drop frequency; each drop is also an inventory bet.</td><td>5,000+ SKUs; sources cite anything from daily drops to every 25 days. Category expansion into perfumes, footwear, accessories, plus sizes.</td><td>[C]</td></tr>
+<tr><td>V4</td><td><strong>Repeat and retention</strong></td><td>Repeat is where fast fashion earns; CAC on new customers is rising.</td><td>Repeat ~45%, retention 65%+, 18 mn sessions a month; CRM nudges credited with 15–20% retention lift.</td><td>[C]</td></tr>
+<tr><td>V5</td><td><strong>Quick commerce</strong></td><td>60-minute delivery from stores raises conversion on impulse buys and adds a fulfilment cost curve.</td><td>10% of online revenue within six months of launch; stores double as dark stores.</td><td>[C]</td></tr>
+<tr><td>V6</td><td><strong>International</strong></td><td>West Asia offline deferred.</td><td>Online only for now.</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-2-top-line-price-and-realisation">2.2 Top line: price and realisation</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>P1</td><td><strong>Marketplace commission and promotion funding</strong></td><td>25–40% all-in on marketplaces; brand-funded discounts during sale events.</td><td>Marketplace fees sit inside the ~₹130 cr "other overheads" line; not separately disclosed.</td><td>[S]</td></tr>
+<tr><td>P2</td><td><strong>Markdown and end-of-season clearance</strong></td><td>Fast fashion marks down 20–40% of styles; unsold drops are the hidden cost of breadth.</td><td>Model claims near-zero slow stock; ₹226 cr of current assets suggests otherwise.</td><td>[S]</td></tr>
+<tr><td>P3</td><td><strong>Price points</strong></td><td>₹500–3,000; value positioning against Zudio below and Rare Rabbit above.</td><td>Price increases constrained by Zudio-style competition.</td><td>[C]</td></tr>
+<tr><td>P4</td><td><strong>Returns and exchanges</strong></td><td>Fashion returns 25–40% online, COD 2–3x prepaid; each return costs ₹200–600 in logistics plus restocking.</td><td>No disclosed return rate; review sites show friction on refunds and exchanges.</td><td>[S]</td></tr>
+</tbody></table></div>
+<h3 id="2-3-bottom-line-cost-of-goods-and-sourcing">2.3 Bottom line: cost of goods and sourcing</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>Fabric and yarn cost</strong></td><td>Cotton yarn up ₹65–70/kg Jan–May 2026 on the end of the cotton import-duty waiver and crude-linked synthetics; Tirupur makers cite up to 15% higher production cost; duty waiver reinstated Jun–Oct 2026, prices eased.</td><td>Procurement is 46% of revenue. Small-batch buying means Snitch pays spot, not contract, on every drop.</td><td>[C]</td></tr>
+<tr><td>C2</td><td><strong>Small-batch sourcing premium and vendor fragmentation</strong></td><td>Micro-factories accepting 10–25 piece orders charge more per piece; quality and delivery vary by vendor.</td><td>The model's strength (low dead stock) is also its cost: hundreds of small vendors across four hubs, each billing separately.</td><td>[C]</td></tr>
+<tr><td>C3</td><td><strong>Inventory: raw, in-transit, warehouse, 131 stores, dark stores</strong></td><td>Multi-node inventory is where fast fashion loses margin: stock in the wrong store, size breaks, duplicated safety stock.</td><td>Stores now hold stock for walk-in, quick commerce and franchise replenishment at once. Current assets ₹226 cr.</td><td>[C]</td></tr>
+<tr><td>C4</td><td><strong>Quality cost: returns, defects, replacements</strong></td><td>Fabric quality complaints convert to returns, refunds and lost repeat.</td><td>Recurring in reviews; not quantified.</td><td>[S]</td></tr>
+<tr><td>C5</td><td><strong>Logistics: forward, reverse, inter-store</strong></td><td>8–12% of revenue for apparel D2C; reverse logistics on returns is the expensive leg.</td><td>Inside the ~₹130 cr overhead line.</td><td>[S]</td></tr>
+</tbody></table></div>
+<h3 id="2-4-bottom-line-operating-expenses">2.4 Bottom line: operating expenses</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td><strong>Advertising and marketing</strong></td><td>10–20% of revenue for scaling fashion D2C; The Souled Store and Bewakoof in the same band.</td><td>₹83 cr, 17% of revenue in FY25, up 2.4x. Founder says marketing was "cut 50%" in FY25, which conflicts with the filing unless measured as a share of a doubled revenue.</td><td>[C]</td></tr>
+<tr><td>O2</td><td><strong>Employee cost</strong></td><td>Store staff scale with store count; head office scales with SKU count.</td><td>₹65 cr, 13%, up 3.7x in a year; headcount estimates have tripled since late 2025.</td><td>[C]</td></tr>
+<tr><td>O3</td><td><strong>Rent and store opex</strong></td><td>Own stores carry rent, fit-out depreciation and staff; franchise stores carry partner margin instead.</td><td>40% company-owned of 131 stores; rent inside overheads.</td><td>[C]</td></tr>
+<tr><td>O4</td><td><strong>Franchise partner management</strong></td><td>Partner stock, partner margin, partner compliance and billing accuracy.</td><td>~80 franchise stores by count.</td><td>[S]</td></tr>
+</tbody></table></div>
+<h3 id="2-5-balance-sheet-and-cash">2.5 Balance sheet and cash</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>W1</td><td><strong>Inventory days</strong></td><td>Fast fashion targets 45–60 days; Indian omnichannel brands run 90–120 with store stock.</td><td>Current assets ₹226 cr on ₹498 cr revenue; inventory is the largest part. At ₹900 cr with 131 stores the balance will have grown.</td><td>[S]</td></tr>
+<tr><td>W2</td><td><strong>Marketplace receivables</strong></td><td>Myntra and Ajio settle in 15–30 days net of returns and deductions.</td><td>~40% of total revenue on marketplace settlement terms.</td><td>[C]</td></tr>
+<tr><td>W3</td><td><strong>Vendor payables</strong></td><td>Small vendors on 30–45 days; MSME 45-day rule applies to micro-factories.</td><td>Hundreds of small vendors, many micro or small enterprises.</td><td>[S]</td></tr>
+<tr><td>W4</td><td><strong>Store capex and franchise deposits</strong></td><td>₹3,000 per sq ft on 2,000–5,000 sq ft is ₹60 lakh to ₹1.5 cr per own store.</td><td>300-store target implies ₹100 cr+ of capex if half are own stores.</td><td>[C]</td></tr>
+<tr><td>W5</td><td><strong>Funding and IPO</strong></td><td>Not raising; cash from Series B; IPO by FY30 requires three years of audited, control-grade numbers.</td><td>The two FY25 numbers (RoC vs founder) are the kind of gap a prospectus cannot carry.</td><td>[C]</td></tr>
+</tbody></table></div>
+<h2 id="snitch-s3">3. Fallback rule applied</h2>
+<p>Snitch is private, and public numbers stop at FY25 line items. Sector assumptions in use:</p>
+<ol><li>Marketplace commission and promotion funding rate (P1). [S]</li><li>Markdown and clearance rate (P2). [S]</li><li>Online return rate and cost per return (P4). [S]</li><li>Logistics cost split and inter-store movement (C5). [S]</li><li>Inventory days and split across warehouse, stores and dark stores (W1). [S]</li><li>Vendor count, terms and MSME share (W3). [S]</li><li>Franchise economics and stock ownership (O4). [S]</li></ol>
+<p>Company facts worth confirming early:</p>
+<ul><li>Inventory breakdown at the last quarter: warehouse vs stores vs in transit, and ageing by drop.</li><li>Vendor count and the share of procurement through the top 20.</li><li>Actual return rate online and the share of COD.</li><li>Which number is right for FY25, ₹498 cr with a loss or ₹520 cr with ₹30 cr EBITDA, and why they differ.</li><li>Franchise terms: who owns store stock and who bears markdowns.</li></ul>
+<h2 id="snitch-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<p>Ranked by estimated P&amp;L impact over the next 12–24 months. No OHM assumption applied.</p>
+<div class="tbl"><table class="full">
+<thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction</th><th>Why it ranks here</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>C3/W1 Inventory across warehouse, 131 stores and dark stores</td><td>Gross margin and cash</td><td>Negative, growing</td><td>Store count doubling, SKUs at 5,000+, current assets already 45% of revenue; the near-zero-dead-stock claim is untested at this scale</td></tr>
+<tr><td>2</td><td>C1/C2 Procurement cost and vendor fragmentation</td><td>Gross margin</td><td>Negative in 2026</td><td>46% of revenue, bought spot in small batches from hundreds of vendors during a yarn spike</td></tr>
+<tr><td>3</td><td>O1 Advertising</td><td>Opex</td><td>Must fall as % of revenue</td><td>17% of revenue against a 2–3% EBITDA margin</td></tr>
+<tr><td>4</td><td>V1/O3 Store rollout cost vs maturity</td><td>Opex, capex</td><td>Negative until stores mature</td><td>131 → 300 stores targeted; rent, staff and fit-out ahead of revenue; franchise mix shifting toward own stores</td></tr>
+<tr><td>5</td><td>P1/V2 Marketplace commission and dependence</td><td>Realisation</td><td>Structural</td><td>~40% of total revenue on Myntra and Ajio terms</td></tr>
+<tr><td>6</td><td>P4/C4 Returns, refunds and quality</td><td>Realisation, logistics</td><td>Negative</td><td>Fashion's highest return rates; recurring complaints; reverse logistics inside overheads</td></tr>
+<tr><td>7</td><td>P2 Markdown on unsold drops</td><td>Gross margin</td><td>Hidden</td><td>Breadth of 5,000 SKUs makes some drops miss; clearance is where the margin goes</td></tr>
+<tr><td>8</td><td>O2 Employee cost</td><td>Opex</td><td>Rising fast</td><td>3.7x in a year; headcount tripled</td></tr>
+<tr><td>9</td><td>W2/W3 Marketplace receivables and vendor payables</td><td>Cash</td><td>Watch</td><td>Settlement net of deductions on 40% of revenue; MSME exposure on micro-vendors</td></tr>
+<tr><td>10</td><td>W5 Control-grade numbers for IPO</td><td>Valuation</td><td>Pressure</td><td>Two FY25 numbers in circulation; FY30 listing needs one</td></tr>
+</tbody></table></div>
+<p>Next step: OHM context for this account, then steps 4 and 5.</p>
+<h2 id="snitch-s5">Sources</h2>
+<ul><li>Entrackr, Snitch FY25 results from RoC filings: <a href="https://entrackr.com/fintrackr/snitch-nears-rs-500-cr-revenue-in-fy25-stays-close-to-breakeven-11058503" target="_blank" rel="noopener">https://entrackr.com/fintrackr/snitch-nears-rs-500-cr-revenue-in-fy25-stays-close-to-breakeven-11058503</a></li><li>Indian Retailer, FY25 results: <a href="https://www.indianretailer.com/news/snitch-revenue-jumps-rs-498-cr-fy25-d2c-menswear-brand-scales-fast" target="_blank" rel="noopener">https://www.indianretailer.com/news/snitch-revenue-jumps-rs-498-cr-fy25-d2c-menswear-brand-scales-fast</a></li><li>Inc42, founder's FY25 figures and ₹1,000 cr target: <a href="https://inc42.com/buzz/exclusive-snitchs-revenue-crosses-inr-500-cr-mark-in-fy25/" target="_blank" rel="noopener">https://inc42.com/buzz/exclusive-snitchs-revenue-crosses-inr-500-cr-mark-in-fy25/</a></li><li>Inc42, how Snitch built a ₹500 cr run (sourcing, stores, repeat, marketing): <a href="https://inc42.com/startups/how-snitch-stitched-an-inr-500-cr-revenue-run-in-5-years/" target="_blank" rel="noopener">https://inc42.com/startups/how-snitch-stitched-an-inr-500-cr-revenue-run-in-5-years/</a></li><li>Outlook Business / Inc42, FY26 revenue ₹900 cr, 2–3% EBITDA, 115 stores, quick commerce: <a href="https://www.outlookbusiness.com/corporate/snitch-fy26-revenue-jumps-80-to-900-cr-brand-hits-profitability" target="_blank" rel="noopener">https://www.outlookbusiness.com/corporate/snitch-fy26-revenue-jumps-80-to-900-cr-brand-hits-profitability</a></li><li>Inc42, FY26 revenue: <a href="https://inc42.com/buzz/d2c-brand-snitchs-fy26-revenue-surges-80-to-%E2%82%B9900-cr/" target="_blank" rel="noopener">https://inc42.com/buzz/d2c-brand-snitchs-fy26-revenue-surges-80-to-%E2%82%B9900-cr/</a></li><li>Inc42, quick commerce launch: <a href="https://inc42.com/buzz/d2c-brand-snitch-forays-into-quick-commerce-with-60-minute-delivery/" target="_blank" rel="noopener">https://inc42.com/buzz/d2c-brand-snitch-forays-into-quick-commerce-with-60-minute-delivery/</a></li><li>Apparel Resources, 131 stores (Aug 2026): <a href="https://apparelresources.com/business-news/retail/snitch-opens-five-new-stores-store-count-reaches-131/" target="_blank" rel="noopener">https://apparelresources.com/business-news/retail/snitch-opens-five-new-stores-store-count-reaches-131/</a></li><li>Indian Retailer, 100th store: <a href="https://www.indianretailer.com/news/snitch-hits-100-store-milestone-strengthens-presence-bangalore-and-beyond" target="_blank" rel="noopener">https://www.indianretailer.com/news/snitch-hits-100-store-milestone-strengthens-presence-bangalore-and-beyond</a></li><li>BW Retail World, 300 stores by 2026 target: <a href="https://bwretailworld.com/companies/snitch-expands-to-100-stores-eyes-reaching-300-by-2026" target="_blank" rel="noopener">https://bwretailworld.com/companies/snitch-expands-to-100-stores-eyes-reaching-300-by-2026</a></li><li>Entrackr, Series B at ₹2,500 cr: <a href="https://entrackr.com/exclusive/exclusive-snitch-to-raise-rs-280-cr-in-series-b-round-at-rs-2500-cr-valuation-9316557" target="_blank" rel="noopener">https://entrackr.com/exclusive/exclusive-snitch-to-raise-rs-280-cr-in-series-b-round-at-rs-2500-cr-valuation-9316557</a></li><li>Tracxn legal entity (headcount): <a href="https://tracxn.com/d/legal-entities/india/snitch-apparels-private-limited/__KrtgtZByWJFhwcOU8ubzZP5aZZG3_0jAyGzyLCj-daY" target="_blank" rel="noopener">https://tracxn.com/d/legal-entities/india/snitch-apparels-private-limited/__KrtgtZByWJFhwcOU8ubzZP5aZZG3_0jAyGzyLCj-daY</a></li><li>Apparel Resources, Tirupur yarn price surge and relief (2026): <a href="https://apparelresources.com/business-news/trade-business-news/tirupur-hit-sharp-yarn-price-surge/" target="_blank" rel="noopener">https://apparelresources.com/business-news/trade-business-news/tirupur-hit-sharp-yarn-price-surge/</a> and <a href="https://apparelresources.com/business-news/trade-business-news/tirupur-knitwear-makers-get-relief-yarn-prices-drop/" target="_blank" rel="noopener">https://apparelresources.com/business-news/trade-business-news/tirupur-knitwear-makers-get-relief-yarn-prices-drop/</a></li><li>Base, RTO rates by category 2026: <a href="https://base.com/en-IN/blog/rto-rates-in-india/" target="_blank" rel="noopener">https://base.com/en-IN/blog/rto-rates-in-india/</a></li><li>First Resort, fashion e-commerce returns and RTO 2026: <a href="https://www.firstresort.in/blogs/research/fashion-ecommerce-returns-rto-india-2026" target="_blank" rel="noopener">https://www.firstresort.in/blogs/research/fashion-ecommerce-returns-rto-india-2026</a></li><li>Trustpilot, snitch.co.in reviews (anecdotal): <a href="https://www.trustpilot.com/review/www.snitch.co.in" target="_blank" rel="noopener">https://www.trustpilot.com/review/www.snitch.co.in</a></li></ul></div></details><p class="foot">Source file: <code>ohm_spal/companies/snitch.md</code></p></section></div></body>
+</html>
