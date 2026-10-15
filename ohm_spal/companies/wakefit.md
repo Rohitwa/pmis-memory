@@ -6,12 +6,12 @@ brand: Wakefit
 location: "Bengaluru, Karnataka (NSE: WAKEFIT)"
 sector: Mattresses, furniture and furnishings; vertically integrated D2C with 165 own stores and 2,250 multi-brand outlets
 revenue_base: "₹1,489 cr (FY26, audited; Q1 FY27 run-rate ~₹1,620 cr)"
-status: Sized
+status: Tagline agreed
 ohm_modules:
   - Stock visibility and control, raw material to finished goods
   - Material-price risk control (foam chemicals, imports)
   - Procurement and outflow controls
-tagline: "A stack that adds about ₹24 crore a year to Wakefit's bottom line, a quarter of its real profit, by carrying ₹60 crore less stock and buying foam chemicals on today's price instead of last quarter's guess."
+tagline: "A stack that adds about ₹24 crore a year to Wakefit's bottom line by carrying less stock, timing foam-chemical buys to the market, and making OHM the one number that the plants, the books and the bank all trust."
 tagline_date: 2026-10-15
 prepared: 2026-10-14
 owner_contact: "Ankit Garg (Co-founder & CEO); Chaitanya Ramalingegowda (Co-founder & Executive Director)"
@@ -19,9 +19,9 @@ owner_contact: "Ankit Garg (Co-founder & CEO); Chaitanya Ramalingegowda (Co-foun
 
 ## Where the tagline comes from
 
-Proposed line, pending Rohit's sign-off. Rohit's core narrative: bottom line up 3%, enabled by lower working capital, lower raw-material and finished-goods stock, and lower risk from foam and other material price swings. The three mechanisms are kept. The "3%" is restated in the owner's own units below, because on this company it changes meaning with the base.
+Agreed 15 Oct 2026. Rohit's core narrative: bottom line up 3%, enabled by lower working capital, lower raw-material and finished-goods stock, and lower risk from foam and other material price swings. The three mechanisms are kept. The "3%" is restated in the owner's own units below, because on this company it changes meaning with the base.
 
-### "About ₹24 crore a year, a quarter of its real profit"
+### "About ₹24 crore a year"
 
 | Step | Figure | Source |
 |---|---|---|
@@ -36,7 +36,7 @@ Proposed line, pending Rohit's sign-off. Rohit's core narrative: bottom line up 
 
 Why not "3%": 3% of profit is ₹2.7 cr, too small to say out loud; 3% of revenue is ₹45 cr, above the high case. "A quarter of real profit" is the honest, large number. If a percentage is wanted, say "EBITDA margin up 1.5 points" or "profit up 25%".
 
-### "Carrying ₹60 crore less stock"
+### "Carrying less stock"
 
 | Step | Figure | Source |
 |---|---|---|
@@ -48,7 +48,7 @@ Why not "3%": 3% of profit is ₹2.7 cr, too small to say out loud; 3% of revenu
 
 The sharper point for this owner: for three years the stock number given to the bank did not match the books, there was no internal audit, and the software had no audit trail. ₹60 cr less stock is also one stock number everyone agrees on.
 
-### "Buying foam chemicals on today's price instead of last quarter's guess"
+### "Timing foam-chemical buys to the market"
 
 | Evidence | Source |
 |---|---|
@@ -57,7 +57,18 @@ The sharper point for this owner: for three years the stock number given to the 
 | Current hedge is pre-buying: raw material stock doubled in nine months; "proactively stocking raw materials" | DRHP, FY26 release |
 | Cost of that hedge: inventory build, provisioning risk when prices fall, and a margin that management admits is borrowed from old stock | FY26 commentary |
 
-OHM does not change the price of polyol. It changes how many weeks of cover the company holds against what the index is doing, and how fast a price move turns into a buying or pricing decision. That is the difference between a 30% cost shock landing in one quarter and being spread, priced and partly avoided.
+OHM does not change the price of polyol. It changes how many weeks of cover the company holds against what the index is doing, and how fast a price move turns into a buying or pricing decision. That is the difference between a 30% cost shock landing in one quarter and being spread, priced and partly avoided. "Timing to the market" is deliberately not "hedging": no derivatives are implied.
+
+### "The one number that the plants, the books and the bank all trust"
+
+| Evidence | Source |
+|---|---|
+| Quarterly stock statements filed with banks did not agree with the books in FY22, FY23 and FY24 | Auditors' CARO remarks in the DRHP |
+| No internal audit system in FY24; accounting software without an audit trail | Same |
+| Slow-moving provision 14% of stock; 25% in FY23 | DRHP inventory note |
+| Inventory is the hypothecated security for the working-capital lines | DRHP |
+
+The phrase describes the fix for a finding that is already on the public record. Stock by lot, age and site, reconciled once, feeding the plants, the ledger and the bank statement from the same source.
 
 ### What the tagline does not claim
 
