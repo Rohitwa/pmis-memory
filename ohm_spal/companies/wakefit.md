@@ -71,7 +71,29 @@ Read-through: the turnaround is real. Gross margin climbed 13 points in three ye
 
 ## 1A. Inside the books: what is moving the bottom line
 
-Source: restated financials and notes in the June 2025 DRHP (FY22, FY23, FY24, 9M FY25), the Q3 FY26 and FY26 exchange filings. All figures ₹ crore. 9M FY25 revenue ₹971 cr. Each item is tagged **F** (finance or accounting) or **O** (operations, people, controls), because the user's question is which of these are not finance problems at all.
+### In plain words
+
+Wakefit's profit looks healthy because of bank interest and an accounting entry. Underneath, the business of making and selling mattresses is being squeezed by shop rent, delivery, stock that does not sell, workers who leave, and shops that fail. Most of those are operations problems, not finance problems.
+
+**Seven things quietly taking money out, largest first.**
+
+1. **Shop rent.** 165 rented shops, adding 80 a year. About ₹95 crore a year and set to double. Accounting rules put rent below the "operating profit" line, so the 7.5% operating margin is before rent.
+2. **Advertising.** About ₹115 crore a year; competitors are forcing it up.
+3. **Delivery.** About ₹100 crore a year. Roughly 8 rupees of every 100 earned goes on getting bulky products to the door. A mattress returned within 100 days goes back to the factory for rework.
+4. **Contract workers.** About ₹85 crore a year. 84 of every 100 people on the factory floor are contract workers. Of own staff, 35 to 65 in every 100 leave each year.
+5. **Foam chemicals.** The main mattress input rose 30 to 160% in March 2026; management expects mattress cost up about 30% once old stock is used. Prices are being raised to cover it.
+6. **Stock that is not selling.** ₹193 crore of stock, of which ₹27 crore is admitted to be slow or dead. Two years ago a quarter of all stock was in that state. Causes: 4,000 furniture designs with 3,000 new in a year, seven warehouses plus shops, and buying chemicals ahead of price rises.
+7. **Shops that fail.** For every 100 shops opened, 12 to 19 close within a year or two for "low revenue". Each cost ₹45 lakh to fit out plus rent while it failed.
+
+**Why the profit number flatters them.** After the IPO there is ₹959 crore in the bank earning ₹60 to 70 crore a year; without that interest the shops and factories lost about ₹66 crore in FY25. And ₹98 crore of the FY26 profit of ₹189 crore is a one-time tax entry, not cash. Real FY26 profit was about ₹91 crore.
+
+**What the auditors found.** For three years the stock figure given to the bank did not match the stock figure in the accounts. There was no internal audit team until listing preparation. The software kept no record of who changed what. The one asset that is both the bank's security and the biggest operational problem could not be counted reliably.
+
+**Why it matters for S-PAL.** The levers that matter are operational: counting and controlling stock, choosing which shops to open and close, and managing delivery and workers. The finance items only change how the numbers look.
+
+### The detail behind it
+
+Source: restated financials and notes in the June 2025 DRHP (FY22, FY23, FY24, 9M FY25), the Q3 FY26 and FY26 exchange filings. All figures ₹ crore. 9M FY25 revenue ₹971 cr. Each item is tagged **F** (finance or accounting) or **O** (operations, people, controls).
 
 ### 1A.1 The expense lines, and which way they are moving
 
