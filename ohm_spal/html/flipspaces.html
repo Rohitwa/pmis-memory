@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flipspaces Technology Labs Pvt Ltd — S-PAL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Plain reference-page layout, after Wikipedia: white page, serif headings with a rule, blue links, grey-bordered tables. */
+:root {
+  --bg: #ffffff; --fg: #202122; --fg2: #54595d; --link: #3366cc; --rule: #a2a9b1;
+  --tbl-bg: #f8f9fa; --tbl-head: #eaecf0; --box: #f8f9fa;
+  --serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --sans: sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow-x: clip; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.page { max-width: 960px; margin: 0 auto; min-width: 0; }
+.sitehead { font-size: 12px; color: var(--fg2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sitehead b { color: var(--fg); font-family: var(--serif); font-size: 15px; font-weight: normal; }
+
+h1, h2 { font-family: var(--serif); font-weight: normal; line-height: 1.3; margin: 0; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h1 { font-size: 28px; margin: 14px 0 4px; }
+h2 { font-size: 21px; margin: 24px 0 8px; }
+h3 { font-size: 15px; font-weight: bold; margin: 18px 0 6px; }
+p { margin: 8px 0; max-width: 75ch; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
+code { font-family: monospace; font-size: 12.5px; background: var(--tbl-bg); padding: 0 3px; }
+pre { overflow-x: auto; background: var(--tbl-bg); padding: 10px; border: 1px solid var(--rule); }
+ul, ol { padding-left: 24px; }
+li { margin: 2px 0; }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--rule); color: var(--fg2); }
+.sub { font-size: 12.5px; color: var(--fg2); margin: 2px 0 10px; }
+
+.tbl { overflow-x: auto; margin: 10px 0; }
+table { border-collapse: collapse; font-size: 13px; background: var(--tbl-bg); border: 1px solid var(--rule); min-width: 480px; }
+table.full { width: 100%; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; vertical-align: top; text-align: left; }
+th { background: var(--tbl-head); font-weight: bold; }
+td { font-variant-numeric: tabular-nums; }
+td.num { text-align: right; width: 1%; white-space: nowrap; }
+
+.tagline { border: 1px solid var(--rule); background: var(--box); padding: 10px 14px; margin: 12px 0 4px; font-family: var(--serif); font-size: 18px; line-height: 1.45; max-width: none; }
+
+details { margin: 6px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+details.sec > summary { font-size: 15px; font-weight: bold; }
+details.full > summary { font-family: var(--serif); font-size: 21px; font-weight: normal; border-bottom: 1px solid var(--rule); margin-top: 24px; padding-bottom: 6px; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::before { content: "[show] "; font-family: var(--sans); font-size: 12px; color: var(--link); }
+details.full[open] > summary::before { content: "[hide] "; }
+.analysis h1 { font-size: 21px; }
+.toc { border: 1px solid var(--rule); background: var(--tbl-bg); display: inline-block; padding: 8px 14px; margin: 10px 0; font-size: 13px; }
+.toc b { display: block; margin-bottom: 4px; }
+.toc a { display: block; }
+.foot { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--fg2); }
+
+/* Single-file navigation: a company section shows only when targeted; the index hides then. */
+.company { display: none; }
+.company:target { display: block; }
+body:has(.company:target) #index { display: none; }
+.standalone .company { display: block; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .tagline { font-size: 16px; } }
+</style>
+</head>
+<body class="standalone">
+<div class="sitehead"><span><b><a href="index.html" style="color:inherit">S-PAL Wiki</a></b> &middot; OHM value drivers by enterprise</span><span>Built 2026-10-15</span></div><div class="page"><section class="company" id="flipspaces"><p class="sub"><a href="index.html">&larr; Index</a></p><h1>4. Flipspaces Technology Labs Pvt Ltd</h1><p class="sub">Flipspaces &middot; Mumbai, Maharashtra; Bengaluru; New York; Dubai &middot; ₹319 cr (FY25, Inc42 from filings); FY26 target ₹500 cr; FY27 target ₹1,000 cr &middot; Status: Sized &middot; Prepared 2026-10-15</p><div class="tagline">A stack that keeps about ₹5 crore a year from leaking out of Flipspaces&#x27; projects while they are still running, a third of its EBITDA, by checking every vendor bill against the BoQ, the PO and the tax rules before the money moves.</div><p class="sub">Agreed 2026-10-15 &middot; for Kunal Sharma, Founder &amp; CEO; Ankur Muchhal, Co-founder &amp; Head of US Business</p><p class="sub">OHM scope: Real-time bill, payment and client-invoice checks (22 controls per voucher); Project-margin visibility against BoQ and PO while the project runs; Statutory controls (GST 2B match, MSME 45-day clock, cash limits)</p><div class="sources"><h2 id="where-the-tagline-comes-from">Where the tagline comes from</h2>
+<p>Proposed line, pending Rohit's sign-off. Built from the "Ohm for Flipspaces" onboarding note of 12 Oct 2026 (another chat) plus public updates to October 2026. Flipspaces is private and has not published audited FY25 accounts, so the base is the FY25 revenue reported from filings and management's stated margin.</p><details class="sec"><summary>&quot;About ₹5 crore a year&quot;</summary><div class="tbl"><table class="full">
+<thead><tr><th>Step</th><th>Figure</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>FY25 revenue</td><td>₹319 cr (FY24 ₹191 cr)</td><td>Inc42 company page, from filings</td></tr>
+<tr><td>Outflows to vendors, contractors and staff</td><td>~85% of revenue, about ₹270 cr</td><td>Design-and-build is cost-heavy; Flipspaces orchestrates and vendors build</td></tr>
+<tr><td>Leakage stopped: duplicates, over-billing against PO and BoQ, unbilled change orders, GST credit lost, MSME penalties, unadjusted advances, site cash</td><td>1–3% of outflows</td><td>OHM benchmark; 1% floor, 3% ceiling</td></tr>
+<tr><td><strong>Range</strong></td><td><strong>₹2.7–8.1 cr a year; base 2% = ₹5.4 cr</strong></td><td></td></tr>
+<tr><td>At the FY26 target of ₹500 cr</td><td>₹4.3–12.8 cr; base ₹8.5 cr</td><td>Same rates on ₹425 cr of outflows</td></tr>
+</tbody></table></div></details><details class="sec"><summary>&quot;A third of its EBITDA&quot;</summary><div class="tbl"><table class="full">
+<thead><tr><th>Step</th><th>Figure</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>EBITDA margin FY25</td><td>"around 5 to 6 per cent"</td><td>Kunal Sharma, BW Disrupt, Feb 2026</td></tr>
+<tr><td>EBITDA FY25</td><td>₹16–19 cr on ₹319 cr</td><td>Derived</td></tr>
+<tr><td>₹5.4 cr ÷ ₹16–19 cr</td><td>28–34%</td><td></td></tr>
+<tr><td>Floor case ₹2.7 cr</td><td>14–17% of EBITDA</td><td>Say "a sixth to a third" if pressed</td></tr>
+</tbody></table></div>
+<p>Why this lands: the company turned EBITDA-positive only in FY25, FY24 was a ₹8 cr net loss, and the IPO is now three years out. Every rupee of leakage comes straight off a thin, new margin that investors and the eventual prospectus will scrutinise.</p></details><details class="sec"><summary>&quot;While they are still running&quot;</summary><div class="tbl"><table class="full">
+<thead><tr><th>Evidence</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Flipspaces' own Sr VP Operations posting names the gap: "strengthen commercial controls around budgeting, billing, change orders, cost overruns, and project closure"</td><td>beBee job posting</td></tr>
+<tr><td>Run as SBUs, each with its own EBITDA target; a loss on one project hides inside the unit's month until closure</td><td>CXOToday</td></tr>
+<tr><td>Fit-out cost overruns come from scope changes, procurement escalation, rework and delay; BoQs finalised late, vendor bids after design approval</td><td>2025 literature review; Altre</td></tr>
+<tr><td>Roughly 80% of Indian fit-outs still run on email, manual BoQs and WhatsApp groups; bills reach finance late and in many formats</td><td>Altre</td></tr>
+</tbody></table></div>
+<p>Today each leak is found at month-end, closure or audit. The claim is that the check happens on the day the bill arrives, with the live project margin beside it.</p></details><details class="sec"><summary>&quot;Checking every vendor bill against the BoQ, the PO and the tax rules&quot;</summary><div class="tbl"><table class="full">
+<thead><tr><th>Check</th><th>What it catches</th><th>Why it matters here</th></tr></thead>
+<tbody>
+<tr><td>Bill vs PO vs BoQ line</td><td>Overrun, over-billing, rate above the best rate paid elsewhere</td><td>SBU P&amp;L accuracy; project margin</td></tr>
+<tr><td>Bill vs client scope</td><td>Vendor work not in the client's contract: an unbilled change order</td><td>Recovers revenue, not just cost</td></tr>
+<tr><td>GSTR-2B and vendor filing status</td><td>Credit that must be reversed with 18% interest; DRC-01C notices</td><td>Many small vendors, many filing errors</td></tr>
+<tr><td>Udyam status and the 45-day clock</td><td>Section 43B(h) disallowance; late-payment interest at 3x bank rate</td><td>Most site contractors are micro or small enterprises</td></tr>
+<tr><td>Advances and site cash</td><td>Advances left unadjusted; cash above ₹10,000 a day (Section 40A(3))</td><td>Each site runs an imprest</td></tr>
+<tr><td>Closure checklist</td><td>Retention, final client bill, final vendor settlement left open after handover</td><td>Cash locked after the project ends</td></tr>
+</tbody></table></div>
+<p>VIZWORLD already holds the procurement side digitally, so the PO and BoQ exist to match against. That is what makes real-time checking feasible here and not at a WhatsApp-run competitor.</p></details><details class="sec"><summary>What the tagline does not claim</summary><p>OHM does not win projects, price them, or design them. It does not change retention terms, client payment behaviour or the cost of labour. It does not fund the working-capital gap. The claim is confined to what leaks between the quote and the payment, and to making the project margin visible while there is still time to act on it.</p>
+<hr></details></div><details class="full"><summary>Full S-PAL analysis</summary><div class="toc"><b>Contents</b><a href="#flipspaces-s0">0. Identity check</a><a href="#flipspaces-s1">1. Company snapshot [C]</a><a href="#flipspaces-s2">2. Sector baseline: structural P&amp;L levers for a commercial design-and-build contractor</a><a href="#flipspaces-s3">3. Fallback rule applied</a><a href="#flipspaces-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</a><a href="#flipspaces-s5">5. Step 4: OHM controllability filter</a><a href="#flipspaces-s6">6. Step 5: Value sizing</a><a href="#flipspaces-s7">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<p><strong>Evidence key:</strong> [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)</p>
+<h2 id="flipspaces-s0">0. Identity check</h2>
+<p>Flipspaces Technology Labs Pvt Ltd, Mumbai. Founded by Kunal Sharma (CEO) with Ankur Muchhal (Head of US Business). Private; Series C of about $50M (Iron Pillar lead, extended with Asiana Fund, CE-Invests, Panthera Growth Partners, SMBC Asia Rising Fund). Not to be confused with Flipkart, which dominates search results on "reverse flip".</p>
+<h2 id="flipspaces-s1">1. Company snapshot [C]</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Model</td><td>One-stop commercial interiors: design, product supply, execution. Flipspaces designs, manages and supervises; site labour and most trades come from vendors and subcontractors in India and general contractors in the US</td><td>CXOToday, job postings, company site</td></tr>
+<tr><td>Platform</td><td>VIZWORLD: design visualisation, spatial planning, procurement and execution in one system; 200,000-product catalogue</td><td>Company materials, Outlook</td></tr>
+<tr><td>Scale</td><td>Revenue ₹100 cr (FY23), ₹191 cr (FY24), ₹319 cr (FY25, +67%); FY26 target ₹500 cr; FY27 target ₹1,000 cr</td><td>Inc42, BW Disrupt Feb-2026, EnterpriseAM Jan-2026</td></tr>
+<tr><td>Profitability</td><td>EBITDA and PBT positive in FY25 with margin "around 5 to 6 per cent"; FY24 net loss ₹8 cr</td><td>BW Disrupt, Inc42</td></tr>
+<tr><td>Structure</td><td>SBUs, each a P&amp;L centre with its own EBITDA target</td><td>CXOToday</td></tr>
+<tr><td>Geography</td><td>India ~70–75% of revenue; US ~20%; UAE entity incorporated in Dubai (Jan-2026), international targeted at 40% by FY27</td><td>EnterpriseAM</td></tr>
+<tr><td>Recent mandates</td><td>₹200+ cr of mandates across 130,000+ sq ft in India, UAE and US announced June 2026</td><td>Company release</td></tr>
+<tr><td>Capital and exit</td><td>$50M Series C; IPO now framed as "after 3 years" (Feb-2026), earlier "fast-track by 2026"; acquisitions planned in India, US, UAE, none confirmed</td><td>BW Disrupt, IPO Central, Inc42</td></tr>
+<tr><td>People</td><td>270–550 staff across sources; 1,000+ projects; about ₹58 lakh revenue per employee on the higher count, so trades are not self-performed</td><td>LinkedIn, Weekday, company site</td></tr>
+<tr><td>Hiring signal</td><td>Sr VP Operations, Mumbai: build a national vendor and contractor network and "strengthen commercial controls around budgeting, billing, change orders, cost overruns, and project closure"</td><td>beBee posting</td></tr>
+<tr><td>Filing status</td><td>FY25 annual accounts not yet filed as of the last Entrackr check (about a year old); audited line items unavailable</td><td>Entrackr</td></tr>
+<tr><td>Not public</td><td>ERP, finance team size, monthly bill volume, vendor count, CFO name</td><td>First-call questions</td></tr>
+</tbody></table></div>
+<h3 id="financial-trajectory-crore-c">Financial trajectory (₹ crore) [C]</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Metric</th><th>FY23</th><th>FY24</th><th>FY25</th><th>FY26 target</th></tr></thead>
+<tbody>
+<tr><td>Revenue</td><td>~100</td><td>191</td><td>319</td><td>500</td></tr>
+<tr><td>EBITDA margin</td><td>n.a.</td><td>negative</td><td>5–6%</td><td>n.a.</td></tr>
+<tr><td>Net result</td><td>n.a.</td><td>−8</td><td>positive PBT</td><td></td></tr>
+</tbody></table></div>
+<p>Read-through: revenue has tripled in two years and management wants it to triple again by FY27. EBITDA is positive by ₹16–19 cr. A company growing at that rate, run as SBUs, paying thousands of contractor bills through an ops-heavy model, with an IPO prospectus ahead, is exactly where leakage is largest and least visible. Its own job posting says so.</p>
+<h2 id="flipspaces-s2">2. Sector baseline: structural P&amp;L levers for a commercial design-and-build contractor</h2>
+<p>Peers used as proxy: Eleganz Interiors (NSE Emerge, ₹393 cr FY25, 8.4% operating margin, 5.0% PAT) is about Flipspaces' size with the same contractor-heavy model. Global fit-out players run 7–8% operating margins. ISG (UK) collapsed in 2024 owing trade contractors £308m.</p>
+<h3 id="2-1-top-line-volume-and-price">2.1 Top line: volume and price</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>V1</td><td><strong>Order intake and mandate size</strong></td><td>Project businesses live on the pipeline; SME focus limits ticket size, mid and large mandates lift it</td><td>Moving from SME to mid and large; ₹200 cr of mandates announced in one release</td><td>[C]</td></tr>
+<tr><td>V2</td><td><strong>Geographic expansion</strong></td><td>New entities, new currencies, new contractor pools; margin dilutes during ramp</td><td>US 20%, UAE new; 40% international by FY27</td><td>[C]</td></tr>
+<tr><td>V3</td><td><strong>Client concentration</strong></td><td>Eleganz: top 5 clients 63% of revenue on work orders, not contracts</td><td>Not disclosed</td><td>[S]</td></tr>
+<tr><td>P1</td><td><strong>Fixed-price risk and scope change</strong></td><td>Owners rarely lose on the quote; they lose in the gap between quote, spend and collection. Change orders unbilled are margin given away</td><td>SBU structure hides project-level losses in unit months</td><td>[C]</td></tr>
+<tr><td>P2</td><td><strong>Retention and liquidated damages</strong></td><td>Sample tender: 10% held per running bill up to 5% of contract, through the defect period; delay penalty 0.5% a week up to 5%</td><td>Standard in the segment</td><td>[S]</td></tr>
+</tbody></table></div>
+<h3 id="2-2-bottom-line-cost-of-delivery">2.2 Bottom line: cost of delivery</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>Vendor and subcontractor bills: over-billing, duplicates, rate drift</strong></td><td>Work moving between vendors gets paid twice; payments without approval control exceed agreed amounts; advances sit unadjusted</td><td>Thousands of bills across 1,000+ projects and 20+ cities; procurement digital in VIZWORLD but bills arrive in every format</td><td>[C]</td></tr>
+<tr><td>C2</td><td><strong>Budget overrun against BoQ</strong></td><td>Scope change, procurement escalation, rework, delay overheads</td><td>Named in the Sr VP Ops posting as a control gap</td><td>[C]</td></tr>
+<tr><td>C3</td><td><strong>Contract labour dependence</strong></td><td>Eleganz FY24: 65 permanent staff, 314 retainers, 832 contract labourers</td><td>Flipspaces orchestrates; trades are vendors</td><td>[C]</td></tr>
+<tr><td>C4</td><td><strong>Site cash and imprest</strong></td><td>Each site runs cash; above ₹10,000 per person per day is disallowed under Section 40A(3)</td><td>Assumed</td><td>[S]</td></tr>
+<tr><td>C5</td><td><strong>Material procurement price</strong></td><td>200,000-product catalogue on a global supply chain; price variance across regions for the same item</td><td>Best-rate comparison across projects is possible only with bill-level data</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-3-bottom-line-tax-and-statutory">2.3 Bottom line: tax and statutory</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td><strong>MSME 45-day rule, Section 43B(h)</strong></td><td>Dues to micro and small enterprises unpaid past 45 days at 31 March are disallowed; interest at 3x bank rate, non-deductible. Eleganz owed MSMEs ₹11.2 cr, 21% of payables</td><td>Most site contractors and carpenters are small enterprises</td><td>[S]</td></tr>
+<tr><td>T2</td><td><strong>GST input credit</strong></td><td>Credit only if the invoice is in GSTR-2B; mismatch reversed with 18% interest; DRC-01C notice with seven days to reply. Eleganz carries ₹2.4 cr of GST demands under appeal</td><td>Many small vendors, many late or wrong filings</td><td>[S]</td></tr>
+<tr><td>T3</td><td><strong>Multi-entity, multi-currency books</strong></td><td>India GST plus US books plus UAE from 2026</td><td>Three jurisdictions before the IPO</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-4-balance-sheet-and-cash">2.4 Balance sheet and cash</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>W1</td><td><strong>Retention receivable and guarantees</strong></td><td>Eleganz: 5–10% performance guarantee plus 5–10% retention, 10% held 12–36 months after completion; retention receivable 11% of revenue; banks want 20% cash margin on guarantees</td><td>Same contract forms</td><td>[S]</td></tr>
+<tr><td>W2</td><td><strong>Gross current asset days</strong></td><td>Eleganz 243 days (FY24), 145 (FY25); operating cash flow negative against positive profit</td><td>Profitable on paper, short of cash is the segment's signature</td><td>[S]</td></tr>
+<tr><td>W3</td><td><strong>Slow project closure</strong></td><td>Handover passes with retention, final client bill and final vendor settlement open</td><td>Named in the Sr VP Ops posting</td><td>[C]</td></tr>
+<tr><td>W4</td><td><strong>Advances to vendors</strong></td><td>Suppliers want advances while clients hold retention</td><td>Assumed</td><td>[S]</td></tr>
+<tr><td>W5</td><td><strong>Audit trail for listing</strong></td><td>A prospectus discloses working-capital days, retention, MSME dues, tax disputes, auditor remarks</td><td>IPO three years out; acquisitions to integrate</td><td>[C]</td></tr>
+</tbody></table></div>
+<h2 id="flipspaces-s3">3. Fallback rule applied</h2>
+<p>Because Flipspaces is private and has not filed FY25 accounts, more of this page rests on sector proxies than the other three accounts:</p>
+<ol><li>Outflow share of revenue (85%) and the leakage rate (1–3%). [S]</li><li>Retention, guarantee and working-capital days, taken from Eleganz. [S]</li><li>MSME share of payables and GST exposure, from Eleganz and the statute. [S]</li><li>Site cash practice. [S]</li><li>Client concentration. [S]</li></ol>
+<p>Company facts that would change the sizing and are worth confirming on the first call:</p>
+<ul><li>ERP for India and for the US entity; whether VIZWORLD procurement data is already matched to bills.</li><li>Monthly vendor bill volume and active vendor count.</li><li>Finance team size and split across SBUs; who signs off payments and at what limits.</li><li>What the statutory auditors flag most often.</li><li>Current IPO timeline and whether a listing-readiness controls review is under way.</li></ul>
+<p>The proposed free audit on three months of data replaces items 1 to 4 with Flipspaces' own numbers.</p>
+<h2 id="flipspaces-s4">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction</th><th>Why it ranks here</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>C1/C2 Vendor bill leakage and BoQ overrun</td><td>Gross margin</td><td>Negative, scales with growth</td><td>Thousands of bills, 1,000+ projects, revenue tripling; the company's own posting names it</td></tr>
+<tr><td>2</td><td>P1 Unbilled change orders</td><td>Revenue</td><td>Recoverable</td><td>Scope creep paid to vendors but never billed to clients</td></tr>
+<tr><td>3</td><td>T1/T2 MSME and GST exposure</td><td>Tax and penalties</td><td>Negative, visible at IPO</td><td>Small-vendor base; disallowances and interest land in the prospectus</td></tr>
+<tr><td>4</td><td>W1–W3 Retention, closure, GCA days</td><td>Cash</td><td>Negative</td><td>Segment signature: profitable on paper, short of cash</td></tr>
+<tr><td>5</td><td>V2 Expansion into UAE and US</td><td>Margin during ramp</td><td>Negative, then positive</td><td>Three jurisdictions, acquisitions to integrate</td></tr>
+<tr><td>6</td><td>C5 Procurement price variance</td><td>COGS</td><td>Positive if visible</td><td>Same item, different rates across regions</td></tr>
+<tr><td>7</td><td>C4 Site cash</td><td>Tax and leakage</td><td>Small</td><td>Imprest per site</td></tr>
+<tr><td>8</td><td>W5 Audit trail and controls</td><td>Valuation</td><td>Pressure</td><td>Listing-grade controls needed within three years</td></tr>
+</tbody></table></div>
+<h2 id="flipspaces-s5">5. Step 4: OHM controllability filter</h2>
+<p>OHM scope for this account, per the onboarding note: it sits at the centre of every bill, payment and client invoice, runs 22 checks on each voucher the moment it arrives, holds or flags anything that leaks, and shows live project margin. Flipspaces' team decides. ERP stays the system of record.</p>
+<div class="tbl"><table class="full">
+<thead><tr><th>Rank</th><th>Lever</th><th>OHM effect</th><th>Mechanism</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>C1/C2 Vendor bill leakage and BoQ overrun</td><td><strong>Controls</strong></td><td>Bill vs PO vs BoQ vs best rate paid; duplicates; holds with evidence attached</td></tr>
+<tr><td>2</td><td>P1 Unbilled change orders</td><td><strong>Controls</strong></td><td>Vendor work outside client scope raised as a change order; drafts the client variation bill</td></tr>
+<tr><td>3</td><td>T1/T2 MSME and GST</td><td><strong>Controls</strong></td><td>Udyam check and 45-day clock on every voucher; GSTR-2B match; holds payment until the vendor files</td></tr>
+<tr><td>4</td><td>W1–W3 Retention, closure, cash</td><td><strong>Influences</strong></td><td>Tracks retention, milestones and receivables by project; closure checklist with due dates. Does not change contract terms or fund the gap</td></tr>
+<tr><td>5</td><td>V2 Expansion</td><td><strong>Influences</strong></td><td>Multi-entity, multi-currency books and bank reconciliation on one platform; integrates acquired books</td></tr>
+<tr><td>6</td><td>C5 Procurement price variance</td><td><strong>Influences</strong></td><td>Shows the best rate paid for the same item across regions at bill time</td></tr>
+<tr><td>7</td><td>C4 Site cash</td><td><strong>Controls</strong></td><td>Reads site bills and receipts, flags spend above the limit</td></tr>
+<tr><td>8</td><td>W5 Audit trail</td><td><strong>Controls</strong></td><td>Every voucher carries its evidence and log</td></tr>
+</tbody></table></div>
+<p>Net: OHM controls five of the eight levers directly. This is the best fit of the four accounts, because the product's core job and the company's named gap are the same sentence.</p>
+<h2 id="flipspaces-s6">6. Step 5: Value sizing</h2>
+<p>Base: FY25 revenue ₹319 cr; outflows ~₹270 cr; EBITDA ₹16–19 cr. FY26 target ₹500 cr shown alongside.</p>
+<div class="tbl"><table class="full">
+<thead><tr><th>Line</th><th>Floor (1%)</th><th>Base (2%)</th><th>Ceiling (3%)</th></tr></thead>
+<tbody>
+<tr><td>Leakage stopped, FY25 base (₹ cr / yr)</td><td>2.7</td><td>5.4</td><td>8.1</td></tr>
+<tr><td>As % of FY25 EBITDA</td><td>14–17%</td><td>28–34%</td><td>43–51%</td></tr>
+<tr><td>Leakage stopped at FY26 target (₹ cr / yr)</td><td>4.3</td><td>8.5</td><td>12.8</td></tr>
+<tr><td>OHM cost, illustrative 13 seats</td><td>₹5.4 lakh a year</td><td></td><td></td></tr>
+<tr><td>Finance work absorbed</td><td>70% of reading, keying, matching and checking</td><td></td><td></td></tr>
+</tbody></table></div>
+<p>Cash and tax items not in the headline: retention and closure tracking (sized only after the audit), MSME disallowance avoided, GST credit protected.</p>
+<h3 id="data-requests-for-discovery-the-free-audit">Data requests for discovery (the free audit)</h3>
+<ol><li>Last three months of vendor bills, POs and GRNs for top-spend vendors.</li><li>Bank statements for the same period, India and US.</li><li>Delegation-of-authority matrix and payment policy.</li><li>ERP name and version; read-only access or one export.</li><li>A named finance owner and approver for the pilot SBU.</li></ol>
+<h3 id="objections-to-prepare-for">Objections to prepare for</h3>
+<ul><li>"VIZWORLD already does procurement." Answer: it holds the PO side. The leak is between the PO and the payment, and in bills that never touch VIZWORLD.</li><li>"Our SBU heads watch their numbers." Answer: at month-end, by unit. A loss on one project is invisible inside a unit's month until closure. The posting for a Sr VP Ops says the same.</li><li>"We are growing too fast to add process." Answer: nothing moves without a person's approval; the ERP does not change; the audit is free and read-only.</li></ul>
+<h2 id="flipspaces-s7">Sources</h2>
+<ul><li>Ohm for Flipspaces, Onboarding Note (12 Oct 2026, prior chat): <a href="https://claude.ai/artifact/Vd8pXeyQvPkcknft2CUpvk" target="_blank" rel="noopener">https://claude.ai/artifact/Vd8pXeyQvPkcknft2CUpvk</a></li><li>Inc42 company page, FY25 revenue: <a href="https://inc42.com/company/flipspaces/overview/" target="_blank" rel="noopener">https://inc42.com/company/flipspaces/overview/</a></li><li>BW Disrupt, ₹500 cr FY26 target and IPO after three years (Feb 2026): <a href="https://www.bwdisrupt.com/article/flipspaces-eyes-rs-500-cr-revenue-in-fy26-ipo-after-3-years-kunal-sharma-570805" target="_blank" rel="noopener">https://www.bwdisrupt.com/article/flipspaces-eyes-rs-500-cr-revenue-in-fy26-ipo-after-3-years-kunal-sharma-570805</a></li><li>EnterpriseAM, Gulf expansion interview (Jan 2026): <a href="https://enterpriseam.com/mena-india/2026/01/19/interior-design-startup-flipspaces-plots-gulf-expansion-armed-with-tech/" target="_blank" rel="noopener">https://enterpriseam.com/mena-india/2026/01/19/interior-design-startup-flipspaces-plots-gulf-expansion-armed-with-tech/</a></li><li>CXOToday, acquisitions and ₹400 cr run-rate: <a href="https://cxotoday.com/press-release/flipspaces-eyes-acquisitions-as-it-nears-rs-400-crore-revenue-run-rate-driven-by-profitability-and-tech-innovation/" target="_blank" rel="noopener">https://cxotoday.com/press-release/flipspaces-eyes-acquisitions-as-it-nears-rs-400-crore-revenue-run-rate-driven-by-profitability-and-tech-innovation/</a></li><li>Inc42, Series C extended to $50M: <a href="https://inc42.com/buzz/interior-design-startup-flipspaces-bags-inr-50-cr/" target="_blank" rel="noopener">https://inc42.com/buzz/interior-design-startup-flipspaces-bags-inr-50-cr/</a></li><li>IPO Central, fast-track IPO plan: <a href="https://ipocentral.in/flipspaces-eyes-ipo-by-2026-after-50-cr-funding/" target="_blank" rel="noopener">https://ipocentral.in/flipspaces-eyes-ipo-by-2026-after-50-cr-funding/</a></li><li>Entrackr, $35M raise and FY25 filing status: <a href="https://entrackr.com/snippets/interior-design-startup-flipspaces-raises-35-mn-9043959" target="_blank" rel="noopener">https://entrackr.com/snippets/interior-design-startup-flipspaces-raises-35-mn-9043959</a></li><li>Eleganz Interiors prospectus and Acuité rating (peer proxy), Altre on offline fit-outs, TaxGuru on Section 43B(h), Tally on GSTR-2B: cited in the onboarding note above</li></ul></div></details><p class="foot">Source file: <code>ohm_spal/companies/flipspaces.md</code></p></section></div></body>
+</html>
