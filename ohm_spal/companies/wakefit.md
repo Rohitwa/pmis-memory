@@ -6,17 +6,62 @@ brand: Wakefit
 location: "Bengaluru, Karnataka (NSE: WAKEFIT)"
 sector: Mattresses, furniture and furnishings; vertically integrated D2C with 165 own stores and 2,250 multi-brand outlets
 revenue_base: "₹1,489 cr (FY26, audited; Q1 FY27 run-rate ~₹1,620 cr)"
-status: In research
-ohm_modules: []
-tagline: ""
-tagline_date:
+status: Sized
+ohm_modules:
+  - Stock visibility and control, raw material to finished goods
+  - Material-price risk control (foam chemicals, imports)
+  - Procurement and outflow controls
+tagline: "A stack that adds about ₹24 crore a year to Wakefit's bottom line, a quarter of its real profit, by carrying ₹60 crore less stock and buying foam chemicals on today's price instead of last quarter's guess."
+tagline_date: 2026-10-15
 prepared: 2026-10-14
 owner_contact: "Ankit Garg (Co-founder & CEO); Chaitanya Ramalingegowda (Co-founder & Executive Director)"
 ---
 
-## Tagline pending
+## Where the tagline comes from
 
-Steps 1–3 are complete below. OHM context for this account has not been given yet, so no controllability filter, no sizing, and no tagline. Nothing in this page assumes any OHM capability.
+Proposed line, pending Rohit's sign-off. Rohit's core narrative: bottom line up 3%, enabled by lower working capital, lower raw-material and finished-goods stock, and lower risk from foam and other material price swings. The three mechanisms are kept. The "3%" is restated in the owner's own units below, because on this company it changes meaning with the base.
+
+### "About ₹24 crore a year, a quarter of its real profit"
+
+| Step | Figure | Source |
+|---|---|---|
+| Stock written down or scrapped less often | Slow-moving provision stands at ₹27.5 cr, 14% of stock (25% in FY23, when the charge was ~₹36 cr). Annual charge estimated ₹8–12 cr; OHM removes 40–60% | ₹3–7 cr |
+| Carrying cost of the stock no longer held | ₹50–80 cr less stock across 5 plants, 7 holding points and stores, at 8–12% a year for space, handling, damage and insurance | ₹4–9 cr |
+| Foam-chemical buying on price-and-cover visibility instead of quarterly pre-buys | Polyol and TDI are roughly ₹240 cr a year (60% of mattress materials); timing and cover decisions worth 2–4% of that spend | ₹5–10 cr |
+| Procurement and outflow controls | 0.5–1% of ₹660 cr materials plus ₹100 cr logistics: price verification, import and FX leakage, duplicate and early payments | ₹4–8 cr |
+| **Total EBITDA** | **₹16–34 cr; base ₹24 cr** | |
+| As % of revenue (₹1,489 cr) | 1.1–2.3%; base 1.6% | |
+| As % of underlying FY26 profit (₹91 cr, before the ₹98 cr deferred-tax entry) | 18–37%; **base 26%** | |
+| As EBITDA margin | +1.1 to +2.3 points on 7.5%; base +1.6 | |
+
+Why not "3%": 3% of profit is ₹2.7 cr, too small to say out loud; 3% of revenue is ₹45 cr, above the high case. "A quarter of real profit" is the honest, large number. If a percentage is wanted, say "EBITDA margin up 1.5 points" or "profit up 25%".
+
+### "Carrying ₹60 crore less stock"
+
+| Step | Figure | Source |
+|---|---|---|
+| Inventory at Sep-2025 | ₹262 cr, up from ₹164 cr in March 2025 | SBI Securities note from the RHP |
+| Inventory days | 104 on FY25 revenue; about 145 days of material cost on the Sep-2025 balance | DRHP, derived |
+| Composition at Dec-2024 (gross ₹193 cr) | Raw material ₹105 cr (doubled from ₹61 cr in nine months), WIP ₹15 cr, finished goods ₹69 cr | DRHP note |
+| Target | Back to 80–90 days: ₹180–210 cr, i.e. ₹50–80 cr less, base ₹60 cr | Sector norm for integrated furniture makers |
+| Cash effect | Wakefit holds ₹959 cr of cash, so this is not interest saved. The ₹60 cr earns about 6.5% in treasury (₹4 cr a year, in other income) and, more importantly, stops being written down. | |
+
+The sharper point for this owner: for three years the stock number given to the bank did not match the books, there was no internal audit, and the software had no audit trail. ₹60 cr less stock is also one stock number everyone agrees on.
+
+### "Buying foam chemicals on today's price instead of last quarter's guess"
+
+| Evidence | Source |
+|---|---|
+| Polyol and TDI up 30–160% in March 2026; "mattress COGS inflation could be around 30%" once old inventory is used | FY26 results commentary |
+| 38% of raw material imported, no long-term contracts, unhedged FX | DRHP, SBI note |
+| Current hedge is pre-buying: raw material stock doubled in nine months; "proactively stocking raw materials" | DRHP, FY26 release |
+| Cost of that hedge: inventory build, provisioning risk when prices fall, and a margin that management admits is borrowed from old stock | FY26 commentary |
+
+OHM does not change the price of polyol. It changes how many weeks of cover the company holds against what the index is doing, and how fast a price move turns into a buying or pricing decision. That is the difference between a 30% cost shock landing in one quarter and being spread, priced and partly avoided.
+
+### What the tagline does not claim
+
+OHM does not touch the three largest costs: store leases (~₹95 cr), advertising (~₹115 cr) and delivery (~₹100 cr). It does not fix attrition, contract-labour mix or store site selection. Those stay with management. The claim is confined to stock, procurement and material-price timing.
 
 ---
 
@@ -289,7 +334,56 @@ Ranked by estimated P&L impact over the next 12–24 months. No OHM assumption a
 
 Note: Section 1A adds four items that the sector view alone would not rank: the lease-driven cost below EBITDA, the slow-moving inventory provision, the attrition and contract-labour profile, and the inventory control findings from the auditors.
 
-Next step: OHM context for this account, then steps 4 and 5.
+## 5. Step 4: OHM controllability filter
+
+OHM scope for this account (per Rohit): stock visibility and control from raw material to finished goods; material-price risk control; procurement and outflow controls.
+
+| Rank | Lever | OHM effect | Mechanism |
+|---|---|---|---|
+| 1 | C1 TDI and polyol cost | **Influences** | Cannot move the index. Controls weeks of cover, buy timing, landed-cost by lot, and the lag to a pricing decision. |
+| 2 | O3/V2 Store rollout cost | **No** (small influence) | Finished-goods stock per store is visible; site selection and leases are not OHM's. |
+| 3 | W1/C6 Inventory build and benefit unwind | **Controls** | The core lever: raw material and finished goods by lot, age, site; provision triggers before stock goes dead. |
+| 4 | P2 Pricing pass-through | **Influences** | Evidence for faster, smaller price actions tied to actual landed cost rather than quarterly reviews. |
+| 5 | O1 Courier, delivery, returns | **No** | Logistics network design is not OHM's. |
+| 6 | C3 Under-used lines | **No** | Product and demand. |
+| 7 | O2 Advertising | **No** | |
+| 8 | C4/C5 Contract labour, scrap, warranty | **Influences (small)** | Scrap and returned-mattress rework visible by lot. |
+| 9 | V4 Furniture SKU proliferation | **Influences** | SKU-level stock ageing is the brake on launching 3,000 SKUs a year into 7 holding points. |
+| 10 | P1 Channel mix | **No** | |
+| 11 | W5/O6 Return on capital and controls | **Influences** | One inventory number for books, bank and auditors; audit trail on stock movements. |
+| 12 | V6 Demand softness | **No** | |
+| 1A | Slow-moving inventory provision | **Controls** | Same lever as rank 3. |
+| 1A | Procurement and import leakage | **Controls** | Price verification, FX, duplicate and early payments on ₹660 cr of materials. |
+
+Net: OHM controls two levers (stock, procurement leakage) and influences four (chemical timing, pricing speed, SKU discipline, control credibility). It does not touch leases, marketing, delivery, labour or stores.
+
+## 6. Step 5: Value sizing
+
+Base: FY26 revenue ₹1,489 cr; materials ~₹660 cr; underlying PAT ~₹91 cr; operating EBITDA ₹112 cr (7.5%); inventory ₹262 cr (Sep-2025).
+
+| Line | Low | Base | High |
+|---|---|---|---|
+| EBITDA uplift (₹ cr / yr) | 16 | 24 | 34 |
+| As % of revenue | 1.1% | 1.6% | 2.3% |
+| As % of underlying PAT | 18% | 26% | 37% |
+| EBITDA margin (points) | +1.1 | +1.6 | +2.3 |
+| Stock reduction (₹ cr, one-time) | 50 | 60 | 80 |
+| Treasury income on released cash (₹ cr / yr, other income) | 3 | 4 | 5 |
+
+### Data requests for discovery
+
+1. Inventory by site, SKU and age at the last quarter end, with the slow-moving provision by category.
+2. Polyol and TDI purchase register for 24 months: lot, price, supplier, import or domestic, and weeks of cover at each buy.
+3. The FY23 inventory write-down: what was scrapped and why.
+4. Finished-goods stock at stores and holding points vs. 30-day sell-through by SKU.
+5. Bank stock statements vs. ledger for the last four quarters, to see whether the auditor finding has closed.
+6. Procure-to-pay sample: 200 material invoices against PO and GRN.
+
+### Objections to prepare for
+
+- "We have SAP." Answer: the auditors said the stock statement and the books disagreed for three years and the software had no audit trail. SAP exists; one stock number does not.
+- "We pre-buy on purpose." Answer: yes, and management told investors the margin is borrowed from old inventory. Cover should be a decision per week with the index in front of you, not a quarterly bet.
+- "₹24 crore is small on ₹1,500 crore." Answer: it is a quarter of real profit, and the share price is a third below the IPO because the market is grading margin.
 
 ## Sources
 
