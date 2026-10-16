@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vedanta Group — S-PAL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Plain reference-page layout, after Wikipedia: white page, serif headings with a rule, blue links, grey-bordered tables. */
+:root {
+  --bg: #ffffff; --fg: #202122; --fg2: #54595d; --link: #3366cc; --rule: #a2a9b1;
+  --tbl-bg: #f8f9fa; --tbl-head: #eaecf0; --box: #f8f9fa;
+  --serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --sans: sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow-x: clip; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.page { max-width: 960px; margin: 0 auto; min-width: 0; }
+.sitehead { font-size: 12px; color: var(--fg2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sitehead b { color: var(--fg); font-family: var(--serif); font-size: 15px; font-weight: normal; }
+
+h1, h2 { font-family: var(--serif); font-weight: normal; line-height: 1.3; margin: 0; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h1 { font-size: 28px; margin: 14px 0 4px; }
+h2 { font-size: 21px; margin: 24px 0 8px; }
+h3 { font-size: 15px; font-weight: bold; margin: 18px 0 6px; }
+p { margin: 8px 0; max-width: 75ch; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
+code { font-family: monospace; font-size: 12.5px; background: var(--tbl-bg); padding: 0 3px; }
+pre { overflow-x: auto; background: var(--tbl-bg); padding: 10px; border: 1px solid var(--rule); }
+ul, ol { padding-left: 24px; }
+li { margin: 2px 0; }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--rule); color: var(--fg2); }
+.sub { font-size: 12.5px; color: var(--fg2); margin: 2px 0 10px; }
+
+.tbl { overflow-x: auto; margin: 10px 0; }
+table { border-collapse: collapse; font-size: 13px; background: var(--tbl-bg); border: 1px solid var(--rule); min-width: 480px; }
+table.full { width: 100%; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; vertical-align: top; text-align: left; }
+th { background: var(--tbl-head); font-weight: bold; }
+td { font-variant-numeric: tabular-nums; }
+td.num { text-align: right; width: 1%; white-space: nowrap; }
+
+.tagline { border: 1px solid var(--rule); background: var(--box); padding: 10px 14px; margin: 12px 0 4px; font-family: var(--serif); font-size: 18px; line-height: 1.45; max-width: none; }
+
+details { margin: 6px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+details.sec > summary { font-size: 15px; font-weight: bold; }
+details.full > summary { font-family: var(--serif); font-size: 21px; font-weight: normal; border-bottom: 1px solid var(--rule); margin-top: 24px; padding-bottom: 6px; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::before { content: "[show] "; font-family: var(--sans); font-size: 12px; color: var(--link); }
+details.full[open] > summary::before { content: "[hide] "; }
+.analysis h1 { font-size: 21px; }
+.toc { border: 1px solid var(--rule); background: var(--tbl-bg); display: inline-block; padding: 8px 14px; margin: 10px 0; font-size: 13px; }
+.toc b { display: block; margin-bottom: 4px; }
+.toc a { display: block; }
+.foot { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--fg2); }
+
+/* Single-file navigation: a company section shows only when targeted; the index hides then. */
+.company { display: none; }
+.company:target { display: block; }
+body:has(.company:target) #index { display: none; }
+.standalone .company { display: block; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .tagline { font-size: 16px; } }
+</style>
+</head>
+<body class="standalone">
+<div class="sitehead"><span><b><a href="index.html" style="color:inherit">S-PAL Wiki</a></b> &middot; OHM value drivers by enterprise</span><span>Built 2026-10-16</span></div><div class="page"><section class="company" id="vedanta"><p class="sub"><a href="index.html">&larr; Index</a></p><h1>6. Vedanta Group</h1><p class="sub">Vedanta &middot; Mumbai (Vedanta Ltd); London (Vedanta Resources); operations in Odisha, Chhattisgarh, Rajasthan, Goa, Karnataka, Jharkhand, Punjab, Tamil Nadu, Zambia, South Africa, Namibia, Liberia, UAE, Saudi Arabia &middot; ₹1,74,075 cr (FY26, Vedanta Ltd consolidated pre-demerger, audited); EBITDA ₹55,976 cr; PAT ₹25,096 cr &middot; Status: In research &middot; Prepared 2026-10-16</p><p><i>No tagline yet. Status: In research.</i></p><div class="sources"><h2 id="tagline-pending">Tagline pending</h2>
+<p>Steps 1–3 and the inside-the-books review are complete below. OHM context for this account has not been given yet, so no controllability filter, no sizing, and no tagline. Nothing in this page assumes any OHM capability. This is a group, not a company: the pitch will need to pick an entity and a plant before any number is sized.</p>
+<hr></div><details class="full"><summary>Full S-PAL analysis</summary><div class="toc"><b>Contents</b><a href="#vedanta-s0">In plain words</a><a href="#vedanta-s1">0. Identity check</a><a href="#vedanta-s2">1. Group snapshot [C]</a><a href="#vedanta-s3">1A. Inside the books: what is moving the bottom line</a><a href="#vedanta-s4">2. Sector baseline: structural P&amp;L levers for an Indian integrated metals and mining group</a><a href="#vedanta-s5">3. Fallback rule applied</a><a href="#vedanta-s6">4. Ranked S-PAL shortlist (pre-OHM filter)</a><a href="#vedanta-s7">Sources</a></div><div class="analysis"><h1 id="full-s-pal-analysis">Full S-PAL analysis</h1>
+<p><strong>Evidence key:</strong> [C] = company-specific public evidence · [S] = sector-assumed (no company evidence found)</p>
+<h2 id="vedanta-s0">In plain words</h2>
+<p>Vedanta is a London-owned, Mumbai-run mining and metals group that had its best year ever in FY26 and then split itself into five listed companies on 1 May 2026. Aluminium makes almost half the profit. Zinc and silver, through Hindustan Zinc, make the other large part. Oil and gas, power, iron and steel, and copper are smaller and each has a problem of its own.</p>
+<p>Three things decide its bottom line, and none of them is a secret.</p>
+<ol><li><strong>Metal prices and the rupee.</strong> When aluminium and zinc prices rise and the rupee falls, profit jumps. FY26 was that year. Management cannot control either.</li><li><strong>Cost per tonne.</strong> This is what management can control, and it is where the group has done its best work: aluminium cost at a five-year low of $1,752 a tonne, zinc at $959. The levers are captive coal and bauxite mines, captive power, and plant efficiency. Several of those mines are still waiting for environmental clearance.</li><li><strong>Money that leaves the operating companies.</strong> The London parent, Vedanta Resources, carries about $4.5 billion of debt and no operations of its own. It is paid through dividends and a "brand fee" of about $400 million a year. In FY26 the two together were about $1.1 billion. Every rupee of that comes out of the Indian companies before minority shareholders or reinvestment see it.</li></ol>
+<p>What the books show underneath the record profit: suppliers fund the group (creditor days of about 64 against debtor days of 9), the FY26 profit includes ₹3,498 crore of exceptional charges and a ₹1,252 crore exploration write-off, finance cost was ₹8,351 crore, and the power business lost money in the first quarter after the split. The April 2026 boiler explosion at the Athena plant in Chhattisgarh killed 24 contractor workers and put the Chairman's name on an FIR. Twenty-four fatalities in one incident at a plant run by an outsourced O&amp;M contractor is the operational finding of the year.</p>
+<p>For S-PAL, the group is five different sales conversations. The most exposed P&amp;L is Vedanta Power. The largest procurement and plant base is Vedanta Aluminium. The cleanest, most cash-rich is Hindustan Zinc, which sits inside the residual Vedanta Ltd.</p>
+<h2 id="vedanta-s1">0. Identity check</h2>
+<p>The group has three layers that get confused with each other:</p>
+<div class="tbl"><table class="full">
+<thead><tr><th>Layer</th><th>Entity</th><th>What it is</th></tr></thead>
+<tbody>
+<tr><td>Promoter holding company</td><td>Vedanta Resources Ltd (VRL), London, private since 2020</td><td>Owned by the Agarwal family (Volcan Investments). Holds 56.38% of Vedanta Ltd. Carries about $4.5 billion of net debt with no operations of its own. Rated BB- (Fitch) / Ba3 positive (Moody's).</td></tr>
+<tr><td>Indian listed parent, pre-demerger</td><td>Vedanta Ltd (NSE: VEDL), Mumbai</td><td>Until 30 April 2026 the consolidated group: FY26 revenue ₹1,74,075 cr.</td></tr>
+<tr><td>Five listed companies, from 15 June 2026</td><td>Vedanta Ltd (residual), Vedanta Aluminium Metal, Vedanta Oil &amp; Gas (ex-Malco Energy), Vedanta Power (ex-Talwandi Sabo), Vedanta Iron &amp; Steel</td><td>Each shareholder got one share of each new company per Vedanta share. Each now reports and holds earnings calls separately.</td></tr>
+</tbody></table></div>
+<p>Hindustan Zinc Ltd (NSE: HINDZINC, 63% held by Vedanta Ltd, 28% by the Government of India) stays inside the residual Vedanta Ltd and is itself listed. Konkola Copper Mines (Zambia) sits under VRL, not under the Indian companies, and is preparing a US listing.</p>
+<h2 id="vedanta-s2">1. Group snapshot [C]</h2>
+<h3 id="fy26-the-last-consolidated-year-crore">FY26, the last consolidated year (₹ crore)</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Line</th><th>FY25</th><th>FY26</th><th>Change</th></tr></thead>
+<tbody>
+<tr><td>Revenue from operations</td><td>1,50,725</td><td>1,74,075</td><td>+15%</td></tr>
+<tr><td>EBITDA</td><td>43,541</td><td>55,976</td><td>+29%</td></tr>
+<tr><td>EBITDA margin (ex custom smelting)</td><td>34%</td><td>39%</td><td>+470 bps</td></tr>
+<tr><td>Finance cost</td><td>9,914</td><td>8,351</td><td>−16%</td></tr>
+<tr><td>Investment income</td><td>2,987</td><td>2,978</td><td></td></tr>
+<tr><td>Exploration cost written off</td><td>459</td><td>1,252</td><td>2.7x</td></tr>
+<tr><td>Depreciation</td><td>11,096</td><td>9,774</td><td></td></tr>
+<tr><td>Profit before tax</td><td>25,008</td><td>39,605</td><td>+58%</td></tr>
+<tr><td>Tax</td><td>5,609</td><td>11,011</td><td></td></tr>
+<tr><td>Exceptional items (net of tax)</td><td>+1,135</td><td>−3,498</td><td></td></tr>
+<tr><td>PAT</td><td>20,535</td><td>25,096</td><td>+22%</td></tr>
+<tr><td>Free cash flow pre-capex</td><td>~27,500</td><td>26,013</td><td></td></tr>
+<tr><td>Growth capex</td><td>~12,600</td><td>14,918</td><td></td></tr>
+<tr><td>Dividend per share</td><td></td><td>₹34 (three interims; ₹6,256 cr for the second alone, 56% to VRL)</td><td></td></tr>
+<tr><td>Gross debt / cash / net debt, 31 Mar 2026</td><td></td><td>81,740 / 28,485 / 53,254</td><td>Net debt/EBITDA 0.95x (1.22x)</td></tr>
+<tr><td>ROCE</td><td></td><td>32%</td><td></td></tr>
+<tr><td>CSR spend</td><td></td><td>422</td><td></td></tr>
+</tbody></table></div>
+<p>Debt breakdown at 31 March 2026: term debt ₹77,240 cr, working-capital borrowings ₹2,960 cr, short-term ₹1,540 cr; 81% rupee, 19% foreign currency; average interest paid ~8.85%, earned ~6.73%; average term maturity ~3 years. Ratings CRISIL and ICRA AA, on watch with developing implications through the demerger.</p>
+<h3 id="segment-performance-fy26-c">Segment performance FY26 [C]</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Business</th><th>Production</th><th>Cost of production</th><th>EBITDA (₹ cr)</th><th>Margin</th><th>What drives it</th></tr></thead>
+<tbody>
+<tr><td>Aluminium (Jharsuguda, BALCO, Lanjigarh)</td><td>2,456 kt aluminium (record); 2,916 kt alumina (+48%)</td><td>$1,752/t hot metal, five-year low; power below $500/t</td><td>25,502 (+43%)</td><td>38%</td><td>LME, captive alumina share (50% → 65–70% targeted), captive coal, bauxite from Sijimali once cleared</td></tr>
+<tr><td>Zinc India (Hindustan Zinc)</td><td>1,114 kt mined metal (record); 1,048 kt refined; 687 t silver</td><td>$959/t ex royalty, five-year low; $903 in Q4</td><td>22,056 (+27%); HZL standalone revenue ₹40,844 cr, PAT ₹13,832 cr</td><td>56%</td><td>Zinc LME, silver at record $118/oz in Jan-2026, underground mine productivity</td></tr>
+<tr><td>Zinc International (Gamsberg, Black Mountain, Skorpion)</td><td>225 kt mined metal (+27%)</td><td>$1,500–1,550/t guided</td><td>n.a.</td><td></td><td>Gamsberg Phase 2 ramp</td></tr>
+<tr><td>Oil &amp; Gas (Cairn, Rajasthan, Ravva, Cambay)</td><td>77.7 kboepd Q1 FY27 → 72.2 Q2 FY27 (−19% YoY)</td><td>$17.4/boe opex</td><td>Q1 FY27 1,232 (49% margin)</td><td></td><td>Natural decline at Rajasthan; Cambay lost to ONGC; Brent</td></tr>
+<tr><td>Power (TSPL, Athena, Meenakshi)</td><td>5,224 MU Q1 FY27 (+38%); 5,593 MU Q2 (record)</td><td>74% under PPAs; Meenakshi moving to 100% domestic coal</td><td>Q1 FY27 291; net loss ₹423–449 cr</td><td>11%</td><td>PPA tariffs, coal cost, plant availability, Athena restoration after the explosion</td></tr>
+<tr><td>Iron &amp; Steel (ESL Bokaro, Goa and Karnataka iron ore, Liberia, FACOR)</td><td>1.3 mt steel; 895 kt pig iron; 2.6 mt iron ore</td><td>10% cost reduction at ESL; 19% at FACOR</td><td>Q1 FY27 EBITDA +54%; steel margin 12%</td><td></td><td>Steel realisation, ocean freight, ESL expansion to 3.5 mt hot metal</td></tr>
+<tr><td>Copper (Silvassa, Fujairah, Tuticorin shut since 2018)</td><td>170 kt cathode (+15%)</td><td>Trading business</td><td>Small</td><td></td><td>TcRc; Fujairah hit by Strait of Hormuz closure (rod sales −51% in Q1 FY27)</td></tr>
+</tbody></table></div>
+<h3 id="after-the-split-proforma-net-debt-by-entity-bn-31-march-2026-c">After the split: proforma net debt by entity ($ bn, 31 March 2026) [C]</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Entity</th><th>EBITDA</th><th>Gross debt</th><th>Cash</th><th>Net debt</th><th>Net debt / EBITDA</th><th>Listing day market cap (15 Jun 2026)</th></tr></thead>
+<tbody>
+<tr><td>Vedanta Aluminium Metal</td><td>2.9</td><td>4.0</td><td>0.5</td><td>3.5</td><td>1.3x</td><td>₹1,93,916 cr</td></tr>
+<tr><td>Vedanta Ltd (residual: HZL, Zinc Intl, copper, FACOR, nickel)</td><td>2.6</td><td>2.7</td><td>1.7</td><td>1.0</td><td>0.4x</td><td>₹1,18,328 cr</td></tr>
+<tr><td>Vedanta Power</td><td>0.2</td><td>0.9</td><td>0.1</td><td>0.8</td><td><strong>4.7x</strong></td><td>₹16,385 cr</td></tr>
+<tr><td>Vedanta Iron &amp; Steel</td><td>0.14</td><td>0.5</td><td>0.3</td><td>0.2</td><td>1.4x</td><td>₹8,235 cr</td></tr>
+<tr><td>Vedanta Oil &amp; Gas</td><td>0.5</td><td>0.6</td><td>0.6</td><td>0.0</td><td>nil</td><td>₹14,117 cr</td></tr>
+<tr><td>Group total</td><td>6.3</td><td>8.7</td><td>3.2</td><td>5.5</td><td>0.91x</td><td></td></tr>
+</tbody></table></div>
+<p>Q1 FY27 (June 2026 quarter), first post-split reports: residual Vedanta Ltd EBITDA ₹8,469 cr (+98%), margin 57%, PAT ₹5,294 cr, net debt ₹8,299 cr (0.30x). Vedanta Aluminium EBITDA ₹10,499 cr (+134%), margin 50%, hot metal cost $1,698/t, interim dividend ₹8. Vedanta Power revenue ₹2,607 cr, EBITDA ₹291 cr, net loss ₹423–449 cr. Vedanta Oil &amp; Gas EBITDA ₹1,232 cr with ₹345 cr of impairment. Vedanta Iron &amp; Steel EBITDA +54%.</p>
+<h3 id="people-and-scale-c">People and scale [C]</h3>
+<p>Group permanent employees run to tens of thousands; the Iron &amp; Steel entity alone discloses 3,685 permanent employees of which 3,013 are factory staff and only 97 in finance. Contract and subcontract labour is the larger workforce at every plant: the 24 people killed at Athena were all employees of the O&amp;M contractor NGSL, an NTPC–GE joint venture. Group LTIFR 0.4 in FY26, TRIFR 1.3; fatalities had already risen from 7 (FY20) to 13 (FY23) and 7 (FY25) before FY27's incidents.</p>
+<h2 id="vedanta-s3">1A. Inside the books: what is moving the bottom line</h2>
+<h3 id="what-flatters-the-headline">What flatters the headline</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Item</th><th>Figure</th><th>Why it matters</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>Price and currency, not volume, drove most of FY26</td><td>EBITDA +₹12,435 cr; management attributes it to "higher LME, premiums, forex" first and volume second</td><td>A commodity year, repeatable only if prices hold. Q1 FY27 EBITDA +98% says the same.</td><td>F (external)</td></tr>
+<tr><td>Exceptional items</td><td>−₹3,498 cr net of tax in FY26 (−₹1,731 cr in Q4 alone); +₹1,135 cr in FY25</td><td>Impairments, write-downs and one-offs swing PAT by a fifth of profit in either direction</td><td>F</td></tr>
+<tr><td>Exploration written off</td><td>₹1,252 cr in FY26, 2.7x FY25</td><td>Oil and gas exploration spend that found nothing; the offshore ambition Viceroy called "financially unviable"</td><td>O (O&amp;G)</td></tr>
+<tr><td>Investment income</td><td>₹2,978 cr a year on ₹28,485 cr of cash</td><td>Treasury earns 6.73% while debt costs 8.85%: carrying cash while carrying debt costs about ₹600 cr a year in spread</td><td>F</td></tr>
+<tr><td>Depreciation fell 12% while capex rose</td><td>₹9,774 cr vs ₹11,096 cr; Q4 FY26 depreciation ₹1,356 cr vs ₹2,988 cr a year earlier</td><td>Demerger accounting under Ind AS 105 stops depreciation on assets held for distribution. Q4 PAT of ₹9,352 cr is not comparable with any prior quarter.</td><td>F (accounting)</td></tr>
+</tbody></table></div>
+<h3 id="money-that-leaves-the-operating-companies">Money that leaves the operating companies</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Flow</th><th>FY26</th><th>Mechanism</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>Dividends to VRL</td><td>56.38% of ₹34/share across three interims; about ₹3,503 cr from the second interim alone</td><td>VRL needs about $1 billion a year: $0.3 bn loan principal, $0.2 bn ICL, ~$0.5 bn interest</td><td>F (promoter)</td></tr>
+<tr><td>Brand fee to VRL</td><td>About $400 million a year at 3% of revenue for most entities; copper cut to 0.75% from FY27; rate fixed to FY29</td><td>Viceroy alleged ₹3,247 cr "diverted with no clear services"; Vedanta calls it standard practice; a ₹1,030 cr "brand fee rebate" was alleged after ED scrutiny and denied</td><td>F (promoter)</td></tr>
+<tr><td>Dividend plus brand fee combined</td><td>About $1.1 billion</td><td>Management's own figure on the Q4 FY26 call</td><td>F</td></tr>
+<tr><td>KCM funding</td><td>About $330 million in FY26 from VRL</td><td>The Zambian copper mine absorbs cash while preparing a US listing</td><td>F</td></tr>
+<tr><td>Inter-corporate loan</td><td>$217 million from Twinstar / CIHL to VRL, due May 2026, since repaid</td><td>Cross-entity lending inside the group</td><td>F</td></tr>
+<tr><td>Policy change after the split</td><td>The mandate to upstream Hindustan Zinc's dividend goes away; each board "will have the flexibility" to pay 30% or "as they deem fit"</td><td>Minority shareholders in each entity now depend on five boards, all chaired by the promoter</td><td>F (governance)</td></tr>
+</tbody></table></div>
+<p>The CFO's arithmetic on the call: "4% to 5% dividend and the routine brand fee" services VRL. On ₹1.74 lakh crore of revenue, 4–5% is ₹7,000–8,700 cr a year leaving the Indian companies as dividend, half of it to minorities.</p>
+<h3 id="working-capital-suppliers-fund-the-group">Working capital: suppliers fund the group</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Measure</th><th>FY25</th><th>FY26</th><th>Read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>Creditor days</td><td>64.4</td><td>64.1</td><td>Vedanta pays suppliers in about two months</td><td>O (procurement)</td></tr>
+<tr><td>Debtor days</td><td>9.3</td><td>8.8</td><td>Customers pay in nine days, largely cash-against-documents and the Metal Bazaar platform</td><td>O (sales)</td></tr>
+<tr><td>Inventory days</td><td>33.5</td><td>35.1</td><td>₹14,474 cr of inventory at FY26 (ICICI estimate)</td><td>O (plant)</td></tr>
+<tr><td>Net working capital</td><td>Negative</td><td>Negative</td><td>A ₹1 lakh crore-plus trade-payable book finances the business; Viceroy flagged a ₹3,916 cr working-capital reversal in Q1 FY26 as evidence that earlier cash flows were "propped up"</td><td>F/O</td></tr>
+<tr><td>FY26 deleveraging at VRL level</td><td>$1.5 bn</td><td>Included "reduction of short-term facilities such as buyers and suppliers credit and export advances"</td><td>Supplier credit is a funding line the group draws and repays</td></tr>
+</tbody></table></div>
+<p>The supplier base behind 64 creditor days: coal (Coal India linkages plus imports), bauxite from Odisha Mining Corporation at ₹3,000/t after the Odisha High Court ruling (vs a historical ₹1,000/t contract), caustic soda, alumina, petroleum coke, pitch, power, thousands of O&amp;M, civil, logistics and contract-labour vendors across more than a dozen sites. Vedanta Metal Bazaar handled $5 bn of sales to 600 customers in FY26, so the sales side is digital; the procurement side is where the money and the vendors are.</p>
+<h3 id="operational-findings-that-end-up-in-the-p-l">Operational findings that end up in the P&amp;L</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Finding</th><th>Evidence</th><th>Where it lands</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td><strong>Athena boiler explosion, 14 April 2026, 24 dead</strong></td><td>Unit 1 boiler tube rupture; all victims NGSL contractor staff; FIR names 18 including the Chairman and the plant head; British Safety Council withdrew Vedanta's and BALCO's awards; Unit 1 restoration targeted for Q4 FY27</td><td>Lost generation at Athena, restoration capex, legal exposure, PPA availability</td><td>O (safety, O&amp;M outsourcing)</td></tr>
+<tr><td><strong>ESL Bokaro gas leak, 11 October 2026, 2 dead</strong></td><td>State inquiry ordered</td><td>Same pattern at a second entity</td><td>O</td></tr>
+<tr><td><strong>Power business loses money after the split</strong></td><td>Q1 FY27 net loss ₹423–449 cr on 11% EBITDA margin; net debt/EBITDA 4.7x; 26% of sales merchant; Meenakshi still importing 30–35% of coal; Viceroy: Meenakshi and Athena "operate without long-term PPAs" at costs "above merchant rates"</td><td>The weakest entity by every measure</td><td>O/F</td></tr>
+<tr><td><strong>Cambay block lost to ONGC</strong></td><td>Ministry rejected PSC extension Sept 2025; Delhi HC upheld it July 2026 and found Vedanta's unilateral deduction of the government's profit share "not bona fide"; production −76% QoQ</td><td>Small (&lt;0.3% of EBITDA) but a regulator-relationship finding</td><td>O (compliance)</td></tr>
+<tr><td><strong>Rajasthan oil decline</strong></td><td>70.9 → 63.1 → 59.9 kboepd in a year; FY27 guidance 90–95 kboepd gross already behind at 72</td><td>The cash cow of Vedanta Oil &amp; Gas is shrinking 15% a year</td><td>O</td></tr>
+<tr><td><strong>Mines waiting on clearance</strong></td><td>Sijimali bauxite and Kuraloi coal "awaiting EC"; Ghogharpalli coal in the pipeline; FY27 aluminium cost guidance of $1,650–1,700/t depends on them, plus a "50–100 $/t additional impact due to war in H1 FY27"</td><td>Captive-input cost reduction is a permit-timing bet</td><td>O (regulatory)</td></tr>
+<tr><td><strong>Bauxite price reset</strong></td><td>Odisha HC ruling moves OMC bauxite to ₹3,000/t; CLSA: ~$10/t on aluminium cost</td><td>Procurement cost outside management's control</td><td>O</td></tr>
+<tr><td><strong>Copper exposed to the Gulf</strong></td><td>Fujairah rod sales −51% in Q1 FY27 on the Strait of Hormuz closure; Saudi copper rod plant under construction</td><td>Geopolitical, not operational</td><td>O</td></tr>
+<tr><td><strong>Tuticorin smelter still shut</strong></td><td>Closed since May 2018 after the police firing; the "TSPL Mega Matter" loss of $164 m in VRL's H1 FY26 accounts</td><td>Stranded asset; Vedanta Copper now a trading business</td><td>O (compliance, community)</td></tr>
+<tr><td><strong>Litigation book at one small entity</strong></td><td>Vedanta Iron &amp; Steel alone: 383 tax matters by the company, 38 against, 12 regulatory; ₹2,478 cr claimed by, ₹2,087 cr claimed against, plus ₹3,839 cr and ₹1,653 cr at subsidiaries</td><td>Scale up across five entities and HZL; Screener lists group contingent liabilities at ₹31,673 cr</td><td>F/legal</td></tr>
+<tr><td><strong>Guarantees cross the new entity lines</strong></td><td>VEDL guarantees ESL loans (₹3,400 cr syndicate plus others); a ₹8,000 cr Union Bank facility is secured on HZL shares and HZL dividends and now split across three entities</td><td>The five companies are still financially entangled</td><td>F</td></tr>
+</tbody></table></div>
+<h3 id="controls-and-governance">Controls and governance</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>Finding</th><th>Status</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>Auditor qualifications</td><td>None at the Iron &amp; Steel entity; FY26 Vedanta Ltd audit report not reviewed here; FY22 key audit matter on the Rajasthan PSC contingency</td><td>F</td></tr>
+<tr><td>Viceroy Research (July–Nov 2025)</td><td>Short-seller series alleging brand-fee diversion, debt-funded dividends ($8.0 bn paid vs $5.8 bn FCF shortfall over three years), opaque related-party flows, loss-making power plants; Vedanta: "malicious combination of selective misinformation"; HZL CEO rejected the brand-fee claim; Singapore police reviewing a Viceroy complaint on 2024 dividend funding; Vedanta says no investigation and no contact</td><td>F (governance)</td></tr>
+<tr><td>Enforcement Directorate and SEBI</td><td>"Growing scrutiny" per Viceroy; no public action found</td><td>F</td></tr>
+<tr><td>Government of India as HZL minority</td><td>Viceroy alleged the HZL brand fee lacked GoI approval under the shareholder agreement; HZL says board approved</td><td>F</td></tr>
+<tr><td>Promoter on an FIR</td><td>Chairman named in the Athena FIR; disclosed as a risk factor in the Iron &amp; Steel information memorandum</td><td>O/governance</td></tr>
+<tr><td>Demerger accounting</td><td>Ind AS 105 presentation makes FY26 Q4 and Q1 FY27 non-comparable; five sets of accounts from June 2026</td><td>F</td></tr>
+</tbody></table></div>
+<h3 id="read-through">Read-through</h3>
+<p>The group's profit is high and its costs are falling, and both are true. Underneath, three structural things decide what the owner keeps: commodity prices he does not set, mine and permit timing he does not fully control, and a holding-company debt that takes $1.1 billion a year out of the operating companies before anyone else. The operational findings cluster in two places: outsourced O&amp;M at power plants, where 24 people died, and procurement, where the group runs on 64 days of supplier credit across thousands of vendors and more than a dozen sites. Those two are where a controls conversation starts.</p>
+<h2 id="vedanta-s4">2. Sector baseline: structural P&amp;L levers for an Indian integrated metals and mining group</h2>
+<h3 id="2-1-top-line">2.1 Top line</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>V1</td><td><strong>Commodity prices and FX</strong></td><td>LME aluminium, zinc, silver, Brent; rupee at 93.9/$ at March 2026</td><td>FY26 and Q1 FY27 gains were mostly price and currency</td><td>[C]</td></tr>
+<tr><td>V2</td><td><strong>Volume from capacity additions</strong></td><td>Smelter, refinery and mine expansions take 3–5 years and permits</td><td>Lanjigarh to 5 mtpa alumina, BALCO 435 kt smelter, Jharsuguda billets, ESL 3.5 mt, Zinc roaster, Gamsberg Phase 2; FY27 capex ₹7,000–7,800 cr</td><td>[C]</td></tr>
+<tr><td>V3</td><td><strong>Value-added mix</strong></td><td>Billets, wire rod, rolled products carry premiums over ingot</td><td>Aluminium VAP share rising; copper rod in Saudi</td><td>[C]</td></tr>
+<tr><td>V4</td><td><strong>Decline at mature assets</strong></td><td>Oil fields decline 10–15% a year without infill</td><td>Rajasthan −15% YoY</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-2-cost-of-production">2.2 Cost of production</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>Captive inputs: coal, bauxite, alumina, power</strong></td><td>The difference between $1,750/t and $2,000/t aluminium is captive share</td><td>Captive alumina 50% → 65–70%; Sijimali and Kuraloi awaiting EC; OMC bauxite repriced</td><td>[C]</td></tr>
+<tr><td>C2</td><td><strong>Coal cost and linkage mix</strong></td><td>Imported coal +60% in FY27 at Meenakshi; Indian coal substitution</td><td>Meenakshi 65–70% domestic, target 100%; TSPL 85% linkage</td><td>[C]</td></tr>
+<tr><td>C3</td><td><strong>Energy cost per tonne</strong></td><td>Power is a third of aluminium cost</td><td>Below $500/t at Jharsuguda</td><td>[C]</td></tr>
+<tr><td>C4</td><td><strong>Contract-labour and O&amp;M outsourcing</strong></td><td>Plants run by O&amp;M contractors (NGSL at Athena) and thousands of contract workers</td><td>24 contractor fatalities; LTIFR 0.4</td><td>[C]</td></tr>
+<tr><td>C5</td><td><strong>Procurement across sites</strong></td><td>Thousands of vendors, 64 creditor days, multiple ERPs after demerger</td><td>Metal Bazaar digitised sales; procurement not described publicly</td><td>[S]</td></tr>
+<tr><td>C6</td><td><strong>Royalty and government levies</strong></td><td>Zinc CoP is quoted ex-royalty; HZL paid ₹18,846 cr to the exchequer in FY26</td><td>Structural</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-3-below-the-operating-line">2.3 Below the operating line</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>F1</td><td><strong>Finance cost</strong></td><td>₹8,351 cr on ₹81,740 cr gross debt at ~8.85%</td><td>Falling with refinancing; VRL targets &lt;7.5%</td><td>[C]</td></tr>
+<tr><td>F2</td><td><strong>Promoter leakage: dividend and brand fee</strong></td><td>$1.1 bn a year</td><td>The group's single largest non-operating outflow</td><td>[C]</td></tr>
+<tr><td>F3</td><td><strong>Exceptional items and write-offs</strong></td><td>₹3,498 cr + ₹1,252 cr in FY26</td><td>Recurring "one-offs"</td><td>[C]</td></tr>
+<tr><td>F4</td><td><strong>Tax</strong></td><td>Effective rate rose to 28% in FY26 from 22%</td><td>Demerger and entity-level tax planning</td><td>[C]</td></tr>
+<tr><td>F5</td><td><strong>Cash carry</strong></td><td>₹28,485 cr of cash earning 6.73% against debt at 8.85%</td><td>~₹600 cr a year negative carry</td><td>[C]</td></tr>
+</tbody></table></div>
+<h3 id="2-4-balance-sheet">2.4 Balance sheet</h3>
+<div class="tbl"><table class="full">
+<thead><tr><th>#</th><th>Lever</th><th>Sector evidence</th><th>Company read</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td>W1</td><td><strong>Supplier credit</strong></td><td>64 creditor days; buyers' and suppliers' credit lines</td><td>A funding source the group draws and repays</td><td>[C]</td></tr>
+<tr><td>W2</td><td><strong>Inventory</strong></td><td>35 days; ₹14,474 cr</td><td>Metal, alumina, coal, stores and spares across 12+ sites</td><td>[C]</td></tr>
+<tr><td>W3</td><td><strong>Receivables</strong></td><td>9 days</td><td>Not a lever</td><td>[C]</td></tr>
+<tr><td>W4</td><td><strong>Holding-company debt</strong></td><td>$4.5 bn at VRL; $5.2 bn refinancing in June 2026 at 7.4%</td><td>Dictates the dividend and brand-fee flow</td><td>[C]</td></tr>
+<tr><td>W5</td><td><strong>Cross-guarantees and pledges</strong></td><td>VEDL guarantees ESL; HZL shares pledged for a ₹8,000 cr facility</td><td>Entities not yet financially separate</td><td>[C]</td></tr>
+</tbody></table></div>
+<h2 id="vedanta-s5">3. Fallback rule applied</h2>
+<p>Vedanta is one of the best-documented companies in India, so few levers are sector-assumed. The gaps that matter:</p>
+<ol><li>Procurement spend, vendor count and the share through long-term contracts, by entity (C5). [S]</li><li>Contract-labour headcount by plant and the O&amp;M contract structure beyond Athena (C4). [S]</li><li>The FY26 Vedanta Ltd auditor's report and contingent-liability note at group level; this page relies on the Iron &amp; Steel memorandum and Screener's ₹31,673 cr. [S]</li><li>Working-capital and payables by entity after the split. [S]</li><li>The actual brand-fee amount by entity in FY26 (the CFO promised the number "after the call"). [S]</li></ol>
+<p>Facts worth confirming early, by entity:</p>
+<ul><li>Vedanta Power: Athena Unit 1 status, insurance recovery, PPA penalties, and whether the NGSL contract survives.</li><li>Vedanta Aluminium: Sijimali and Kuraloi EC dates; alumina captive share today; bauxite cost after the OMC reset.</li><li>Residual Vedanta Ltd: how the Union Bank facility secured on HZL shares is being unwound; copper exposure at Fujairah.</li><li>Vedanta Oil &amp; Gas: Rajasthan infill plan versus the 90–95 kboepd guidance; exploration write-off policy.</li></ul>
+<h2 id="vedanta-s6">4. Ranked S-PAL shortlist (pre-OHM filter)</h2>
+<p>Ranked by estimated P&amp;L impact over the next 12–24 months across the group. No OHM assumption applied.</p>
+<div class="tbl"><table class="full">
+<thead><tr><th>Rank</th><th>Lever</th><th>P&amp;L line</th><th>Direction</th><th>Why it ranks here</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>V1 Commodity prices and FX</td><td>EBITDA</td><td>Unknowable</td><td>Drove most of FY26's ₹12,435 cr EBITDA gain; nothing else is close</td></tr>
+<tr><td>2</td><td>C1/C2 Captive coal, bauxite, alumina</td><td>Aluminium COGS</td><td>Positive if permits land</td><td>$1,752 → $1,650–1,700/t guidance rests on Sijimali and Kuraloi clearances; war impact $50–100/t in H1 FY27</td></tr>
+<tr><td>3</td><td>F2 Dividend and brand fee to VRL</td><td>Cash out</td><td>$1.1 bn a year, fixed to FY29</td><td>The largest controllable outflow is controlled by the promoter, not the operating companies</td></tr>
+<tr><td>4</td><td>C4 O&amp;M outsourcing and contract-labour safety</td><td>Power and plant opex, legal</td><td>Negative</td><td>24 dead at Athena; Unit 1 out until Q4 FY27; Chairman on an FIR; two more dead at Bokaro</td></tr>
+<tr><td>5</td><td>Vedanta Power economics</td><td>Entity P&amp;L</td><td>Negative</td><td>Loss-making, 4.7x levered, 26% merchant, importing coal</td></tr>
+<tr><td>6</td><td>F3 Exceptional items and exploration write-offs</td><td>PAT</td><td>Recurring</td><td>₹4,750 cr in FY26</td></tr>
+<tr><td>7</td><td>V4 Rajasthan decline</td><td>O&amp;G revenue</td><td>Negative, 15% a year</td><td>Guidance already missed in Q2 FY27</td></tr>
+<tr><td>8</td><td>W1/C5 Supplier credit and procurement across 12+ sites</td><td>Cash and COGS</td><td>Structural</td><td>64 creditor days; thousands of vendors; five ERPs and five finance teams after the split</td></tr>
+<tr><td>9</td><td>F1/F5 Finance cost and negative cash carry</td><td>PBT</td><td>Falling</td><td>Refinancing at 7.4%; ₹600 cr carry</td></tr>
+<tr><td>10</td><td>W5 Cross-guarantees and pledges</td><td>Risk</td><td>Unwinding</td><td>Entities still entangled</td></tr>
+<tr><td>11</td><td>F4 Effective tax rate</td><td>PAT</td><td>Rising</td><td>22% → 28%</td></tr>
+<tr><td>12</td><td>Governance overhang: Viceroy, ED, SEBI, Singapore</td><td>Valuation</td><td>Pressure</td><td>Discount on every entity</td></tr>
+</tbody></table></div>
+<p>Next step: OHM context for this account, and a decision on which entity and which plant to pitch first. The sizing will be done per entity, not for the group.</p>
+<h2 id="vedanta-s7">Sources</h2>
+<ul><li>Vedanta Ltd Q4 FY26 earnings release (29 Apr 2026): <a href="https://www.vedantalimited.com/uploads/investor-overview/financial-results/VEDLEarningsRelease_Q4FY26.pdf" target="_blank" rel="noopener">https://www.vedantalimited.com/uploads/investor-overview/financial-results/VEDLEarningsRelease_Q4FY26.pdf</a></li><li>Vedanta Ltd Q4 FY26 investor presentation: <a href="https://www.vedantalimited.com/uploads/investor-overview/financial-results/Q4FY26_Earnings_Presentation_final.pdf" target="_blank" rel="noopener">https://www.vedantalimited.com/uploads/investor-overview/financial-results/Q4FY26_Earnings_Presentation_final.pdf</a></li><li>Vedanta Ltd Q4 FY26 earnings call transcript (29 Apr 2026): <a href="https://www.vedantalimited.com/uploads/investor-overview/financial-results/2026/Vedanta-Transcript-Apr29-2026.pdf" target="_blank" rel="noopener">https://www.vedantalimited.com/uploads/investor-overview/financial-results/2026/Vedanta-Transcript-Apr29-2026.pdf</a></li><li>Vedanta Ltd Q1 FY27 results filing (30 Jul 2026): <a href="https://www.bseindia.com/xml-data/corpfiling/AttachHis/b8b95ea1-9d39-4176-9a1a-15f1a2c5c4bd.pdf" target="_blank" rel="noopener">https://www.bseindia.com/xml-data/corpfiling/AttachHis/b8b95ea1-9d39-4176-9a1a-15f1a2c5c4bd.pdf</a></li><li>Vedanta Iron and Steel Ltd information memorandum (9 Jun 2026): <a href="https://www.vedantalimited.com/uploads/shareholder-information/scheme-arrangement/Information-Memorandum-of-Vedanta-Iron.pdf" target="_blank" rel="noopener">https://www.vedantalimited.com/uploads/shareholder-information/scheme-arrangement/Information-Memorandum-of-Vedanta-Iron.pdf</a></li><li>Vedanta Iron and Steel Q1 FY27 call transcript: <a href="https://www.vedantaironandsteel.com/wp-content/uploads/2026/08/Transcript-of-Earnings-Call-Q1-FY-2027.pdf" target="_blank" rel="noopener">https://www.vedantaironandsteel.com/wp-content/uploads/2026/08/Transcript-of-Earnings-Call-Q1-FY-2027.pdf</a></li><li>Vedanta Resources H2 FY26 earnings presentation: <a href="https://vedantaresources.com/uploads/investor-overview/financial-results/H2FY26_VRL_EarningsPresentation.pdf" target="_blank" rel="noopener">https://vedantaresources.com/uploads/investor-overview/financial-results/H2FY26_VRL_EarningsPresentation.pdf</a></li><li>ICICI Direct company update, Apr 2026 (balance sheet ratios): <a href="https://www.icicidirect.com/mailcontent/idirect_vedanta_coupdate_apr26.pdf" target="_blank" rel="noopener">https://www.icicidirect.com/mailcontent/idirect_vedanta_coupdate_apr26.pdf</a></li><li>Vedanta Aluminium Q1 FY27 press release: <a href="https://vedantaaluminium.com/media/press-releases/list/vedanta-aluminium-delivers-strong-debut-profit-zooms-205-to-%E2%82%B96597-cr-ebitda-jumps-134-to-%E2%82%B910499-cr-yoy/" target="_blank" rel="noopener">https://vedantaaluminium.com/media/press-releases/list/vedanta-aluminium-delivers-strong-debut-profit-zooms-205-to-%E2%82%B96597-cr-ebitda-jumps-134-to-%E2%82%B910499-cr-yoy/</a></li><li>Vedanta Power Q1 FY27 filing (29 Jul 2026): <a href="https://nsearchives.nseindia.com/corporate/VedantaPower_29072026180651_Pressreleaseandinvestorpresentation.pdf" target="_blank" rel="noopener">https://nsearchives.nseindia.com/corporate/VedantaPower_29072026180651_Pressreleaseandinvestorpresentation.pdf</a></li><li>Hindustan Zinc FY26 results coverage: <a href="https://www.sahi.com/blogs/hindustan-zinc-q4-fy26-results-analysis" target="_blank" rel="noopener">https://www.sahi.com/blogs/hindustan-zinc-q4-fy26-results-analysis</a></li><li>Upstox, listing-day market caps (15–16 Jun 2026): <a href="https://upstox.com/news/market-news/stocks/vedanta-demerger-here-s-how-the-newly-demerged-entities-are-performing-on-day-2/article-195401/" target="_blank" rel="noopener">https://upstox.com/news/market-news/stocks/vedanta-demerger-here-s-how-the-newly-demerged-entities-are-performing-on-day-2/article-195401/</a></li><li>Bloomberg, $5.2 bn VRL refinancing (9 Jun 2026): <a href="https://www.bloomberg.com/news/articles/2026-06-09/vedanta-readies-5-2-billion-refinancing-after-rating-upgrades" target="_blank" rel="noopener">https://www.bloomberg.com/news/articles/2026-06-09/vedanta-readies-5-2-billion-refinancing-after-rating-upgrades</a></li><li>Bloomberg, Athena plant blast (15 Apr 2026): <a href="https://www.bloomberg.com/news/articles/2026-04-15/vedanta-plant-blast-toll-rises-to-17-as-company-begins-probe" target="_blank" rel="noopener">https://www.bloomberg.com/news/articles/2026-04-15/vedanta-plant-blast-toll-rises-to-17-as-company-begins-probe</a></li><li>Punjab Kesari, Athena toll and FIR: <a href="https://english.punjabkesari.com/india/fatal-incident-raises-concerns-over-vedantas-long-standing-safety-problems-at-least-14-killed/amp/" target="_blank" rel="noopener">https://english.punjabkesari.com/india/fatal-incident-raises-concerns-over-vedantas-long-standing-safety-problems-at-least-14-killed/amp/</a></li><li>Whalesbook, ESL Bokaro gas leak (Oct 2026): <a href="https://www.whalesbook.com/news/English/industrial-goodsservices/Vedantas-ESL-Steel-Faces-Probe-After-Fatal-Gas-Leak/6acbc9e279a16deaeaed80ca" target="_blank" rel="noopener">https://www.whalesbook.com/news/English/industrial-goodsservices/Vedantas-ESL-Steel-Faces-Probe-After-Fatal-Gas-Leak/6acbc9e279a16deaeaed80ca</a></li><li>Law Street, Delhi HC on Cambay PSC (Jul 2026): <a href="https://lawstreet.co/judiciary/vedanta-loses-cairn-oil-block-delhi-high-court-upholds-governments-rejection-of-contract-extension" target="_blank" rel="noopener">https://lawstreet.co/judiciary/vedanta-loses-cairn-oil-block-delhi-high-court-upholds-governments-rejection-of-contract-extension</a></li><li>Scanx, Vedanta Oil &amp; Gas Q2 FY27 production: <a href="https://scanx.trade/stock-market-news/companies/vedanta-oil-gas-q2fy27-production-falls-19-72-2-kboepd/52574359" target="_blank" rel="noopener">https://scanx.trade/stock-market-news/companies/vedanta-oil-gas-q2fy27-production-falls-19-72-2-kboepd/52574359</a></li><li>Alcircle, CLSA on Odisha HC bauxite ruling: <a href="https://www.alcircle.com/news/vedanta-aluminium-faces-10-tonne-cost-rise-after-odisha-hc-ruling-clsa-121431" target="_blank" rel="noopener">https://www.alcircle.com/news/vedanta-aluminium-faces-10-tonne-cost-rise-after-odisha-hc-ruling-clsa-121431</a></li><li>Viceroy Research, Vedanta Q1 FY26 analysis (short-seller): <a href="https://viceroyresearch.org/publications/vedanta-q1-fy26-analysis" target="_blank" rel="noopener">https://viceroyresearch.org/publications/vedanta-q1-fy26-analysis</a></li><li>Upstox, deep dive into Viceroy's allegations: <a href="https://upstox.com/news/upstox-originals/latest-updates/deep-dive-into-viceroy-s-concerns-and-allegations-about-vedanta/article-177909/" target="_blank" rel="noopener">https://upstox.com/news/upstox-originals/latest-updates/deep-dive-into-viceroy-s-concerns-and-allegations-about-vedanta/article-177909/</a></li><li>Business Standard, alleged ₹1,030 cr brand-fee refund: <a href="https://www.business-standard.com/companies/news/vedanta-resources-viceroy-ed-action-brand-fee-vedl-vrl-125073000697_1.html" target="_blank" rel="noopener">https://www.business-standard.com/companies/news/vedanta-resources-viceroy-ed-action-brand-fee-vedl-vrl-125073000697_1.html</a></li><li>Business Standard, HZL CEO rejects brand-fee allegation: <a href="https://www.business-standard.com/companies/people/hindustan-zinc-ceo-rejects-viceroy-s-brand-fee-allegations-against-vedanta-125071801301_1.html" target="_blank" rel="noopener">https://www.business-standard.com/companies/people/hindustan-zinc-ceo-rejects-viceroy-s-brand-fee-allegations-against-vedanta-125071801301_1.html</a></li><li>Angel One, ₹16 interim dividend and VRL share: <a href="https://www.angelone.in/news/market-updates/vedanta-ltd-declares-rs-16-second-interim-dividend-for-fy26" target="_blank" rel="noopener">https://www.angelone.in/news/market-updates/vedanta-ltd-declares-rs-16-second-interim-dividend-for-fy26</a></li><li>Business Standard, Vedanta Metal Bazaar $5 bn FY26: <a href="https://www.business-standard.com/amp/companies/news/vedanta-metal-bazaar-processes-5-billion-in-sales-in-fy26-empowers-msmes-126070301303_1.html" target="_blank" rel="noopener">https://www.business-standard.com/amp/companies/news/vedanta-metal-bazaar-processes-5-billion-in-sales-in-fy26-empowers-msmes-126070301303_1.html</a></li><li>Screener, Vedanta Ltd (contingent liabilities): <a href="https://www.screener.in/company/VEDL/consolidated/" target="_blank" rel="noopener">https://www.screener.in/company/VEDL/consolidated/</a></li></ul></div></details><p class="foot">Source file: <code>ohm_spal/companies/vedanta.md</code></p></section></div></body>
+</html>
