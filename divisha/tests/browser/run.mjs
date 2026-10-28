@@ -111,5 +111,80 @@ check(await n.isVisible("text=Claude can't answer on this view"), "says plainly 
 check(await n.isDisabled("#sendBtn"), "Send is off when Claude isn't available");
 await n.screenshot({ path: `${S}/shots/10-phone-light-nosample.png` });
 
+
+// ── Look back with two months of example data (desktop, light) ──
+const L = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#look-back");
+await L.waitForSelector(".tiles .tile");
+const monthName = new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+check((await L.textContent("#spanTitle")) === monthName, `opens on this month (${monthName})`);
+check(await L.locator(".tiles .tile").count() === 4, "four numbers: well, off or sick, spells, doctor");
+const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+check(await L.locator(".cal .day").count() === daysInMonth, `one square per day of the month (${daysInMonth})`);
+check(await L.locator(".cal .day.is-today").count() === 1, "today is marked on the calendar");
+check(await L.isDisabled("#spanNext"), "can't step into the future");
+const counted = await L.evaluate(() => {
+  const tiles = [...document.querySelectorAll(".tile b")].map(b => Number(b.textContent));
+  const cells = [...document.querySelectorAll(".cal .day")];
+  const n = (c) => cells.filter(x => x.classList.contains(c)).length;
+  return { tiles, well: n("lv-well"), unwell: n("lv-off") + n("lv-sick") };
+});
+check(counted.tiles[0] === counted.well && counted.tiles[1] === counted.unwell, `tiles match the calendar (${counted.well} well, ${counted.unwell} off or sick)`);
+check(await L.locator(".common-row").count() > 0, "most common symptoms and care are listed");
+check(await L.isVisible("text=Write Claude's notes"), "notes wait for a tap");
+check(!(await L.evaluate(() => window.__notesCalls)), "Claude is not asked until you tap");
+await L.screenshot({ path: `${S}/shots/12-lookback-before-notes.png`, fullPage: true });
+
+await L.click("[data-act=notes-write]");
+await L.waitForSelector(".note-sec");
+check(await L.isVisible(".note-sec h3:has-text('How she is now')"), "notes show 'How she is now'");
+check(await L.isVisible(".note-sec h3:has-text(\"What's working\")"), "notes show 'What's working'");
+check(!(await L.isVisible("text=A point with nothing behind it")), "a point with no real entries is dropped");
+const prompt = await L.evaluate(() => window.__notesPrompt);
+check(/warm, plain and specific/.test(prompt) && /counted by the app/.test(prompt), "Claude is asked for warm, plain notes using the app's numbers");
+const savedNotes = await L.evaluate(() => [...window.__store.keys()].find(k => k.startsWith("notes/month-")));
+check(!!savedNotes, `notes are saved (${savedNotes})`);
+await L.screenshot({ path: `${S}/shots/13-lookback-notes.png`, fullPage: true });
+
+const seeBtn = L.locator(".note-sec.working .see").first();
+const seeN = Number((await seeBtn.textContent()).replace(/\D/g, ""));
+await seeBtn.click();
+await L.waitForSelector(".focus-bar");
+check(await L.locator("#entryList .entry").count() === seeN, `'see ${seeN}' opens exactly ${seeN} entries`);
+await L.screenshot({ path: `${S}/shots/14-lookback-see.png` });
+await L.click("[data-act=unfocus]");
+check(!(await L.isVisible(".focus-bar")), "'Show all' goes back to every entry");
+
+await L.click(".cal .day.lv-sick >> nth=0");
+await L.waitForSelector(".focus-bar:has-text('on ')");
+check(await L.locator("#entryList .entry").count() > 0, "tapping a day shows that day's entries");
+
+await L.click("[data-act=unfocus]");
+await L.click("#addEntryBtn");
+await L.selectOption("#eType", "growth");
+await L.fill("#eWhat", "Weight 12.5 kg");
+await L.click("[data-act=edit-save]");
+await L.waitForSelector(".notes-foot:has-text('1 new or changed entry since')");
+check(true, "notes say when entries changed after they were written");
+
+await L.click("[data-act=span-kind][data-kind=year]");
+await L.waitForSelector(".year-grid");
+check(await L.locator(".year-row").count() === 12, "Year shows twelve rows");
+check((await L.textContent("#spanTitle")) === String(new Date().getFullYear()), "Year is this year");
+await L.screenshot({ path: `${S}/shots/15-lookback-year.png`, fullPage: true });
+await L.click("[data-act=span-kind][data-kind=week]");
+check((await L.textContent("#spanTitle")) === "This week", "Week opens on this week");
+await L.click("#spanPrev");
+check((await L.textContent("#spanTitle")) === "Last week", "the arrow steps back to last week");
+check(!(await L.isDisabled("#spanNext")), "and forward again is allowed");
+
+// ── Look back on a phone, dark ──
+const LP = await page({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true, hasTouch: true }, base + "?seed=1#look-back");
+await LP.waitForSelector(".tiles .tile");
+await LP.click("[data-act=notes-write]");
+await LP.waitForSelector(".note-sec");
+const phoneWidth = await LP.evaluate(() => document.documentElement.scrollWidth);
+check(phoneWidth <= 390, `Look back has no sideways scroll on a phone (width ${phoneWidth})`);
+await LP.screenshot({ path: `${S}/shots/16-phone-lookback.png`, fullPage: true });
+
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

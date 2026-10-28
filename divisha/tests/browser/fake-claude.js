@@ -23,6 +23,9 @@
   function collRef(path, q = {}) {
     const run = () => {
       let docs = [...store.keys()].filter(k => k.startsWith(path + "/") && k.split("/").length === path.split("/").length + 1).map(snapDoc);
+      for (const [f, op, v] of q.where || []) {
+        docs = docs.filter(d => { const x = d.data()[f]; return op === ">=" ? x >= v : op === "<=" ? x <= v : op === "==" ? x === v : op === ">" ? x > v : op === "<" ? x < v : true; });
+      }
       if (q.order) docs.sort((a, b) => { const x = a.data()[q.order[0]], y = b.data()[q.order[0]]; return (x < y ? -1 : x > y ? 1 : 0) * (q.order[1] === "desc" ? -1 : 1); });
       if (q.limit) docs = docs.slice(0, q.limit);
       return { docs, size: docs.length, empty: !docs.length, docChanges: () => [] };
@@ -31,7 +34,7 @@
       path,
       orderBy: (f, d = "asc") => collRef(path, { ...q, order: [f, d] }),
       limit: (n) => collRef(path, { ...q, limit: n }),
-      where: () => collRef(path, q),
+      where: (f, op, v) => collRef(path, { ...q, where: [...(q.where || []), [f, op, v]] }),
       get: async () => run(),
       onSnapshot(next) { const fn = () => next(run()); listeners.add(fn); setTimeout(fn, 5); return () => listeners.delete(fn); },
       doc: (id) => docRef(`${path}/${id || Math.random().toString(36).slice(2)}`),
@@ -74,11 +77,39 @@
       [2, "health", "well", "", "u_me"], [3, "growth", "Weight 12.3 kg", "at the clinic", "u_me"], [3, "doctor", "Dr Mehta, routine check", "growing well, keep vitamin D", "u_me"],
       [6, "care", "Steam", "", "u_partner"], [7, "symptom", "Blocked nose", "", "u_partner"], [9, "growth", "Said her first full sentence", "\"Mumma, paani do\"", "u_me"],
     ];
+    // Two months of everyday "How she is", with two cough spells.
+    for (let n = 2; n < 60; n++) {
+      const spell = (n >= 12 && n <= 14) || (n >= 38 && n <= 41);
+      if (n % 9 === 4 && !spell) continue;                         // some days nothing is noted
+      const level = !spell ? "well" : (n === 13 || n === 39 || n === 40) ? "sick" : "off";
+      rows.push([n, "health", level, "", n % 2 ? "u_partner" : "u_me"]);
+      if (spell) { rows.push([n, "symptom", n === 13 || n === 39 ? "Fever 38.6" : "Cough at night", "", "u_partner"]); rows.push([n, "care", "Steam", "before bed", "u_partner"]); }
+      if (n === 13 || n === 40) rows.push([n, "care", "Kadha", "", "u_me"]);
+    }
+    rows.push([40, "doctor", "Dr Mehta", "viral, no antibiotic", "u_me"]);
     rows.forEach(([n, type, what, details, by], i) => store.set(`entries/e${i}`, { date: key(n), type, what, details, by, createdAt: new Date().toISOString() }));
     store.set(`chatList/${key(1)}`, { day: key(1), firstLine: "Cough at night again, gave steam" });
     store.set(`chats/${key(1)}`, { day: key(1), messages: { a: { role: "user", text: "Cough at night again, gave steam", by: "u_partner", createdAt: new Date(Date.now() - 864e5).toISOString() }, b: { role: "assistant", text: "Poor thing. Steam was a good call. Keep her room warm tonight.", createdAt: new Date(Date.now() - 864e5 + 6e4).toISOString(), savedEntryIds: ["e0", "e1", "e2"] } } });
     store.set(`chatList/${key(3)}`, { day: key(3), firstLine: "Clinic visit, 12.3 kg" });
   }
+
+  sample.json = async (prompt, opts = {}) => {
+    window.__notesPrompt = prompt;
+    window.__notesCalls = (window.__notesCalls || 0) + 1;
+    await new Promise((r, j) => { const t = setTimeout(r, 400); opts.signal?.addEventListener("abort", () => { clearTimeout(t); j({ code: "cancelled" }); }); });
+    const lines = [...prompt.matchAll(/^\[(\d+)\] (\S+) · ([^·]+) · (.*)$/gm)].map(m => ({ n: Number(m[1]), date: m[2], type: m[3].trim(), rest: m[4] }));
+    const pick = (fn) => lines.filter(fn).map(l => l.n);
+    const health = pick(l => l.type === "How she is");
+    const steam = pick(l => /steam/i.test(l.rest));
+    const cough = pick(l => /cough/i.test(l.rest));
+    const doctor = lines.filter(l => l.type === "Doctor");
+    return {
+      now: [{ text: "Divisha has been mostly well, with a short wobble yesterday.", see: health.slice(-3) }, { text: "A point with nothing behind it.", see: [999] }],
+      working: steam.length ? [{ text: "Steam at bedtime seems to settle her cough within a night or two.", see: steam }] : [],
+      tryNext: cough.length ? [{ text: "Coughs show up at night. Keep her room warm and ask Dr Mehta at the next visit if it keeps coming back.", see: cough.slice(-2) }] : [],
+      moments: doctor.map(l => ({ text: `${l.date.slice(8)} ${["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(l.date.slice(5, 7))]}: ${l.rest}`, see: [l.n] })),
+    };
+  };
 
   const caps = { db, user, sample: location.search.includes("nosample") ? null : sample };
   window.claude = { use: async (name) => (name in caps ? caps[name] : null) };

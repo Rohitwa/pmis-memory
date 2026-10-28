@@ -123,3 +123,129 @@ test("ideas follow the rules and stop at three", () => {
   const morning = new Date(2026, 9, 28, 9, 0);
   assert.deepEqual(ideasForToday({ profile: toddler, entries: [], now: morning }).map(i => i.label), ["How was Divisha today?"]);
 });
+
+// ─── Look back ──────────────────────────────────────────────────────────
+import {
+  makeSpan, stepSpan, spanLabel, previousName, compareText, comparisonSpan, dayLevels, baseLabel,
+  countSpan, notesRequest, readNotes, changedSince,
+} from "../app/helper.js";
+
+test("spans cover a Monday-to-Sunday week, a month and a year", () => {
+  assert.deepEqual(makeSpan("week", "2026-10-28"), { kind: "week", from: "2026-10-26", to: "2026-11-01", key: "week-2026-10-26" });
+  assert.deepEqual(makeSpan("month", "2026-02-14"), { kind: "month", from: "2026-02-01", to: "2026-02-28", key: "month-2026-02-01" });
+  assert.equal(makeSpan("year", "2026-10-28").to, "2026-12-31");
+  assert.equal(stepSpan(makeSpan("month", "2026-01-10"), -1).from, "2025-12-01");
+  assert.equal(stepSpan(makeSpan("week", "2026-10-28"), -1).from, "2026-10-19");
+});
+
+test("spans are named the way people say them", () => {
+  assert.equal(spanLabel(makeSpan("month", TODAY), TODAY), "October 2026");
+  assert.equal(spanLabel(makeSpan("week", TODAY), TODAY), "This week");
+  assert.equal(spanLabel(makeSpan("week", "2026-10-20"), TODAY), "Last week");
+  assert.equal(spanLabel(makeSpan("week", "2026-10-07"), TODAY), "5 – 11 Oct");
+  assert.equal(spanLabel(makeSpan("week", "2026-09-30"), TODAY), "28 Sept – 4 Oct");
+  assert.equal(previousName(makeSpan("month", TODAY)), "September");
+  assert.equal(compareText(6, 10, "September"), "4 fewer than September");
+  assert.equal(compareText(3, 3, "2025"), "Same as 2025");
+});
+
+test("each day takes the latest 'How she is', and a lone symptom counts as a bit off", () => {
+  const levels = dayLevels([
+    { date: "2026-10-01", type: "health", what: "sick", createdAt: "2026-10-01T08:00" },
+    { date: "2026-10-01", type: "health", what: "well", createdAt: "2026-10-01T20:00" },
+    { date: "2026-10-02", type: "symptom", what: "Cough" },
+    { date: "2026-10-03", type: "symptom", what: "Cough" },
+    { date: "2026-10-03", type: "health", what: "sick", createdAt: "x" },
+    { date: "2026-10-04", type: "care", what: "Vitamin D" },
+  ]);
+  assert.deepEqual(levels, { "2026-10-01": "well", "2026-10-02": "off", "2026-10-03": "sick" });
+});
+
+test("labels group the same thing with different numbers", () => {
+  assert.equal(baseLabel("Fever 39.4"), "Fever");
+  assert.equal(baseLabel("fever 101 F"), "Fever");
+  assert.equal(baseLabel("Paracetamol 5 ml"), "Paracetamol");
+  assert.equal(baseLabel("Antibiotic day 3"), "Antibiotic");
+  assert.equal(baseLabel("Cough at night"), "Cough at night");
+});
+
+const october = [
+  { id: "a", date: "2026-10-01", type: "health", what: "well" },
+  { id: "b", date: "2026-10-05", type: "symptom", what: "Cough at night" },
+  { id: "c", date: "2026-10-06", type: "health", what: "sick" },
+  { id: "d", date: "2026-10-06", type: "care", what: "Steam" },
+  { id: "e", date: "2026-10-07", type: "health", what: "off" },
+  { id: "f", date: "2026-10-08", type: "health", what: "well" },
+  { id: "g", date: "2026-10-12", type: "doctor", what: "Dr Mehta", details: "viral" },
+  { id: "h", date: "2026-10-20", type: "symptom", what: "Fever 38.2" },
+  { id: "i", date: "2026-10-20", type: "care", what: "Steam" },
+  { id: "j", date: "2026-10-22", type: "symptom", what: "Fever 38" },
+  { id: "k", date: "2026-09-10", type: "health", what: "sick" },
+  { id: "l", date: "2026-09-11", type: "health", what: "sick" },
+];
+
+test("a month in progress is counted up to today only", () => {
+  const s = countSpan(october, makeSpan("month", TODAY), TODAY);
+  assert.equal(s.days.total, 28);
+  assert.deepEqual([s.days.well, s.days.off, s.days.sick], [2, 4, 1]);
+  assert.equal(s.days.none, 21);
+  assert.equal(s.unwellDays, 5);
+  assert.equal(s.spells, 3, "5–7 Oct, 20 Oct and 22 Oct are three separate runs");
+  assert.deepEqual(s.longest, { from: "2026-10-05", to: "2026-10-07", days: 3, worst: "sick" });
+  assert.equal(s.doctor, 1);
+  assert.deepEqual(s.symptoms.map(x => [x.label, x.count]), [["Fever", 2], ["Cough at night", 1]]);
+  assert.deepEqual(s.care[0], { label: "Steam", count: 2, ids: ["d", "i"] });
+  assert.equal(s.inProgress, true);
+});
+
+test("a span in the future counts nothing", () => {
+  const s = countSpan(october, makeSpan("month", "2026-12-01"), TODAY);
+  assert.equal(s.days.total, 0);
+  assert.equal(s.future, true);
+});
+
+test("the notes request numbers the entries and carries the app's counts", () => {
+  const { prompt, refs, stats } = notesRequest({ profile: toddler, span: makeSpan("month", TODAY), entries: october, today: TODAY });
+  assert.equal(refs.length, 10, "only October's entries");
+  assert.deepEqual(refs.slice(0, 3), ["a", "b", "c"], "oldest first");
+  assert.match(prompt, /\[1\] 2026-10-01 · How she is · Well/);
+  assert.match(prompt, /Well: 2\. A bit off: 4\. Sick: 1\. Not noted: 21\./);
+  assert.match(prompt, /September so far, for comparison: well 0, off or sick 2/);
+  assert.match(prompt, /warm, plain and specific/);
+  assert.equal(stats.entryCount, 10);
+});
+
+test("notes keep only points that point at real entries", () => {
+  const refs = ["a", "b", "c"];
+  const body = readNotes({
+    now: [{ text: "She's well again.", see: [1] }, { text: "No evidence.", see: [] }],
+    working: [{ text: "Steam helped.", see: [2, 2, 9, "3"] }],
+    tryNext: "not a list",
+    moments: [{ text: "", see: [1] }],
+  }, refs);
+  assert.deepEqual(body.now, [{ text: "She's well again.", see: ["a"] }]);
+  assert.deepEqual(body.working, [{ text: "Steam helped.", see: ["b", "c"] }]);
+  assert.deepEqual(body.tryNext, []);
+  assert.deepEqual(body.moments, []);
+  assert.equal(readNotes({ now: [{ text: "x", see: [7] }] }, refs), null, "nothing usable means no notes");
+});
+
+test("notes know how many entries changed after they were written", () => {
+  const span = makeSpan("month", TODAY);
+  const list = [
+    { date: "2026-10-01", createdAt: "2026-10-10T00:00" },
+    { date: "2026-10-02", createdAt: "2026-10-30T00:00" },
+    { date: "2026-10-03", createdAt: "2026-10-01T00:00", editedAt: "2026-10-29T00:00" },
+    { date: "2026-09-03", createdAt: "2026-10-30T00:00" },
+  ];
+  assert.equal(changedSince(list, span, "2026-10-20T00:00"), 2);
+});
+
+test("a span still in progress is compared with the same days of the one before", () => {
+  const cmp = comparisonSpan(makeSpan("month", TODAY), TODAY);
+  assert.deepEqual([cmp.span.from, cmp.span.to, cmp.name], ["2026-09-01", "2026-09-28", "September so far"]);
+  const feb = comparisonSpan(makeSpan("month", "2026-03-31"), "2026-03-31");
+  assert.equal(feb.span.to, "2026-02-28", "never runs past the end of a shorter month");
+  const done = comparisonSpan(makeSpan("month", "2026-09-15"), TODAY);
+  assert.deepEqual([done.span.from, done.span.to, done.name], ["2026-08-01", "2026-08-31", "August"]);
+});

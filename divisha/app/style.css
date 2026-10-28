@@ -382,7 +382,6 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: var(--s4);
 }
-.soon { margin: 0; padding: var(--s3) var(--s4); border-radius: var(--r-md); background: var(--accent-soft); font-size: var(--t-sm); }
 .look-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; }
 .look-head h2 { font-size: var(--t-xl); }
 .filters { display: flex; flex-wrap: wrap; gap: var(--s2); }
@@ -427,6 +426,149 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
 }
 .state { border: 0; margin: auto; max-width: 420px; }
 .state h2 { color: var(--ink); margin-bottom: var(--s2); }
+
+/* Span picker */
+.span-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
+.span-kinds { display: flex; gap: var(--s2); }
+.span-nav { display: flex; align-items: center; gap: var(--s2); }
+.span-nav h2 { font-size: var(--t-xl); min-width: 9ch; text-align: center; }
+.span-nav .icon-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+
+/* 2. Count: the app's numbers */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
+.tile {
+  display: grid; align-content: start; gap: 2px;
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.tile b { font-family: var(--display); font-size: 2rem; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.tile .label { font-weight: 600; font-size: var(--t-sm); }
+.tile .delta { font-size: var(--t-xs); color: var(--muted); }
+.tile .delta.good { color: var(--well); }
+.tile .delta.worse { color: var(--sick); }
+.counted { margin: var(--s2) 0 0; font-size: var(--t-xs); color: var(--muted); }
+
+/* The day-by-day strip */
+.strip-card {
+  display: grid; gap: var(--s3);
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; max-width: 460px; }
+.cal .dow { font-size: var(--t-xs); color: var(--muted); text-align: center; font-weight: 600; }
+.day {
+  display: grid; place-items: center;
+  aspect-ratio: 1; max-width: 100%;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font-size: var(--t-sm); font-weight: 600; font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  padding: 0;
+}
+.day.lv-well { background: var(--well-soft); color: var(--well); border-color: color-mix(in srgb, var(--well) 45%, transparent); }
+.day.lv-off { background: var(--off-soft); color: var(--off); border-color: color-mix(in srgb, var(--off) 45%, transparent); }
+.day.lv-sick { background: var(--sick-soft); color: var(--sick); border-color: color-mix(in srgb, var(--sick) 45%, transparent); }
+.day.lv-none { background: var(--sunk); color: var(--muted); }
+.day.lv-future { background: transparent; color: var(--muted); border: 1px dashed var(--line); cursor: default; opacity: 0.7; }
+.day.is-today { outline: 2px solid var(--ink); outline-offset: 1px; }
+.day:not(:disabled):hover { filter: brightness(0.96); }
+.cal.week { max-width: 460px; }
+
+.year-grid { display: grid; gap: 4px; }
+.year-row { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: var(--s2); }
+.year-m { font-size: var(--t-xs); color: var(--muted); font-weight: 600; }
+.year-days { display: grid; grid-template-columns: repeat(31, minmax(0, 1fr)); gap: 2px; }
+.year-days .day { aspect-ratio: 1; border-radius: 2px; border: 0; }
+.year-days .day.lv-well { background: var(--well); }
+.year-days .day.lv-off { background: var(--off); }
+.year-days .day.lv-sick { background: var(--sick); }
+.year-days .day.lv-none { background: var(--line); }
+.year-days .day.lv-future { background: transparent; border: 1px solid var(--line); }
+.year-days .day.is-today { outline-width: 1.5px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: var(--s4); font-size: var(--t-xs); color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.legend i.lv-well { background: var(--well); }
+.legend i.lv-off { background: var(--off); }
+.legend i.lv-sick { background: var(--sick); }
+.legend i.lv-none { background: var(--line); }
+.legend-note { margin: 0; font-size: var(--t-xs); color: var(--muted); }
+
+/* 3. Explain: Claude's notes */
+.notes {
+  display: grid; gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.notes p { margin: 0; max-width: 62ch; }
+.notes > .btn { justify-self: start; }
+.notes-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); flex-wrap: wrap; }
+.notes-head h2 { font-size: var(--t-lg); color: var(--accent); }
+.note-sec { display: grid; gap: var(--s1); }
+.note-sec h3 { font-size: var(--t-md); }
+.note-sec ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--s2); max-width: 66ch; }
+.note-sec li::marker { color: var(--accent); }
+.note-sec.working li::marker { color: var(--well); }
+.see {
+  display: inline-flex; align-items: center;
+  margin-left: 4px;
+  padding: 0 10px;
+  min-height: 24px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--sunk);
+  color: var(--accent);
+  font-size: var(--t-xs); font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.see:hover { border-color: var(--accent); }
+.see.gone { color: var(--muted); cursor: default; }
+.notes-foot { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; font-size: var(--t-xs); color: var(--muted); border-top: 1px solid var(--line); padding-top: var(--s3); }
+.notes-foot strong { color: var(--off); }
+.writing { color: var(--muted); }
+.thin { font-size: var(--t-sm); color: var(--off); }
+.muted { color: var(--muted); }
+.notes .error, .look .error { color: var(--sick); font-size: var(--t-sm); margin: 0; }
+
+/* Most common symptoms and care */
+.common { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+.common:empty { display: none; }
+.common-col { display: grid; gap: var(--s1); align-content: start; }
+.common-col h3 { font-size: var(--t-sm); font-family: var(--body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin-bottom: var(--s1); }
+.common-col .muted { margin: 0; font-size: var(--t-sm); }
+.common-row {
+  display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) 2ch;
+  align-items: center; gap: var(--s2);
+  padding: 4px 6px; margin: 0 -6px;
+  border: 0; border-radius: var(--r-sm); background: transparent;
+  text-align: left; cursor: pointer; font-size: var(--t-sm);
+}
+.common-row:hover { background: var(--sunk); }
+.common-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.common-row .bar { height: 8px; border-radius: var(--r-pill); background: linear-gradient(to right, var(--accent) var(--w), var(--sunk) var(--w)); }
+.common-col:first-child .bar { background: linear-gradient(to right, var(--sick) var(--w), var(--sunk) var(--w)); }
+.common-col:last-child .bar { background: linear-gradient(to right, var(--care) var(--w), var(--sunk) var(--w)); }
+.common-row .count { font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); }
+
+/* 4. Dig in */
+.diary { display: grid; gap: var(--s3); scroll-margin-top: var(--s4); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.focus-bar {
+  display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap;
+  padding: var(--s2) var(--s4);
+  background: var(--accent-soft);
+  border-radius: var(--r-md);
+  font-size: var(--t-sm);
+}
+.focus-bar:empty { display: none; }
 
 /* ── About Divisha sheet ──────────────────────────────────────────── */
 
@@ -502,6 +644,14 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
   .entry .tag { grid-column: 1 / -1; }
   .edit-card .fields { grid-template-columns: 1fr 1fr; }
   .edit-card .fields .f-what { grid-column: 1 / -1; }
+}
+@media (max-width: 680px) {
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .common { grid-template-columns: 1fr; }
+  .span-bar { flex-direction: column; align-items: stretch; }
+  .span-kinds .chip { flex: 1; justify-content: center; }
+  .span-nav { justify-content: space-between; }
+  .notes { padding: var(--s4); }
 }
 @media (max-width: 480px) {
   .field-grid { grid-template-columns: 1fr; }

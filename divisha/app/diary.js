@@ -5,8 +5,8 @@
 //   chatList/<day>      One line per day for the "Past chats" list (small)
 //   chats/<day>         That day's whole conversation (messages kept by id)
 //   entries/<id>        One diary entry each
-//
-// Summaries arrive in step 2.
+//   notes/<span>        Claude's Look back notes for one week, month or year
+//                       (for example notes/month-2026-10-01)
 
 function newId() {
   // Time first, so ids sort in the order they were made.
@@ -95,6 +95,34 @@ export async function openDiary() {
     },
     deleteEntry(id) {
       return db.doc(`entries/${id}`).delete();
+    },
+
+    // The live list above holds the latest 1000 entries. A long span that
+    // reaches further back is read here, one month at a time.
+    LIVE_LIMIT: 1000,
+    async loadEntries(from, to) {
+      const months = [];
+      for (let d = from.slice(0, 7); d <= to.slice(0, 7);) {
+        months.push(d);
+        const [y, m] = d.split("-").map(Number);
+        d = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+      }
+      const parts = await Promise.all(months.map(async (ym) => {
+        const snap = await db.collection("entries")
+          .where("date", ">=", ym === from.slice(0, 7) ? from : `${ym}-01`)
+          .where("date", "<=", ym === to.slice(0, 7) ? to : `${ym}-31`)
+          .limit(1000).get();
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      }));
+      return parts.flat().filter(e => e.date >= from && e.date <= to);
+    },
+
+    // ── Claude's Look back notes ─────────────────────────────────────
+    watchNotes(spanKey, onChange, onError) {
+      return db.doc(`notes/${spanKey}`).onSnapshot(s => onChange(s.exists ? s.data() : null), onError);
+    },
+    saveNotes(spanKey, notes) {
+      return db.doc(`notes/${spanKey}`).set({ ...notes, writtenAt: new Date().toISOString(), writtenBy: me });
     },
 
     // ── Names for "added by" ─────────────────────────────────────────

@@ -8,6 +8,8 @@ import { openDiary } from "./diary.js";
 import {
   TYPES, HEALTH, dayKey, dayLabel, ageText, cleanEntry, parseReply, visiblePart,
   buildTurns, askClaude, errorText, ideasForToday, checkWarnings, WARNINGS, doseNote,
+  addDays, makeSpan, stepSpan, spanLabel, comparisonSpan, compareText, countSpan,
+  NOTE_SECTIONS, notesRequest, readNotes, writeNotes, changedSince,
 } from "./helper.js";
 
 const $ = (id) => document.getElementById(id);
@@ -32,8 +34,17 @@ const state = {
   failed: null,             // { text, error } when Claude couldn't answer
   drafts: {},               // edits to a "note this down?" card, by message id
   names: {},
+  // Look back
+  span: makeSpan("month", dayKey()),
+  look: null,               // this span's entries and the app's counts
+  range: null,              // entries read month by month, for a long span
+  notes: undefined,         // Claude's saved notes for this span
+  notesBusy: false,
+  notesController: null,
+  notesError: null,
+  focus: null,              // { title, ids } when digging into some entries
   filter: "all",
-  edit: null,               // the entry being edited or added in Look back
+  edit: null,               // the entry being edited or added
   confirmDelete: null,
 };
 
@@ -57,7 +68,7 @@ function timeOf(iso) {
   return isNaN(d) ? "" : d.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
 }
 
-function entryById(id) { return state.entries.find(e => e.id === id); }
+function entryById(id) { return state.entries.find(e => e.id === id) || state.look?.list.find(e => e.id === id); }
 
 function tagHtml(e) {
   const level = e.type === "health" ? ` ${esc(e.what)}` : "";
@@ -111,6 +122,7 @@ function resolveNames(ids) {
   state.diary.names(missing).then(map => {
     state.names = { ...map };
     renderMessages();
+    renderNotes();
     renderEntries();
   });
 }
@@ -427,7 +439,268 @@ async function skip(msgId) {
   }
 }
 
-// ─── Look back: the diary ────────────────────────────────────────────────
+// ─── Look back ───────────────────────────────────────────────────────────
+// Four moves: pick a span, the app counts, Claude explains, you dig in.
+
+function toDay(key) { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); }
+
+// Entries from the start of the previous span (for the comparison) to the
+// end of this one. Usually the live list already has them all.
+function spanEntries() {
+  const from = stepSpan(state.span, -1).from;
+  const live = state.entries;
+  const full = state.diary && live.length >= state.diary.LIVE_LIMIT;
+  const oldest = live.length ? live[live.length - 1].date : "9999";
+  if (!full || oldest < from) return live;
+  if (state.range?.key === state.span.key) return state.range.list;
+  loadRange(from);
+  return null;
+}
+
+let rangeLoading = null;
+function loadRange(from) {
+  const key = state.span.key;
+  if (rangeLoading === key) return;
+  rangeLoading = key;
+  state.diary.loadEntries(from, state.span.to).then(list => {
+    rangeLoading = null;
+    if (state.span.key === key) { state.range = { key, list: list.sort((a, b) => (a.date < b.date ? 1 : -1)) }; renderLook(); }
+  }).catch(() => { rangeLoading = null; toast("Couldn't load this span. Reload the page."); });
+}
+
+let stopNotes = null;
+function openSpan(span) {
+  state.span = span;
+  state.focus = null;
+  state.notesError = null;
+  state.range = null;
+  state.notes = undefined;                 // undefined: still loading; null: none written yet
+  if (stopNotes) stopNotes();
+  if (state.diary) {
+    stopNotes = state.diary.watchNotes(span.key, (n) => {
+      state.notes = n;
+      if (n?.writtenBy) resolveNames([n.writtenBy]);
+      renderNotes();
+    }, () => { state.notes = null; renderNotes(); });
+  }
+  renderLook();
+}
+
+function renderLook() {
+  renderSpanBar();
+  const list = state.loading ? null : spanEntries();
+  if (!list) {
+    state.look = null;
+    $("numbers").innerHTML = `<div class="empty">${state.problem ? "Sign in to claude.ai to open the diary." : "Opening the diary…"}</div>`;
+    for (const id of ["strip", "notes", "common"]) $(id).innerHTML = "";
+    renderEntries();
+    return;
+  }
+  const span = state.span;
+  const cmp = comparisonSpan(span, state.today);
+  state.look = {
+    list,
+    stats: countSpan(list, span, state.today),
+    prev: countSpan(list, cmp.span, state.today),
+    prevName: cmp.name,
+    label: spanLabel(span, state.today),
+  };
+  renderNumbers();
+  renderStrip();
+  renderNotes();
+  renderCommon();
+  renderEntries();
+}
+
+function renderSpanBar() {
+  for (const b of $("spanKinds").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.kind === state.span.kind));
+  $("spanTitle").textContent = spanLabel(state.span, state.today);
+  $("spanNext").disabled = state.span.to >= state.today;
+}
+
+// ── 2. Count: the app's own numbers ──────────────────────────────────────
+
+function tile(value, label, delta, tone = "") {
+  return `<div class="tile"><b>${value}</b><span class="label">${esc(label)}</span>${delta ? `<span class="delta ${tone}">${esc(delta)}</span>` : ""}</div>`;
+}
+
+function renderNumbers() {
+  const { stats: s, prev: p, prevName } = state.look;
+  const span = state.span;
+  if (s.future) { $("numbers").innerHTML = `<div class="empty">This ${span.kind} hasn't started yet.</div>`; return; }
+  const noPrev = p.entryCount === 0;
+  const compare = (now, before, better) => {
+    if (noPrev) return { text: "", tone: "" };
+    const text = compareText(now, before, prevName);
+    const diff = now - before;
+    const tone = diff === 0 || !better ? "" : (better === "more" ? diff > 0 : diff < 0) ? "good" : "worse";
+    return { text, tone };
+  };
+  const w = compare(s.days.well, p.days.well, "more");
+  const u = compare(s.unwellDays, p.unwellDays, "fewer");
+  const sp = compare(s.spells, p.spells, "fewer");
+  const dr = compare(s.doctor, p.doctor, null);
+  const longest = s.longest ? `Longest ${s.longest.days} day${s.longest.days === 1 ? "" : "s"}` : "";
+  $("numbers").innerHTML = `
+    <div class="tiles">
+      ${tile(s.days.well, "Well days", w.text, w.tone)}
+      ${tile(s.unwellDays, "Off or sick days", u.text, u.tone)}
+      ${tile(s.spells, s.spells === 1 ? "Sick spell" : "Sick spells", [longest, sp.text].filter(Boolean).join(" · "), sp.tone)}
+      ${tile(s.doctor, s.doctor === 1 ? "Doctor visit" : "Doctor visits", dr.text)}
+    </div>
+    <p class="counted">Counted by the app from ${s.days.total} day${s.days.total === 1 ? "" : "s"}${s.inProgress ? " so far" : ""}.${s.days.none ? ` ${s.days.none} ${s.days.none === 1 ? "day has" : "days have"} nothing noted about how she was.` : ""}${noPrev ? ` Nothing was noted in ${esc(prevName.replace(" so far", ""))} to compare with.` : ""}</p>`;
+}
+
+const LEVEL_NAME = { well: "Well", off: "A bit off", sick: "Sick", none: "Not noted" };
+
+function dayCell(d, levels, small) {
+  const future = d > state.today;
+  const level = future ? "future" : levels[d] || "none";
+  const label = `${dayLabel(d, state.today)}: ${future ? "still to come" : LEVEL_NAME[level]}`;
+  return `<button type="button" class="day lv-${level}${d === state.today ? " is-today" : ""}" data-act="day" data-day="${d}" ${future ? "disabled" : ""} aria-label="${esc(label)}" title="${esc(label)}">${small ? "" : `<span>${toDay(d).getDate()}</span>`}</button>`;
+}
+
+function renderStrip() {
+  const { stats: s } = state.look;
+  const span = state.span;
+  let grid;
+  if (span.kind === "year") {
+    const year = Number(span.from.slice(0, 4));
+    grid = `<div class="year-grid">${Array.from({ length: 12 }, (_, m) => {
+      const days = new Date(year, m + 1, 0).getDate();
+      const cells = Array.from({ length: days }, (_, i) => dayCell(dayKey(new Date(year, m, i + 1)), s.levels, true)).join("");
+      return `<div class="year-row"><span class="year-m">${toDay(`${year}-${String(m + 1).padStart(2, "0")}-01`).toLocaleDateString("en-GB", { month: "short" })}</span><div class="year-days">${cells}</div></div>`;
+    }).join("")}</div>`;
+  } else {
+    const heads = ["M", "T", "W", "T", "F", "S", "S"].map(h => `<span class="dow">${h}</span>`).join("");
+    const offset = (toDay(span.from).getDay() + 6) % 7;
+    const cells = [];
+    for (let d = span.from; d <= span.to; d = addDays(d, 1)) cells.push(dayCell(d, s.levels, false));
+    grid = `<div class="cal ${span.kind}">${heads}${"<span></span>".repeat(offset)}${cells.join("")}</div>`;
+  }
+  $("strip").innerHTML = `
+    ${grid}
+    <div class="legend">
+      <span><i class="lv-well"></i>Well</span><span><i class="lv-off"></i>A bit off</span><span><i class="lv-sick"></i>Sick</span><span><i class="lv-none"></i>Not noted</span>
+    </div>
+    <p class="legend-note">A day with a symptom but no "How she is" counts as a bit off. Tap a day to see its entries.</p>`;
+}
+
+// ── 3. Explain: Claude's notes ───────────────────────────────────────────
+
+function whenText(iso) {
+  if (!iso) return "";
+  const day = dayKey(new Date(iso));
+  return day === state.today ? `today at ${timeOf(iso)}` : dayLabel(day, state.today);
+}
+
+function notesBody(n) {
+  const live = new Set(state.look.list.map(e => e.id));
+  return NOTE_SECTIONS.filter(sec => n.body?.[sec.key]?.length).map(sec => `
+    <div class="note-sec ${sec.key}">
+      <h3>${esc(sec.title)}</h3>
+      <ul>${n.body[sec.key].map((p, i) => {
+        const left = p.see.filter(id => live.has(id)).length;
+        const link = left
+          ? `<button type="button" class="see" data-act="see" data-sec="${sec.key}" data-i="${i}">see ${left}</button>`
+          : `<span class="see gone">entries removed</span>`;
+        return `<li><span>${esc(p.text)}</span> ${link}</li>`;
+      }).join("")}</ul>
+    </div>`).join("");
+}
+
+function renderNotes() {
+  if (!state.look) return;
+  const { stats, label } = state.look;
+  const n = state.notes;
+  const canAsk = state.canWrite && !!state.sample;
+  let inner;
+
+  if (state.notesBusy) {
+    inner = `<p class="writing">Claude is reading ${stats.entryCount} ${stats.entryCount === 1 ? "entry" : "entries"} for ${esc(label)}…</p>
+      <button type="button" class="btn" data-act="notes-stop"><svg><use href="#i-stop"/></svg>Stop</button>`;
+  } else if (n === undefined) {
+    inner = `<p class="muted">Loading Claude's notes…</p>`;
+  } else if (n) {
+    const changed = changedSince(state.look.list, state.span, n.writtenAt);
+    const by = n.writtenBy ? ` by ${who(n.writtenBy) === "You" ? "you" : who(n.writtenBy)}` : "";
+    inner = `${notesBody(n)}
+      <div class="notes-foot">
+        <span>Written ${esc(whenText(n.writtenAt))}${esc(by)}${changed ? ` · <strong>${changed} new or changed ${changed === 1 ? "entry" : "entries"} since</strong>` : ""}</span>
+        ${canAsk ? `<button type="button" class="btn${changed ? " primary" : ""}" data-act="notes-write">Rewrite</button>` : ""}
+      </div>
+      ${n.saw ? `<details class="saw"><summary>What Claude saw</summary><pre>${esc(n.saw)}</pre></details>` : ""}`;
+  } else if (stats.future) {
+    inner = `<p class="muted">Nothing to read yet.</p>`;
+  } else if (!stats.entryCount) {
+    inner = `<p class="muted">Nothing is noted in ${esc(label)} yet, so there's nothing for Claude to read.</p>`;
+  } else {
+    const thin = stats.entryCount < 5 ? `<p class="thin">Only ${stats.entryCount} ${stats.entryCount === 1 ? "entry" : "entries"} in ${esc(label)}, so the notes will be short.</p>` : "";
+    const why = !state.sample ? "Claude can't write notes on this view." : !state.canWrite ? "You can read notes here but not ask for new ones." : "";
+    inner = `<p>Claude will read the ${stats.entryCount} ${stats.entryCount === 1 ? "entry" : "entries"} for ${esc(label)} and the numbers above. It writes how ${esc(name())} is now, what's working and what to try next. Every point links to the entries behind it.</p>
+      ${thin}
+      ${why ? `<p class="muted">${esc(why)}</p>` : `<button type="button" class="btn primary" data-act="notes-write">Write Claude's notes</button>`}`;
+  }
+
+  $("notes").innerHTML = `
+    <div class="notes-head"><h2>Claude's notes</h2>${state.look.stats.entryCount ? `<button type="button" class="link-btn" data-act="open-all">Open all ${esc(label)} entries</button>` : ""}</div>
+    ${inner}
+    ${state.notesError ? `<p class="error">${esc(state.notesError)}</p>` : ""}`;
+}
+
+async function writeNotesNow() {
+  if (state.notesBusy || !state.sample || !state.look) return;
+  const span = state.span;
+  const { prompt, refs, saw, stats } = notesRequest({ profile: state.profile, span, entries: state.look.list, today: state.today });
+  state.notesBusy = true;
+  state.notesError = null;
+  state.notesController = new AbortController();
+  renderNotes();
+
+  let body = null;
+  try {
+    const raw = await writeNotes(state.sample, prompt, { signal: state.notesController.signal });
+    body = readNotes(raw, refs);
+    if (!body) state.notesError = "Claude's notes didn't point at any entries, so the app left them out. Try again.";
+  } catch (e) {
+    if (e?.code !== "cancelled") state.notesError = errorText(e?.code);
+  }
+  if (body && state.span.key === span.key) {
+    try {
+      await state.diary.saveNotes(span.key, { span: span.key, kind: span.kind, from: span.from, to: span.to, body, saw, entryCount: stats.entryCount });
+    } catch (e) {
+      onWriteError(e);
+    }
+  }
+  state.notesBusy = false;
+  renderNotes();
+}
+
+// ── Most common symptoms and care ────────────────────────────────────────
+
+function renderCommon() {
+  const { stats } = state.look;
+  if (!stats.entryCount) { $("common").innerHTML = ""; return; }
+  const col = (title, type, items) => {
+    const top = items[0]?.count || 1;
+    return `<div class="common-col"><h3>${esc(title)}</h3>${items.length ? items.map((g, i) => `
+      <button type="button" class="common-row" data-act="group" data-type="${type}" data-i="${i}">
+        <span class="common-label">${esc(g.label)}</span>
+        <span class="bar" style="--w:${Math.round((g.count / top) * 100)}%"></span>
+        <span class="count">${g.count}</span>
+      </button>`).join("") : `<p class="muted">None noted.</p>`}</div>`;
+  };
+  $("common").innerHTML = col("Most common symptoms", "symptoms", stats.symptoms) + col("Care given most", "care", stats.care);
+}
+
+// ── 4. Dig in: the entries behind the numbers and notes ──────────────────
+
+function focusOn(title, ids) {
+  state.focus = { title, ids };
+  state.filter = "all";
+  renderEntries();
+  $("diarySection").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+}
 
 function editCardHtml(e, isNew) {
   const typeOptions = Object.entries(TYPES).map(([k, t]) => `<option value="${k}" ${k === e.type ? "selected" : ""}>${esc(t.label)}</option>`).join("");
@@ -466,24 +739,41 @@ function entryHtml(e) {
 }
 
 function renderEntries() {
-  const counts = { all: state.entries.length };
-  for (const e of state.entries) counts[e.type] = (counts[e.type] || 0) + 1;
-  patch($("filters"), [["all", "All"], ...Object.entries(TYPES).map(([k, t]) => [k, t.label])]
-    .map(([k, label]) => `<button type="button" class="chip" data-act="filter" data-f="${k}" aria-pressed="${state.filter === k}">${esc(label)}${counts[k] ? ` · ${counts[k]}` : ""}</button>`).join(""));
-
-  $("addEntryBtn").hidden = !state.canWrite || !!(state.edit && state.edit.id === "new");
+  const look = state.look;
+  const label = look?.label || spanLabel(state.span, state.today);
+  $("diaryTitle").textContent = `Entries · ${label}`;
+  $("addEntryBtn").hidden = !state.canWrite || !look || !!(state.edit && state.edit.id === "new");
   patch($("newEntry"), state.edit && state.edit.id === "new" ? editCardHtml(state.edit, true) : "");
 
-  const list = state.entries.filter(e => state.filter === "all" || e.type === state.filter);
-  if (state.loading) { patch($("entryList"), `<div class="empty">Opening the diary…</div>`); return; }
+  if (!look) { patch($("filters"), ""); $("focusBar").innerHTML = ""; patch($("entryList"), ""); return; }
+
+  const inSpan = look.list.filter(e => e.date >= state.span.from && e.date <= state.span.to);
+  const focus = state.focus;
+  $("focusBar").innerHTML = focus
+    ? `<div class="focus-bar"><span><strong>${focus.ids.length} ${focus.ids.length === 1 ? "entry" : "entries"}</strong> · ${esc(focus.title)}</span><button type="button" class="link-btn" data-act="unfocus">Show all ${esc(label)} entries</button></div>`
+    : "";
+
+  const counts = { all: inSpan.length };
+  for (const e of inSpan) counts[e.type] = (counts[e.type] || 0) + 1;
+  patch($("filters"), focus ? "" : [["all", "All"], ...Object.entries(TYPES).map(([k, t]) => [k, t.label])]
+    .map(([k, l]) => `<button type="button" class="chip" data-act="filter" data-f="${k}" aria-pressed="${state.filter === k}">${esc(l)}${counts[k] ? ` · ${counts[k]}` : ""}</button>`).join(""));
+
+  const ids = focus ? new Set(focus.ids) : null;
+  const list = focus ? look.list.filter(e => ids.has(e.id)) : inSpan.filter(e => state.filter === "all" || e.type === state.filter);
   if (!list.length) {
-    patch($("entryList"), `<div class="empty">${state.entries.length ? "Nothing of this type yet." : `No entries yet. Tell Claude about ${esc(name())}'s day in Talk, or add one here.`}</div>`);
+    patch($("entryList"), `<div class="empty">${focus ? "These entries were removed." : inSpan.length ? "Nothing of this type here." : `Nothing noted in ${esc(label)}. Tell Claude about ${esc(name())}'s day in Talk, or add an entry here.`}</div>`);
     return;
   }
   const byDay = new Map();
   for (const e of list) { if (!byDay.has(e.date)) byDay.set(e.date, []); byDay.get(e.date).push(e); }
   patch($("entryList"), [...byDay.entries()].map(([day, items]) => `
     <section class="day-group"><h3>${esc(dayLabel(day, state.today))}</h3>${items.map(entryHtml).join("")}</section>`).join(""));
+}
+
+// After a change, a span read month by month is read again.
+function afterDiaryChange() {
+  if (state.range) state.range = null;
+  renderLook();
 }
 
 async function saveEdit() {
@@ -493,7 +783,7 @@ async function saveEdit() {
     if (state.edit.id === "new") { await state.diary.addEntries([clean]); toast("Added to the diary"); }
     else { await state.diary.updateEntry(state.edit.id, clean); toast("Saved"); }
     state.edit = null;
-    renderEntries();
+    afterDiaryChange();
   } catch (e) {
     onWriteError(e);
   }
@@ -556,7 +846,7 @@ function render() {
   renderDayBar();
   renderMessages();
   renderComposer();
-  renderEntries();
+  renderLook();
 }
 
 function wire() {
@@ -579,6 +869,9 @@ function wire() {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send($("composerText").value); }
   });
   $("stopBtn").addEventListener("click", () => state.controller?.abort());
+
+  $("spanPrev").addEventListener("click", () => openSpan(stepSpan(state.span, -1)));
+  $("spanNext").addEventListener("click", () => openSpan(stepSpan(state.span, 1)));
 
   $("addEntryBtn").addEventListener("click", () => {
     state.edit = { id: "new", type: "health", what: "well", details: "", date: state.today };
@@ -622,13 +915,38 @@ function wire() {
     else if (act === "skip") skip(b.dataset.msg);
     else if (act === "draft-remove") { state.drafts[b.dataset.msg]?.splice(Number(b.dataset.i), 1); renderMessages(); }
     else if (act === "filter") { state.filter = b.dataset.f; renderEntries(); }
+    else if (act === "span-kind") {
+      const s = state.span;
+      const anchor = s.from <= state.today && state.today <= s.to ? state.today : s.from;
+      openSpan(makeSpan(b.dataset.kind, anchor));
+    }
+    else if (act === "notes-write") writeNotesNow();
+    else if (act === "notes-stop") state.notesController?.abort();
+    else if (act === "see") {
+      const p = state.notes?.body?.[b.dataset.sec]?.[Number(b.dataset.i)];
+      if (p) focusOn(`behind “${p.text.length > 70 ? p.text.slice(0, 68) + "…" : p.text}”`, p.see);
+    }
+    else if (act === "day") {
+      const d = b.dataset.day;
+      focusOn(`on ${dayLabel(d, state.today)}`, state.look.list.filter(e => e.date === d).map(e => e.id));
+    }
+    else if (act === "group") {
+      const g = state.look.stats[b.dataset.type][Number(b.dataset.i)];
+      if (g) focusOn(`${g.label}`, g.ids);
+    }
+    else if (act === "open-all" || act === "unfocus") {
+      state.focus = null;
+      state.filter = "all";
+      renderEntries();
+      if (act === "open-all") $("diarySection").scrollIntoView({ block: "start" });
+    }
     else if (act === "edit") { const e = entryById(b.dataset.id); state.edit = { ...e }; state.confirmDelete = null; renderEntries(); $("eWhat")?.focus(); }
     else if (act === "edit-cancel") { state.edit = null; renderEntries(); }
     else if (act === "edit-save") saveEdit();
     else if (act === "del") { state.confirmDelete = b.dataset.id; renderEntries(); }
     else if (act === "del-no") { state.confirmDelete = null; renderEntries(); }
     else if (act === "del-yes") {
-      state.diary.deleteEntry(b.dataset.id).then(() => toast("Removed from the diary")).catch(onWriteError);
+      state.diary.deleteEntry(b.dataset.id).then(() => { toast("Removed from the diary"); afterDiaryChange(); }).catch(onWriteError);
       state.confirmDelete = null;
     }
     else if (act === "routine-remove") { routineDraft.splice(Number(b.dataset.i), 1); renderRoutine(); }
@@ -647,7 +965,7 @@ async function start() {
   state.canWrite = diary.canWrite;
   render();
 
-  window.claude.use("sample").then(s => { state.sample = s; renderComposer(); });
+  window.claude.use("sample").then(s => { state.sample = s; renderComposer(); renderNotes(); });
 
   diary.watchProfile((p) => { state.profile = p || {}; render(); }, () => toast("Couldn't load About Divisha. Reload the page."));
   diary.watchEntries((list) => {
@@ -655,10 +973,11 @@ async function start() {
     resolveNames(list.map(e => e.by));
     renderMessages();
     renderComposer();
-    renderEntries();
+    renderLook();
   }, () => toast("Couldn't load the diary. Reload the page."));
   diary.watchChatList((list) => { state.chatList = list; renderChatList(); }, () => {});
   openDay(state.today);
+  openSpan(state.span);
 }
 
 start();

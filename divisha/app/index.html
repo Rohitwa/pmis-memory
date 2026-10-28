@@ -12,6 +12,8 @@
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
 </svg>
 
@@ -60,17 +62,37 @@
     </section>
   </main>
 
-  <!-- Look back -->
+  <!-- Look back: pick a span, see the app's counts, read Claude's notes, dig into entries -->
   <main class="look" id="lookView" hidden>
     <div class="look-inner">
-      <p class="soon">The monthly picture, with Claude's notes on what's working, comes in the next step. For now this is the full diary, where you can fix or remove anything.</p>
-      <div class="look-head">
-        <h2>Diary</h2>
-        <button type="button" class="btn" id="addEntryBtn"><svg><use href="#i-plus"/></svg>Add an entry</button>
+      <div class="span-bar">
+        <div class="span-kinds" id="spanKinds" role="group" aria-label="Time span">
+          <button type="button" class="chip" data-act="span-kind" data-kind="week">Week</button>
+          <button type="button" class="chip" data-act="span-kind" data-kind="month">Month</button>
+          <button type="button" class="chip" data-act="span-kind" data-kind="year">Year</button>
+        </div>
+        <div class="span-nav">
+          <button type="button" class="icon-btn" id="spanPrev" aria-label="Earlier"><svg><use href="#i-left"/></svg></button>
+          <h2 id="spanTitle" aria-live="polite"></h2>
+          <button type="button" class="icon-btn" id="spanNext" aria-label="Later"><svg><use href="#i-right"/></svg></button>
+        </div>
       </div>
-      <div class="filters" id="filters" role="group" aria-label="Show only"></div>
-      <div id="newEntry"></div>
-      <div class="entry-list" id="entryList"></div>
+
+      <section class="numbers" id="numbers" aria-label="Counted by the app"></section>
+      <section class="strip-card" id="strip" aria-label="Day by day"></section>
+      <section class="notes" id="notes" aria-label="Claude's notes"></section>
+      <section class="common" id="common" aria-label="Most common"></section>
+
+      <section class="diary" id="diarySection" aria-labelledby="diaryTitle">
+        <div class="look-head">
+          <h2 id="diaryTitle">Entries</h2>
+          <button type="button" class="btn" id="addEntryBtn"><svg><use href="#i-plus"/></svg>Add an entry</button>
+        </div>
+        <div id="focusBar"></div>
+        <div class="filters" id="filters" role="group" aria-label="Show only"></div>
+        <div id="newEntry"></div>
+        <div class="entry-list" id="entryList"></div>
+      </section>
     </div>
   </main>
 </div>

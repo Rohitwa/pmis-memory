@@ -82,6 +82,17 @@ A switch at the top flips between them: **Talk** and **Look back**.
 - **Claude writes three short sections:** how she is now, what's working, and what to try next.
 - **Every point has a "see" link.** It opens exactly the entries that point is based on. This is how you dig deeper.
 - **"Open all entries"** shows the full list for the period, which you can filter by type.
+- **Claude writes only when you tap.** The notes are saved, so reopening a month is instant. They show when they were written and how many entries changed since, with a Rewrite button.
+
+**How the app counts.** These rules are the same everywhere and are tested.
+
+| Rule | In plain words |
+|---|---|
+| A day's colour | The latest "How she is" entry that day decides it. A day with a symptom but no "How she is" counts as a bit off. A day with neither is grey, "not noted". |
+| A sick spell | Off or sick days in a row. A day with nothing noted ends the spell. |
+| Comparing | A finished span is compared with the whole one before. A span still in progress is compared with the same number of days of the one before, shown as "September so far". |
+| Grey days and Claude | Claude is told they are unknown, never that she was well. |
+| Claude's points | Each must name the entries behind it. The app drops any point whose entries don't exist. |
 
 ## 3. What the app saves
 

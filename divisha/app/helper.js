@@ -203,7 +203,8 @@ export function errorText(code) {
     case "session_expired": return "Your claude.ai sign-in has expired. Sign in again, then try again.";
     case "sampling_disabled": return "Claude isn't available on this account.";
     case "refused": return "Claude didn't answer that. Try saying it another way.";
-    case "prompt_too_large": return "There's too much to send at once. Start a shorter message.";
+    case "prompt_too_large": return "There's too much to send at once. Try a shorter message or a shorter time span.";
+    case "invalid_json": return "Claude's notes came back in a form the app couldn't read. Try again.";
     default: return "Claude couldn't answer just now. Try again.";
   }
 }
@@ -349,4 +350,266 @@ export function doseNote({ text = "", entries = [], profile = {} }) {
   const doctor = profile.doctorName ? ` with ${profile.doctorName}` : " with the doctor";
   if (!match) return `The app doesn't work out medicine doses. Please check${doctor}.`;
   return `The app doesn't work out medicine doses. The last dose you noted was "${match.what}" on ${dayLabel(match.date)}. Check${doctor} before changing it.`;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// Look back
+// ═════════════════════════════════════════════════════════════════════════
+
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function toDate(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function shortDay(key) {
+  return toDate(key).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
+// ─── Time spans: a week (Monday to Sunday), a month, or a year ───────────
+
+export function makeSpan(kind, anyDay) {
+  const d = toDate(anyDay);
+  let from, to;
+  if (kind === "week") {
+    from = addDays(anyDay, -((d.getDay() + 6) % 7));
+    to = addDays(from, 6);
+  } else if (kind === "year") {
+    from = `${d.getFullYear()}-01-01`;
+    to = `${d.getFullYear()}-12-31`;
+  } else {
+    kind = "month";
+    from = dayKey(new Date(d.getFullYear(), d.getMonth(), 1));
+    to = dayKey(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+  }
+  return { kind, from, to, key: `${kind}-${from}` };
+}
+
+export function stepSpan(span, dir) {
+  if (span.kind === "week") return makeSpan("week", addDays(span.from, 7 * dir));
+  if (span.kind === "year") return makeSpan("year", `${Number(span.from.slice(0, 4)) + dir}-01-01`);
+  const d = toDate(span.from);
+  return makeSpan("month", dayKey(new Date(d.getFullYear(), d.getMonth() + dir, 1)));
+}
+
+export function spanLabel(span, today = dayKey()) {
+  if (span.kind === "year") return span.from.slice(0, 4);
+  if (span.kind === "month") {
+    const d = toDate(span.from);
+    return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  if (span.from <= today && today <= span.to) return "This week";
+  if (makeSpan("week", addDays(today, -7)).from === span.from) return "Last week";
+  const a = toDate(span.from), b = toDate(span.to);
+  const sameMonth = a.getMonth() === b.getMonth();
+  const left = sameMonth ? String(a.getDate()) : shortDay(span.from);
+  return `${left} – ${shortDay(span.to)}`;
+}
+
+// How the previous span is named in "4 fewer than ...".
+export function previousName(span) {
+  if (span.kind === "week") return "the week before";
+  const prev = stepSpan(span, -1);
+  if (span.kind === "year") return prev.from.slice(0, 4);
+  return MONTHS[toDate(prev.from).getMonth()];
+}
+
+// What to compare with. While a span is still going, compare with the same
+// number of days of the one before ("September so far"), so a month
+// that's half over isn't measured against a whole month.
+export function comparisonSpan(span, today = dayKey()) {
+  const prev = stepSpan(span, -1);
+  if (!(span.from <= today && today <= span.to)) return { span: prev, name: previousName(span) };
+  let elapsed = 0;
+  for (let d = span.from; d <= today; d = addDays(d, 1)) elapsed += 1;
+  const to = addDays(prev.from, elapsed - 1);
+  return { span: { ...prev, to: to < prev.to ? to : prev.to }, name: `${previousName(span)} so far` };
+}
+
+export function compareText(now, before, prevName) {
+  const diff = now - before;
+  if (diff === 0) return `Same as ${prevName}`;
+  return `${Math.abs(diff)} ${diff < 0 ? "fewer" : "more"} than ${prevName}`;
+}
+
+// ─── Counting ────────────────────────────────────────────────────────────
+
+// How each day went. A "How she is" entry decides it (the latest one that
+// day wins). A day with a symptom but no "How she is" counts as a bit off.
+// A day with neither is "not noted".
+export function dayLevels(entries) {
+  const byDay = {};
+  for (const e of entries) {
+    const cur = byDay[e.date];
+    if (e.type === "health") {
+      if (!cur || cur.from !== "health" || (e.createdAt || "") >= cur.at) {
+        byDay[e.date] = { level: HEALTH[e.what] ? e.what : "off", from: "health", at: e.createdAt || "" };
+      }
+    } else if (e.type === "symptom" && !cur) {
+      byDay[e.date] = { level: "off", from: "symptom", at: "" };
+    }
+  }
+  return Object.fromEntries(Object.entries(byDay).map(([d, v]) => [d, v.level]));
+}
+
+// "Fever 39.4" and "Fever 38" are both "Fever"; "Paracetamol 5 ml" is "Paracetamol".
+export function baseLabel(what) {
+  const t = String(what || "")
+    .replace(/\bday\s*\d+\b/gi, "")
+    .replace(/\d+(\.\d+)?\s*(°\s*[cf]\b|ml\b|mg\b|kg\b|cm\b|drops?\b|tabs?\b|tablets?\b|[cf]\b)?/gi, "")
+    .replace(/[()\[\]\-–,.:;]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : "";
+}
+
+function mostCommon(list) {
+  const groups = new Map();
+  for (const e of list) {
+    const label = baseLabel(e.what) || e.what;
+    const key = label.toLowerCase();
+    if (!groups.has(key)) groups.set(key, { label, count: 0, ids: [] });
+    const g = groups.get(key);
+    g.count += 1;
+    if (e.id) g.ids.push(e.id);
+  }
+  return [...groups.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)).slice(0, 5);
+}
+
+export function countSpan(entries, span, today = dayKey()) {
+  const inSpan = entries.filter(e => e.date >= span.from && e.date <= span.to);
+  const levels = dayLevels(inSpan);
+  const last = span.to < today ? span.to : today;
+  const days = { well: 0, off: 0, sick: 0, none: 0, total: 0 };
+  const spells = [];
+  let run = null;
+  for (let d = span.from; d <= last; d = addDays(d, 1)) {
+    const level = levels[d];
+    days.total += 1;
+    days[level || "none"] += 1;
+    if (level === "off" || level === "sick") {
+      if (run) { run.to = d; run.days += 1; if (level === "sick") run.worst = "sick"; }
+      else { run = { from: d, to: d, days: 1, worst: level }; spells.push(run); }
+    } else {
+      run = null;
+    }
+  }
+  const longest = spells.reduce((best, s) => (!best || s.days > best.days ? s : best), null);
+  return {
+    days,
+    unwellDays: days.off + days.sick,
+    spells: spells.length,
+    longest,
+    doctor: inSpan.filter(e => e.type === "doctor").length,
+    symptoms: mostCommon(inSpan.filter(e => e.type === "symptom")),
+    care: mostCommon(inSpan.filter(e => e.type === "care")),
+    entryCount: inSpan.length,
+    levels,
+    inProgress: span.from <= today && today <= span.to,
+    future: span.from > today,
+  };
+}
+
+// ─── Claude's notes ──────────────────────────────────────────────────────
+
+export const NOTE_SECTIONS = [
+  { key: "now", title: "How she is now", most: 2 },
+  { key: "working", title: "What's working", most: 3 },
+  { key: "tryNext", title: "Try next", most: 3 },
+  { key: "moments", title: "Important moments", most: 5 },
+];
+
+function numbersBlock(span, stats, prevStats, prevName, today) {
+  const label = spanLabel(span, today);
+  const sp = stats.longest ? ` Longest: ${stats.longest.days} day${stats.longest.days === 1 ? "" : "s"} (${shortDay(stats.longest.from)} to ${shortDay(stats.longest.to)}).` : "";
+  const list = (items) => (items.length ? items.map(i => `${i.label.toLowerCase()} (${i.count})`).join(", ") : "none");
+  return [
+    `Numbers for ${label}, counted by the app:`,
+    `- Days ${stats.inProgress ? "so far" : "in this span"}: ${stats.days.total}. Well: ${stats.days.well}. A bit off: ${stats.days.off}. Sick: ${stats.days.sick}. Not noted: ${stats.days.none}.`,
+    `- Sick spells (off or sick days in a row): ${stats.spells}.${sp}`,
+    `- Doctor visits: ${stats.doctor}.`,
+    `- Most common symptoms: ${list(stats.symptoms)}.`,
+    `- Care given most: ${list(stats.care)}.`,
+    `- ${prevName[0].toUpperCase() + prevName.slice(1)}, for comparison: well ${prevStats.days.well}, off or sick ${prevStats.unwellDays}, sick spells ${prevStats.spells}, doctor visits ${prevStats.doctor}.`,
+  ].join("\n");
+}
+
+// Builds what Claude reads to write the notes. Entries are numbered [1], [2]…
+// so Claude can point at them; `refs` turns those numbers back into entries.
+export function notesRequest({ profile = {}, span, entries, today = dayKey() }) {
+  const name = profile.name || "Divisha";
+  const stats = countSpan(entries, span, today);
+  const cmp = comparisonSpan(span, today);
+  const prevStats = countSpan(entries, cmp.span, today);
+  let list = entries
+    .filter(e => e.date >= span.from && e.date <= span.to)
+    .sort((a, b) => (a.date !== b.date ? (a.date < b.date ? -1 : 1) : (a.createdAt || "") < (b.createdAt || "") ? -1 : 1));
+  // A very full year: the day counts already cover "How she is", so leave those lines out.
+  if (list.length > 1500) list = list.filter(e => e.type !== "health");
+  const refs = list.map(e => e.id);
+  const lines = list.map((e, i) => `[${i + 1}] ${entryLine(e).slice(2)}`);
+  const label = spanLabel(span, today);
+  const age = ageText(profile.dob, today);
+
+  const saw = [
+    numbersBlock(span, stats, prevStats, cmp.name, today),
+    "",
+    `Diary entries for ${label} (${lines.length}):`,
+    ...lines,
+  ].join("\n");
+
+  const prompt = `You are writing the Look back notes in Divisha Wellness, a diary two parents keep about their daughter ${name}${age ? `, who is ${age}` : ""}. The aim is to make her life better over time.
+
+You are looking at ${label} (${span.from} to ${span.to}${stats.inProgress ? `, still in progress, today is ${today}` : ""}).
+
+Write like a caring friend who has read the diary carefully: warm, plain and specific. Talk to the parents as "you" and call her ${name}. Use short sentences and everyday words, with no medical jargon.
+
+Rules:
+- The numbers below were counted by the app. Use them exactly as given. Never recount or make up numbers.
+- Days that are "not noted" are unknown. Never treat them as well days.
+- You are not a doctor. Never diagnose. Never suggest a medicine or a dose. Ideas in "tryNext" are everyday care, routines, or "ask the doctor about ...".
+- Every point must list, in "see", the numbers of the diary entries it is based on. Leave out any point you can't back with entries.
+- If there are only a few entries, say so kindly in "now" and keep everything short.
+
+Reply with only this JSON:
+{"now":[{"text":"...","see":[1,2]}],"working":[{"text":"...","see":[3]}],"tryNext":[{"text":"...","see":[4]}],"moments":[{"text":"12 Oct: ...","see":[5]}]}
+- now: 1 or 2 points on how ${name} is at the end of this span.
+- working: up to 3 things that seem to help, and what the diary shows.
+- tryNext: 1 to 3 gentle ideas.
+- moments: up to 5 important moments such as doctor visits, new medicines or milestones. Start each with its date, like "12 Oct:".
+
+${saw}`;
+
+  return { prompt, refs, saw, stats };
+}
+
+// Checks Claude's notes: keeps only points that point at real entries.
+export function readNotes(raw, refs) {
+  const body = {};
+  let total = 0;
+  for (const { key, most } of NOTE_SECTIONS) {
+    const items = Array.isArray(raw?.[key]) ? raw[key] : [];
+    body[key] = items.map(p => {
+      const text = String(p?.text ?? "").trim().slice(0, 400);
+      const see = [...new Set((Array.isArray(p?.see) ? p.see : [])
+        .map(Number)
+        .filter(n => Number.isInteger(n) && n >= 1 && n <= refs.length)
+        .map(n => refs[n - 1]))];
+      return text && see.length ? { text, see } : null;
+    }).filter(Boolean).slice(0, most);
+    total += body[key].length;
+  }
+  return total ? body : null;
+}
+
+export async function writeNotes(sample, prompt, { signal } = {}) {
+  return sample.json(prompt, { modelTier: "default", cache: false, signal });
+}
+
+// How many entries in the span were added or changed after the notes were written.
+export function changedSince(entries, span, writtenAt) {
+  if (!writtenAt) return 0;
+  return entries.filter(e => e.date >= span.from && e.date <= span.to
+    && ((e.createdAt || "") > writtenAt || (e.editedAt || "") > writtenAt)).length;
 }
