@@ -94,3 +94,4 @@ proxy/.wrangler/
 # Divisha Wellness browser walkthrough output
 divisha/tests/browser/preview/
 divisha/tests/browser/shots/
+!divisha/app/index.html
