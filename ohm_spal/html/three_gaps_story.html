@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Gaps at Wakefit</title>
+<style>
+/* Layout: one centred column, large type, generous air; two views switched by hash. */
+:root {
+  --bg: #fbfbfd; --fg: #1d1d1f; --fg2: #6e6e73; --line: #d2d2d7; --accent: #0066cc; --soft: #f5f5f7;
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000; --fg: #f5f5f7; --fg2: #a1a1a6; --line: #3a3a3c; --accent: #2997ff; --soft: #1c1c1e; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #000; --fg: #f5f5f7; --fg2: #a1a1a6; --line: #3a3a3c; --accent: #2997ff; --soft: #1c1c1e; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--text); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 24px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+nav { display: flex; justify-content: center; margin-bottom: 72px; }
+.seg { display: inline-flex; background: var(--soft); border-radius: 999px; padding: 3px; }
+.seg a { text-decoration: none; color: var(--fg2); font-size: 14px; font-weight: 500; padding: 7px 18px; border-radius: 999px; }
+.seg a.on { background: var(--bg); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.seg a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.view[hidden] { display: none !important; }
+
+.eyebrow { font-size: 15px; font-weight: 600; color: var(--accent); letter-spacing: .01em; text-align: center; margin: 0 0 12px; }
+h1 { font-family: var(--display); font-size: clamp(36px, 6.4vw, 64px); font-weight: 700; letter-spacing: -.02em; line-height: 1.06; text-align: center; margin: 0 auto 20px; max-width: 16ch; text-wrap: balance; }
+.lede { font-size: clamp(18px, 2.4vw, 23px); color: var(--fg2); text-align: center; max-width: 34em; margin: 0 auto 72px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.015em; line-height: 1.12; text-align: center; margin: 96px auto 36px; max-width: 22ch; text-wrap: balance; }
+
+/* The flow figure: four states, three gaps */
+.flow { display: flex; align-items: center; gap: 0; margin: 0 auto 88px; }
+.node { flex: 0 0 auto; text-align: center; min-width: 0; }
+.node b { display: block; font-size: 17px; font-weight: 600; }
+.node span { display: block; font-size: 13px; color: var(--fg2); }
+.gap { flex: 1 1 0; min-width: 0; position: relative; text-align: center; padding: 0 10px; }
+.gap::before { content: ""; display: block; border-top: 2px dashed var(--line); }
+.gap em { position: absolute; left: 50%; transform: translateX(-50%); top: 10px; font-style: normal; font-size: 13px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+@media (max-width: 640px) {
+  .flow { flex-direction: column; align-items: stretch; gap: 8px; }
+  .gap { padding: 22px 0; }
+  .gap::before { border-top: 0; border-left: 2px dashed var(--line); height: 44px; width: 0; margin: 0 auto; }
+  .gap em { top: 50%; left: calc(50% + 14px); transform: translateY(-50%); }
+}
+
+/* Three gaps, three columns */
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+@media (max-width: 720px) { .three { grid-template-columns: 1fr; gap: 56px; } }
+.g h3 { font-family: var(--display); font-size: 19px; font-weight: 600; margin: 0 0 6px; letter-spacing: -.01em; }
+.g .big { font-family: var(--display); font-size: clamp(48px, 7vw, 72px); font-weight: 700; letter-spacing: -.03em; line-height: 1; margin: 0 0 14px; font-variant-numeric: tabular-nums; }
+.g .what { font-size: 15px; color: var(--fg2); margin: 0 0 14px; }
+.g p { margin: 0 0 10px; font-size: 16px; }
+.g p + p { padding-top: 10px; border-top: 1px solid var(--line); }
+.g small { display: block; font-size: 12px; color: var(--fg2); margin-top: 4px; }
+
+/* Result band */
+.result { text-align: center; margin: 96px auto 0; }
+.result .big { font-family: var(--display); font-size: clamp(56px, 10vw, 112px); font-weight: 700; letter-spacing: -.035em; line-height: 1; margin: 0; }
+.result p { font-size: clamp(18px, 2.4vw, 23px); color: var(--fg2); max-width: 30em; margin: 16px auto 0; text-wrap: balance; }
+.six { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 14px; list-style: none; padding: 0; margin: 40px auto 0; max-width: 700px; }
+.six li { font-size: 15px; font-weight: 500; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; }
+
+/* Page 2 rows: gap on the left, Wakefit evidence on the right */
+.row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 32px 48px; padding: 40px 0; border-top: 1px solid var(--line); align-items: start; }
+.row:last-of-type { border-bottom: 1px solid var(--line); }
+@media (max-width: 720px) { .row { grid-template-columns: 1fr; gap: 16px; } }
+.row .k { font-size: 15px; font-weight: 600; color: var(--accent); margin: 0 0 6px; }
+.row h3 { font-family: var(--display); font-size: clamp(24px, 3.4vw, 32px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; margin: 0; text-wrap: balance; }
+.row .big { font-family: var(--display); font-size: clamp(48px, 7vw, 72px); font-weight: 700; letter-spacing: -.03em; line-height: 1; margin: 0 0 8px; font-variant-numeric: tabular-nums; }
+.row .what { font-size: 15px; color: var(--fg2); margin: 0; }
+.row ul { list-style: none; margin: 0; padding: 0; }
+.row li { font-size: 17px; padding: 10px 0; border-top: 1px solid var(--line); }
+.row li:first-child { border-top: 0; padding-top: 0; }
+.row li small { display: block; font-size: 12px; color: var(--fg2); margin-top: 2px; }
+
+.worth { margin: 96px auto 0; text-align: center; }
+.worth .big { font-family: var(--display); font-size: clamp(56px, 10vw, 112px); font-weight: 700; letter-spacing: -.035em; line-height: 1; margin: 0; }
+.worth p { font-size: clamp(18px, 2.4vw, 23px); color: var(--fg2); max-width: 30em; margin: 16px auto 0; text-wrap: balance; }
+.parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 820px; margin: 48px auto 0; text-align: center; }
+@media (max-width: 640px) { .parts { grid-template-columns: 1fr; } }
+.parts b { display: block; font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.parts span { font-size: 15px; color: var(--fg2); }
+.tag { max-width: 36em; margin: 72px auto 0; text-align: center; font-family: var(--display); font-size: clamp(20px, 2.8vw, 26px); font-weight: 500; letter-spacing: -.01em; line-height: 1.35; text-wrap: balance; }
+
+.foot { margin-top: 96px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg2); line-height: 1.6; }
+.foot a { color: inherit; }
+@media (prefers-reduced-motion: no-preference) { .view { animation: in .35s ease-out; } @keyframes in { from { opacity: .4; transform: translateY(6px) } to { opacity: 1; transform: none } } }
+</style></head><body>
+
+<div class="wrap">
+<nav><div class="seg"><a href="#problem" id="t-problem">The problem</a><a href="#wakefit" id="t-wakefit">At Wakefit</a></div></nav>
+
+<section class="view" id="problem">
+  <p class="eyebrow">The problem</p>
+  <h1>Your ERP sees everything. Someone still has to look.</h1>
+  <p class="lede">Every event in the business becomes a record, gets checked, and feeds a decision. At each handover, something is lost. The three losses add up.</p>
+
+  <div class="flow" aria-label="Flow from event to decision with three gaps">
+    <div class="node"><b>What happens</b><span>on the floor, at the gate, in the store</span></div>
+    <div class="gap"><em>time</em></div>
+    <div class="node"><b>What is recorded</b><span>in the ERP</span></div>
+    <div class="gap"><em>attention</em></div>
+    <div class="node"><b>What is checked</b><span>by a person</span></div>
+    <div class="gap"><em>capacity</em></div>
+    <div class="node"><b>What is decided</b><span>at the review</span></div>
+  </div>
+
+  <div class="three">
+    <div class="g">
+      <h3>The recording gap</h3>
+      <p class="big">9 days</p>
+      <p class="what">A bill sits nine days before it enters the system.</p>
+      <p>The month's picture arrives six days after the month ends.<small>APQC, median of 10,000 companies</small></p>
+      <p>Two of every three stock records are wrong, by about a third of the quantity.<small>DeHoratius and Raman, 370,000 records</small></p>
+    </div>
+    <div class="g">
+      <h3>The attention gap</h3>
+      <p class="big">4 to 5</p>
+      <p class="what">The number of checks a person can hold on one transaction.</p>
+      <p>One bill in five fails the match and goes to a person.<small>Ardent Partners, 212 teams</small></p>
+      <p>A human check misses a fifth to a third of what it looks at.<small>Drury; See, Human Factors</small></p>
+    </div>
+    <div class="g">
+      <h3>The decision gap</h3>
+      <p class="big">46%</p>
+      <p class="what">Of planning time goes to collecting and cleaning data.</p>
+      <p>Managers call most of their decision time wasted.<small>McKinsey, 1,259 managers</small></p>
+      <p>The review calendar sets the pace. The market does not wait for it.</p>
+    </div>
+  </div>
+
+  <div class="result">
+    <p class="big">30 to 70 days</p>
+    <p>From the event to the decision about it. By then the money has left, the price has moved and the stock has aged. The decision is a correction, not a choice.</p>
+    <ul class="six">
+      <li>Planning</li><li>Resource allocation</li><li>Inventory tracking</li><li>Material planning</li><li>Procurement risk</li><li>Working capital</li>
+    </ul>
+  </div>
+</section>
+
+<section class="view" id="wakefit" hidden>
+  <p class="eyebrow">At Wakefit</p>
+  <h1>The gaps have names here.</h1>
+  <p class="lede">Wakefit runs SAP across five plants, seven holding points and 165 stores. Each gap is written into its own filings.</p>
+
+  <div class="row">
+    <div><p class="k">The recording gap</p><p class="big">3 years</p><p class="what">The stock figure given to the bank did not match the books in FY22, FY23 and FY24.</p></div>
+    <ul>
+      <li>Inventory rose from ₹164 crore to ₹262 crore in six months.<small>March to September 2025, RHP</small></li>
+      <li>104 days of inventory against a sector norm of 80 to 90. That is ₹50 to 80 crore of stock the business does not need to hold.<small>DRHP, derived</small></li>
+      <li>Stock is the bank's security and the biggest operating problem. Nobody has one number for it.<small>Auditors' CARO remarks, DRHP</small></li>
+    </ul>
+  </div>
+
+  <div class="row">
+    <div><p class="k">The attention gap</p><p class="big">None</p><p class="what">No internal audit function until listing. Accounting software with no record of who changed what.</p></div>
+    <ul>
+      <li>14% of stock is provided against as slow-moving. It was 25% in FY23, a charge of about ₹36 crore in one year.<small>DRHP inventory note</small></li>
+      <li>A store employee fabricated bills. Small in money, but it is the one control sample disclosed, with 80 new stores a year coming.<small>Patna FIR, January 2025</small></li>
+      <li>Thousands of bills a month across plants and stores, and four or five checks per bill is the ceiling for any person.</li>
+    </ul>
+  </div>
+
+  <div class="row">
+    <div><p class="k">The decision gap</p><p class="big">30%</p><p class="what">Expected inflation on mattress material cost once old stock runs out.</p></div>
+    <ul>
+      <li>Polyol and TDI rose 30 to 160% in March 2026. 38% of raw material is imported, with no long-term contracts.<small>FY26 results, DRHP</small></li>
+      <li>The only hedge is pre-buying. Raw material stock doubled from ₹61 to ₹105 crore in nine months.<small>DRHP</small></li>
+      <li>Management says the margin is borrowed from old inventory. A daily price is answered with a quarterly buy, decided on a monthly picture.<small>FY26 commentary</small></li>
+    </ul>
+  </div>
+
+  <div class="worth">
+    <p class="big">₹24 crore</p>
+    <p>A year, added to the bottom line when the three gaps close. Range ₹16 to 34 crore.</p>
+    <div class="parts">
+      <div><b>₹3 to 7 cr</b><span>fewer write-downs on stock that aged unseen</span></div>
+      <div><b>₹4 to 9 cr</b><span>carrying cost on ₹50 to 80 crore less stock</span></div>
+      <div><b>₹5 to 10 cr</b><span>foam-chemical buys timed to the market, on ₹240 crore of spend</span></div>
+    </div>
+  </div>
+
+  <p class="tag">A stack that adds about ₹24 crore a year to Wakefit's bottom line by carrying less stock, timing foam-chemical buys to the market, and making OHM the one number that the plants, the books and the bank all trust.</p>
+</section>
+
+<p class="foot">Problem figures: Ardent Partners AP Metrics 2025; APQC Open Standards Benchmarking; DeHoratius and Raman, Management Science 2008; Drury and Fox 1975 and See, Human Factors 2015; FP&amp;A Trends Survey 2025; McKinsey, Decision making in the age of urgency 2019. Wakefit figures: DRHP and RHP (SBI Securities note), FY26 and Q1 FY27 results commentary, auditors' CARO remarks. Full evidence with grades in the three gaps report in the S-PAL wiki.</p>
+</div>
+
+<script>
+(function () {
+  var views = ["problem", "wakefit"];
+  function show() {
+    var h = (location.hash || "#problem").slice(1);
+    if (views.indexOf(h) < 0) h = "problem";
+    views.forEach(function (v) {
+      document.getElementById(v).hidden = v !== h;
+      document.getElementById("t-" + v).classList.toggle("on", v === h);
+    });
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", show);
+  show();
+})();
+</script>
+</body></html>

@@ -179,7 +179,7 @@ def build(out: Path, fragment: bool) -> list:
             '<section id="index"><h1>S-PAL Wiki</h1>',
             '<p class="sub">Specific P&amp;L levers per enterprise, filtered to what OHM controls, sized, and distilled to one line for the owner. Select a company.</p>',
             index_table(companies, lambda c: f'#{c["slug"]}'),
-            '<h2>Research notes</h2><ul><li><a href="three_gaps.html">The three gaps between what happens and what gets decided</a> — recording gap, attention gap, decision gap, with numbers and sources.</li></ul>',
+            '<h2>Research notes</h2><ul><li><a href="three_gaps.html">The three gaps between what happens and what gets decided</a> — recording gap, attention gap, decision gap, with numbers and sources.</li><li><a href="three_gaps_story.html">Three gaps, two pages</a> — the problem in plain words, then the same gaps found at Wakefit.</li></ul>',
             '</section>']
     body += [company_section(c, "#index", False) for c in companies]
     body.append('<p class="foot">Generated from <code>ohm_spal/companies/*.md</code> by <code>ohm_spal/build_html.py</code>.</p></div>')
