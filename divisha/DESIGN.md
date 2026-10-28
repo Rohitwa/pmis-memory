@@ -143,6 +143,18 @@ Plus one test file that checks the counting, the ideas and the warning signs wit
 
 The rule that keeps it understandable: **only `diary.js` saves or loads, and only `helper.js` talks to Claude.** If saving breaks, you look in one file. If an answer is wrong, you look in the other.
 
+**Where they are:** the five files are in `divisha/app/`. The live page is https://claude.ai/artifact/Pro9ma6DELS2utcssBPCRp.
+
+**How saving is laid out.** The page's storage holds at most 25,000 items, so each day's chat is one item, not one item per message. Inside it, each message has its own key, so two parents writing at the same moment don't overwrite each other. Each diary entry is its own item, which leaves room for many years.
+
+**Checking it works:**
+
+```bash
+node --test divisha/tests/*.test.js      # the counting, ideas, warnings and Claude packet
+```
+
+`divisha/tests/browser/` runs the whole app in a headless browser with a stand-in for claude.ai. Its README says how.
+
 ## 8. Build order
 
 Three steps. After each one you have something to open on your phone.
