@@ -178,13 +178,24 @@ def build(out: Path, fragment: bool) -> list:
     body = [sitehead(built, "#index"), '<div class="page">',
             '<section id="index"><h1>S-PAL Wiki</h1>',
             '<p class="sub">Specific P&amp;L levers per enterprise, filtered to what OHM controls, sized, and distilled to one line for the owner. Select a company.</p>',
-            index_table(companies, lambda c: f'#{c["slug"]}'), '</section>']
+            index_table(companies, lambda c: f'#{c["slug"]}'),
+            '<h2>Research notes</h2><ul><li><a href="three_gaps.html">The three gaps between what happens and what gets decided</a> — recording gap, attention gap, decision gap, with numbers and sources.</li></ul>',
+            '</section>']
     body += [company_section(c, "#index", False) for c in companies]
     body.append('<p class="foot">Generated from <code>ohm_spal/companies/*.md</code> by <code>ohm_spal/build_html.py</code>.</p></div>')
     inner = "\n".join(body)
     (out / "index.html").write_text(head(TITLE, False) + inner + tail(False), encoding="utf-8"); written.append(out / "index.html")
     if fragment:
         (out / "index.fragment.html").write_text(head(TITLE, True) + inner + tail(True), encoding="utf-8"); written.append(out / "index.fragment.html")
+
+    # research notes: ohm_spal/research/*.md -> standalone pages in the same style
+    for md in sorted(Path(__file__).resolve().parent.joinpath("research").glob("*.md")):
+        html = wrap_tables(w.render_markdown(md.read_text(encoding="utf-8")))
+        title = md.read_text(encoding="utf-8").splitlines()[0].lstrip("# ").strip()
+        page = (head(f'{title} — S-PAL', False).replace("<body>", '<body class="standalone">')
+                + sitehead(built, "index.html") + '<div class="page">' + html
+                + f'<p class="foot">Source file: <code>ohm_spal/research/{md.name}</code></p></div>' + tail(False))
+        p = out / f'{md.stem}.html'; p.write_text(page, encoding="utf-8"); written.append(p)
 
     # standalone page per company
     for c in companies:

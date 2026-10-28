@@ -36,6 +36,8 @@ enough; no restart needed.
 ## Status values
 
 - `In research` — steps 1–3 in progress, no OHM context yet
+
+Research notes that are not company-specific live in `ohm_spal/research/*.md`; the builder renders each as `ohm_spal/html/<name>.html` and links it from the index.
 - `Sized` — steps 4–5 done, tagline not yet agreed
 - `Tagline agreed` — ready to use with the account
 - `In conversation` — pitched, discovery under way

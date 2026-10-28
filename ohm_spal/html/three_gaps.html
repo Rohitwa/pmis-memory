@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The three gaps between what happens and what gets decided — S-PAL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Plain reference-page layout, after Wikipedia: white page, serif headings with a rule, blue links, grey-bordered tables. */
+:root {
+  --bg: #ffffff; --fg: #202122; --fg2: #54595d; --link: #3366cc; --rule: #a2a9b1;
+  --tbl-bg: #f8f9fa; --tbl-head: #eaecf0; --box: #f8f9fa;
+  --serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --sans: sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101418; --fg: #eaecf0; --fg2: #a2a9b1; --link: #88a3e9; --rule: #54595d;
+  --tbl-bg: #1b1f23; --tbl-head: #27292d; --box: #1b1f23; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow-x: clip; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.page { max-width: 960px; margin: 0 auto; min-width: 0; }
+.sitehead { font-size: 12px; color: var(--fg2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sitehead b { color: var(--fg); font-family: var(--serif); font-size: 15px; font-weight: normal; }
+
+h1, h2 { font-family: var(--serif); font-weight: normal; line-height: 1.3; margin: 0; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h1 { font-size: 28px; margin: 14px 0 4px; }
+h2 { font-size: 21px; margin: 24px 0 8px; }
+h3 { font-size: 15px; font-weight: bold; margin: 18px 0 6px; }
+p { margin: 8px 0; max-width: 75ch; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
+code { font-family: monospace; font-size: 12.5px; background: var(--tbl-bg); padding: 0 3px; }
+pre { overflow-x: auto; background: var(--tbl-bg); padding: 10px; border: 1px solid var(--rule); }
+ul, ol { padding-left: 24px; }
+li { margin: 2px 0; }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--rule); color: var(--fg2); }
+.sub { font-size: 12.5px; color: var(--fg2); margin: 2px 0 10px; }
+
+.tbl { overflow-x: auto; margin: 10px 0; }
+table { border-collapse: collapse; font-size: 13px; background: var(--tbl-bg); border: 1px solid var(--rule); min-width: 480px; }
+table.full { width: 100%; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; vertical-align: top; text-align: left; }
+th { background: var(--tbl-head); font-weight: bold; }
+td { font-variant-numeric: tabular-nums; }
+td.num { text-align: right; width: 1%; white-space: nowrap; }
+
+.tagline { border: 1px solid var(--rule); background: var(--box); padding: 10px 14px; margin: 12px 0 4px; font-family: var(--serif); font-size: 18px; line-height: 1.45; max-width: none; }
+
+details { margin: 6px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+details.sec > summary { font-size: 15px; font-weight: bold; }
+details.full > summary { font-family: var(--serif); font-size: 21px; font-weight: normal; border-bottom: 1px solid var(--rule); margin-top: 24px; padding-bottom: 6px; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::before { content: "[show] "; font-family: var(--sans); font-size: 12px; color: var(--link); }
+details.full[open] > summary::before { content: "[hide] "; }
+.analysis h1 { font-size: 21px; }
+.toc { border: 1px solid var(--rule); background: var(--tbl-bg); display: inline-block; padding: 8px 14px; margin: 10px 0; font-size: 13px; }
+.toc b { display: block; margin-bottom: 4px; }
+.toc a { display: block; }
+.foot { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--fg2); }
+
+/* Single-file navigation: a company section shows only when targeted; the index hides then. */
+.company { display: none; }
+.company:target { display: block; }
+body:has(.company:target) #index { display: none; }
+.standalone .company { display: block; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .tagline { font-size: 16px; } }
+</style>
+</head>
+<body class="standalone">
+<div class="sitehead"><span><b><a href="index.html" style="color:inherit">S-PAL Wiki</a></b> &middot; OHM value drivers by enterprise</span><span>Built 2026-10-28</span></div><div class="page"><h1 id="the-three-gaps-between-what-happens-and-what-gets-decided">The three gaps between what happens and what gets decided</h1>
+<p>A simplified evidence report. Prepared 28 Oct 2026 for the OHM narrative. Every number carries its source and a confidence grade: <strong>A</strong> peer-reviewed or primary filing, <strong>B</strong> industry body or large benchmark, <strong>C</strong> vendor or secondary citation of a primary source not checked directly.</p>
+<h2 id="1-the-model-in-three-lines">1. The model in three lines</h2>
+<p>A company's system of record is wrong in three places, and the three errors compound.</p>
+<ol><li><strong>The recording gap.</strong> Time passes between an event and its entry in the ERP. During that time the system is wrong by omission.</li><li><strong>The attention gap.</strong> A person entering or checking a record can hold four or five checks in mind. The record is accepted with the rest unchecked.</li><li><strong>The decision gap.</strong> The people who plan and decide have limited hours. Most of those hours go to assembling and cleaning data, and the decision waits for the review calendar.</li></ol>
+<p>The loss from any one decision is <strong>value at stake × share decided late or wrong × cost per day of delay</strong>. The three gaps set the "late" and the "wrong".</p>
+<h2 id="2-gap-1-the-recording-gap-sized">2. Gap 1: the recording gap, sized</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>What is measured</th><th>Number</th><th>Source</th><th>Grade</th><th>What it does to the company</th></tr></thead>
+<tbody>
+<tr><td>Days from invoice receipt to posting, average organisation</td><td>9.2 days</td><td>Ardent Partners, AP Metrics That Matter 2025, 212 AP teams</td><td>B</td><td>Payables, accruals and spend reports are more than a week behind reality</td></tr>
+<tr><td>Same, best-in-class vs laggards</td><td>3.1 days vs 17.4 days</td><td>Ardent Partners 2025</td><td>B</td><td>The gap between best and worst is two and a half weeks of blindness on every bill</td></tr>
+<tr><td>Calendar days to close the month, median</td><td>6.4 days (6.0 in a 2026 reading of 10,198 organisations)</td><td>APQC Open Standards Benchmarking</td><td>B</td><td>The first trustworthy view of a month arrives a week into the next one</td></tr>
+<tr><td>Same, top quartile vs bottom quartile</td><td>4.8 days vs 10+ days</td><td>APQC</td><td>B</td><td>Bottom-quartile firms decide on numbers two weeks stale</td></tr>
+<tr><td>Inventory records that are wrong</td><td>65% of 370,000 records across 37 stores</td><td>DeHoratius and Raman, Management Science 2008</td><td>A</td><td>Two of every three stock figures the ERP shows are not what is on the shelf</td></tr>
+<tr><td>Size of the error when wrong</td><td>Average absolute deviation ~35% of the item's actual stock</td><td>DeHoratius and Raman 2008</td><td>A</td><td>Replenishment, allocation and write-down decisions start from a number a third off</td></tr>
+<tr><td>Items customers could not find that were in the building</td><td>16% misplaced in the back room, not out of stock</td><td>Raman, DeHoratius and Ton, HBR 2001</td><td>A</td><td>The system said "in stock"; the customer left</td></tr>
+<tr><td>New records with at least one critical error</td><td>47%; only 3% of datasets met the loosest standard</td><td>Nagle, Redman and Sammon, HBR 2017, 75 executives auditing 100 recent records each</td><td>A</td><td>Half of what is entered needs a person to fix it before it can be used</td></tr>
+<tr><td>Supply-chain leaders with real-time visibility beyond tier three</td><td>Fewer than 25%</td><td>Gartner, cited secondhand</td><td>C</td><td>Most plans run on supplier data that is days or weeks old</td></tr>
+<tr><td>Goods received physically but posted at shift end</td><td>Common practice, not quantified</td><td>Warehouse-software vendors</td><td>C</td><td>Stock exists for hours before anyone else can see it</td></tr>
+</tbody></table></div>
+<p><strong>Effects.</strong> Retail out-of-stocks run at 8.3% worldwide (Gruen, Corsten and Bharadwaj 2002, grade B). Inventory distortion, out-of-stocks plus overstocks, costs retail 6.5% of global sales, $1.77 trillion in 2023 (IHL, grade B). Shrink runs at 1.6% of sales (NRF 2022 survey, grade B). Each of these is a recording gap that became a commercial loss.</p>
+<h2 id="3-gap-2-the-attention-gap-sized">3. Gap 2: the attention gap, sized</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>What is measured</th><th>Number</th><th>Source</th><th>Grade</th><th>What it does to the company</th></tr></thead>
+<tbody>
+<tr><td>Error rate of a single person keying data</td><td>0.95% of values wrong; only 5.5% of keyers got 1,260 values all right</td><td>Barchard and Pace 2011, 195 participants</td><td>A</td><td>One in a hundred fields is wrong on entry; almost nobody is error-free</td></tr>
+<tr><td>Same with a second person re-keying</td><td>0.027%</td><td>Barchard and Pace 2011</td><td>A</td><td>A second check cuts errors 35x; visual checking was no better than none</td></tr>
+<tr><td>Defects missed by a human inspector on complex tasks</td><td>20 to 30%</td><td>Drury and Fox 1975; See, Human Factors 2015</td><td>A</td><td>A person checking anything complex misses a fifth to a third of it</td></tr>
+<tr><td>Same when the inspection rate is doubled</td><td>Misses rise from 23% to 30%</td><td>Drury-based review, Sandia</td><td>A</td><td>Push people faster and they miss more</td></tr>
+<tr><td>Invoices that need manual exception handling</td><td>22% average; 9% best-in-class</td><td>Ardent Partners 2025</td><td>B</td><td>One bill in five cannot be matched and goes to a person</td></tr>
+<tr><td>Duplicate or erroneous payments, median organisation</td><td>1.5% of disbursements; 0.8% top performers, 2.0% bottom</td><td>APQC, cited secondhand</td><td>C</td><td>On ₹100 crore of payments, ₹1.5 crore goes out twice or wrongly</td></tr>
+<tr><td>Same, after a formal recovery audit</td><td>0.1 to 0.5% of total payments</td><td>IOFM, cited secondhand</td><td>C</td><td>Even audited environments leak a tenth to half a percent</td></tr>
+<tr><td>Largest single category of overpayment loss</td><td>Duplicate payments 18% of losses; pricing discrepancies 13%</td><td>APEX Analytix Global Overpayment Report 2026, $3.25 trillion of spend</td><td>B</td><td>Duplicates and wrong prices are the two biggest holes</td></tr>
+<tr><td>Revenue lost to occupational fraud</td><td>5% of revenue a year; median loss $145,000; billing schemes 22% of cases</td><td>ACFE Report to the Nations 2024</td><td>B</td><td>Fraud is a direct cost of unchecked transactions</td></tr>
+<tr><td>Time to detect a fraud</td><td>Median 12 months</td><td>ACFE 2024</td><td>B</td><td>A year of leakage before anyone notices</td></tr>
+<tr><td>Frauds caused by missing or overridden controls</td><td>More than half</td><td>ACFE 2024</td><td>B</td><td>The check existed on paper and was not performed</td></tr>
+<tr><td>Share of transactions an auditor actually looks at</td><td>Less than 100% by definition; illustrative samples of 25 in 10,000</td><td>PCAOB AS 2315; vendor illustration</td><td>B / C</td><td>Assurance rests on a sample; the population is unchecked</td></tr>
+<tr><td>Indirect spend bought off-contract</td><td>29 to 30%</td><td>Hackett Group, cited secondhand</td><td>C</td><td>A third of indirect buying never meets the negotiated terms</td></tr>
+<tr><td>Negotiated savings lost to off-contract buying</td><td>5 to 16%</td><td>Hackett Group, cited secondhand</td><td>C</td><td>The saving was agreed and then not collected</td></tr>
+</tbody></table></div>
+<p><strong>Effects.</strong> The attention gap converts to leakage that is small per transaction and large in total: 1.5% of disbursements, 5% of revenue to fraud, a tenth of negotiated savings. None of these shows up as a line in the P&amp;L. They are found at audit, at recovery, or never.</p>
+<h2 id="4-gap-3-the-decision-gap-sized">4. Gap 3: the decision gap, sized</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>What is measured</th><th>Number</th><th>Source</th><th>Grade</th><th>What it does to the company</th></tr></thead>
+<tbody>
+<tr><td>FP&amp;A time spent collecting and validating data</td><td>46%; only 31% on insight and action</td><td>FP&amp;A Trends Survey 2025</td><td>B</td><td>Half the planning function is a data-cleaning function</td></tr>
+<tr><td>Same, earlier survey</td><td>42% gathering, 33% administering, 25% analysing</td><td>AFP and APQC, c. 2023</td><td>B</td><td>A quarter of the hours go to the job the team exists for</td></tr>
+<tr><td>Manager time spent on decisions</td><td>37% (modelled); 61% of it ineffective; $250 million a year of wages at a typical Fortune 500</td><td>McKinsey, Decision making in the age of urgency, 2019, 1,259 managers</td><td>B</td><td>Decision capacity is the scarce resource, and most of it is wasted on assembling the picture</td></tr>
+<tr><td>Managers who say their organisation excels at decisions</td><td>20%</td><td>McKinsey 2019</td><td>B</td><td></td></tr>
+<tr><td>Monthly demand forecast accuracy, median</td><td>85% across 1,068 organisations</td><td>APQC, cited secondhand</td><td>C</td><td>A 15% miss at aggregate level</td></tr>
+<tr><td>Same at SKU level for a mixed catalogue</td><td>30 to 40% error; 60%+ volume-weighted</td><td>IBF benchmarks via vendor sources</td><td>C</td><td>The aggregate hides where the stock is wrong</td></tr>
+<tr><td>Value lost to poor contract management</td><td>9.2% of annual revenue (9% in the 2012 study)</td><td>IACCM / WorldCC 2012 to 2013 benchmark</td><td>B</td><td>The contract said one thing; what was paid and collected was another</td></tr>
+<tr><td>Change orders as a share of contract value</td><td>4 to 5% average across 892,457 change orders on 18,229 US projects; up to 13% on $5 to 10 million projects</td><td>AIA Contract Documents analysis</td><td>B</td><td>Scope moves after the quote; whoever tracks it keeps the margin</td></tr>
+<tr><td>Same, industry self-reports</td><td>8 to 14%; 11 to 15% band most common in a contractor survey</td><td>Rhumbix; ScienceDirect survey</td><td>C</td><td></td></tr>
+<tr><td>Megaprojects over budget by more than 30%</td><td>98%; 77% at least 40% late</td><td>McKinsey construction productivity research</td><td>B</td><td>The plan is wrong, and it is known late</td></tr>
+<tr><td>Average cost overrun, transport megaprojects</td><td>28%; nine in ten overrun</td><td>Flyvbjerg</td><td>A</td><td></td></tr>
+<tr><td>Cost of poor data quality per organisation</td><td>$12.9 million a year</td><td>Gartner 2020, cited secondhand</td><td>C</td><td></td></tr>
+</tbody></table></div>
+<p><strong>Effects.</strong> The decision gap is not that managers decide badly. It is that the decision is made from a picture that took weeks to assemble and is already old, by people who had a quarter of their time to think about it.</p>
+<h2 id="5-how-the-three-gaps-compound">5. How the three gaps compound</h2>
+<p>Take one vendor bill in a mid-sized Indian manufacturer and follow it.</p>
+<div class="tbl"><table class="full">
+<thead><tr><th>Step</th><th>Typical lag</th><th>Gap</th></tr></thead>
+<tbody>
+<tr><td>Goods arrive, receipt posted at shift end or next day</td><td>1 day</td><td>Recording</td></tr>
+<tr><td>Invoice arrives, matched and posted</td><td>9 days average</td><td>Recording</td></tr>
+<tr><td>One in five bills raises an exception, resolved by hand</td><td>7 days at bottom performers</td><td>Attention</td></tr>
+<tr><td>Four or five checks performed; price variance, duplicate, MSME status, GST filing status mostly not</td><td>0 days, permanent</td><td>Attention</td></tr>
+<tr><td>Payables appear in the monthly close</td><td>6 days after month end</td><td>Recording</td></tr>
+<tr><td>Spend and margin reviewed at the monthly or quarterly meeting</td><td>15 to 45 days</td><td>Decision</td></tr>
+<tr><td><strong>Event to decision</strong></td><td><strong>30 to 70 days</strong></td><td></td></tr>
+</tbody></table></div>
+<p>Across that window the money has left, the price has moved, the stock has aged, and the decision is a correction, not a choice. The six operating problems in the OHM narrative are this window seen from six angles: planning, resource allocation, inventory tracking, material planning, procurement risk and working capital.</p>
+<h2 id="6-where-each-gap-bites-by-type-of-organisation">6. Where each gap bites, by type of organisation</h2>
+<div class="tbl"><table class="full">
+<thead><tr><th>Organisation type</th><th>Dominant gap</th><th>Why</th><th>Evidence from the accounts in this wiki</th></tr></thead>
+<tbody>
+<tr><td>Process manufacturer with commodity inputs (metals, chemicals, foam)</td><td>Recording, then decision</td><td>Input prices move daily; stock cover and landed cost are known monthly; pre-buying is the only hedge</td><td>Wakefit: raw material doubled to ₹105 cr in nine months; margin "borrowed from old inventory"; bank stock statement and books disagreed three years running</td></tr>
+<tr><td>Multi-site assembler with OEM price-variation clauses</td><td>Attention</td><td>Compensation depends on proving metal weight and lot cost per part; nobody holds that in their head</td><td>Auto Ignition: pass-through lagged one to two quarters and partial; receivables 75 to 100 days</td></tr>
+<tr><td>D2C or omnichannel brand</td><td>Recording and decision</td><td>Stock sits in warehouses, stores, dark stores and platforms; sell-out is seen late; new SKUs launched faster than old ones are judged</td><td>Snitch: 5,000 SKUs, current assets 45% of revenue, two FY25 numbers in circulation; The Whole Truth: ₹60 cr working-capital gap found at year end</td></tr>
+<tr><td>Project business (design-and-build, EPC)</td><td>Attention and decision</td><td>Thousands of vendor bills against a BoQ; scope changes paid to vendors but unbilled; margin known at closure</td><td>Flipspaces: its own job posting names "commercial controls around budgeting, billing, change orders, cost overruns and project closure" as the gap</td></tr>
+<tr><td>Diversified group with outsourced operations</td><td>Attention</td><td>Plants run by O&amp;M contractors and contract labour; thousands of vendors on 64 days of credit; five ERPs after a split</td><td>Vedanta: 24 contractor deaths at one plant; creditor days 64 vs debtor days 9</td></tr>
+</tbody></table></div>
+<h2 id="7-what-the-evidence-does-and-does-not-support">7. What the evidence does and does not support</h2>
+<p><strong>Supported strongly.</strong> The recording gap is a week to two weeks on transactions and a week on the monthly picture. Stock records are wrong two times in three. Half of new records need fixing. A person misses a fifth to a third of what they check. One bill in five needs manual handling. One to two percent of payments go out wrong. Planners spend half their time cleaning data.</p>
+<p><strong>Supported, but by vendor or secondary citation.</strong> Duplicate-payment rates, maverick-spend rates, SKU-level forecast error, the Gartner cost figure. Use them with the grade shown, or confirm against the primary report before putting them on a slide.</p>
+<p><strong>Not found in this research.</strong> A study that measures goods-receipt posting lag directly. A published figure for excess-and-obsolete write-downs as a share of inventory by industry. An academic measurement of how many checks a person performs per transaction; the "four or five" in the model is an assumption supported by the inspection and data-entry literature, not a measured count.</p>
+<h2 id="sources">Sources</h2>
+<ul><li>Ardent Partners, AP Metrics That Matter in 2025 (Pagero edition): <a href="https://www.datocms-assets.com/80283/1744404602-ardent-partners-ap-metrics-that-matter-in-2025-pagero-final.pdf" target="_blank" rel="noopener">https://www.datocms-assets.com/80283/1744404602-ardent-partners-ap-metrics-that-matter-in-2025-pagero-final.pdf</a></li><li>APQC, How Can You Improve the Month-End Closing Process: <a href="https://www.apqc.org/How-Can-You-Improve-the-Month-End-Closing-Process" target="_blank" rel="noopener">https://www.apqc.org/How-Can-You-Improve-the-Month-End-Closing-Process</a></li><li>CFO.com, Metric of the Month, cycle time for monthly close (APQC data): <a href="https://www.cfo.com/news/metric-of-the-month-cycle-time-for-monthly-close/659297/" target="_blank" rel="noopener">https://www.cfo.com/news/metric-of-the-month-cycle-time-for-monthly-close/659297/</a></li><li>DeHoratius and Raman, Inventory Record Inaccuracy: An Empirical Analysis, Management Science 54(4), 2008: <a href="https://dl.acm.org/doi/abs/10.1287/mnsc.1070.0789" target="_blank" rel="noopener">https://dl.acm.org/doi/abs/10.1287/mnsc.1070.0789</a></li><li>Cardiff / ECR, Inventory Inaccuracy in Retailing: Does it Matter: <a href="https://www.cardiff.ac.uk/__data/assets/pdf_file/0003/1729236/84486-ECR-Inventory-Inaccuracy-Report-v12.pdf" target="_blank" rel="noopener">https://www.cardiff.ac.uk/__data/assets/pdf_file/0003/1729236/84486-ECR-Inventory-Inaccuracy-Report-v12.pdf</a></li><li>Nagle, Redman and Sammon, Only 3% of Companies' Data Meets Basic Quality Standards, HBR 2017: <a href="https://hbr.org/2017/09/only-3-of-companies-data-meets-basic-quality-standards" target="_blank" rel="noopener">https://hbr.org/2017/09/only-3-of-companies-data-meets-basic-quality-standards</a></li><li>Barchard and Pace, Preventing human error: the impact of data entry methods on data accuracy, 2011: <a href="https://www.researchgate.net/publication/220495402_Preventing_human_error_The_impact_of_data_entry_methods_on_data_accuracy_and_statistical_results" target="_blank" rel="noopener">https://www.researchgate.net/publication/220495402_Preventing_human_error_The_impact_of_data_entry_methods_on_data_accuracy_and_statistical_results</a></li><li>See, Visual Inspection Reliability for Precision Manufactured Parts, Human Factors 2015: <a href="https://journals.sagepub.com/doi/10.1177/0018720815602389" target="_blank" rel="noopener">https://journals.sagepub.com/doi/10.1177/0018720815602389</a></li><li>Sandia / OSTI, Visual Inspection: A Review of the Literature (Drury): <a href="https://www.osti.gov/servlets/purl/1055636" target="_blank" rel="noopener">https://www.osti.gov/servlets/purl/1055636</a></li><li>ACFE, Occupational Fraud 2024: A Report to the Nations: <a href="https://www.acfe.com/-/media/files/acfe/pdfs/rttn/2024/2024-report-to-the-nations.pdf" target="_blank" rel="noopener">https://www.acfe.com/-/media/files/acfe/pdfs/rttn/2024/2024-report-to-the-nations.pdf</a></li><li>APEX Analytix, overpayment report coverage: <a href="https://cfotech.in/story/apexanalytix-report-says-overpayments-start-beyond-ap" target="_blank" rel="noopener">https://cfotech.in/story/apexanalytix-report-says-overpayments-start-beyond-ap</a></li><li>PCAOB AS 2315, Audit Sampling: <a href="https://pcaobus.org/oversight/standards/auditing-standards/details/AS2315" target="_blank" rel="noopener">https://pcaobus.org/oversight/standards/auditing-standards/details/AS2315</a></li><li>Hackett Group figures via Zycus: <a href="https://www.zycus.com/blog/spend-management/tail-spend-vs-tactical-spend-vs-maverick-spend" target="_blank" rel="noopener">https://www.zycus.com/blog/spend-management/tail-spend-vs-tactical-spend-vs-maverick-spend</a></li><li>FP&amp;A Trends Survey 2025: <a href="https://fpa-trends.com/sites/default/files/docs/FPA-Trends-Survey-2025-OneStream.pdf" target="_blank" rel="noopener">https://fpa-trends.com/sites/default/files/docs/FPA-Trends-Survey-2025-OneStream.pdf</a></li><li>Vena, FP&amp;A professionals spend 25% of time on analysis (AFP/APQC): <a href="https://www.venasolutions.com/blog/time-spent-on-analysis" target="_blank" rel="noopener">https://www.venasolutions.com/blog/time-spent-on-analysis</a></li><li>McKinsey, Decision making in the age of urgency, 2019: <a href="https://www.mckinsey.com/capabilities/people-and-organization/our-insights/decision-making-in-the-age-of-urgency" target="_blank" rel="noopener">https://www.mckinsey.com/capabilities/people-and-organization/our-insights/decision-making-in-the-age-of-urgency</a></li><li>Gruen, Corsten and Bharadwaj, Retail Out-of-Stocks: A Worldwide Examination, GMA 2002: <a href="https://www.nacds.org/pdfs/membership/out_of_stock.pdf" target="_blank" rel="noopener">https://www.nacds.org/pdfs/membership/out_of_stock.pdf</a></li><li>IHL Group, inventory distortion $1.77 trillion (2023) and 6.5% of sales (2025 edition): <a href="https://www.ihlservices.com/product/fixing-inventory-distortion-whos-winning-whos-failing-whats-working/" target="_blank" rel="noopener">https://www.ihlservices.com/product/fixing-inventory-distortion-whos-winning-whos-failing-whats-working/</a></li><li>NRF, shrink 1.6% of sales (2022): <a href="https://invue.com/resource-center/blog/6-retail-shrinkage-statistics" target="_blank" rel="noopener">https://invue.com/resource-center/blog/6-retail-shrinkage-statistics</a></li><li>IACCM / WorldCC, poor contract management costs 9% of revenue (2012): <a href="https://www.iaccm.com/resources/?id=6845" target="_blank" rel="noopener">https://www.iaccm.com/resources/?id=6845</a></li><li>AIA Contract Documents change-order analysis via Rhumbix: <a href="https://www.rhumbix.com/blog/change-orders-construction-definitive-guide" target="_blank" rel="noopener">https://www.rhumbix.com/blog/change-orders-construction-definitive-guide</a></li><li>McKinsey, The construction productivity imperative: <a href="https://www.mckinsey.com/capabilities/operations/our-insights/the-construction-productivity-imperative" target="_blank" rel="noopener">https://www.mckinsey.com/capabilities/operations/our-insights/the-construction-productivity-imperative</a></li><li>Flyvbjerg, What You Should Know About Megaprojects, and Why: <a href="https://arxiv.org/pdf/1409.0003" target="_blank" rel="noopener">https://arxiv.org/pdf/1409.0003</a></li><li>Gartner data-quality cost via secondary: <a href="https://sapienceanalytics.com/wp-content/uploads/2022/01/Infographic-Data-Quality.pdf" target="_blank" rel="noopener">https://sapienceanalytics.com/wp-content/uploads/2022/01/Infographic-Data-Quality.pdf</a></li></ul><p class="foot">Source file: <code>ohm_spal/research/three_gaps.md</code></p></div></body>
+</html>
