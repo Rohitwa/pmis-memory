@@ -33,7 +33,7 @@ async function context(opts = {}) {
 async function signIn(ctx, username, password) {
   const p = await ctx.newPage();
   p.on("pageerror", e => errors.push(`${username}: ${e}`));
-  p.on("console", m => { if (m.type() === "error" && !/favicon|ERR_ABORTED|status of (400|403|404|415)/.test(m.text())) errors.push(`${username}: ${m.text()}`); });
+  p.on("console", m => { if (m.type() === "error" && !/favicon|ERR_ABORTED|ERR_INTERNET_DISCONNECTED|status of (400|403|404|415)/.test(m.text())) errors.push(`${username}: ${m.text()}`); });
   await p.goto(BASE + "/");
   await p.fill("#username", username);
   await p.fill("#password", password);
@@ -146,6 +146,36 @@ check((await raw(V, "POST", "/api/claude", JSON.stringify({ turns: [{ role: "use
 await V.click(".sections a[data-view=docs]");
 await V.waitForSelector(".doc-row");
 check(!(await V.isVisible("#addDocBtn")), "the viewer can see documents but not add them");
+
+
+// ── Installable as an Android app ──
+const man = await anon.request.get(BASE + "/manifest.webmanifest");
+const manifest = await man.json();
+check(man.status() === 200 && manifest.name === "Divisha Wellness" && manifest.display === "standalone", "the app manifest is served, signed in or not");
+check(manifest.icons.some(i => i.purpose === "maskable") && manifest.icons.some(i => i.sizes === "512x512"), "with a 512 px icon and an Android maskable icon");
+for (const icon of manifest.icons) check((await anon.request.get(BASE + icon.src)).status() === 200, `icon ${icon.src} loads`);
+const iCtx = await context({ viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2,
+  userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36" });
+const I = await signIn(iCtx, "ananya", "test-password-ananya");
+await I.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+check(true, "the offline helper registers");
+const cdp = await iCtx.newCDPSession(I);
+const appManifest = await cdp.send("Page.getAppManifest");
+check(!appManifest.errors?.length, `Chrome reads the manifest without errors${appManifest.errors?.length ? ": " + JSON.stringify(appManifest.errors) : ""}`);
+const { installabilityErrors } = await cdp.send("Page.getInstallabilityErrors");
+const blocking = installabilityErrors.filter(e => e.errorId !== "in-incognito");
+check(!blocking.length, `Chrome says it can be installed${blocking.length ? ": " + blocking.map(e => e.errorId).join(", ") : ""}`);
+await I.reload();
+await I.waitForSelector("#messages[data-state=ready]");
+await I.waitForFunction(() => !!navigator.serviceWorker.controller);
+await iCtx.setOffline(true);
+await I.reload();
+await I.waitForSelector(".brand h1");
+check((await I.textContent(".brand h1")).includes("Wellness") && await I.isVisible("#offline"), "with no connection, the installed app still opens and says it's offline");
+await I.screenshot({ path: `${SHOTS}/e2e-05-android-offline.png` });
+await iCtx.setOffline(false);
+const out = await anon.request.get(BASE + "/logout", { maxRedirects: 0 });
+check(/"cache"/.test(out.headers()["clear-site-data"] || ""), "Sign out also clears the app's saved copy on that device");
 
 // ── Signing out ──
 await R.goto(BASE + "/logout");

@@ -1,0 +1,23 @@
+{
+  "id": "/",
+  "name": "Divisha Wellness",
+  "short_name": "Divisha",
+  "description": "A shared diary for Divisha's health and care.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f5f9",
+  "theme_color": "#f6f5f9",
+  "lang": "en",
+  "categories": ["health", "lifestyle", "medical"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Talk", "url": "/#talk", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Documents", "url": "/#documents", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Time-based analysis", "url": "/#analysis", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

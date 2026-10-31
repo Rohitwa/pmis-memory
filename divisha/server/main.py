@@ -41,14 +41,25 @@ APP_FILES = {"style.css": "text/css", "screens.js": "text/javascript", "diary.js
 UPLOAD_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"}
 MAX_UPLOAD = 20 * 1024 * 1024
 
+# What makes the site installable as an app on Android (and iPhone).
+APP_HEAD = ('<link rel="manifest" href="/manifest.webmanifest">'
+            '<meta name="theme-color" content="#f6f5f9" media="(prefers-color-scheme: light)">'
+            '<meta name="theme-color" content="#15131b" media="(prefers-color-scheme: dark)">'
+            '<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">'
+            '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">'
+            '<meta name="apple-mobile-web-app-title" content="Divisha">')
+
 # The same wrapper claude.ai puts around the page, plus the adapter script.
 SKELETON = ('<!doctype html><html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">'
             '<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}'
             'body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}'
-            '[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="/claude-shim.js"></script></head><body>\n')
+            '[hidden]:not([hidden=until-found i]){display:none!important}</style>' + APP_HEAD +
+            '<script src="/claude-shim.js"></script></head><body>\n')
 
 store = Store(os.environ.get("DATA_DIR", HERE.parent / "data"))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+for noisy in ("httpx", "httpx2", "anthropic"):
+    logging.getLogger(noisy).setLevel(logging.WARNING)       # log problems, not every request
 if not configured():
     logging.getLogger("divisha").warning("ANTHROPIC_API_KEY is not set: Claude won't answer until it is")
 app = FastAPI(title="Divisha Wellness", docs_url=None, redoc_url=None, openapi_url=None)
@@ -102,7 +113,7 @@ def too_many_attempts(ip: str) -> bool:
 def login_page(error: str = ""):
     html = (STATIC / "login.html").read_text()
     message = {"wrong": "That username and password don't match.", "slow": "Too many tries. Wait 15 minutes, then try again."}.get(error, "")
-    return html.replace("{{error}}", message).replace("{{hidden}}", "" if message else "hidden")
+    return html.replace("{{error}}", message).replace("{{hidden}}", "" if message else "hidden").replace("{{app_head}}", APP_HEAD)
 
 
 @app.post("/login")
@@ -127,6 +138,7 @@ def logout(request: Request):
     store.end_session(request.cookies.get(COOKIE))
     response = RedirectResponse("/login", status_code=303)
     response.delete_cookie(COOKIE, path="/")
+    response.headers["Clear-Site-Data"] = '"cache", "storage"'
     return response
 
 
@@ -148,6 +160,29 @@ def index(request: Request):
 @app.get("/claude-shim.js")
 def shim():
     return FileResponse(STATIC / "claude-shim.js", media_type="text/javascript", headers={"Cache-Control": "no-cache"})
+
+
+# ─── The installable app (public: these hold nothing private) ───────────
+
+@app.get("/manifest.webmanifest")
+def manifest():
+    return FileResponse(STATIC / "manifest.webmanifest", media_type="application/manifest+json", headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/sw.js")
+def service_worker():
+    return FileResponse(STATIC / "sw.js", media_type="text/javascript", headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"})
+
+
+ICONS = {"icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "icon.svg"}
+
+
+@app.get("/icons/{name}")
+def icon(name: str):
+    if name not in ICONS:
+        raise HTTPException(404)
+    return FileResponse(STATIC / "icons" / name, media_type="image/svg+xml" if name.endswith(".svg") else "image/png",
+                        headers={"Cache-Control": "public, max-age=604800"})
 
 
 @app.get("/{name}")

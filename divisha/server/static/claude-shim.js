@@ -237,4 +237,9 @@
   };
   window.claude = Object.freeze({ use: async (name) => (caps[name] ? caps[name]().catch(() => null) : null) });
   window.divishaHost = Object.freeze({ signOutUrl: "/logout" });
+
+  // Installable app: a small helper that lets it open without a connection.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  }
 })();

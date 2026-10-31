@@ -74,6 +74,19 @@ Leave the NS, SOA, `_domainconnect` and `_dmarc` records as they are, and make
 sure no domain forwarding is set. Then check with
 `fly certs check divisha-singh.com -a divisha-wellness`.
 
+## As an app on Android (and iPhone)
+
+The site can be installed as an app: its own icon, full screen without the
+browser bar, and it opens even without a connection (it then says it's offline).
+
+- **Android (Chrome):** open the site, sign in, then tap the ⋮ menu and **Install app** (or **Add to Home screen**, then **Install**).
+- **iPhone (Safari):** open the site, sign in, tap **Share**, then **Add to Home Screen**.
+
+Long-pressing the icon on Android offers shortcuts to Talk, Documents and
+Time-based analysis. Signing out also clears the app's saved copy on that
+device. The diary, Claude's replies and document files are never stored in that
+saved copy; they always come from the server.
+
 ## Bringing the diary over from claude.ai
 
 1. In the claude.ai page, open About Divisha and use **Download a copy**. Keep the backup `.json` file.
