@@ -1,8 +1,9 @@
 # Divisha Wellness
 
 A shared diary for Divisha's health and care, made for two parents.
-You tell Claude about her day in **Talk**. You see how she's doing over a
-week, month or year in **Look back**.
+The left pane has three sections: **Talk**, where you tell Claude about her
+day and set her schedule; **Documents**, her papers with a title and brief
+each; and **Time-based analysis**, how she's doing over a week, month or year.
 
 - **Live page:** https://claude.ai/artifact/Pro9ma6DELS2utcssBPCRp
 - **Why it's built this way:** [DESIGN.md](DESIGN.md)
@@ -13,11 +14,11 @@ All in `app/`. Each has one job.
 
 | File | Its job |
 |---|---|
-| `index.html` | The layout of both screens and the About Divisha sheet |
+| `index.html` | The layout: the left pane, the three sections and the About Divisha sheet |
 | `style.css` | How it looks, in light and dark |
 | `screens.js` | Draws the screens and handles taps |
 | `diary.js` | **The only file that saves or loads** |
-| `helper.js` | **The only file that talks to Claude**, plus the counting, ideas for today, warning signs and the downloaded copy |
+| `helper.js` | **The only file that talks to Claude**, plus her schedule rules, ideas for today, the counting, warning signs and the downloaded copy |
 
 If saving breaks, look in `diary.js`. If an answer, a number or a warning is
 wrong, look in `helper.js`.
@@ -33,7 +34,10 @@ with as Contributor or Editor:
 | `chatList/<day>` | One line per day for Past chats |
 | `chats/<day>` | That day's whole conversation |
 | `entries/<id>` | One diary entry each |
-| `notes/<span>` | Claude's Look back notes, for example `notes/month-2026-10-01` |
+| `notes/<span>` | Claude's notes in Time-based analysis, for example `notes/month-2026-10-01` |
+| `schedules/<id>` | One item in her schedule |
+| `documents/<id>` | One document's title, brief, date and file id |
+| file storage | The document files themselves, shown at `/_blob/<file id>` |
 
 "Download a copy" in About Divisha saves all of it as two files: a readable
 diary (`.md`) and a full backup (`.json`).
@@ -46,7 +50,7 @@ node --test divisha/tests/*.test.js     # counting, ideas, warnings, Claude pack
 
 `tests/browser/` runs the whole app in a headless browser with a stand-in
 for claude.ai. It covers Talk, Look back, the copy, view-only access,
-offline, keyboard use and a 320 px phone. Its README says how to run it.
+offline, keyboard use, a 320 px phone, her schedule and documents. Its README says how to run it.
 
 ## Publishing a change
 

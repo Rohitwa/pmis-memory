@@ -5,8 +5,23 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || 
 const errors = [];
 const check = (cond, msg) => { console.log(`${cond ? "PASS" : "FAIL"}  ${msg}`); if (!cond) process.exitCode = 1; };
 
+const painter = await (await browser.newContext()).newPage();
+const PNG = Buffer.from((await painter.evaluate(() => {
+  const c = Object.assign(document.createElement("canvas"), { width: 640, height: 820 });
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, 640, 820);
+  g.fillStyle = "#222"; g.font = "bold 34px sans-serif"; g.fillText("City Child Clinic", 40, 70);
+  g.font = "22px sans-serif"; g.fillText("Patient: Divisha   Age: 2y 4m", 40, 120);
+  g.fillText("Haemoglobin ........ 10.4 g/dL  (low)", 40, 190);
+  g.fillText("WBC ................ 8,200 /uL", 40, 230);
+  g.fillText("Platelets .......... 3.1 lakh /uL", 40, 270);
+  g.strokeStyle = "#999"; g.strokeRect(30, 150, 580, 150);
+  return c.toDataURL("image/png").split(",")[1];
+})), "base64");
+
 async function page(opts, url = base) {
   const ctx = await browser.newContext(opts);
+  await ctx.route("**/_blob/**", r => r.fulfill({ body: PNG, contentType: "image/png" }));
   const p = await ctx.newPage();
   p.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
   p.on("pageerror", e => errors.push(String(e)));
@@ -16,15 +31,18 @@ async function page(opts, url = base) {
 
 // ── Desktop, light, empty diary: the real first-use flow ──
 const d = await page({ viewport: { width: 1280, height: 820 }, colorScheme: "light" });
-await d.waitForSelector(".welcome");
-check(await d.isVisible("text=How was Divisha today?"), "welcome asks how she was");
+await d.waitForSelector("#messages[data-state=ready]");
+check(!(await d.isVisible(".welcome")) && await d.isVisible(".ideas .chip.action:has-text('Add her birth date')"), "no welcome card; an idea asks for her birth date");
+check(await d.isVisible(".sections a[data-view=talk][aria-current=page]"), "Talk is the default section");
 await d.screenshot({ path: `${S}/shots/1-desktop-empty.png` });
 
 await d.click("#settingsBtn");
 await d.fill("#sDob", "2024-06-15");
 await d.fill("#sDoctor", "Dr Mehta");
 await d.fill("#sPhone", "98200 12345");
-await d.fill("#r-0-what", "Vitamin D");
+await d.click("#addScheduleBtn");
+await d.fill("#sc-0-what", "Vitamin D");
+await d.fill("#sc-0-time", "09:00");
 await d.screenshot({ path: `${S}/shots/2-settings.png` });
 await d.click("#settingsSave");
 await d.waitForSelector("#ageLine:has-text('2 years')");
@@ -57,7 +75,7 @@ check(await d.isVisible(".chat-items >> text=Fever 39.4 since evening"), "today'
 await d.screenshot({ path: `${S}/shots/4-desktop-saved.png` });
 
 // Look back: edit and remove
-await d.click("#tabLook");
+await d.click(".sections a[data-view=look]");
 await d.waitForSelector(".entry");
 check(await d.locator(".entry").count() === 3, "Look back lists the 3 entries");
 await d.click(".entry >> nth=0 >> [data-act=edit]");
@@ -78,7 +96,7 @@ check(true, "an entry can be added by hand");
 await d.screenshot({ path: `${S}/shots/5-desktop-lookback.png` });
 
 // Stop mid-answer keeps the words written so far
-await d.click("#tabTalk");
+await d.click(".sections a[data-view=talk]");
 await d.fill("#composerText", "She was fine all day");
 await d.keyboard.press("Enter");
 await d.waitForSelector("#stopBtn:not([hidden])");
@@ -88,12 +106,12 @@ check(true, "Stop ends the answer and brings the Send button back");
 
 // ── Phone, dark, with example data ──
 const p = await page({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true, hasTouch: true }, base + "?seed=1");
-await p.waitForSelector(".welcome");
+await p.waitForSelector("#messages[data-state=ready]");
 await p.screenshot({ path: `${S}/shots/6-phone-dark-talk.png` });
 const wide = await p.evaluate(() => document.documentElement.scrollWidth);
 check(wide <= 390, `no sideways scroll on a phone (width ${wide})`);
 await p.click("#chatsBtn");
-await p.waitForSelector(".chat-pane.open");
+await p.waitForSelector(".side.open");
 await p.screenshot({ path: `${S}/shots/7-phone-drawer.png` });
 await p.click(".chat-items li >> nth=1 >> button");
 await p.waitForSelector(".msg.user");
@@ -106,14 +124,14 @@ check(await p.isVisible(".entry .by:has-text('Ananya')"), "entries show the othe
 
 // ── Phone, light, Claude unavailable ──
 const n = await page({ viewport: { width: 390, height: 844 }, colorScheme: "light" }, base + "?nosample=1");
-await n.waitForSelector(".welcome");
+await n.waitForSelector("#messages[data-state=ready]");
 check(await n.isVisible("text=Claude can't answer on this view"), "says plainly when Claude isn't available");
 check(await n.isDisabled("#sendBtn"), "Send is off when Claude isn't available");
 await n.screenshot({ path: `${S}/shots/10-phone-light-nosample.png` });
 
 
 // ── Look back with two months of example data (desktop, light) ──
-const L = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#look-back");
+const L = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#analysis");
 await L.waitForSelector(".tiles .tile");
 const monthName = new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 check((await L.textContent("#spanTitle")) === monthName, `opens on this month (${monthName})`);
@@ -188,7 +206,7 @@ await LP.screenshot({ path: `${S}/shots/16-phone-lookback.png`, fullPage: true }
 
 // ── Keep a copy ──
 const K = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1");
-await K.waitForSelector(".welcome");
+await K.waitForSelector("#messages[data-state=ready]");
 await K.click("#settingsBtn");
 check(await K.isVisible("#downloadBtn"), "About Divisha offers 'Download a copy'");
 await K.click("#downloadBtn");
@@ -205,13 +223,13 @@ check(backup.counts.entries === storeCounts.entries && backup.counts.chatDays ==
 await K.screenshot({ path: `${S}/shots/17-keep-copy.png` });
 
 const KD = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&decline=1");
-await KD.waitForSelector(".welcome");
+await KD.waitForSelector("#messages[data-state=ready]");
 await KD.click("#settingsBtn");
 await KD.click("#downloadBtn");
 await KD.waitForSelector("#copyStatus:has-text('Nothing was saved')");
 check(true, "saying no to both saves is reported plainly");
 const KN = await page({ viewport: { width: 1280, height: 900 } }, base + "?nodownloads=1");
-await KN.waitForSelector(".welcome");
+await KN.waitForSelector("#messages[data-state=ready]");
 await KN.click("#settingsBtn");
 check(!(await KN.isVisible("#downloadBtn")), "no download button where downloads don't work");
 
@@ -234,7 +252,7 @@ const offCtx = await browser.newContext({ viewport: { width: 390, height: 844 } 
 const O = await offCtx.newPage();
 O.on("pageerror", e => errors.push(String(e)));
 await O.goto(base + "?seed=1");
-await O.waitForSelector(".welcome");
+await O.waitForSelector("#messages[data-state=ready]");
 await offCtx.setOffline(true);
 await O.waitForSelector("#offline:not([hidden])");
 await O.fill("#composerText", "She was fine");
@@ -246,11 +264,11 @@ check(!(await O.isDisabled("#sendBtn")), "back online: Send works again");
 
 // ── Keyboard only ──
 const KB = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1");
-await KB.waitForSelector(".welcome");
-await KB.focus("#tabLook");
+await KB.waitForSelector("#messages[data-state=ready]");
+await KB.focus(".sections a[data-view=look]");
 await KB.keyboard.press("Enter");
 await KB.waitForSelector(".tiles .tile");
-check(true, "keyboard: Enter on Look back switches screens");
+check(true, "keyboard: Enter on a section opens it");
 await KB.focus(".cal .day.lv-sick");
 await KB.keyboard.press("Enter");
 await KB.waitForSelector(".focus-bar");
@@ -266,7 +284,7 @@ check(ring !== "none", "keyboard: focused buttons show a ring");
 
 // ── The narrowest phones ──
 const N = await page({ viewport: { width: 320, height: 640 }, colorScheme: "light", isMobile: true, hasTouch: true }, base + "?seed=1");
-await N.waitForSelector(".welcome");
+await N.waitForSelector("#messages[data-state=ready]");
 const talkW = await N.evaluate(() => document.documentElement.scrollWidth);
 await N.screenshot({ path: `${S}/shots/19-320-talk.png` });
 await N.goto(base + "?seed=1#look-back");
@@ -274,6 +292,103 @@ await N.waitForSelector(".tiles .tile");
 const lookW = await N.evaluate(() => document.documentElement.scrollWidth);
 await N.screenshot({ path: `${S}/shots/20-320-lookback.png`, fullPage: true });
 check(talkW <= 320 && lookW <= 320, `320 px phone: no sideways scroll (Talk ${talkW}, Look back ${lookW})`);
+
+// ── Left pane ──
+const NAV = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1");
+await NAV.waitForSelector("#messages[data-state=ready]");
+const order = await NAV.$$eval(".side .sections a, .side .pane-title", els => els.map(e => e.textContent.replace(/\d+$/, "").trim()));
+check(order.join(" | ") === "Talk | Documents | Time-based analysis | Past chats", `left pane, top to bottom: ${order.join(" | ")}`);
+await NAV.goto(base + "?seed=1#look-back");
+await NAV.waitForSelector(".tiles .tile");
+check(await NAV.isVisible(".sections a[data-view=look][aria-current=page]"), "old #look-back links still open Time-based analysis");
+
+// ── Her schedule, from Talk ──
+const SC = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1");
+await SC.waitForSelector("#messages[data-state=ready]");
+check(await SC.isVisible(".ideas .chip.schedule:has-text('Coming up: Dr Mehta follow-up')"), "ideas include something coming up in her schedule");
+check(await SC.locator(".ideas .chip").count() <= 4, "ideas stop at four");
+await SC.fill("#composerText", "Remind me to give vitamin D drops every day at 9 am");
+await SC.keyboard.press("Enter");
+await SC.waitForSelector(".note-card .sched-row");
+check(await SC.isVisible(".note-card h3:has-text('Add to her schedule?')"), "Claude offers a schedule item in the card");
+const scTurns = await SC.evaluate(() => window.__lastTurns[0].content);
+check(/Her schedule \(3\):/.test(scTurns) && /Blood test report/.test(scTurns), "Claude is told her schedule and the documents kept");
+await SC.fill(".note-card .sched-row input[data-f=time]", "08:30");
+await SC.screenshot({ path: `${S}/shots/21-schedule-card.png` });
+await SC.click("[data-act=save-all]");
+await SC.waitForSelector(".saved-list .tag.schedule");
+const scheds = await SC.evaluate(() => [...window.__store.entries()].filter(([k]) => k.startsWith("schedules/")).map(([, v]) => v));
+check(scheds.length === 4 && scheds.some(x => x.time === "08:30" && x.repeat === "daily" && x.fromMessage), "saved to her schedule, with the time changed on the card");
+await SC.click("#settingsBtn");
+check(await SC.locator(".sched-row").count() === 4, "About Divisha lists her whole schedule");
+await SC.screenshot({ path: `${S}/shots/22-settings-schedule.png` });
+await SC.click(".sched-row >> nth=0 >> [data-act=sched-remove]");
+await SC.click("#settingsSave");
+await SC.waitForFunction(() => [...window.__store.keys()].filter(k => k.startsWith("schedules/")).length === 3);
+check(true, "removing an item in About Divisha deletes it");
+
+// ── Documents ──
+const D = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#documents");
+await D.waitForSelector(".doc-row");
+check(await D.locator(".doc-row").count() === 2, "documents are listed");
+check(await D.locator(".doc-month h3").count() === 2, "grouped by month");
+check((await D.textContent(".sections a[data-view=docs] .count")) === "2", "the left pane shows how many");
+await D.screenshot({ path: `${S}/shots/23-documents.png` });
+await D.click("#addDocBtn");
+check(await D.isDisabled("#docSave"), "nothing to save without a file, title and brief");
+await D.setInputFiles("#docFile", { name: "prescription_oct.png", mimeType: "image/png", buffer: PNG });
+check((await D.inputValue("#docTitle")) === "prescription oct", "the title starts from the file name");
+check(await D.isDisabled("#docSave") && /a brief/.test(await D.textContent("#docNeed")), "a brief is still required");
+await D.fill("#docTitle", "Cough syrup prescription");
+await D.fill("#docBrief", "Dr Mehta, 26 Oct: dry cough, no antibiotic. Steam at night, review in a week if not better.");
+check(!(await D.isDisabled("#docSave")), "with a file, title and brief, Save works");
+await D.screenshot({ path: `${S}/shots/24-add-document.png` });
+await D.click("#docSave");
+await D.waitForSelector(".doc-view h2:has-text('Cough syrup prescription')");
+const kept = await D.evaluate(() => [...window.__store.entries()].filter(([k]) => k.startsWith("documents/")).map(([, v]) => v).find(x => x.title === "Cough syrup prescription"));
+check(kept && /^Dr Mehta, 26 Oct/.test(kept.brief) && kept.fileType === "image/png", "saved with its title, brief and file type");
+check(await D.evaluate((id) => !!window.__assets[id], kept.fileId), "the file is uploaded and linked");
+await D.waitForFunction(() => document.getElementById("docImg")?.naturalWidth > 0);
+check(true, "opening a document shows the file");
+await D.screenshot({ path: `${S}/shots/25-document-view.png`, fullPage: true });
+await D.click("[data-act=doc-download]");
+await D.waitForFunction(() => window.__saved.length === 1);
+check((await D.evaluate(() => window.__saved[0].filename)) === "prescription_oct.png", "Download saves it under its own name");
+await D.click("[data-act=doc-edit]");
+await D.fill("#docBrief", "Edited: steam at night, review in a week.");
+await D.click("#docSave");
+await D.waitForSelector(".doc-view .brief:has-text('Edited: steam')");
+check(true, "the title and brief can be edited");
+await D.click("[data-act=doc-del]");
+await D.click("[data-act=doc-del-yes]");
+await D.waitForFunction(() => document.querySelectorAll(".doc-row").length === 2);
+check(await D.locator(".doc-row").count() === 2 && !(await D.evaluate((id) => !!window.__assets[id], kept.fileId)), "removing a document removes its file too");
+
+const DR = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&readonly=1#documents");
+await DR.waitForSelector(".doc-row");
+check(!(await DR.isVisible("#addDocBtn")), "view-only: no 'Add a document'");
+await DR.click(".doc-row >> nth=0");
+await DR.waitForSelector(".doc-view");
+check(await DR.locator("[data-act=doc-edit], [data-act=doc-del]").count() === 0 && await DR.isVisible("[data-act=doc-download]"), "view-only: can open and download, not edit or remove");
+const DN = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&noassets=1#documents");
+await DN.waitForSelector(".doc-row");
+check(!(await DN.isVisible("#addDocBtn")) && await DN.isVisible("text=Only people who can edit this page can add documents"), "without file storage: says who can add documents");
+
+const DP = await page({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true, hasTouch: true }, base + "?seed=1#documents");
+await DP.waitForSelector(".doc-row");
+await DP.screenshot({ path: `${S}/shots/26-phone-documents.png` });
+await DP.click(".doc-row >> nth=0");
+await DP.waitForFunction(() => document.getElementById("docImg")?.naturalWidth > 0);
+const dpw = await DP.evaluate(() => document.documentElement.scrollWidth);
+check(dpw <= 390, `documents fit a phone (width ${dpw})`);
+await DP.screenshot({ path: `${S}/shots/27-phone-document.png`, fullPage: true });
+await DP.click("#chatsBtn");
+await DP.waitForSelector(".side.open");
+await DP.waitForTimeout(400);
+await DP.screenshot({ path: `${S}/shots/28-phone-menu.png` });
+await DP.click(".side .sections a[data-view=talk]");
+await DP.waitForSelector(".side.open", { state: "detached" }).catch(() => {});
+check(!(await DP.evaluate(() => document.getElementById("chatPane").classList.contains("open"))) && await DP.isVisible("#composer"), "phone: choosing a section closes the menu and opens it");
 
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

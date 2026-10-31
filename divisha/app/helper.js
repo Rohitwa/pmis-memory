@@ -34,6 +34,7 @@ export function addDays(key, n) {
 export function dayLabel(key, today = dayKey()) {
   if (key === today) return "Today";
   if (key === addDays(today, -1)) return "Yesterday";
+  if (key === addDays(today, 1)) return "Tomorrow";
   const [y, m, d] = key.split("-").map(Number);
   const date = new Date(y, m - 1, d);
   const sameYear = String(y) === today.slice(0, 4);
@@ -94,16 +95,17 @@ export function parseReply(text, today = dayKey()) {
   const fences = [...String(text).matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)];
   const last = fences[fences.length - 1];
   if (!last) {
-    return { reply: visiblePart(text), entries: [] };
+    return { reply: visiblePart(text), entries: [], schedules: [] };
   }
   const reply = (text.slice(0, last.index) + text.slice(last.index + last[0].length)).trim();
-  let entries = [];
+  let entries = [], schedules = [];
   try {
     const data = JSON.parse(last[1]);
     const list = Array.isArray(data) ? data : data?.entries;
     if (Array.isArray(list)) entries = list.map(e => cleanEntry(e, today)).filter(Boolean);
+    if (Array.isArray(data?.schedules)) schedules = data.schedules.map(x => cleanSchedule(x, today)).filter(Boolean);
   } catch { /* a broken block means nothing to note */ }
-  return { reply, entries };
+  return { reply, entries, schedules };
 }
 
 // While Claude is still writing, show only the words, never the JSON block.
@@ -120,19 +122,25 @@ export function entryLine(e) {
 }
 
 // The short packet the app hands Claude: about Divisha + the last two weeks.
-export function contextPacket({ profile = {}, entries = [], today = dayKey() }) {
+export function contextPacket({ profile = {}, entries = [], schedules = [], documents = [], today = dayKey() }) {
   const name = profile.name || "Divisha";
   const from = addDays(today, -13);
   const recent = entries
     .filter(e => e.date >= from && e.date <= today)
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  const routine = (profile.routine || []).filter(r => r.what).map(r => `${r.what} (${r.often || "daily"})`);
+  const plan = schedules.filter(x => !x.until || x.until >= today).filter(x => x.repeat !== "once" || x.date >= addDays(today, -7));
+  const docs = documents.slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 10);
   const lines = [
     `About ${name}:`,
     `- Age: ${ageText(profile.dob, today) || "not given"}`,
     `- Allergies: ${profile.allergies || "none noted"}`,
     `- Doctor: ${profile.doctorName || "not given"}`,
-    `- Usual routine: ${routine.length ? routine.join(", ") : "none noted"}`,
+    "",
+    `Her schedule (${plan.length}):`,
+    ...(plan.length ? plan.map(x => `- ${scheduleLine(x, today)}${x.details ? ` · ${x.details}` : ""}`) : ["- nothing set"]),
+    "",
+    `Documents kept (latest ${docs.length}):`,
+    ...(docs.length ? docs.map(d => `- ${d.date} · ${d.title} · ${d.brief}`) : ["- none"]),
     "",
     `Diary, last 14 days (${recent.length} entries):`,
     ...(recent.length ? recent.map(entryLine) : ["- nothing yet"]),
@@ -154,9 +162,9 @@ How to reply:
 - If anything sounds serious, say plainly to call the doctor now.
 - Offer at most one idea or one question.
 
-After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary (use an empty list if nothing new):
+After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary, and anything to add to her schedule (use empty lists if nothing new):
 \`\`\`json
-{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}]}
+{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"${today}","time":"09:00","until":"","details":""}]}
 \`\`\`
 Types:
 - health: how she is overall. "what" must be exactly "well", "off" or "sick".
@@ -164,13 +172,15 @@ Types:
 - care: home remedies and medicines given. Keep any dose exactly as the parent said it.
 - doctor: a visit or call, and what the doctor said.
 - growth: weight, height, milestones, happy moments.
-Rules for entries: one thing per entry. Only note what the parent says happened. Do not repeat anything already in the diary below. Use today's date unless they mention another day.`;
+Rules for entries: one thing per entry. Only note what the parent says happened. Do not repeat anything already in the diary below. Use today's date unless they mention another day.
+
+Rules for schedules: add one only when the parent asks for a reminder or schedule, or describes a plan with dates, such as a course of medicine, a follow-up visit or a vaccination. "repeat" is "once", "daily", "weekly" or "monthly". "date" is the first or only day. "time" is 24-hour "HH:MM", or "" if not said. "until" is the last day, or "". Keep doses exactly as the parent said them and never add one. Do not repeat anything already in her schedule below. Mention in your reply what you've offered to add.`;
 }
 
 // Builds the conversation for one message: the packet goes first, then the
 // chat so far (last 20 messages), then the new message.
-export function buildTurns({ profile, entries, history = [], newText, today = dayKey() }) {
-  const saw = contextPacket({ profile, entries, today });
+export function buildTurns({ profile, entries, schedules = [], documents = [], history = [], newText, today = dayKey() }) {
+  const saw = contextPacket({ profile, entries, schedules, documents, today });
   const packet = `${instructions({ profile, today })}\n\n${saw}`;
 
   const raw = history.slice(-20).map(m => ({ role: m.role, content: String(m.text || "").trim() }))
@@ -209,66 +219,155 @@ export function errorText(code) {
   }
 }
 
-// ─── Ideas for today ─────────────────────────────────────────────────────
-// Simple rules, checked in order. At most three ideas come back.
+// ─── Her schedule ────────────────────────────────────────────────────────
+// Things set for her: a medicine every day at 9, a follow-up visit on a
+// date, a weekly oil massage. Each has: what, repeat, date (the first or
+// only day), an optional time ("HH:MM"), an optional last day, and details.
 
-export function ideasForToday({ profile = {}, entries = [], now = new Date() }) {
+export const REPEATS = { once: "Once", daily: "Every day", weekly: "Every week", monthly: "Every month" };
+
+export function cleanSchedule(raw, today = dayKey()) {
+  if (!raw || typeof raw !== "object") return null;
+  const what = String(raw.what ?? "").trim().slice(0, 120);
+  if (!what) return null;
+  const repeat = REPEATS[raw.repeat] ? raw.repeat : "once";
+  let date = String(raw.date || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) date = today;
+  let time = String(raw.time || "").trim();
+  const t = time.match(/^(\d{1,2}):(\d{2})$/);
+  time = t && Number(t[1]) < 24 && Number(t[2]) < 60 ? `${t[1].padStart(2, "0")}:${t[2]}` : "";
+  let until = String(raw.until || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(until) || until < date || repeat === "once") until = "";
+  const details = String(raw.details ?? "").trim().slice(0, 300);
+  return { what, repeat, date, time, until, details };
+}
+
+export function timeText(time) {
+  if (!time) return "";
+  const [h, m] = time.split(":").map(Number);
+  const hour = h % 12 || 12;
+  return `${hour}${m ? `:${String(m).padStart(2, "0")}` : ""} ${h < 12 ? "am" : "pm"}`;
+}
+
+export function isDueOn(s, day) {
+  if (day < s.date || (s.until && day > s.until)) return false;
+  if (s.repeat === "daily") return true;
+  if (s.repeat === "weekly") return toDate(day).getDay() === toDate(s.date).getDay();
+  if (s.repeat === "monthly") {
+    const want = Number(s.date.slice(8));
+    const d = toDate(day);
+    const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    return d.getDate() === Math.min(want, last);
+  }
+  return day === s.date;
+}
+
+export function nextDue(s, from, withinDays = 62) {
+  for (let i = 0, d = from; i <= withinDays; i += 1, d = addDays(d, 1)) if (isDueOn(s, d)) return d;
+  return null;
+}
+
+// "today", "tomorrow", or "on Fri 30 Oct".
+export function whenDay(key, today = dayKey()) {
+  const label = dayLabel(key, today);
+  return ["Today", "Tomorrow", "Yesterday"].includes(label) ? label.toLowerCase() : `on ${label}`;
+}
+
+export function scheduleLine(s, today = dayKey()) {
+  const when = s.repeat === "once" ? whenDay(s.date, today) : REPEATS[s.repeat].toLowerCase();
+  const at = s.time ? ` at ${timeText(s.time)}` : "";
+  const from = s.repeat !== "once" && s.date > today ? `, from ${dayLabel(s.date, today)}` : "";
+  const until = s.until ? `, until ${dayLabel(s.until, today)}` : "";
+  return `${s.what}: ${when}${at}${from}${until}`;
+}
+
+const STOP = new Set(["give", "gave", "with", "after", "before", "drops", "dose", "time", "every", "daily", "remind", "check"]);
+function keyWords(text) {
+  return (String(text).toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !STOP.has(w));
+}
+
+// Done today: an entry that day shares a key word with the schedule ("Vitamin D drops" ↔ "Vitamin D").
+export function doneOn(s, entries, day) {
+  const words = keyWords(s.what);
+  if (!words.length) return false;
+  return entries.some(e => e.date === day && e.type !== "health"
+    && words.some(w => `${e.what} ${e.details || ""}`.toLowerCase().includes(w)));
+}
+
+const VISIT = /\b(dr|doctor|visit|check-?up|appointment|clinic|vaccin\w*|shot|test|follow-?up)\b/i;
+function schedulePrefill(s) {
+  return VISIT.test(s.what) ? `${s.what}: ` : `Gave ${s.what.toLowerCase()}`;
+}
+
+// ─── Ideas for today ─────────────────────────────────────────────────────
+// Simple rules, most relevant first. At most four ideas come back. An idea
+// either fills the typing box (`prefill`) or opens something (`action`).
+
+export function ideasForToday({ profile = {}, entries = [], schedules = [], now = new Date() }) {
   const today = dayKey(now);
   const yesterday = addDays(today, -1);
   const name = profile.name || "Divisha";
+  const minutesNow = now.getHours() * 60 + now.getMinutes();
   const ideas = [];
-  const add = (label, prefill) => {
-    if (ideas.length < 3 && !ideas.some(i => i.label === label)) ideas.push({ label, prefill });
+  const add = (idea) => {
+    if (ideas.length < 4 && !ideas.some(i => i.label === idea.label)) ideas.push(idea);
   };
   const todays = entries.filter(e => e.date === today);
-  const loggedToday = (word) => todays.some(e => e.type === "care" && e.what.toLowerCase().includes(word.toLowerCase()));
+  const healthToday = todays.some(e => e.type === "health");
 
   // 1. A symptom in the last two days, and nothing says she's well today.
   const wellToday = todays.some(e => e.type === "health" && e.what === "well");
   const lastSymptom = entries
     .filter(e => e.type === "symptom" && (e.date === today || e.date === yesterday))
     .sort((a, b) => (a.date < b.date ? 1 : -1))[0];
-  if (lastSymptom && !wellToday) {
-    add(`Is the ${lastSymptom.what.toLowerCase()} better?`, `Update on the ${lastSymptom.what.toLowerCase()}: `);
+  const unwell = lastSymptom && !wellToday;
+  if (unwell) add({ label: `Is the ${lastSymptom.what.toLowerCase()} better?`, prefill: `Update on the ${lastSymptom.what.toLowerCase()}: ` });
 
-    // 2. Suggest the care you've used most in the last two months, if not given today.
+  // 2. Her schedule for today, not yet done: anything due by two hours from now first, by time.
+  const minutes = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  const dueToday = schedules.filter(s => isDueOn(s, today) && !doneOn(s, entries, today))
+    .map(s => ({ s, at: s.time ? minutes(s.time) : null }));
+  const soon = dueToday.filter(x => x.at !== null && x.at <= minutesNow + 120).sort((a, b) => a.at - b.at);
+  const anytime = dueToday.filter(x => x.at === null);
+  const later = dueToday.filter(x => x.at !== null && x.at > minutesNow + 120).sort((a, b) => a.at - b.at);
+  for (const { s } of [...soon, ...anytime]) {
+    add({ label: `${s.what}${s.time ? `, ${timeText(s.time)}` : ""}: done?`, prefill: schedulePrefill(s), schedule: true });
+  }
+
+  // 3. While she's unwell, the care you've used most in the last two months.
+  if (unwell) {
     const since = addDays(today, -60);
     const counts = {};
-    for (const e of entries) {
-      if (e.type === "care" && e.date >= since) {
-        const key = e.what.trim();
-        counts[key] = (counts[key] || 0) + 1;
-      }
-    }
+    for (const e of entries) if (e.type === "care" && e.date >= since) counts[e.what.trim()] = (counts[e.what.trim()] || 0) + 1;
     const favourite = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-    if (favourite && favourite[1] >= 2 && !loggedToday(favourite[0])) {
-      add(`${favourite[0]} tonight?`, `Gave ${favourite[0].toLowerCase()} tonight`);
+    if (favourite && favourite[1] >= 2 && !todays.some(e => e.type === "care" && e.what.toLowerCase().includes(favourite[0].toLowerCase()))) {
+      add({ label: `${favourite[0]} tonight?`, prefill: `Gave ${favourite[0].toLowerCase()} tonight` });
     }
   }
 
-  // 3. Routine items not noted yet (daily: today; weekly: this past week).
-  for (const r of profile.routine || []) {
-    if (!r.what) continue;
-    const word = r.what.trim();
-    const done = r.often === "weekly"
-      ? entries.some(e => e.type === "care" && e.date > addDays(today, -7) && e.what.toLowerCase().includes(word.toLowerCase()))
-      : loggedToday(word);
-    if (!done) add(`${word} done${r.often === "weekly" ? " this week" : " today"}?`, `Gave ${word.toLowerCase()} today`);
-  }
+  // 4. One-off things coming up in the next three days.
+  const upcoming = schedules.filter(s => s.repeat === "once" && s.date > today && s.date <= addDays(today, 3))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
+  for (const s of upcoming) add({ label: `Coming up: ${s.what}, ${whenDay(s.date, today).replace(/^on /, "")}`, prefill: `About ${s.what} ${whenDay(s.date, today)}: `, schedule: true });
 
-  // 4. Evening, and nothing yet about how she was.
-  const healthToday = todays.some(e => e.type === "health");
-  if (!healthToday && now.getHours() >= 17) add(`How was ${name} today?`, `${name} was `);
+  // 5. Later today.
+  for (const { s } of later) add({ label: `Later: ${s.what}, ${timeText(s.time)}`, prefill: schedulePrefill(s), schedule: true });
 
-  // 5. A good run: well on each of the last 7 days that have an entry.
+  // 6. Evening, and nothing yet about how she was.
+  if (!healthToday && now.getHours() >= 17) add({ label: `How was ${name} today?`, prefill: `${name} was ` });
+
+  // 7. Warnings and ideas fit her age only once her birth date is known.
+  if (!profile.dob) add({ label: "Add her birth date", action: "settings" });
+
+  // 8. A good run: well on each of the last 7 days that have an entry.
   const levels = {};
   for (const e of entries) if (e.type === "health" && e.date > addDays(today, -7)) {
     if (!levels[e.date] || e.what !== "well") levels[e.date] = e.what;
   }
   const days = Object.values(levels);
-  if (days.length >= 5 && days.every(l => l === "well")) add("Note a happy moment?", `Happy moment: `);
+  if (days.length >= 5 && days.every(l => l === "well")) add({ label: "Note a happy moment?", prefill: "Happy moment: " });
 
-  if (!ideas.length && !healthToday) add(`How was ${name} today?`, `${name} was `);
+  if (!ideas.length && !healthToday) add({ label: `How was ${name} today?`, prefill: `${name} was ` });
   return ideas;
 }
 
@@ -537,7 +636,7 @@ function numbersBlock(span, stats, prevStats, prevName, today) {
 
 // Builds what Claude reads to write the notes. Entries are numbered [1], [2]…
 // so Claude can point at them; `refs` turns those numbers back into entries.
-export function notesRequest({ profile = {}, span, entries, today = dayKey() }) {
+export function notesRequest({ profile = {}, span, entries, documents = [], today = dayKey() }) {
   const name = profile.name || "Divisha";
   const stats = countSpan(entries, span, today);
   const cmp = comparisonSpan(span, today);
@@ -552,11 +651,13 @@ export function notesRequest({ profile = {}, span, entries, today = dayKey() }) 
   const label = spanLabel(span, today);
   const age = ageText(profile.dob, today);
 
+  const docs = documents.filter(d => d.date >= span.from && d.date <= span.to).sort((a, b) => (a.date < b.date ? -1 : 1));
   const saw = [
     numbersBlock(span, stats, prevStats, cmp.name, today),
     "",
     `Diary entries for ${label} (${lines.length}):`,
     ...lines,
+    ...(docs.length ? ["", `Documents kept in ${label} (for background, not numbered):`, ...docs.map(d => `- ${d.date} · ${d.title} · ${d.brief}`)] : []),
   ].join("\n");
 
   const prompt = `You are writing the Look back notes in Divisha Wellness, a diary two parents keep about their daughter ${name}${age ? `, who is ${age}` : ""}. The aim is to make her life better over time.
@@ -631,7 +732,7 @@ export function copyFileNames(today = dayKey()) {
 
 // A diary anyone can read: About Divisha, every entry by month (newest
 // first), then Claude's saved notes with the dates each point is based on.
-export function readableDiary({ profile = {}, entries = [], notes = [], names = {}, today = dayKey() }) {
+export function readableDiary({ profile = {}, entries = [], notes = [], schedules = [], documents = [], names = {}, today = dayKey() }) {
   const name = profile.name || "Divisha";
   const sorted = entries.slice().sort((a, b) => (a.date !== b.date ? (a.date < b.date ? 1 : -1) : (a.createdAt || "") < (b.createdAt || "") ? -1 : 1));
   const byId = new Map(entries.map(e => [e.id, e]));
@@ -640,12 +741,22 @@ export function readableDiary({ profile = {}, entries = [], notes = [], names = 
   const span = sorted.length ? ` from ${longDay(sorted[sorted.length - 1].date)} to ${longDay(sorted[0].date)}` : "";
   out.push(`Downloaded ${longDay(today)}. ${sorted.length} ${sorted.length === 1 ? "entry" : "entries"}${span}.`, "");
 
-  const routine = (profile.routine || []).filter(r => r.what).map(r => `${r.what} (${r.often === "weekly" ? "every week" : "every day"})`);
   out.push(`## About ${name}`, "");
   out.push(`- Birth date: ${profile.dob ? `${longDay(profile.dob)} (${ageText(profile.dob, today)})` : "not given"}`);
   out.push(`- Allergies: ${profile.allergies || "none noted"}`);
   out.push(`- Doctor: ${[profile.doctorName, profile.doctorPhone].filter(Boolean).join(", ") || "not given"}`);
-  out.push(`- Usual routine: ${routine.length ? routine.join(", ") : "none noted"}`, "");
+  out.push("");
+
+  out.push("## Her schedule", "");
+  if (!schedules.length) out.push("Nothing set.", "");
+  else out.push(...schedules.slice().sort((a, b) => (a.date < b.date ? -1 : 1)).map(x => `- ${scheduleLine(x, today)}${x.details ? `. ${x.details}` : ""}`), "");
+
+  out.push("## Documents", "");
+  if (!documents.length) out.push("None kept.", "");
+  else {
+    out.push(...documents.slice().sort((a, b) => (a.date < b.date ? 1 : -1)).map(d => `- ${longDay(d.date)}: **${d.title}**. ${d.brief}${names[d.by] ? ` (added by ${names[d.by]})` : ""}`));
+    out.push("", "The files themselves are not in this download. Open Divisha Wellness to see them.", "");
+  }
 
   out.push("## Diary", "");
   if (!sorted.length) out.push("Nothing noted yet.", "");
@@ -683,12 +794,13 @@ export function readableDiary({ profile = {}, entries = [], notes = [], names = 
 }
 
 // Everything, in a form a computer can read back in later.
-export function backupFile({ profile = {}, entries = [], chatList = [], chats = [], notes = [], exportedAt = new Date().toISOString() }) {
+export function backupFile({ profile = {}, entries = [], chatList = [], chats = [], notes = [], schedules = [], documents = [], exportedAt = new Date().toISOString() }) {
   return JSON.stringify({
     app: "Divisha Wellness",
-    format: 1,
+    format: 2,
     exportedAt,
-    counts: { entries: entries.length, chatDays: chats.length, notes: notes.length },
-    profile, entries, chatList, chats, notes,
+    counts: { entries: entries.length, chatDays: chats.length, notes: notes.length, schedules: schedules.length, documents: documents.length },
+    note: "Documents are listed with their titles and briefs. The files themselves stay in Divisha Wellness.",
+    profile, entries, chatList, chats, notes, schedules, documents,
   }, null, 2);
 }

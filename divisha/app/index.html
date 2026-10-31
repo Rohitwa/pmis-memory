@@ -4,7 +4,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Hind:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 
-<!-- index.html — the layout of both screens. screens.js fills them in. -->
+<!-- index.html — the layout: a left pane (Talk, Documents, Time-based analysis,
+     Past chats) and the three screens. screens.js fills them in. -->
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -15,87 +16,110 @@
   <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-talk" viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3.5V16H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M14 3v5h5 M9 13h6 M9 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16 M7 16v-4 M12 16V7 M17 16v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="M5 17l4.5-4.5 3 3 2.5-2.5L20 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4.5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
 </svg>
 
 <div class="app" id="app">
   <header class="topbar">
-    <button type="button" class="icon-btn phone-only" id="chatsBtn" aria-label="Past chats" aria-expanded="false" aria-controls="chatPane">
+    <button type="button" class="icon-btn phone-only" id="chatsBtn" aria-label="Menu" aria-expanded="false" aria-controls="chatPane">
       <svg><use href="#i-menu"/></svg>
     </button>
     <div class="brand">
       <h1>Divisha Wellness</h1>
       <p id="ageLine" class="age-line"></p>
     </div>
-    <nav class="switch" aria-label="Screens">
-      <a href="#talk" id="tabTalk" aria-current="page">Talk</a>
-      <a href="#look-back" id="tabLook">Look back</a>
-    </nav>
     <button type="button" class="icon-btn" id="settingsBtn" aria-label="About Divisha">
       <svg><use href="#i-child"/></svg>
     </button>
     <p class="offline" id="offline" role="status" hidden>You're offline. Nothing new can be saved until you're back online.</p>
   </header>
 
-  <!-- Talk -->
-  <main class="talk" id="talkView">
-    <aside class="chat-pane" id="chatPane" aria-label="Past chats">
-      <div class="pane-head">
-        <h2>Past chats</h2>
-        <button type="button" class="icon-btn phone-only" id="closeChatsBtn" aria-label="Close past chats"><svg><use href="#i-close"/></svg></button>
+  <div class="main-area">
+    <!-- Left pane: the three sections, then past chats -->
+    <aside class="side" id="chatPane" aria-label="Sections and past chats">
+      <div class="pane-head phone-only">
+        <span></span>
+        <button type="button" class="icon-btn" id="closeChatsBtn" aria-label="Close menu"><svg><use href="#i-close"/></svg></button>
       </div>
+      <nav class="sections" aria-label="Sections">
+        <a href="#talk" data-view="talk"><svg><use href="#i-talk"/></svg>Talk</a>
+        <a href="#documents" data-view="docs"><svg><use href="#i-doc"/></svg>Documents<span class="count" id="docCount"></span></a>
+        <a href="#analysis" data-view="look"><svg><use href="#i-chart"/></svg>Time-based analysis</a>
+      </nav>
+      <h2 class="pane-title">Past chats</h2>
       <ul class="chat-items" id="chatItems"></ul>
     </aside>
-    <div class="scrim phone-only" id="scrim" hidden></div>
+    <div class="scrim" id="scrim" hidden></div>
 
-    <section class="conversation" aria-label="Conversation">
-      <div class="day-bar" id="dayBar"></div>
-      <div class="messages" id="messages" aria-live="polite"></div>
-      <div class="composer-area" id="composerArea">
-        <div class="ideas" id="ideas" aria-label="Ideas for today"></div>
-        <form class="composer" id="composer" autocomplete="off">
-          <label class="sr-only" for="composerText">Message</label>
-          <textarea id="composerText" rows="1" placeholder="How was Divisha today?"></textarea>
-          <button type="submit" class="send-btn" id="sendBtn" aria-label="Send"><svg><use href="#i-send"/></svg></button>
-          <button type="button" class="send-btn stop" id="stopBtn" aria-label="Stop" hidden><svg><use href="#i-stop"/></svg></button>
-        </form>
-        <p class="footnote" id="footnote">Divisha Wellness keeps a diary and shares ideas. It is not a doctor.</p>
-      </div>
-    </section>
-  </main>
-
-  <!-- Look back: pick a span, see the app's counts, read Claude's notes, dig into entries -->
-  <main class="look" id="lookView" hidden>
-    <div class="look-inner">
-      <div class="span-bar">
-        <div class="span-kinds" id="spanKinds" role="group" aria-label="Time span">
-          <button type="button" class="chip" data-act="span-kind" data-kind="week">Week</button>
-          <button type="button" class="chip" data-act="span-kind" data-kind="month">Month</button>
-          <button type="button" class="chip" data-act="span-kind" data-kind="year">Year</button>
+    <!-- Talk -->
+    <main class="talk" id="talkView">
+      <section class="conversation" aria-label="Conversation">
+        <div class="day-bar" id="dayBar"></div>
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <div class="composer-area" id="composerArea">
+          <div class="ideas" id="ideas" aria-label="Ideas for today"></div>
+          <form class="composer" id="composer" autocomplete="off">
+            <label class="sr-only" for="composerText">Message</label>
+            <textarea id="composerText" rows="1" placeholder="How was Divisha today?"></textarea>
+            <button type="submit" class="send-btn" id="sendBtn" aria-label="Send"><svg><use href="#i-send"/></svg></button>
+            <button type="button" class="send-btn stop" id="stopBtn" aria-label="Stop" hidden><svg><use href="#i-stop"/></svg></button>
+          </form>
+          <p class="footnote" id="footnote">Divisha Wellness keeps a diary and shares ideas. It is not a doctor.</p>
         </div>
-        <div class="span-nav">
-          <button type="button" class="icon-btn" id="spanPrev" aria-label="Earlier"><svg><use href="#i-left"/></svg></button>
-          <h2 id="spanTitle" aria-live="polite"></h2>
-          <button type="button" class="icon-btn" id="spanNext" aria-label="Later"><svg><use href="#i-right"/></svg></button>
-        </div>
-      </div>
-
-      <section class="numbers" id="numbers" aria-label="Counted by the app"></section>
-      <section class="strip-card" id="strip" aria-label="Day by day"></section>
-      <section class="notes" id="notes" aria-label="Claude's notes"></section>
-      <section class="common" id="common" aria-label="Most common"></section>
-
-      <section class="diary" id="diarySection" aria-labelledby="diaryTitle">
-        <div class="look-head">
-          <h2 id="diaryTitle">Entries</h2>
-          <button type="button" class="btn" id="addEntryBtn"><svg><use href="#i-plus"/></svg>Add an entry</button>
-        </div>
-        <div id="focusBar"></div>
-        <div class="filters" id="filters" role="group" aria-label="Show only"></div>
-        <div id="newEntry"></div>
-        <div class="entry-list" id="entryList"></div>
       </section>
-    </div>
-  </main>
+    </main>
+
+    <!-- Documents: each one is a file with a title and a brief -->
+    <main class="docs" id="docsView" hidden>
+      <div class="docs-inner">
+        <div class="look-head">
+          <h2 id="docsTitle">Documents</h2>
+          <button type="button" class="btn" id="addDocBtn"><svg><use href="#i-plus"/></svg>Add a document</button>
+        </div>
+        <p class="hint" id="docsHint">Prescriptions, test reports, vaccination cards. Each one keeps a title and a short brief, so you can find it later and Claude knows it's there.</p>
+        <div id="docForm"></div>
+        <div id="docBody"></div>
+      </div>
+    </main>
+
+    <!-- Time-based analysis: pick a span, see the app's counts, read Claude's notes, dig into entries -->
+    <main class="look" id="lookView" hidden>
+      <div class="look-inner">
+        <div class="span-bar">
+          <div class="span-kinds" id="spanKinds" role="group" aria-label="Time span">
+            <button type="button" class="chip" data-act="span-kind" data-kind="week">Week</button>
+            <button type="button" class="chip" data-act="span-kind" data-kind="month">Month</button>
+            <button type="button" class="chip" data-act="span-kind" data-kind="year">Year</button>
+          </div>
+          <div class="span-nav">
+            <button type="button" class="icon-btn" id="spanPrev" aria-label="Earlier"><svg><use href="#i-left"/></svg></button>
+            <h2 id="spanTitle" aria-live="polite"></h2>
+            <button type="button" class="icon-btn" id="spanNext" aria-label="Later"><svg><use href="#i-right"/></svg></button>
+          </div>
+        </div>
+
+        <section class="numbers" id="numbers" aria-label="Counted by the app"></section>
+        <section class="strip-card" id="strip" aria-label="Day by day"></section>
+        <section class="notes" id="notes" aria-label="Claude's notes"></section>
+        <section class="common" id="common" aria-label="Most common"></section>
+
+        <section class="diary" id="diarySection" aria-labelledby="diaryTitle">
+          <div class="look-head">
+            <h2 id="diaryTitle">Entries</h2>
+            <button type="button" class="btn" id="addEntryBtn"><svg><use href="#i-plus"/></svg>Add an entry</button>
+          </div>
+          <div id="focusBar"></div>
+          <div class="filters" id="filters" role="group" aria-label="Show only"></div>
+          <div id="newEntry"></div>
+          <div class="entry-list" id="entryList"></div>
+        </section>
+      </div>
+    </main>
+  </div>
 </div>
 
 <!-- About Divisha -->
@@ -113,15 +137,15 @@
       <label>Doctor <input id="sDoctor" type="text" placeholder="Dr Mehta"></label>
       <label>Doctor's phone <input id="sPhone" type="tel" placeholder="98xxxxxxxx"></label>
     </div>
-    <fieldset class="routine">
-      <legend>Her usual routine</legend>
-      <p class="hint">Things you give or do regularly, like kadha or vitamin D. The app will remind you if they aren't noted.</p>
-      <div id="routineRows"></div>
-      <button type="button" class="btn quiet" id="addRoutineBtn"><svg><use href="#i-plus"/></svg>Add to routine</button>
+    <fieldset class="schedule-set">
+      <legend>Her schedule</legend>
+      <p class="hint">Medicines, drops, visits and vaccinations. Due items show up in ideas for today. You can also ask Claude in Talk, for example "remind me to give vitamin D every day at 9".</p>
+      <div id="scheduleRows"></div>
+      <button type="button" class="btn quiet" id="addScheduleBtn"><svg><use href="#i-plus"/></svg>Add to schedule</button>
     </fieldset>
     <section class="keep-copy" id="keepCopy" aria-labelledby="keepCopyTitle">
       <h3 id="keepCopyTitle">Keep a copy</h3>
-      <p class="hint">Downloads two files: a readable diary you can open in any notes app or show a doctor, and a full backup with every chat. You'll be asked to confirm each one.</p>
+      <p class="hint">Downloads two files: a readable diary you can open in any notes app or show a doctor, and a full backup with every chat. Document files stay here; the copy lists their titles and briefs. You'll be asked to confirm each file.</p>
       <button type="button" class="btn" id="downloadBtn">Download a copy</button>
       <p class="copy-status" id="copyStatus" role="status"></p>
     </section>

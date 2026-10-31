@@ -50,13 +50,15 @@
 
   const replies = {
     fever: 'Sorry she\'s unwell tonight. Keep giving her small sips of water, and check her temperature again in an hour.\n\n```json\n{"entries":[{"date":"TODAY","type":"symptom","what":"Fever 39.4","details":"since evening"},{"type":"care","what":"Paracetamol 5 ml","details":"crocin"},{"type":"care","what":"Kadha","details":"before bed"},{"type":"health","what":"sick"}]}\n```',
+    remind: 'Done. I\'ve offered to add vitamin D drops at 9 am every day to her schedule.\n\n```json\n{"entries":[],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"TODAY","time":"09:00","until":"","details":"400 IU, as Dr Mehta said"}]}\n```',
     default: 'Lovely to hear she had a good day. Keep the routine going.\n\n```json\n{"entries":[{"type":"health","what":"well"}]}\n```',
   };
   async function sample(turns, opts = {}) {
     window.__lastTurns = turns;
-    const last = turns[turns.length - 1].content.toLowerCase();
+    const lastTurn = turns[turns.length - 1].content;
+    const last = (lastTurn.includes("Parent's message:\n") ? lastTurn.split("Parent's message:\n").pop() : lastTurn).toLowerCase();
     const d = new Date(); const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    const full = (last.includes("fever") ? replies.fever : replies.default).replace("TODAY", today);
+    const full = (last.includes("fever") ? replies.fever : /remind|every day at/.test(last) ? replies.remind : replies.default).replace(/TODAY/g, today);
     let text = "";
     for (const word of full.split(/(?<= )/)) {
       if (opts.signal?.aborted) throw { code: "cancelled", text };
@@ -71,7 +73,12 @@
   if (location.search.includes("seed")) {
     const d = new Date();
     const key = (n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate() - n); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
-    store.set("profile/divisha", { name: "Divisha", dob: "2024-06-15", doctorName: "Dr Mehta", doctorPhone: "98200 12345", allergies: "", routine: [{ what: "Vitamin D", often: "daily" }] });
+    store.set("profile/divisha", { name: "Divisha", dob: "2024-06-15", doctorName: "Dr Mehta", doctorPhone: "98200 12345", allergies: "" });
+    store.set("schedules/s1", { what: "Vitamin D drops", repeat: "daily", date: key(30), time: "09:00", until: "", details: "400 IU", by: "u_me", createdAt: new Date().toISOString() });
+    store.set("schedules/s2", { what: "Saline nasal drops", repeat: "daily", date: key(1), time: "20:00", until: key(-3), details: "", by: "u_partner", createdAt: new Date().toISOString() });
+    store.set("schedules/s3", { what: "Dr Mehta follow-up", repeat: "once", date: key(-2), time: "17:00", until: "", details: "bring the cough notes", by: "u_me", createdAt: new Date().toISOString() });
+    store.set("documents/d1", { title: "Blood test report", brief: "Haemoglobin 10.4, a little low. Dr Mehta suggests iron-rich food and a recheck in 3 months.", date: key(3), fileId: "a".repeat(32), fileName: "blood-test.png", fileType: "image/png", fileSize: 182000, by: "u_me", createdAt: new Date().toISOString() });
+    store.set("documents/d2", { title: "Vaccination card", brief: "All due vaccines done up to 18 months. Next: flu shot this winter.", date: key(40), fileId: "b".repeat(32), fileName: "vaccination-card.png", fileType: "image/png", fileSize: 240000, by: "u_partner", createdAt: new Date().toISOString() });
     const rows = [
       [1, "symptom", "Cough at night", "dry, woke twice", "u_partner"], [1, "care", "Steam", "10 min before bed", "u_partner"], [1, "health", "off", "", "u_partner"],
       [2, "health", "well", "", "u_me"], [3, "growth", "Weight 12.3 kg", "at the clinic", "u_me"], [3, "doctor", "Dr Mehta, routine check", "growing well, keep vitamin D", "u_me"],
@@ -114,12 +121,25 @@
   window.__saved = [];
   const downloads = {
     save: async ({ filename, data }) => {
-      if (!/\.(md|json)$/.test(filename)) throw { code: "rejected_extension" };
+      if (!/\.(gif|png|jpg|jpeg|webp|mp4|webm|txt|json|md|csv|pdf|svg|html|zip)$/i.test(filename)) throw { code: "rejected_extension" };
       if (location.search.includes("decline")) throw { code: "declined" };
       window.__saved.push({ filename, data: String(data) });
       return { status: "saved" };
     },
   };
-  const caps = { db, user, sample: location.search.includes("nosample") ? null : sample, downloads: location.search.includes("nodownloads") ? null : downloads };
+  window.__assets = {};
+  const assets = {
+    upload: async (blob, opts = {}) => {
+      const type = opts.type || blob.type;
+      if (!/^(image\/(png|jpeg|gif|webp)|application\/pdf)$/.test(type)) throw { code: "unsupported_type" };
+      if (blob.size > 20 * 1048576) throw { code: "too_large" };
+      const id = Array.from({ length: 32 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join("");
+      window.__assets[id] = { type, size: blob.size };
+      return { id, url: "/_blob/" + id, sizeBytes: blob.size, contentType: type };
+    },
+    delete: async (id) => { delete window.__assets[id]; },
+    list: async () => ({ assets: [], usage: {} }),
+  };
+  const caps = { db, user, assets: location.search.includes("noassets") ? null : assets, sample: location.search.includes("nosample") ? null : sample, downloads: location.search.includes("nodownloads") ? null : downloads };
   window.claude = { use: async (name) => (name in caps ? caps[name] : null) };
 })();

@@ -5,8 +5,13 @@
 //   chatList/<day>      One line per day for the "Past chats" list (small)
 //   chats/<day>         That day's whole conversation (messages kept by id)
 //   entries/<id>        One diary entry each
-//   notes/<span>        Claude's Look back notes for one week, month or year
+//   notes/<span>        Claude's notes for one week, month or year
 //                       (for example notes/month-2026-10-01)
+//   schedules/<id>      One thing set for her: what, repeat, date, time, until
+//   documents/<id>      One kept document: title, brief, date, and its file's id
+//
+// Document files themselves live in the page's file storage; each
+// documents/<id> holds the file's id, and "/_blob/<id>" shows it.
 
 function newId() {
   // Time first, so ids sort in the order they were made.
@@ -16,7 +21,7 @@ function newId() {
 export async function openDiary() {
   const use = window.claude?.use;
   if (!use) return null;
-  const [db, user] = await Promise.all([use("db"), use("user")]);
+  const [db, user, files] = await Promise.all([use("db"), use("user"), use("assets")]);
   if (!db) return null;
 
   const me = (await user?.id().catch(() => null)) || null;
@@ -24,9 +29,12 @@ export async function openDiary() {
   const canWrite = writeAnswer !== false;          // null means "not told": try, and let a refused save decide
   const nameCache = {};
 
+  const stamp = () => ({ by: me, createdAt: new Date().toISOString() });
+
   return {
     me,
     canWrite,
+    canUpload: !!files,            // only people who can edit the page get file storage
 
     // ── About Divisha ────────────────────────────────────────────────
     watchProfile(onChange, onError) {
@@ -125,6 +133,73 @@ export async function openDiary() {
       return db.doc(`notes/${spanKey}`).set({ ...notes, writtenAt: new Date().toISOString(), writtenBy: me });
     },
 
+    // ── Her schedule ─────────────────────────────────────────────────
+    watchSchedules(onChange, onError) {
+      return db.collection("schedules").orderBy("date", "asc").limit(500)
+        .onSnapshot(s => onChange(s.docs.map(d => ({ id: d.id, ...d.data() }))), onError);
+    },
+    async addSchedules(list, fromMessage = null) {
+      const ids = [];
+      for (const x of list) {
+        const id = newId();
+        await db.doc(`schedules/${id}`).set({
+          what: x.what, repeat: x.repeat, date: x.date, time: x.time || "", until: x.until || "", details: x.details || "",
+          ...stamp(), ...(fromMessage ? { fromMessage } : {}),
+        });
+        ids.push(id);
+      }
+      return ids;
+    },
+    updateSchedule(id, x) {
+      return db.doc(`schedules/${id}`).update({
+        what: x.what, repeat: x.repeat, date: x.date, time: x.time || "", until: x.until || "", details: x.details || "",
+        editedBy: me, editedAt: new Date().toISOString(),
+      });
+    },
+    deleteSchedule(id) {
+      return db.doc(`schedules/${id}`).delete();
+    },
+
+    // ── Documents ────────────────────────────────────────────────────
+    watchDocuments(onChange, onError) {
+      return db.collection("documents").orderBy("date", "desc").limit(1000)
+        .onSnapshot(s => onChange(s.docs.map(d => ({ id: d.id, ...d.data() }))), onError);
+    },
+    // Uploads the file, then saves its title and brief. Both or neither:
+    // if saving the details fails, the uploaded file is removed again.
+    async addDocument(file, { title, brief, date }) {
+      if (!files) throw { code: "not_granted" };
+      const type = file.type || (/\.pdf$/i.test(file.name) ? "application/pdf" : "");
+      const up = await files.upload(file, type ? { type } : undefined);
+      const id = newId();
+      try {
+        await db.doc(`documents/${id}`).set({
+          title, brief, date,
+          fileId: up.id, fileName: file.name || "document", fileType: up.contentType, fileSize: up.sizeBytes,
+          ...stamp(),
+        });
+      } catch (e) {
+        await files.delete(up.id).catch(() => {});
+        throw e;
+      }
+      return id;
+    },
+    updateDocument(id, { title, brief, date }) {
+      return db.doc(`documents/${id}`).update({ title, brief, date, editedBy: me, editedAt: new Date().toISOString() });
+    },
+    async deleteDocument(doc) {
+      await db.doc(`documents/${doc.id}`).delete();
+      if (files && doc.fileId) await files.delete(doc.fileId).catch(() => {});   // someone else's upload stays; the row is gone
+    },
+    fileUrl(fileId) {
+      return `/_blob/${fileId}`;
+    },
+    async fileBlob(fileId) {
+      const res = await fetch(`/_blob/${fileId}`);
+      if (!res.ok) throw { code: "not_found" };
+      return res.blob();
+    },
+
     // ── Everything, for "Download a copy" ────────────────────────────
     // Reads each collection in pages of 1000, oldest first, so nothing is
     // left out however long the diary gets.
@@ -143,14 +218,16 @@ export async function openDiary() {
         }
         return [...found.values()];
       }
-      const [profileSnap, entries, chatList, chats, notes] = await Promise.all([
+      const [profileSnap, entries, chatList, chats, notes, schedules, documents] = await Promise.all([
         db.doc("profile/divisha").get(),
         all("entries", "date"),
         all("chatList", "day"),
         all("chats", "day"),
         all("notes", "from"),
+        all("schedules", "date"),
+        all("documents", "date"),
       ]);
-      return { profile: profileSnap.exists ? profileSnap.data() : {}, entries, chatList, chats, notes };
+      return { profile: profileSnap.exists ? profileSnap.data() : {}, entries, chatList, chats, notes, schedules, documents };
     },
 
     // ── Names for "added by" ─────────────────────────────────────────

@@ -11,6 +11,7 @@ import {
   addDays, makeSpan, stepSpan, spanLabel, comparisonSpan, compareText, countSpan,
   NOTE_SECTIONS, notesRequest, readNotes, writeNotes, changedSince,
   readableDiary, backupFile, copyFileNames,
+  REPEATS, cleanSchedule, scheduleLine,
 } from "./helper.js";
 
 const $ = (id) => document.getElementById(id);
@@ -27,9 +28,11 @@ const state = {
   entries: [],
   chatList: [],
   messages: [],
+  schedules: [],
+  documents: [],
   today: dayKey(),
   day: dayKey(),            // which day's chat is open
-  view: "talk",
+  view: "talk",             // talk, docs or look
   busy: false,              // Claude is answering
   controller: null,
   streamText: "",
@@ -37,7 +40,11 @@ const state = {
   failed: null,             // { text, error } when Claude couldn't answer
   drafts: {},               // edits to a "note this down?" card, by message id
   names: {},
-  // Look back
+  // Documents
+  docOpen: null,            // the id of the document being shown
+  docForm: null,            // { id: "new" or a document id, title, brief, date, file, busy, status }
+  docConfirmDelete: false,
+  // Time-based analysis
   span: makeSpan("month", dayKey()),
   look: null,               // this span's entries and the app's counts
   range: null,              // entries read month by month, for a long span
@@ -127,28 +134,33 @@ function resolveNames(ids) {
     renderMessages();
     renderNotes();
     renderEntries();
+    renderDocs();
   });
 }
 
-// ─── Top bar and screen switch ───────────────────────────────────────────
+// ─── Top bar and the three sections ──────────────────────────────────────
+
+const VIEWS = { talk: "talkView", docs: "docsView", look: "lookView" };
 
 function renderTop() {
   const age = ageText(state.profile.dob, state.today);
   $("ageLine").textContent = age ? `${name()} is ${age}` : "";
   document.querySelector(".brand h1").textContent = `${name()} Wellness`;
-  const talk = state.view === "talk";
-  $("talkView").hidden = !talk;
-  $("lookView").hidden = talk;
-  for (const [tab, on] of [[$("tabTalk"), talk], [$("tabLook"), !talk]]) {
-    if (on) tab.setAttribute("aria-current", "page"); else tab.removeAttribute("aria-current");
+  for (const [view, id] of Object.entries(VIEWS)) $(id).hidden = state.view !== view;
+  for (const a of document.querySelectorAll(".sections a")) {
+    if (a.dataset.view === state.view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   }
-  $("chatsBtn").style.visibility = talk ? "visible" : "hidden";
+  $("docCount").textContent = state.documents.length || "";
 }
 
+// Talk is the default. #documents and #analysis open the other two
+// (#look-back, the old name, still works).
 function readHash() {
-  state.view = location.hash === "#look-back" ? "look" : "talk";
+  const h = location.hash;
+  state.view = h === "#documents" ? "docs" : h === "#analysis" || h === "#look-back" ? "look" : "talk";
   closeDrawer();
   renderTop();
+  renderChatList();
 }
 
 // ─── Talk: past chats ────────────────────────────────────────────────────
@@ -158,7 +170,7 @@ function renderChatList() {
   const today = state.chatList.find(c => c.day === state.today);
   if (today) days[0] = today;
   patch($("chatItems"), days.map(c => `
-    <li><button type="button" data-act="open-day" data-day="${esc(c.day)}" ${c.day === state.day ? 'aria-current="true"' : ""}>
+    <li><button type="button" data-act="open-day" data-day="${esc(c.day)}" ${c.day === state.day && state.view === "talk" ? 'aria-current="true"' : ""}>
       <span class="when">${esc(dayLabel(c.day, state.today))}</span>
       <span class="first">${esc(c.firstLine || (c.day === state.today ? "Start today's chat" : ""))}</span>
     </button></li>`).join(""));
@@ -183,26 +195,6 @@ function closeDrawer() { $("chatPane").classList.remove("open"); $("scrim").hidd
 
 // ─── Talk: the conversation ──────────────────────────────────────────────
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-}
-
-function welcomeHtml() {
-  const examples = [
-    `${name()} was well all day and ate properly`,
-    "Cough at night, gave steam before bed",
-    "Weight 12.4 kg at the clinic today",
-  ];
-  const needsProfile = !state.profile.dob;
-  return `<div class="welcome">
-    <h2>${greeting()}. How was ${esc(name())} today?</h2>
-    <p>Write it the way you'd text each other. Claude will reply and offer to note things in the diary. Nothing is saved until you tap Save all.</p>
-    ${state.canWrite && state.sample ? `<div class="examples">${examples.map(x => `<button type="button" class="chip" data-act="prefill" data-text="${esc(x)}">${esc(x)}</button>`).join("")}</div>` : ""}
-    ${needsProfile && state.canWrite ? `<p><button type="button" class="link-btn" data-act="settings">Add her birth date and routine</button> so warnings and ideas fit her age.</p>` : ""}
-  </div>`;
-}
-
 function warningHtml(list) {
   if (!list?.length) return "";
   const phone = state.profile.doctorPhone;
@@ -215,48 +207,86 @@ function warningHtml(list) {
 }
 
 function draftFor(m) {
-  if (!state.drafts[m.id]) state.drafts[m.id] = (m.proposal || []).map(e => ({ ...e }));
+  if (!state.drafts[m.id]) {
+    state.drafts[m.id] = {
+      entries: (m.proposal || []).map(e => ({ ...e })),
+      schedules: (m.proposedSchedules || []).map(x => ({ ...x })),
+    };
+  }
   return state.drafts[m.id];
 }
 
 function noteRowHtml(msgId, e, i) {
-  const base = `d-${msgId}-${i}`;
+  const base = `d-${msgId}-e${i}`;
+  const attrs = (f) => `data-draft="${msgId}" data-g="entries" data-i="${i}" data-f="${f}"`;
   const typeOptions = Object.entries(TYPES).map(([k, t]) => `<option value="${k}" ${k === e.type ? "selected" : ""}>${esc(t.label)}</option>`).join("");
   const what = e.type === "health"
-    ? `<select id="${base}-what" data-draft="${msgId}" data-i="${i}" data-f="what" aria-label="How she is">${Object.entries(HEALTH).map(([k, l]) => `<option value="${k}" ${k === e.what ? "selected" : ""}>${l}</option>`).join("")}</select>`
-    : `<input id="${base}-what" data-draft="${msgId}" data-i="${i}" data-f="what" value="${esc(e.what)}" aria-label="What">`;
+    ? `<select id="${base}-what" ${attrs("what")} aria-label="How she is">${Object.entries(HEALTH).map(([k, l]) => `<option value="${k}" ${k === e.what ? "selected" : ""}>${l}</option>`).join("")}</select>`
+    : `<input id="${base}-what" ${attrs("what")} value="${esc(e.what)}" aria-label="What">`;
   return `<div class="note-row">
-    <select id="${base}-type" data-draft="${msgId}" data-i="${i}" data-f="type" aria-label="Type">${typeOptions}</select>
+    <select id="${base}-type" ${attrs("type")} aria-label="Type">${typeOptions}</select>
     ${what}
-    <input class="f-details" id="${base}-details" data-draft="${msgId}" data-i="${i}" data-f="details" value="${esc(e.details)}" placeholder="Details" aria-label="Details">
-    <input class="f-date" type="date" id="${base}-date" data-draft="${msgId}" data-i="${i}" data-f="date" value="${esc(e.date)}" max="${state.today}" aria-label="Date">
-    <button type="button" class="icon-btn remove" data-act="draft-remove" data-msg="${msgId}" data-i="${i}" aria-label="Don't note this"><svg><use href="#i-close"/></svg></button>
+    <input class="f-details" id="${base}-details" ${attrs("details")} value="${esc(e.details)}" placeholder="Details" aria-label="Details">
+    <input class="f-date" type="date" id="${base}-date" ${attrs("date")} value="${esc(e.date)}" max="${state.today}" aria-label="Date">
+    <button type="button" class="icon-btn remove" data-act="draft-remove" data-msg="${msgId}" data-g="entries" data-i="${i}" aria-label="Don't note this"><svg><use href="#i-close"/></svg></button>
   </div>`;
 }
 
+function repeatOptions(current) {
+  return Object.entries(REPEATS).map(([k, l]) => `<option value="${k}" ${k === current ? "selected" : ""}>${l}</option>`).join("");
+}
+
+function schedNoteRowHtml(msgId, x, i) {
+  const base = `d-${msgId}-s${i}`;
+  const attrs = (f) => `data-draft="${msgId}" data-g="schedules" data-i="${i}" data-f="${f}"`;
+  return `<div class="sched-row">
+    <input class="f-what" id="${base}-what" ${attrs("what")} value="${esc(x.what)}" aria-label="What">
+    <select class="f-repeat" id="${base}-repeat" ${attrs("repeat")} aria-label="How often">${repeatOptions(x.repeat)}</select>
+    <button type="button" class="icon-btn f-remove" data-act="draft-remove" data-msg="${msgId}" data-g="schedules" data-i="${i}" aria-label="Don't add this"><svg><use href="#i-close"/></svg></button>
+    <label class="f-date">${x.repeat === "once" ? "On" : "From"} <input type="date" id="${base}-date" ${attrs("date")} value="${esc(x.date)}"></label>
+    <label class="f-time">Time <input type="time" id="${base}-time" ${attrs("time")} value="${esc(x.time)}"></label>
+    <label class="f-until" ${x.repeat === "once" ? "hidden" : ""}>Until <input type="date" id="${base}-until" ${attrs("until")} value="${esc(x.until)}"></label>
+  </div>`;
+}
+
+function savedScheduleHtml(x) {
+  return `<li><span class="tag schedule">Schedule</span> <span>${esc(scheduleLine(x, state.today))}</span></li>`;
+}
+
 function cardHtml(m) {
-  if (m.proposal?.length && state.canWrite) {
-    const rows = draftFor(m);
-    if (!rows.length) {
-      return `<div class="note-card"><footer><span>Nothing left to note.</span><button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Done</button></footer></div>`;
+  const offered = (m.proposal?.length || 0) + (m.proposedSchedules?.length || 0);
+  if (offered && state.canWrite) {
+    const d = draftFor(m);
+    const n = d.entries.length + d.schedules.length;
+    if (!n) {
+      return `<div class="note-card"><footer><span>Nothing left to save.</span><button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Done</button></footer></div>`;
     }
+    const both = d.entries.length && d.schedules.length;
+    const title = both ? "Save these?" : d.schedules.length ? "Add to her schedule?" : "Note in the diary?";
     return `<div class="note-card">
-      <header><h3>Note in the diary?</h3><span>Fix anything first</span></header>
-      ${rows.map((e, i) => noteRowHtml(m.id, e, i)).join("")}
+      <header><h3>${title}</h3><span>Fix anything first</span></header>
+      ${both ? `<div class="group-title">In the diary</div>` : ""}
+      ${d.entries.map((e, i) => noteRowHtml(m.id, e, i)).join("")}
+      ${both ? `<div class="group-title">In her schedule</div>` : ""}
+      ${d.schedules.map((x, i) => schedNoteRowHtml(m.id, x, i)).join("")}
       <footer>
         <button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Don't save</button>
-        <button type="button" class="btn primary" data-act="save-all" data-msg="${m.id}">Save ${rows.length === 1 ? "it" : `all ${rows.length}`}</button>
+        <button type="button" class="btn primary" data-act="save-all" data-msg="${m.id}">Save ${n === 1 ? "it" : `all ${n}`}</button>
       </footer>
     </div>`;
   }
-  if (m.proposal?.length) {
-    return `<div class="note-card"><header><h3>Suggested for the diary</h3></header><ul class="saved-list">${m.proposal.map(e => `<li>${tagHtml(e)} ${esc(whatText(e))}</li>`).join("")}</ul></div>`;
+  if (offered) {
+    return `<div class="note-card"><header><h3>Suggested</h3></header><ul class="saved-list">${(m.proposal || []).map(e => `<li>${tagHtml(e)} ${esc(whatText(e))}</li>`).join("")}${(m.proposedSchedules || []).map(savedScheduleHtml).join("")}</ul></div>`;
   }
-  if (m.savedEntryIds?.length) {
-    const saved = m.savedEntryIds.map(entryById).filter(Boolean);
+  const savedEntries = (m.savedEntryIds || []).map(entryById).filter(Boolean);
+  const savedScheds = (m.savedScheduleIds || []).map(id => state.schedules.find(x => x.id === id)).filter(Boolean);
+  if (m.savedEntryIds?.length || m.savedScheduleIds?.length) {
+    const any = savedEntries.length + savedScheds.length;
     return `<div class="note-card">
-      <div class="saved-head">Saved to the diary</div>
-      <ul class="saved-list">${saved.length ? saved.map(e => `<li>${tagHtml(e)} <span>${esc(whatText(e))}${e.details ? ` · ${esc(e.details)}` : ""}</span></li>`).join("") : "<li>These entries were later removed.</li>"}</ul>
+      <div class="saved-head">Saved</div>
+      <ul class="saved-list">${any
+        ? savedEntries.map(e => `<li>${tagHtml(e)} <span>${esc(whatText(e))}${e.details ? ` · ${esc(e.details)}` : ""}</span></li>`).join("") + savedScheds.map(savedScheduleHtml).join("")
+        : "<li>These were later removed.</li>"}</ul>
     </div>`;
   }
   return "";
@@ -286,7 +316,6 @@ function renderMessages(forceScroll = false) {
     html = `<div class="state"><h2>Sign in to open the diary</h2><p>${esc(name())}'s diary is kept in your claude.ai account. Open this page while signed in to claude.ai.</p></div>`;
   } else {
     html = state.messages.map(messageHtml).join("");
-    if (!state.messages.length && isToday && !state.busy) html = welcomeHtml();
     if (!state.messages.length && !isToday) html = `<div class="empty">No messages on this day.</div>`;
     if (state.busy) {
       html += `<div class="msg assistant">${warningHtml(state.liveWarnings)}<div class="text${state.streamText ? "" : " thinking"}" id="streamText">${esc(state.streamText || "Thinking…")}</div></div>`;
@@ -296,6 +325,7 @@ function renderMessages(forceScroll = false) {
     }
   }
   patch(box, html);
+  box.dataset.state = state.loading ? "loading" : state.problem ? "problem" : "ready";
   if (forceScroll || nearBottom) box.scrollTop = box.scrollHeight;
 }
 
@@ -329,10 +359,12 @@ function renderComposer() {
   $("sendBtn").disabled = !state.sample || !state.online || !$("composerText").value.trim();
   $("footnote").textContent = state.sample || state.loading
     ? `${name()} Wellness keeps a diary and shares ideas. It is not a doctor.`
-    : "Claude can't answer on this view. You can still add entries yourself in Look back.";
+    : "Claude can't answer on this view. You can still add entries yourself in Time-based analysis.";
 
-  const ideas = showForm && !state.busy ? ideasForToday({ profile: state.profile, entries: state.entries, now: new Date() }) : [];
-  patch($("ideas"), ideas.map(i => `<button type="button" class="chip" data-act="prefill" data-text="${esc(i.prefill)}">${esc(i.label)}</button>`).join(""));
+  const ideas = showForm && !state.busy ? ideasForToday({ profile: state.profile, entries: state.entries, schedules: state.schedules, now: new Date() }) : [];
+  patch($("ideas"), ideas.map(i => i.action
+    ? `<button type="button" class="chip action" data-act="${esc(i.action)}">${esc(i.label)}</button>`
+    : `<button type="button" class="chip${i.schedule ? " schedule" : ""}" data-act="prefill" data-text="${esc(i.prefill)}">${esc(i.label)}</button>`).join(""));
 }
 
 function growComposer() {
@@ -376,7 +408,7 @@ async function send(text, { retry = false } = {}) {
 
   // On a retry, the message is already in the chat history.
   const past = retry ? history.slice(0, history.map(m => m.role).lastIndexOf("user")) : history;
-  const { turns, saw } = buildTurns({ profile: state.profile, entries: state.entries, history: past, newText: text, today: day });
+  const { turns, saw } = buildTurns({ profile: state.profile, entries: state.entries, schedules: state.schedules, documents: state.documents, history: past, newText: text, today: day });
   state.controller = new AbortController();
 
   let raw;
@@ -398,7 +430,7 @@ async function send(text, { retry = false } = {}) {
     else { render(); renderMessages(true); return; }
   }
 
-  const { reply, entries: proposed } = parseReply(raw, day);
+  const { reply, entries: proposed, schedules: proposedSchedules } = parseReply(raw, day);
   const warnings = checkWarnings({ profile: state.profile, text, proposed, entries: state.entries, today: day });
   const dose = doseNote({ text, entries: state.entries, profile: state.profile });
   try {
@@ -406,6 +438,7 @@ async function send(text, { retry = false } = {}) {
       role: "assistant",
       text: reply || "Noted.",
       proposal: proposed.length ? proposed : null,
+      proposedSchedules: proposedSchedules.length ? proposedSchedules : null,
       warnings,
       dose,
       saw,
@@ -422,13 +455,21 @@ async function send(text, { retry = false } = {}) {
 }
 
 async function saveAll(msgId) {
-  const list = (state.drafts[msgId] || []).map(e => cleanEntry(e, state.today)).filter(Boolean);
-  if (!list.length) return skip(msgId);
+  const d = state.drafts[msgId] || { entries: [], schedules: [] };
+  const entries = d.entries.map(e => cleanEntry(e, state.today)).filter(Boolean);
+  const schedules = d.schedules.map(x => cleanSchedule(x, state.today)).filter(Boolean);
+  if (!entries.length && !schedules.length) return skip(msgId);
   try {
-    const ids = await state.diary.addEntries(list, msgId);
-    await state.diary.updateMessage(state.day, msgId, { proposal: null, savedEntryIds: ids });
+    const entryIds = entries.length ? await state.diary.addEntries(entries, msgId) : [];
+    const scheduleIds = schedules.length ? await state.diary.addSchedules(schedules, msgId) : [];
+    await state.diary.updateMessage(state.day, msgId, {
+      proposal: null, proposedSchedules: null, savedEntryIds: entryIds, savedScheduleIds: scheduleIds,
+    });
     delete state.drafts[msgId];
-    toast(list.length === 1 ? "Saved to the diary" : `Saved ${list.length} entries to the diary`);
+    const parts = [];
+    if (entries.length) parts.push(entries.length === 1 ? "1 diary entry" : `${entries.length} diary entries`);
+    if (schedules.length) parts.push(schedules.length === 1 ? "1 schedule item" : `${schedules.length} schedule items`);
+    toast(`Saved ${parts.join(" and ")}`);
   } catch (e) {
     onWriteError(e);
   }
@@ -436,14 +477,179 @@ async function saveAll(msgId) {
 
 async function skip(msgId) {
   try {
-    await state.diary.updateMessage(state.day, msgId, { proposal: null, skipped: true });
+    await state.diary.updateMessage(state.day, msgId, { proposal: null, proposedSchedules: null, skipped: true });
     delete state.drafts[msgId];
   } catch (e) {
     onWriteError(e);
   }
 }
 
-// ─── Look back ───────────────────────────────────────────────────────────
+// ─── Documents ───────────────────────────────────────────────────────────
+// Each document is a file (a photo or PDF) with a title and a brief.
+// Nothing is kept without all three.
+
+const MONTH_FMT = { month: "long", year: "numeric" };
+const isImage = (d) => /^image\//.test(d.fileType || "");
+const sizeText = (n) => (n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round((n || 0) / 1024))} KB`);
+const docById = (id) => state.documents.find(d => d.id === id);
+
+function docRowHtml(d) {
+  const by = d.by ? `Added by ${who(d.by) === "You" ? "you" : who(d.by)}` : "";
+  return `<button type="button" class="doc-row" data-act="doc-open" data-id="${d.id}">
+    <span class="doc-icon${isImage(d) ? " img" : ""}"><svg><use href="#${isImage(d) ? "i-image" : "i-doc"}"/></svg></span>
+    <span class="doc-text"><strong>${esc(d.title)}</strong><span class="brief">${esc(d.brief)}</span>${by ? `<span class="meta">${esc(by)}</span>` : ""}</span>
+    <span class="doc-date">${esc(dayLabel(d.date, state.today))}</span>
+  </button>`;
+}
+
+function docFormReady(f) {
+  return (f.id !== "new" || f.file) && f.title.trim() && f.brief.trim() && /^\d{4}-\d{2}-\d{2}$/.test(f.date);
+}
+
+function docNeedText(f) {
+  const missing = [];
+  if (f.id === "new" && !f.file) missing.push("a file");
+  if (!f.title.trim()) missing.push("a title");
+  if (!f.brief.trim()) missing.push("a brief");
+  if (!missing.length) return "";
+  const list = missing.length > 1 ? `${missing.slice(0, -1).join(", ")} and ${missing.at(-1)}` : missing[0];
+  return `Add ${list} to save.`;
+}
+
+function docFormHtml(f) {
+  const isNew = f.id === "new";
+  return `<div class="doc-form">
+    <h3>${isNew ? "Add a document" : "Edit title and brief"}</h3>
+    ${isNew ? `<label class="file-pick">File <input type="file" id="docFile" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"><span>${f.file ? `${esc(f.file.name)} · ${sizeText(f.file.size)}` : "A photo or PDF, up to 20 MB"}</span></label>` : ""}
+    <div class="two">
+      <label>Title <input id="docTitle" data-doc="title" maxlength="120" value="${esc(f.title)}" placeholder="Blood test report"></label>
+      <label>Date of the document <input id="docDate" data-doc="date" type="date" value="${esc(f.date)}" max="${state.today}"></label>
+    </div>
+    <label>Brief <textarea id="docBrief" data-doc="brief" maxlength="600" placeholder="What it is and what matters in it. For example: haemoglobin a little low, recheck in 3 months.">${esc(f.brief)}</textarea></label>
+    <p class="need" id="docNeed">${esc(docNeedText(f))}</p>
+    <div class="row">
+      <span class="status${f.problem ? " problem" : ""}">${esc(f.status || "")}</span>
+      <button type="button" class="btn quiet" data-act="doc-cancel" ${f.busy ? "disabled" : ""}>Cancel</button>
+      <button type="button" class="btn primary" id="docSave" data-act="doc-save" ${docFormReady(f) && !f.busy ? "" : "disabled"}>${isNew ? "Save document" : "Save changes"}</button>
+    </div>
+  </div>`;
+}
+
+function docViewHtml(d) {
+  const by = d.by ? ` · Added by ${who(d.by) === "You" ? "you" : who(d.by)}` : "";
+  const [y, m, day] = d.date.split("-").map(Number);
+  const long = new Date(y, m - 1, day).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+  const actions = [
+    state.downloads ? `<button type="button" class="btn" data-act="doc-download" data-id="${d.id}">Download</button>` : "",
+    state.canWrite ? `<button type="button" class="btn" data-act="doc-edit" data-id="${d.id}">Edit title and brief</button>` : "",
+    state.canWrite ? (state.docConfirmDelete
+      ? `<span class="confirm">Remove this document? <button type="button" class="btn danger" data-act="doc-del-yes" data-id="${d.id}">Remove</button><button type="button" class="btn quiet" data-act="doc-del-no">Keep</button></span>`
+      : `<button type="button" class="btn quiet danger" data-act="doc-del" data-id="${d.id}">Remove</button>`) : "",
+  ].join("");
+  const url = state.diary.fileUrl(d.fileId);
+  const file = isImage(d)
+    ? `<img src="${esc(url)}" alt="${esc(d.title)}" id="docImg">`
+    : `<iframe src="${esc(url)}" title="${esc(d.title)}"></iframe>`;
+  return `<div class="doc-view">
+    <button type="button" class="btn quiet back" data-act="doc-back"><svg><use href="#i-left"/></svg>All documents</button>
+    <h2>${esc(d.title)}</h2>
+    <p class="meta">${esc(long)} · ${isImage(d) ? "Photo" : "PDF"}${d.fileSize ? ` · ${sizeText(d.fileSize)}` : ""}${esc(by)}</p>
+    <p class="brief">${esc(d.brief)}</p>
+    ${actions ? `<div class="doc-actions">${actions}</div>` : ""}
+    <div class="doc-file">${file}</div>
+    ${isImage(d) ? "" : `<p class="hint">If the PDF doesn't show here, use Download to open it.</p>`}
+  </div>`;
+}
+
+function renderDocs() {
+  if (!$("docsView")) return;
+  $("docCount").textContent = state.documents.length || "";
+  const canAdd = state.canWrite && state.diary?.canUpload;
+  $("addDocBtn").hidden = !canAdd || !!state.docForm || !!state.docOpen;
+  $("docsHint").hidden = !!state.docOpen;
+  patch($("docForm"), state.docForm ? docFormHtml(state.docForm) : "");
+
+  const body = $("docBody");
+  if (state.loading || state.problem) { body.innerHTML = `<div class="empty">${state.problem ? "Sign in to claude.ai to open the documents." : "Opening the documents…"}</div>`; return; }
+  const open = state.docOpen && docById(state.docOpen);
+  if (open && !(state.docForm && state.docForm.id === open.id)) {
+    if (!body.querySelector(`.doc-view[data-id="${open.id}"]`) || body.dataset.sig !== `${open.title}|${open.brief}|${open.date}|${state.docConfirmDelete}|${who(open.by)}`) {
+      body.innerHTML = docViewHtml(open).replace('<div class="doc-view">', `<div class="doc-view" data-id="${open.id}">`);
+      body.dataset.sig = `${open.title}|${open.brief}|${open.date}|${state.docConfirmDelete}|${who(open.by)}`;
+      $("docImg")?.addEventListener("error", (e) => { e.target.replaceWith(Object.assign(document.createElement("p"), { className: "missing", textContent: "This photo can't be shown here. Try Download." })); });
+    }
+    return;
+  }
+  body.dataset.sig = "";
+  if (state.docForm && state.docForm.id !== "new") { body.innerHTML = ""; return; }
+  const noUpload = state.canWrite && !state.diary?.canUpload
+    ? `<p class="hint">Only people who can edit this page can add documents. Ask the page's owner to make you an Editor.</p>` : "";
+  if (!state.documents.length) {
+    body.innerHTML = `${noUpload}<div class="empty">No documents yet. Add a prescription, a test report or a vaccination card, with a short brief on what it says.</div>`;
+    return;
+  }
+  const byMonth = new Map();
+  for (const d of state.documents) {
+    const k = d.date.slice(0, 7);
+    if (!byMonth.has(k)) byMonth.set(k, []);
+    byMonth.get(k).push(d);
+  }
+  body.innerHTML = noUpload + [...byMonth.entries()].map(([k, list]) => {
+    const [y, m] = k.split("-").map(Number);
+    return `<section class="doc-month"><h3>${esc(new Date(y, m - 1, 1).toLocaleDateString("en-GB", MONTH_FMT))}</h3>${list.map(docRowHtml).join("")}</section>`;
+  }).join("");
+}
+
+const UPLOAD_PROBLEM = {
+  too_large: "That file is over 20 MB. Try a smaller photo or PDF.",
+  unsupported_type: "Only photos (JPG, PNG, WebP, GIF) and PDFs can be kept.",
+  quota_or_state: "This page's file storage is full. Remove an old document to make room.",
+  not_granted: "Only people who can edit this page can add documents.",
+  rate_limited: "Too many uploads at once. Wait a minute and try again.",
+};
+
+async function saveDoc() {
+  const f = state.docForm;
+  if (!f || f.busy || !docFormReady(f)) return;
+  const details = { title: f.title.trim(), brief: f.brief.trim(), date: f.date };
+  f.busy = true;
+  f.problem = false;
+  f.status = f.id === "new" ? "Uploading…" : "Saving…";
+  renderDocs();
+  try {
+    if (f.id === "new") {
+      const id = await state.diary.addDocument(f.file, details);
+      state.docOpen = id;
+      toast("Document saved");
+    } else {
+      await state.diary.updateDocument(f.id, details);
+      toast("Saved");
+    }
+    state.docForm = null;
+    state.docConfirmDelete = false;
+  } catch (e) {
+    f.busy = false;
+    f.problem = true;
+    f.status = UPLOAD_PROBLEM[e?.code] || (e?.code === "invalid_argument" ? "You can't add to this diary." : "Couldn't save. Check your connection and try again.");
+  }
+  renderDocs();
+}
+
+async function downloadDoc(d) {
+  if (!state.downloads) return;
+  try {
+    const blob = await state.diary.fileBlob(d.fileId);
+    const ext = isImage(d) ? (d.fileType.split("/")[1] || "jpg").replace("jpeg", "jpg") : "pdf";
+    const base = (d.fileName || d.title).replace(/\.[a-z0-9]+$/i, "");
+    await state.downloads.save({ filename: `${base}.${ext}`, data: blob });
+    toast("Saved");
+  } catch (e) {
+    if (e?.code === "declined") return;
+    toast(e?.code === "not_found" ? "This file can't be reached right now. Try again later." : "Couldn't download it here. Try opening the page on claude.ai.");
+  }
+}
+
+// ─── Time-based analysis ─────────────────────────────────────────────────
 // Four moves: pick a span, the app counts, Claude explains, you dig in.
 
 function toDay(key) { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); }
@@ -655,7 +861,7 @@ function renderNotes() {
 async function writeNotesNow() {
   if (state.notesBusy || !state.sample || !state.look) return;
   const span = state.span;
-  const { prompt, refs, saw, stats } = notesRequest({ profile: state.profile, span, entries: state.look.list, today: state.today });
+  const { prompt, refs, saw, stats } = notesRequest({ profile: state.profile, span, entries: state.look.list, documents: state.documents, today: state.today });
   state.notesBusy = true;
   state.notesError = null;
   state.notesController = new AbortController();
@@ -795,18 +1001,19 @@ async function saveEdit() {
 
 // ─── About Divisha ───────────────────────────────────────────────────────
 
-let routineDraft = [];
+let scheduleDraft = [];
 
-function renderRoutine() {
-  $("routineRows").innerHTML = routineDraft.map((r, i) => `
-    <div class="routine-row">
-      <input id="r-${i}-what" data-routine="${i}" data-f="what" value="${esc(r.what)}" placeholder="Kadha" aria-label="Routine item">
-      <select id="r-${i}-often" data-routine="${i}" data-f="often" aria-label="How often">
-        <option value="daily" ${r.often !== "weekly" ? "selected" : ""}>Every day</option>
-        <option value="weekly" ${r.often === "weekly" ? "selected" : ""}>Every week</option>
-      </select>
-      <button type="button" class="icon-btn" data-act="routine-remove" data-i="${i}" aria-label="Remove"><svg><use href="#i-close"/></svg></button>
-    </div>`).join("");
+function renderScheduleRows() {
+  const disabled = state.canWrite ? "" : "disabled";
+  $("scheduleRows").innerHTML = scheduleDraft.map((x, i) => `
+    <div class="sched-row">
+      <input class="f-what" id="sc-${i}-what" data-sched="${i}" data-f="what" value="${esc(x.what)}" placeholder="Vitamin D drops" aria-label="What" ${disabled}>
+      <select class="f-repeat" id="sc-${i}-repeat" data-sched="${i}" data-f="repeat" aria-label="How often" ${disabled}>${repeatOptions(x.repeat)}</select>
+      <button type="button" class="icon-btn f-remove" data-act="sched-remove" data-i="${i}" aria-label="Remove" ${disabled}><svg><use href="#i-close"/></svg></button>
+      <label class="f-date">${x.repeat === "once" ? "On" : "From"} <input type="date" id="sc-${i}-date" data-sched="${i}" data-f="date" value="${esc(x.date)}" ${disabled}></label>
+      <label class="f-time">Time <input type="time" id="sc-${i}-time" data-sched="${i}" data-f="time" value="${esc(x.time)}" ${disabled}></label>
+      <label class="f-until" ${x.repeat === "once" ? "hidden" : ""}>Until <input type="date" id="sc-${i}-until" data-sched="${i}" data-f="until" value="${esc(x.until)}" ${disabled}></label>
+    </div>`).join("") || `<p class="hint">Nothing set yet.</p>`;
 }
 
 function openSettings() {
@@ -817,10 +1024,9 @@ function openSettings() {
   $("sAllergies").value = p.allergies || "";
   $("sDoctor").value = p.doctorName || "";
   $("sPhone").value = p.doctorPhone || "";
-  routineDraft = (p.routine || []).map(r => ({ ...r }));
-  if (!routineDraft.length) routineDraft.push({ what: "", often: "daily" });
-  renderRoutine();
-  for (const el of $("settingsForm").querySelectorAll("input, select, #addRoutineBtn, #settingsSave")) el.disabled = !state.canWrite;
+  scheduleDraft = state.schedules.map(x => ({ ...x }));
+  renderScheduleRows();
+  for (const el of $("settingsForm").querySelectorAll("#sName, #sDob, #sAllergies, #sDoctor, #sPhone, #addScheduleBtn, #settingsSave")) el.disabled = !state.canWrite;
   $("keepCopy").hidden = !state.downloads || !state.diary;
   $("copyStatus").textContent = "";
   $("settings").showModal();
@@ -833,10 +1039,22 @@ async function saveSettings() {
     allergies: $("sAllergies").value.trim(),
     doctorName: $("sDoctor").value.trim(),
     doctorPhone: $("sPhone").value.trim(),
-    routine: routineDraft.filter(r => r.what.trim()).map(r => ({ what: r.what.trim(), often: r.often || "daily" })),
   };
   try {
     await state.diary.saveProfile(profile);
+    // Her schedule: add new rows, save changed ones, remove deleted ones.
+    const kept = new Set();
+    for (const row of scheduleDraft) {
+      const clean = cleanSchedule(row, state.today);
+      if (!clean) continue;
+      if (!row.id) { await state.diary.addSchedules([clean]); continue; }
+      kept.add(row.id);
+      const was = state.schedules.find(x => x.id === row.id);
+      if (was && ["what", "repeat", "date", "time", "until", "details"].some(k => (was[k] || "") !== (clean[k] || ""))) {
+        await state.diary.updateSchedule(row.id, clean);
+      }
+    }
+    for (const x of state.schedules) if (!kept.has(x.id)) await state.diary.deleteSchedule(x.id);
     $("settings").close();
     toast("Saved");
   } catch (e) {
@@ -901,6 +1119,7 @@ function render() {
   renderDayBar();
   renderMessages();
   renderComposer();
+  renderDocs();
   renderLook();
 }
 
@@ -919,7 +1138,18 @@ function wire() {
   $("settingsClose").addEventListener("click", () => $("settings").close());
   $("settingsCancel").addEventListener("click", () => $("settings").close());
   $("settingsForm").addEventListener("submit", (e) => { e.preventDefault(); saveSettings(); });
-  $("addRoutineBtn").addEventListener("click", () => { routineDraft.push({ what: "", often: "daily" }); renderRoutine(); $(`r-${routineDraft.length - 1}-what`).focus(); });
+  $("addScheduleBtn").addEventListener("click", () => {
+    scheduleDraft.push({ what: "", repeat: "daily", date: state.today, time: "", until: "", details: "" });
+    renderScheduleRows();
+    $(`sc-${scheduleDraft.length - 1}-what`).focus();
+  });
+
+  $("addDocBtn").addEventListener("click", () => {
+    state.docForm = { id: "new", title: "", brief: "", date: state.today, file: null, busy: false, status: "" };
+    state.docOpen = null;
+    renderDocs();
+    $("docFile")?.focus();
+  });
 
   $("composer").addEventListener("submit", (e) => { e.preventDefault(); send($("composerText").value); });
   $("composerText").addEventListener("input", growComposer);
@@ -937,24 +1167,40 @@ function wire() {
     $("eType")?.focus();
   });
 
-  // Typing into a card, an edit form or the routine list
+  // Typing into a card, an edit form, a schedule row or a document form
   document.addEventListener("input", (ev) => {
     const t = ev.target;
     if (t.dataset.draft) {
-      const row = state.drafts[t.dataset.draft]?.[Number(t.dataset.i)];
+      const row = state.drafts[t.dataset.draft]?.[t.dataset.g]?.[Number(t.dataset.i)];
       if (row) row[t.dataset.f] = t.value;
     } else if (t.dataset.edit && state.edit) {
       state.edit[t.dataset.edit] = t.value;
-    } else if (t.dataset.routine) {
-      routineDraft[Number(t.dataset.routine)][t.dataset.f] = t.value;
+    } else if (t.dataset.sched) {
+      scheduleDraft[Number(t.dataset.sched)][t.dataset.f] = t.value;
+    } else if (t.dataset.doc && state.docForm) {
+      state.docForm[t.dataset.doc] = t.value;
+      $("docSave").disabled = !docFormReady(state.docForm) || state.docForm.busy;
+      $("docNeed").textContent = docNeedText(state.docForm);
     }
   });
   // Changing the type swaps the "what" field (How she is uses a fixed list)
   document.addEventListener("change", (ev) => {
     const t = ev.target;
     if (t.dataset.draft && t.dataset.f === "type") {
-      const row = state.drafts[t.dataset.draft]?.[Number(t.dataset.i)];
+      const row = state.drafts[t.dataset.draft]?.entries?.[Number(t.dataset.i)];
       if (row) { row.type = t.value; row.what = t.value === "health" ? "well" : (HEALTH[row.what] ? "" : row.what); renderMessages(); }
+    } else if (t.dataset.draft && t.dataset.f === "repeat") {
+      renderMessages();                                   // "Until" shows only for repeats
+    } else if (t.dataset.sched && t.dataset.f === "repeat") {
+      renderScheduleRows();
+    } else if (t.id === "docFile" && state.docForm) {
+      const file = t.files?.[0] || null;
+      state.docForm.file = file;
+      if (file && !state.docForm.title.trim()) {
+        state.docForm.title = file.name.replace(/\.[a-z0-9]+$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 120);
+      }
+      renderDocs();
+      $("docBrief")?.focus();
     } else if (t.dataset.edit === "type" && state.edit) {
       state.edit.what = t.value === "health" ? "well" : (HEALTH[state.edit.what] ? "" : state.edit.what);
       renderEntries();
@@ -965,13 +1211,13 @@ function wire() {
     const b = ev.target.closest("[data-act]");
     if (!b) return;
     const act = b.dataset.act;
-    if (act === "open-day") openDay(b.dataset.day);
+    if (act === "open-day") { if (state.view !== "talk") location.hash = "#talk"; openDay(b.dataset.day); }
     else if (act === "prefill") { const t = $("composerText"); t.value = b.dataset.text; growComposer(); t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
     else if (act === "settings") openSettings();
     else if (act === "retry" && state.failed) send(state.failed.text, { retry: true });
     else if (act === "save-all") saveAll(b.dataset.msg);
     else if (act === "skip") skip(b.dataset.msg);
-    else if (act === "draft-remove") { state.drafts[b.dataset.msg]?.splice(Number(b.dataset.i), 1); renderMessages(); }
+    else if (act === "draft-remove") { state.drafts[b.dataset.msg]?.[b.dataset.g]?.splice(Number(b.dataset.i), 1); renderMessages(); }
     else if (act === "filter") { state.filter = b.dataset.f; renderEntries(); }
     else if (act === "span-kind") {
       const s = state.span;
@@ -1007,7 +1253,22 @@ function wire() {
       state.diary.deleteEntry(b.dataset.id).then(() => { toast("Removed from the diary"); afterDiaryChange(); }).catch(onWriteError);
       state.confirmDelete = null;
     }
-    else if (act === "routine-remove") { routineDraft.splice(Number(b.dataset.i), 1); renderRoutine(); }
+    else if (act === "sched-remove") { scheduleDraft.splice(Number(b.dataset.i), 1); renderScheduleRows(); }
+    else if (act === "doc-open") { state.docOpen = b.dataset.id; state.docForm = null; state.docConfirmDelete = false; renderDocs(); $("docsView").scrollTop = 0; }
+    else if (act === "doc-back") { state.docOpen = null; state.docConfirmDelete = false; renderDocs(); }
+    else if (act === "doc-cancel") { state.docForm = null; renderDocs(); }
+    else if (act === "doc-save") saveDoc();
+    else if (act === "doc-edit") {
+      const d = docById(b.dataset.id);
+      if (d) { state.docForm = { id: d.id, title: d.title, brief: d.brief, date: d.date, busy: false, status: "" }; renderDocs(); $("docTitle")?.focus(); }
+    }
+    else if (act === "doc-del") { state.docConfirmDelete = true; renderDocs(); }
+    else if (act === "doc-del-no") { state.docConfirmDelete = false; renderDocs(); }
+    else if (act === "doc-del-yes") {
+      const d = docById(b.dataset.id);
+      if (d) state.diary.deleteDocument(d).then(() => { state.docOpen = null; state.docConfirmDelete = false; toast("Document removed"); renderDocs(); }).catch(onWriteError);
+    }
+    else if (act === "doc-download") { const d = docById(b.dataset.id); if (d) downloadDoc(d); }
   });
 }
 
@@ -1036,6 +1297,14 @@ async function start() {
     renderLook();
   }, () => toast("Couldn't load the diary. Reload the page."));
   diary.watchChatList((list) => { state.chatList = list; renderChatList(); }, () => {});
+  diary.watchSchedules((list) => { state.schedules = list; renderComposer(); renderMessages(); }, () => {});
+  diary.watchDocuments((list) => {
+    state.documents = list;
+    if (state.docOpen && !docById(state.docOpen)) state.docOpen = null;
+    resolveNames(list.map(d => d.by));
+    renderTop();
+    renderDocs();
+  }, () => toast("Couldn't load the documents. Reload the page."));
   openDay(state.today);
   openSpan(state.span);
 }

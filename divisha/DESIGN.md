@@ -16,9 +16,11 @@ Two parents. Three moments.
 
 Everything below exists to serve one of these three moments. If a feature serves none of them, it is not in the app.
 
-## 2. The app is two screens
+## 2. The app has three sections
 
-A switch at the top flips between them: **Talk** and **Look back**.
+The left pane lists them, top to bottom: **Talk** (where the app opens), **Documents** and **Time-based analysis**. Past chats sit below them. On a phone, the pane slides in from the menu button.
+
+*Time-based analysis was called "Look back" until 31 October. The sketches below still use the old name.*
 
 ### Talk
 
@@ -46,7 +48,9 @@ A switch at the top flips between them: **Talk** and **Look back**.
 
 - **You type the way you text each other.** Hindi words like kadha, crocin and bhaap are fine.
 - **Claude answers and offers to note things down.** Nothing is saved until you tap **Save all**. You can fix anything first.
-- **Ideas for today** sit above the typing box. They come from simple rules, for example "she had a cough yesterday, try steam tonight?" or "you haven't said how she was today".
+- **Ideas for today** sit above the typing box, most relevant first, at most four. Her schedule comes first: anything due within two hours, then anything due today without a time, then one-off items in the next three days, then later today. Other rules follow, for example "she had a cough yesterday, try steam tonight?" or "you haven't said how she was today". An item drops off once that day's entries mention it.
+- **Schedules can be made in the chat.** Say "remind me to give vitamin D every day at 9" and the card offers it under "Add to her schedule?". Nothing is added until you tap Save. About Divisha lists her whole schedule to edit or remove.
+- **There is no welcome card.** The day opens straight to ideas and the typing box. If her birth date is missing, an idea asks for it.
 - **Past chats** are on the left, one per day. On a phone they slide in from the side.
 
 ### Look back
@@ -94,13 +98,21 @@ A switch at the top flips between them: **Talk** and **Look back**.
 | Grey days and Claude | Claude is told they are unknown, never that she was well. |
 | Claude's points | Each must name the entries behind it. The app drops any point whose entries don't exist. |
 
+### Documents
+
+A record of papers about her: prescriptions, test reports, vaccination cards. Each one is a photo or PDF, up to 20 MB, with a **title** and a **brief**, and the app won't save one without all three. They're listed by month. Tapping one opens it, with Download, Edit title and brief, and Remove. Claude sees the titles and briefs of the latest ten, not the files.
+
+Only people who can edit the page can add documents. That's claude.ai's rule for file storage. Contributors can open and download them.
+
 ## 3. What the app saves
 
-Four things. That is all.
+Six things. That is all.
 
 | What | One example | Why we keep it |
 |---|---|---|
-| **About Divisha** | Birth date, allergies, doctor's name and number, her daily routine (kadha, vitamin D) | So Claude's answers and the "ideas for today" fit her. You fill it in once in Settings. |
+| **About Divisha** | Birth date, allergies, doctor's name and number | So Claude's answers and the warnings fit her age. You fill it in once. |
+| **Her schedule** | "Vitamin D drops, every day at 9 am", "Dr Mehta follow-up, 2 Nov at 5 pm" | So ideas for today can remind you. Made in the chat or in About Divisha. |
+| **Documents** | "Blood test report, 28 Oct: haemoglobin a little low, recheck in 3 months", with the photo | A findable record of her papers. |
 | **Chats** | Everything you and Claude said, grouped by day | So you can scroll back and see what you were thinking at the time. |
 | **Entries** | "21 Oct · Care · Paracetamol 5 ml · given at 9 pm · added by Rohit" | The diary. The summaries are built only from these. |
 | **Summaries** | "October 2026" report, written on 26 Oct | So you can reopen a month without waiting for Claude again. |

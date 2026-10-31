@@ -38,8 +38,8 @@ test("a reply splits into words and entries", () => {
 });
 
 test("a reply with a broken or missing block keeps the words", () => {
-  assert.deepEqual(parseReply("All good!\n```json\n{oops}\n```", TODAY), { reply: "All good!", entries: [] });
-  assert.deepEqual(parseReply("Just words", TODAY), { reply: "Just words", entries: [] });
+  assert.deepEqual(parseReply("All good!\n```json\n{oops}\n```", TODAY), { reply: "All good!", entries: [], schedules: [] });
+  assert.deepEqual(parseReply("Just words", TODAY), { reply: "Just words", entries: [], schedules: [] });
   assert.equal(visiblePart("Hello there\n```json\n{\"entr"), "Hello there");
 });
 
@@ -109,16 +109,16 @@ test("dose questions get the last noted dose, never a calculation", () => {
   assert.equal(doseNote({ text: "she slept well", entries }), null);
 });
 
-test("ideas follow the rules and stop at three", () => {
+test("ideas put a symptom check first, then what's due, then care and the evening question", () => {
   const evening = new Date(2026, 9, 28, 19, 0);
   const entries = [
     { date: "2026-10-27", type: "symptom", what: "Cough at night", details: "" },
     { date: "2026-10-20", type: "care", what: "Steam", details: "" },
     { date: "2026-10-12", type: "care", what: "Steam", details: "" },
   ];
-  const profile = { ...toddler, routine: [{ what: "Vitamin D", often: "daily" }] };
-  const ideas = ideasForToday({ profile, entries, now: evening }).map(i => i.label);
-  assert.deepEqual(ideas, ["Is the cough at night better?", "Steam tonight?", "Vitamin D done today?"]);
+  const schedules = [{ what: "Vitamin D", repeat: "daily", date: "2026-10-01", time: "09:00", until: "" }];
+  const ideas = ideasForToday({ profile: toddler, entries, schedules, now: evening }).map(i => i.label);
+  assert.deepEqual(ideas, ["Is the cough at night better?", "Vitamin D, 9 am: done?", "Steam tonight?", "How was Divisha today?"]);
 
   const morning = new Date(2026, 9, 28, 9, 0);
   assert.deepEqual(ideasForToday({ profile: toddler, entries: [], now: morning }).map(i => i.label), ["How was Divisha today?"]);
@@ -255,7 +255,9 @@ import { readableDiary, backupFile, copyFileNames } from "../app/helper.js";
 
 test("the readable diary lists About Divisha, entries by month, and notes with their dates", () => {
   const text = readableDiary({
-    profile: { ...toddler, doctorName: "Dr Mehta", doctorPhone: "98200 12345", routine: [{ what: "Vitamin D", often: "daily" }] },
+    profile: { ...toddler, doctorName: "Dr Mehta", doctorPhone: "98200 12345" },
+    schedules: [{ what: "Vitamin D", repeat: "daily", date: "2026-10-01", time: "09:00", until: "", details: "" }],
+    documents: [{ date: "2026-10-12", title: "Blood test", brief: "Haemoglobin a little low", by: "u1" }],
     entries: [
       { id: "a", date: "2026-09-30", type: "health", what: "sick", by: "u1", createdAt: "1" },
       { id: "b", date: "2026-10-02", type: "care", what: "Steam", details: "before bed", by: "u2", createdAt: "2" },
@@ -268,7 +270,9 @@ test("the readable diary lists About Divisha, entries by month, and notes with t
   assert.match(text, /^# Divisha Wellness: diary/);
   assert.match(text, /3 entries from Wed, 30 Sept 2026 to Fri, 2 Oct 2026/);
   assert.match(text, /- Doctor: Dr Mehta, 98200 12345/);
-  assert.match(text, /- Usual routine: Vitamin D \(every day\)/);
+  assert.match(text, /## Her schedule\n\n- Vitamin D: every day at 9 am/);
+  assert.match(text, /- Mon, 12 Oct 2026: \*\*Blood test\*\*\. Haemoglobin a little low \(added by Rohit\)/);
+  assert.match(text, /The files themselves are not in this download/);
   assert.ok(text.indexOf("### October 2026") < text.indexOf("### September 2026"), "newest month first");
   assert.ok(text.indexOf("Cough at night") < text.indexOf("Care given: Steam"), "within a day, in the order they were added");
   assert.match(text, /- How she is: Sick \(added by Rohit\)/);
@@ -288,7 +292,91 @@ test("an empty diary still makes a sensible file", () => {
 test("the backup holds everything and says what it is", () => {
   const data = JSON.parse(backupFile({ profile: { name: "Divisha" }, entries: [{ id: "a" }], chats: [{ id: "2026-10-01", messages: {} }], exportedAt: "x" }));
   assert.equal(data.app, "Divisha Wellness");
-  assert.deepEqual(data.counts, { entries: 1, chatDays: 1, notes: 0 });
+  assert.deepEqual(data.counts, { entries: 1, chatDays: 1, notes: 0, schedules: 0, documents: 0 });
   assert.equal(data.profile.name, "Divisha");
   assert.deepEqual(copyFileNames(TODAY), { readable: "divisha-wellness-diary-2026-10-28.md", backup: "divisha-wellness-backup-2026-10-28.json" });
+});
+
+// ─── Her schedule ───────────────────────────────────────────────────────
+import { cleanSchedule, isDueOn, nextDue, doneOn, scheduleLine, timeText, contextPacket } from "../app/helper.js";
+
+test("schedules are cleaned, and a one-off can be in the future", () => {
+  assert.deepEqual(cleanSchedule({ what: " Flu shot ", repeat: "once", date: "2026-11-15", time: "9:30" }, TODAY),
+    { what: "Flu shot", repeat: "once", date: "2026-11-15", time: "09:30", until: "", details: "" });
+  assert.equal(cleanSchedule({ what: "Drops", repeat: "hourly" }, TODAY).repeat, "once", "unknown repeats become once");
+  assert.equal(cleanSchedule({ what: "Drops", repeat: "daily", date: TODAY, until: "2026-10-01" }, TODAY).until, "", "an end before the start is dropped");
+  assert.equal(cleanSchedule({ what: "Drops", time: "25:00" }, TODAY).time, "");
+  assert.equal(cleanSchedule({ what: "" }, TODAY), null);
+  assert.equal(timeText("09:00"), "9 am");
+  assert.equal(timeText("20:30"), "8:30 pm");
+  assert.equal(timeText("00:15"), "12:15 am");
+});
+
+test("each repeat is due on the right days", () => {
+  const daily = { what: "Drops", repeat: "daily", date: "2026-10-26", until: "2026-10-30" };
+  assert.deepEqual(["2026-10-25", "2026-10-26", "2026-10-30", "2026-10-31"].map(d => isDueOn(daily, d)), [false, true, true, false]);
+  const weekly = { what: "Oil massage", repeat: "weekly", date: "2026-10-04" };          // a Sunday
+  assert.equal(isDueOn(weekly, "2026-10-25"), true);
+  assert.equal(isDueOn(weekly, "2026-10-26"), false);
+  const monthly = { what: "Check weight", repeat: "monthly", date: "2026-01-31" };
+  assert.equal(isDueOn(monthly, "2026-02-28"), true, "the 31st falls on the last day of a short month");
+  assert.equal(isDueOn(monthly, "2026-03-31"), true);
+  assert.equal(nextDue({ what: "Flu shot", repeat: "once", date: "2026-11-15" }, TODAY), "2026-11-15");
+  assert.equal(nextDue({ what: "Old", repeat: "once", date: "2026-10-01" }, TODAY), null);
+});
+
+test("a schedule counts as done when that day's entries mention it", () => {
+  const s = { what: "Vitamin D drops", repeat: "daily", date: "2026-10-01" };
+  assert.equal(doneOn(s, [{ date: TODAY, type: "care", what: "Vitamin D" }], TODAY), true);
+  assert.equal(doneOn(s, [{ date: "2026-10-27", type: "care", what: "Vitamin D" }], TODAY), false);
+  assert.equal(doneOn(s, [{ date: TODAY, type: "care", what: "Steam" }], TODAY), false);
+});
+
+test("schedule lines read plainly", () => {
+  assert.equal(scheduleLine({ what: "Vitamin D", repeat: "daily", date: "2026-10-01", time: "09:00", until: "" }, TODAY), "Vitamin D: every day at 9 am");
+  assert.equal(scheduleLine({ what: "Saline drops", repeat: "daily", date: TODAY, time: "", until: "2026-10-31" }, TODAY), "Saline drops: every day, until Sat 31 Oct");
+  assert.equal(scheduleLine({ what: "Dr Mehta follow-up", repeat: "once", date: "2026-10-29", time: "17:00", until: "" }, TODAY), "Dr Mehta follow-up: tomorrow at 5 pm");
+});
+
+test("ideas order the schedule by how soon it's due", () => {
+  const at = new Date(2026, 9, 28, 8, 30);
+  const schedules = [
+    { what: "Evening drops", repeat: "daily", date: "2026-10-01", time: "20:00" },
+    { what: "Vitamin D", repeat: "daily", date: "2026-10-01", time: "09:00" },
+    { what: "Oil massage", repeat: "weekly", date: "2026-10-07" },                      // a Wednesday, like today
+    { what: "Dr Mehta follow-up", repeat: "once", date: "2026-10-30" },
+    { what: "Next month", repeat: "once", date: "2026-11-20" },
+  ];
+  const ideas = ideasForToday({ profile: toddler, entries: [], schedules, now: at });
+  assert.deepEqual(ideas.map(i => i.label), [
+    "Vitamin D, 9 am: done?", "Oil massage: done?", "Coming up: Dr Mehta follow-up, Fri 30 Oct", "Later: Evening drops, 8 pm",
+  ]);
+  assert.equal(ideas[0].prefill, "Gave vitamin d");
+  assert.equal(ideas[2].prefill, "About Dr Mehta follow-up on Fri 30 Oct: ");
+  const done = ideasForToday({ profile: toddler, entries: [{ date: TODAY, type: "care", what: "Vitamin D" }], schedules: schedules.slice(1, 2), now: at });
+  assert.ok(!done.some(i => i.label.startsWith("Vitamin D")), "a done item drops off");
+});
+
+test("ideas ask for her birth date when it's missing", () => {
+  const ideas = ideasForToday({ profile: {}, entries: [], now: new Date(2026, 9, 28, 9, 0) });
+  assert.deepEqual(ideas, [{ label: "Add her birth date", action: "settings" }]);
+});
+
+test("Claude's reply can offer schedules, which are cleaned", () => {
+  const text = 'I\'ll add that.\n```json\n{"entries":[],"schedules":[{"what":"Vitamin D","repeat":"daily","date":"2026-10-28","time":"09:00"},{"what":""}]}\n```';
+  const { reply, entries, schedules } = parseReply(text, TODAY);
+  assert.equal(reply, "I'll add that.");
+  assert.deepEqual(entries, []);
+  assert.deepEqual(schedules, [{ what: "Vitamin D", repeat: "daily", date: "2026-10-28", time: "09:00", until: "", details: "" }]);
+});
+
+test("Claude is told her schedule and the documents you've kept", () => {
+  const packet = contextPacket({
+    profile: toddler, today: TODAY,
+    schedules: [{ what: "Vitamin D", repeat: "daily", date: "2026-10-01", time: "09:00", until: "" }, { what: "Old course", repeat: "daily", date: "2026-09-01", until: "2026-09-05" }],
+    documents: [{ date: "2026-10-12", title: "Blood test", brief: "Haemoglobin a little low" }],
+  });
+  assert.match(packet, /Her schedule \(1\):\n- Vitamin D: every day at 9 am/);
+  assert.doesNotMatch(packet, /Old course/, "finished schedules are left out");
+  assert.match(packet, /- 2026-10-12 · Blood test · Haemoglobin a little low/);
 });
