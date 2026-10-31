@@ -190,8 +190,33 @@ function openDay(day) {
   render();
 }
 
-function openDrawer() { $("chatPane").classList.add("open"); $("scrim").hidden = false; $("chatsBtn").setAttribute("aria-expanded", "true"); }
-function closeDrawer() { $("chatPane").classList.remove("open"); $("scrim").hidden = true; $("chatsBtn").setAttribute("aria-expanded", "false"); }
+// ─── The left pane ───────────────────────────────────────────────────────
+// Open by default, like ChatGPT's sidebar. The top-left button collapses it,
+// and this device remembers. On a phone it's a menu that slides in instead.
+
+const phoneWidth = matchMedia("(max-width: 599px)");
+
+function paneCollapsed() { return $("mainArea").classList.contains("collapsed"); }
+
+function setPaneCollapsed(collapsed) {
+  $("mainArea").classList.toggle("collapsed", collapsed);
+  try { localStorage.setItem("divisha-pane", collapsed ? "closed" : "open"); } catch { /* storage off: just don't remember */ }
+  updatePaneButton();
+}
+
+function updatePaneButton() {
+  const open = phoneWidth.matches ? $("chatPane").classList.contains("open") : !paneCollapsed();
+  $("chatsBtn").setAttribute("aria-expanded", String(open));
+  $("chatsBtn").setAttribute("aria-label", open ? "Close sidebar" : "Open sidebar");
+}
+
+function togglePane() {
+  if (phoneWidth.matches) { if ($("chatPane").classList.contains("open")) closeDrawer(); else openDrawer(); }
+  else setPaneCollapsed(!paneCollapsed());
+}
+
+function openDrawer() { $("chatPane").classList.add("open"); $("scrim").hidden = false; updatePaneButton(); }
+function closeDrawer() { $("chatPane").classList.remove("open"); $("scrim").hidden = true; updatePaneButton(); }
 
 // ─── Talk: the conversation ──────────────────────────────────────────────
 
@@ -1194,7 +1219,10 @@ function render() {
 function wire() {
   window.addEventListener("hashchange", readHash);
 
-  $("chatsBtn").addEventListener("click", openDrawer);
+  $("chatsBtn").addEventListener("click", togglePane);
+  phoneWidth.addEventListener("change", closeDrawer);
+  try { if (localStorage.getItem("divisha-pane") === "closed") $("mainArea").classList.add("collapsed"); } catch { /* open by default */ }
+  updatePaneButton();
   $("closeChatsBtn").addEventListener("click", closeDrawer);
   $("scrim").addEventListener("click", closeDrawer);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });

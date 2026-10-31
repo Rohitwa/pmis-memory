@@ -456,5 +456,44 @@ const ppw = await PPh.evaluate(() => document.documentElement.scrollWidth);
 check(ppw <= 390, `a PDF fits a phone (width ${ppw})`);
 await PPh.screenshot({ path: `${S}/shots/30-phone-pdf.png`, fullPage: true });
 
+// ── The left pane stays open, like ChatGPT ──
+const paneState = (pg) => pg.evaluate(() => {
+  const side = document.getElementById("chatPane");
+  const r = side.getBoundingClientRect();
+  const cs = getComputedStyle(side);
+  return { shown: cs.display !== "none" && cs.visibility !== "hidden" && r.right > 0, overlay: cs.position === "absolute", width: Math.round(r.width) };
+});
+for (const w of [1280, 760, 600]) {
+  const W = await page({ viewport: { width: w, height: 820 } }, base + "?seed=1");
+  await W.waitForSelector("#messages[data-state=ready]");
+  const st = await paneState(W);
+  check(st.shown && !st.overlay, `${w} px: the left pane is open beside the page (${st.width} px wide)`);
+  const sw = await W.evaluate(() => document.documentElement.scrollWidth);
+  check(sw <= w, `${w} px: nothing scrolls sideways (${sw})`);
+  if (w === 760) {
+    await W.screenshot({ path: `${S}/shots/31-760-pane-open.png` });
+    await W.click("#chatsBtn");
+    check(!(await paneState(W)).shown && (await W.getAttribute("#chatsBtn", "aria-label")) === "Open sidebar", "760 px: the top-left button collapses it");
+    await W.screenshot({ path: `${S}/shots/32-760-pane-collapsed.png` });
+    await W.reload();
+    await W.waitForSelector("#messages[data-state=ready]");
+    check(!(await paneState(W)).shown, "a collapsed pane stays collapsed after a reload");
+    await W.click("#chatsBtn");
+    check((await paneState(W)).shown, "and the button opens it again");
+    await W.click(".sections a[data-view=docs]");
+    await W.waitForSelector(".doc-row");
+    check((await paneState(W)).shown, "picking a section keeps the pane open");
+    await W.screenshot({ path: `${S}/shots/33-760-documents.png` });
+    await W.click(".sections a[data-view=look]");
+    await W.waitForSelector(".tiles .tile");
+    const lw = await W.evaluate(() => document.documentElement.scrollWidth);
+    check(lw <= w, `760 px: Time-based analysis fits beside the pane (${lw})`);
+    await W.screenshot({ path: `${S}/shots/34-760-analysis.png`, fullPage: true });
+  }
+}
+const PH = await page({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, base + "?seed=1");
+await PH.waitForSelector("#messages[data-state=ready]");
+check(!(await paneState(PH)).shown, "phone: the pane starts closed, as a slide-in menu");
+
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

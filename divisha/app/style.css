@@ -722,12 +722,18 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
 .phone-only { display: none; }
 .scrim[hidden] { display: none; }
 
-@media (max-width: 899px) {
+/* The left pane stays open, like ChatGPT's sidebar. The top-left button
+   collapses it (remembered on this device). Below 600 px it becomes a menu
+   that slides in over the page. */
+.main-area.collapsed { grid-template-columns: minmax(0, 1fr); }
+.main-area.collapsed > .side { display: none; }
+
+@media (max-width: 599px) {
   .phone-only { display: inline-grid; }
   .pane-head.phone-only { display: flex; }
-  .topbar { flex-wrap: wrap; row-gap: var(--s2); }
-  .main-area { grid-template-columns: minmax(0, 1fr); }
-  .side {
+  .main-area, .main-area.collapsed { grid-template-columns: minmax(0, 1fr); }
+  .side, .main-area.collapsed > .side {
+    display: flex;
     position: absolute; inset: 0 auto 0 0; z-index: 20;
     width: min(300px, 85%);
     border-right: 1px solid var(--line);
@@ -735,8 +741,13 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
     transform: translateX(-105%);
     visibility: hidden;
   }
-  .side.open { transform: none; visibility: visible; }
+  .side.open, .main-area.collapsed > .side.open { transform: none; visibility: visible; }
   .scrim { position: absolute; inset: 0; z-index: 15; background: rgb(20 16 28 / 35%); }
+}
+
+@media (max-width: 899px) {
+  .main-area { --pane: 224px; }
+  .topbar { flex-wrap: wrap; row-gap: var(--s2); }
   .day-bar, .messages, .composer-area {
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));

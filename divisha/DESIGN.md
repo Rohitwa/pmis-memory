@@ -18,7 +18,7 @@ Everything below exists to serve one of these three moments. If a feature serves
 
 ## 2. The app has three sections
 
-The left pane lists them, top to bottom: **Talk** (where the app opens), **Documents** and **Time-based analysis**. Past chats sit below them. On a phone, the pane slides in from the menu button.
+The left pane lists them, top to bottom: **Talk** (where the app opens), **Documents** and **Time-based analysis**. Past chats sit below them. Like ChatGPT's sidebar, the pane stays open beside the page on anything 600 px or wider; the top-left button collapses it, and each device remembers. On a phone it's a menu that slides in from that button.
 
 *Time-based analysis was called "Look back" until 31 October. The sketches below still use the old name.*
 

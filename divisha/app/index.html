@@ -16,6 +16,7 @@
   <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="i-talk" viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3.5V16H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M14 3v5h5 M9 13h6 M9 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16 M7 16v-4 M12 16V7 M17 16v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -25,8 +26,8 @@
 
 <div class="app" id="app">
   <header class="topbar">
-    <button type="button" class="icon-btn phone-only" id="chatsBtn" aria-label="Menu" aria-expanded="false" aria-controls="chatPane">
-      <svg><use href="#i-menu"/></svg>
+    <button type="button" class="icon-btn" id="chatsBtn" aria-label="Close sidebar" aria-expanded="true" aria-controls="chatPane">
+      <svg><use href="#i-sidebar"/></svg>
     </button>
     <div class="brand">
       <h1>Divisha Wellness</h1>
@@ -38,7 +39,7 @@
     <p class="offline" id="offline" role="status" hidden>You're offline. Nothing new can be saved until you're back online.</p>
   </header>
 
-  <div class="main-area">
+  <div class="main-area" id="mainArea">
     <!-- Left pane: the three sections, then past chats -->
     <aside class="side" id="chatPane" aria-label="Sections and past chats">
       <div class="pane-head phone-only">
