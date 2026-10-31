@@ -16,6 +16,7 @@
   <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="i-talk" viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3.5V16H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M14 3v5h5 M9 13h6 M9 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
@@ -63,7 +64,10 @@
         <div class="messages" id="messages" aria-live="polite"></div>
         <div class="composer-area" id="composerArea">
           <div class="ideas" id="ideas" aria-label="Ideas for today"></div>
+          <div class="attach-list" id="attachList" aria-label="Attached files" hidden></div>
           <form class="composer" id="composer" autocomplete="off">
+            <button type="button" class="attach-btn" id="attachBtn" aria-label="Attach a photo or PDF" title="Attach a photo or PDF"><svg><use href="#i-clip"/></svg></button>
+            <input type="file" id="attachInput" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" multiple hidden>
             <label class="sr-only" for="composerText">Message</label>
             <textarea id="composerText" rows="1" placeholder="How was Divisha today?"></textarea>
             <button type="submit" class="send-btn" id="sendBtn" aria-label="Send"><svg><use href="#i-send"/></svg></button>
@@ -155,6 +159,18 @@
       <button type="submit" class="btn primary" id="settingsSave">Save</button>
     </div>
   </form>
+</dialog>
+
+<!-- An attached file, opened from the chat -->
+<dialog id="fileViewer" class="sheet viewer" aria-labelledby="fvTitle">
+  <div class="viewer-inner">
+    <div class="sheet-head">
+      <h2 id="fvTitle"></h2>
+      <button type="button" class="icon-btn" id="fvClose" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </div>
+    <div class="doc-file" id="fvBody"></div>
+    <div class="doc-actions"><button type="button" class="btn" id="fvDownload">Download</button></div>
+  </div>
 </dialog>
 
 <div class="toast" id="toast" role="status" hidden></div>

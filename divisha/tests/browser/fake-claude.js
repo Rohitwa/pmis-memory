@@ -50,6 +50,7 @@
 
   const replies = {
     fever: 'Sorry she\'s unwell tonight. Keep giving her small sips of water, and check her temperature again in an hour.\n\n```json\n{"entries":[{"date":"TODAY","type":"symptom","what":"Fever 39.4","details":"since evening"},{"type":"care","what":"Paracetamol 5 ml","details":"crocin"},{"type":"care","what":"Kadha","details":"before bed"},{"type":"health","what":"sick"}]}\n```',
+    attach: 'This is a prescription from Dr Mehta for a dry cough, and a discharge summary. I\'ve offered to keep both in Documents and add the syrup to her schedule.\n\n```json\n{"entries":[{"type":"doctor","what":"Dr Mehta","details":"dry cough, no antibiotic"}],"schedules":[{"what":"Cough syrup 5 ml","repeat":"daily","date":"TODAY","time":"21:00","until":"","details":"at night for 5 days"}],"documents":[{"file":1,"title":"Cough syrup prescription","date":"TODAY","brief":"Dr Mehta: dry cough, no antibiotic. Syrup at night for 5 days."},{"file":2,"title":"Discharge summary","date":"TODAY","brief":"Chest infection; nebuliser at home for 5 days."}]}\n```',
     remind: 'Done. I\'ve offered to add vitamin D drops at 9 am every day to her schedule.\n\n```json\n{"entries":[],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"TODAY","time":"09:00","until":"","details":"400 IU, as Dr Mehta said"}]}\n```',
     default: 'Lovely to hear she had a good day. Keep the routine going.\n\n```json\n{"entries":[{"type":"health","what":"well"}]}\n```',
   };
@@ -58,7 +59,9 @@
     const lastTurn = turns[turns.length - 1].content;
     const last = (lastTurn.includes("Parent's message:\n") ? lastTurn.split("Parent's message:\n").pop() : lastTurn).toLowerCase();
     const d = new Date(); const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    const full = (last.includes("fever") ? replies.fever : /remind|every day at/.test(last) ? replies.remind : replies.default).replace(/TODAY/g, today);
+    window.__lastImages = (opts.images || []).map(b => ({ type: b.type, size: b.size }));
+    if (opts.images?.length && location.search.includes("noimages")) throw { code: "images_unavailable" };
+    const full = (last.includes("[attached") ? replies.attach : last.includes("fever") ? replies.fever : /remind|every day at/.test(last) ? replies.remind : replies.default).replace(/TODAY/g, today);
     let text = "";
     for (const word of full.split(/(?<= )/)) {
       if (opts.signal?.aborted) throw { code: "cancelled", text };
@@ -101,6 +104,10 @@
     store.set(`chatList/${key(3)}`, { day: key(3), firstLine: "Clinic visit, 12.3 kg" });
   }
 
+  sample.limits = async () => ({
+    maxPromptBytes: 262144,
+    ...(location.search.includes("noimages") ? {} : { images: { maxCount: 5, maxInputBytes: 20 * 1048576, mediaTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"] } }),
+  });
   sample.json = async (prompt, opts = {}) => {
     window.__notesPrompt = prompt;
     window.__notesCalls = (window.__notesCalls || 0) + 1;

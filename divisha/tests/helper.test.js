@@ -38,8 +38,8 @@ test("a reply splits into words and entries", () => {
 });
 
 test("a reply with a broken or missing block keeps the words", () => {
-  assert.deepEqual(parseReply("All good!\n```json\n{oops}\n```", TODAY), { reply: "All good!", entries: [], schedules: [] });
-  assert.deepEqual(parseReply("Just words", TODAY), { reply: "Just words", entries: [], schedules: [] });
+  assert.deepEqual(parseReply("All good!\n```json\n{oops}\n```", TODAY), { reply: "All good!", entries: [], schedules: [], documents: [] });
+  assert.deepEqual(parseReply("Just words", TODAY), { reply: "Just words", entries: [], schedules: [], documents: [] });
   assert.equal(visiblePart("Hello there\n```json\n{\"entr"), "Hello there");
 });
 
@@ -379,4 +379,32 @@ test("Claude is told her schedule and the documents you've kept", () => {
   assert.match(packet, /Her schedule \(1\):\n- Vitamin D: every day at 9 am/);
   assert.doesNotMatch(packet, /Old course/, "finished schedules are left out");
   assert.match(packet, /- 2026-10-12 · Blood test · Haemoglobin a little low/);
+});
+
+// ─── Attachments ────────────────────────────────────────────────────────
+import { attachmentNote, cleanDocumentOffer } from "../app/helper.js";
+
+test("Claude's reply can offer to keep attached files as documents", () => {
+  const text = 'It\'s a prescription.\n```json\n{"entries":[],"schedules":[],"documents":[{"file":1,"title":"Cough syrup prescription","date":"2026-10-26","brief":"Dr Mehta: dry cough, steam at night."},{"file":1,"title":"duplicate"},{"file":0,"title":"bad"},{"file":2,"title":"","date":"2027-01-01"}]}\n```';
+  const { documents } = parseReply(text, TODAY);
+  assert.deepEqual(documents, [
+    { file: 1, title: "Cough syrup prescription", brief: "Dr Mehta: dry cough, steam at night.", date: "2026-10-26" },
+    { file: 2, title: "", brief: "", date: TODAY },
+  ]);
+  assert.equal(cleanDocumentOffer({ file: "x" }, TODAY), null);
+});
+
+test("attachments are described to Claude, and earlier ones are named, not re-sent", () => {
+  const files = [{ fileName: "rx.jpg", fileType: "image/jpeg", seen: true }, { fileName: "report.pdf", fileType: "application/pdf", pagesShown: 2, seen: true }];
+  assert.equal(attachmentNote(files, { shown: true }), "[Attached: 1. rx.jpg (photo); 2. report.pdf (PDF, first 2 pages shown as pictures)]");
+  assert.equal(attachmentNote(files), "[Attached earlier: 1. rx.jpg (photo); 2. report.pdf (PDF)]");
+  assert.match(attachmentNote([{ fileName: "rx.jpg", fileType: "image/jpeg" }], { shown: true }), /can't see the files/);
+  const { turns } = buildTurns({
+    profile: toddler, entries: [], today: TODAY,
+    history: [{ role: "user", text: "Clinic today", attachments: [{ fileName: "old.png", fileType: "image/png" }] }, { role: "assistant", text: "Noted." }],
+    newText: "", attachments: files,
+  });
+  assert.match(turns[0].content, /Clinic today\n\[Attached earlier: 1\. old\.png \(photo\)\]/);
+  assert.match(turns.at(-1).content, /^\[Attached: 1\. rx\.jpg/);
+  assert.match(turns[0].content, /Attached files: the parent may attach photos or PDFs/);
 });

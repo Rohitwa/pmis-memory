@@ -495,5 +495,87 @@ const PH = await page({ viewport: { width: 390, height: 844 }, isMobile: true, h
 await PH.waitForSelector("#messages[data-state=ready]");
 check(!(await paneState(PH)).shown, "phone: the pane starts closed, as a slide-in menu");
 
+// ── Attachments in the chat ──
+const AT = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1");
+await AT.waitForSelector("#messages[data-state=ready]");
+check(await AT.isVisible("#attachBtn"), "the typing box has a paperclip");
+const assetsBefore = await AT.evaluate(() => Object.keys(window.__assets).length);
+await AT.setInputFiles("#attachInput", [
+  { name: "prescription.png", mimeType: "image/png", buffer: PNG },
+  { name: "discharge.pdf", mimeType: "application/pdf", buffer: PDF },
+]);
+check(await AT.locator("#attachList .att").count() === 2, "attached files wait above the typing box");
+check(!(await AT.isDisabled("#sendBtn")), "Send works with files, even before typing");
+await AT.screenshot({ path: `${S}/shots/35-attach-pending.png` });
+await AT.click("#attachList .att >> nth=1 >> [data-act=attach-remove]");
+check(await AT.locator("#attachList .att").count() === 1, "a waiting file can be removed");
+await AT.setInputFiles("#attachInput", [{ name: "discharge.pdf", mimeType: "application/pdf", buffer: PDF }]);
+await AT.fill("#composerText", "Prescription and discharge summary from today");
+await AT.keyboard.press("Enter");
+await AT.waitForSelector(".note-card .doc-offer", { timeout: 60000 });
+const sent = await AT.evaluate(() => ({
+  images: window.__lastImages,
+  turn: window.__lastTurns.at(-1).content,
+  assets: Object.keys(window.__assets).length,
+  msg: Object.values(window.__store.get(`chats/${Object.keys(Object.fromEntries([...window.__store.keys()].filter(k => k.startsWith("chats/")).map(k => [k.slice(6), 1]))).sort().at(-1)}`).messages).find(m => m.attachments),
+}));
+check(sent.assets === assetsBefore + 2, "both files are uploaded and kept with the message");
+check(sent.msg?.attachments?.length === 2 && sent.msg.attachments.every(a => a.fileId), "the message remembers its two files");
+check(sent.images.length === 3 && sent.images[0].type === "image/png" && sent.images.slice(1).every(i => i.type === "image/jpeg"), `Claude is shown the photo and both PDF pages as pictures (${sent.images.length})`);
+check(/\[Attached: 1\. prescription\.png \(photo\); 2\. discharge\.pdf \(PDF, first 2 pages shown as pictures\)\]/.test(sent.turn), "Claude is told what each file is");
+check(await AT.locator(".msg.user .msg-files .att").count() === 2, "the chat shows the files on the message");
+check(await AT.locator(".note-card .doc-offer").count() === 2, "the card offers to keep both in Documents");
+check((await AT.inputValue(".doc-offer >> nth=0 >> .f-title")) === "Cough syrup prescription", "with Claude's suggested title");
+check(await AT.isVisible(".note-card .group-title:has-text('In her schedule')"), "and the syrup for her schedule");
+await AT.screenshot({ path: `${S}/shots/36-attach-card.png`, fullPage: true });
+await AT.fill(".doc-offer >> nth=1 >> .f-brief", "");
+await AT.click("[data-act=save-all]");
+await AT.waitForSelector("#toast:has-text('needs a title and a brief')");
+check(true, "a document without a brief isn't saved");
+await AT.fill(".doc-offer >> nth=1 >> .f-brief", "Chest infection in September; nebuliser at home for 5 days.");
+await AT.click("[data-act=save-all]");
+await AT.waitForSelector(".saved-list .tag.document");
+const kept2 = await AT.evaluate(() => ({ docs: [...window.__store.entries()].filter(([k]) => k.startsWith("documents/")).map(([, v]) => v), assets: Object.keys(window.__assets).length }));
+check(kept2.docs.some(d => d.title === "Cough syrup prescription" && d.fileType === "image/png") && kept2.docs.some(d => /nebuliser at home/.test(d.brief)), "both are kept in Documents with their titles and briefs");
+check(kept2.assets === sent.assets, "keeping them doesn't upload the files again");
+await AT.click(".msg.user .msg-files .att >> nth=1");
+await AT.waitForFunction(() => document.querySelectorAll("#fvBody canvas").length === 2, null, { timeout: 30000 });
+check(true, "tapping an attached PDF opens it in a viewer");
+await AT.screenshot({ path: `${S}/shots/37-attach-viewer.png` });
+await AT.click("#fvClose");
+await AT.click(".saved-list [data-act=doc-open-chat] >> nth=0");
+await AT.waitForSelector(".doc-view h2");
+check(await AT.isVisible(".sections a[data-view=docs][aria-current=page]"), "a saved document's link opens it in Documents");
+
+await AT.click(".sections a[data-view=talk]");
+await AT.setInputFiles("#attachInput", [{ name: "rash.png", mimeType: "image/png", buffer: PNG }]);
+await AT.click("#sendBtn");
+await AT.waitForFunction(() => document.querySelectorAll(".msg.user").length >= 2);
+check(true, "a file can be sent with no message");
+
+const ATR = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&readonly=1");
+await ATR.waitForSelector("#messages[data-state=ready]");
+check(!(await ATR.isVisible("#attachBtn")), "view-only: no paperclip");
+const ATN = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&noassets=1");
+await ATN.waitForSelector("#messages[data-state=ready]");
+check(await ATN.isVisible("#attachBtn"), "without file storage, Claude can still be shown a photo");
+await ATN.setInputFiles("#attachInput", [{ name: "rash.png", mimeType: "image/png", buffer: PNG }]);
+await ATN.fill("#composerText", "Rash on her arm");
+await ATN.keyboard.press("Enter");
+await ATN.waitForSelector(".msg.user .att:has-text('not kept')");
+await ATN.waitForSelector(".msg.assistant .text");
+check(await ATN.locator(".doc-offer").count() === 0, "and a file that wasn't kept isn't offered for Documents");
+const ATX = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&noassets=1&noimages=1");
+await ATX.waitForSelector("#messages[data-state=ready]");
+check(!(await ATX.isVisible("#attachBtn")), "with neither storage nor pictures, no paperclip");
+const ATP = await page({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, base + "?seed=1");
+await ATP.waitForSelector("#messages[data-state=ready]");
+await ATP.setInputFiles("#attachInput", [{ name: "prescription.png", mimeType: "image/png", buffer: PNG }, { name: "discharge.pdf", mimeType: "application/pdf", buffer: PDF }]);
+await ATP.click("#sendBtn");
+await ATP.waitForSelector(".note-card .doc-offer", { timeout: 60000 });
+const apw = await ATP.evaluate(() => document.documentElement.scrollWidth);
+check(apw <= 390, `phone: attachments and the card fit (width ${apw})`);
+await ATP.screenshot({ path: `${S}/shots/38-phone-attach-card.png`, fullPage: true });
+
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

@@ -37,7 +37,9 @@ const state = {
   controller: null,
   streamText: "",
   liveWarnings: [],
-  failed: null,             // { text, error } when Claude couldn't answer
+  failed: null,             // { text, error, files, metas } when Claude couldn't answer
+  attachments: [],          // files waiting to be sent: { file, url }
+  imageLimits: null,        // what Claude can be shown on this view, or null
   drafts: {},               // edits to a "note this down?" card, by message id
   names: {},
   // Documents
@@ -236,6 +238,7 @@ function draftFor(m) {
     state.drafts[m.id] = {
       entries: (m.proposal || []).map(e => ({ ...e })),
       schedules: (m.proposedSchedules || []).map(x => ({ ...x })),
+      documents: (m.proposedDocuments || []).map(x => ({ ...x })),
     };
   }
   return state.drafts[m.id];
@@ -274,25 +277,45 @@ function schedNoteRowHtml(msgId, x, i) {
   </div>`;
 }
 
+function docOfferHtml(msgId, x, i) {
+  const base = `d-${msgId}-doc${i}`;
+  const attrs = (f) => `data-draft="${msgId}" data-g="documents" data-i="${i}" data-f="${f}"`;
+  const img = /^image\//.test(x.fileType || "");
+  return `<div class="doc-offer">
+    <span class="doc-icon${img ? " img" : ""}"><svg><use href="#${img ? "i-image" : "i-doc"}"/></svg></span>
+    <input class="f-title" id="${base}-title" ${attrs("title")} value="${esc(x.title)}" placeholder="Title" aria-label="Title">
+    <input class="f-date" type="date" id="${base}-date" ${attrs("date")} value="${esc(x.date)}" max="${state.today}" aria-label="Date of the document">
+    <button type="button" class="icon-btn f-remove" data-act="draft-remove" data-msg="${msgId}" data-g="documents" data-i="${i}" aria-label="Don't keep this"><svg><use href="#i-close"/></svg></button>
+    <textarea class="f-brief" id="${base}-brief" ${attrs("brief")} placeholder="Brief: what it is and what matters in it" aria-label="Brief">${esc(x.brief)}</textarea>
+  </div>`;
+}
+
+function savedDocumentHtml(d) {
+  return `<li><span class="tag document">Document</span> <button type="button" class="link-btn" data-act="doc-open-chat" data-id="${d.id}">${esc(d.title)}</button></li>`;
+}
+
 function savedScheduleHtml(x) {
   return `<li><span class="tag schedule">Schedule</span> <span>${esc(scheduleLine(x, state.today))}</span></li>`;
 }
 
 function cardHtml(m) {
-  const offered = (m.proposal?.length || 0) + (m.proposedSchedules?.length || 0);
+  const offered = (m.proposal?.length || 0) + (m.proposedSchedules?.length || 0) + (m.proposedDocuments?.length || 0);
   if (offered && state.canWrite) {
     const d = draftFor(m);
-    const n = d.entries.length + d.schedules.length;
+    const n = d.entries.length + d.schedules.length + d.documents.length;
     if (!n) {
       return `<div class="note-card"><footer><span>Nothing left to save.</span><button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Done</button></footer></div>`;
     }
-    const both = d.entries.length && d.schedules.length;
-    const title = both ? "Save these?" : d.schedules.length ? "Add to her schedule?" : "Note in the diary?";
+    const kinds = [d.entries.length, d.schedules.length, d.documents.length].filter(Boolean).length;
+    const several = kinds > 1;
+    const title = several ? "Save these?" : d.schedules.length ? "Add to her schedule?" : d.documents.length ? "Keep in Documents?" : "Note in the diary?";
     return `<div class="note-card">
       <header><h3>${title}</h3><span>Fix anything first</span></header>
-      ${both ? `<div class="group-title">In the diary</div>` : ""}
+      ${several && d.documents.length ? `<div class="group-title">In Documents</div>` : ""}
+      ${d.documents.map((x, i) => docOfferHtml(m.id, x, i)).join("")}
+      ${several && d.entries.length ? `<div class="group-title">In the diary</div>` : ""}
       ${d.entries.map((e, i) => noteRowHtml(m.id, e, i)).join("")}
-      ${both ? `<div class="group-title">In her schedule</div>` : ""}
+      ${several && d.schedules.length ? `<div class="group-title">In her schedule</div>` : ""}
       ${d.schedules.map((x, i) => schedNoteRowHtml(m.id, x, i)).join("")}
       <footer>
         <button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Don't save</button>
@@ -301,16 +324,17 @@ function cardHtml(m) {
     </div>`;
   }
   if (offered) {
-    return `<div class="note-card"><header><h3>Suggested</h3></header><ul class="saved-list">${(m.proposal || []).map(e => `<li>${tagHtml(e)} ${esc(whatText(e))}</li>`).join("")}${(m.proposedSchedules || []).map(savedScheduleHtml).join("")}</ul></div>`;
+    return `<div class="note-card"><header><h3>Suggested</h3></header><ul class="saved-list">${(m.proposedDocuments || []).map(x => `<li><span class="tag document">Document</span> ${esc(x.title)}</li>`).join("")}${(m.proposal || []).map(e => `<li>${tagHtml(e)} ${esc(whatText(e))}</li>`).join("")}${(m.proposedSchedules || []).map(savedScheduleHtml).join("")}</ul></div>`;
   }
   const savedEntries = (m.savedEntryIds || []).map(entryById).filter(Boolean);
   const savedScheds = (m.savedScheduleIds || []).map(id => state.schedules.find(x => x.id === id)).filter(Boolean);
-  if (m.savedEntryIds?.length || m.savedScheduleIds?.length) {
-    const any = savedEntries.length + savedScheds.length;
+  const savedDocs = (m.savedDocumentIds || []).map(docById).filter(Boolean);
+  if (m.savedEntryIds?.length || m.savedScheduleIds?.length || m.savedDocumentIds?.length) {
+    const any = savedEntries.length + savedScheds.length + savedDocs.length;
     return `<div class="note-card">
       <div class="saved-head">Saved</div>
       <ul class="saved-list">${any
-        ? savedEntries.map(e => `<li>${tagHtml(e)} <span>${esc(whatText(e))}${e.details ? ` · ${esc(e.details)}` : ""}</span></li>`).join("") + savedScheds.map(savedScheduleHtml).join("")
+        ? savedDocs.map(savedDocumentHtml).join("") + savedEntries.map(e => `<li>${tagHtml(e)} <span>${esc(whatText(e))}${e.details ? ` · ${esc(e.details)}` : ""}</span></li>`).join("") + savedScheds.map(savedScheduleHtml).join("")
         : "<li>These were later removed.</li>"}</ul>
     </div>`;
   }
@@ -319,7 +343,15 @@ function cardHtml(m) {
 
 function messageHtml(m) {
   if (m.role === "user") {
-    return `<div class="msg user"><div class="bubble">${esc(m.text)}</div><span class="who">${esc(who(m.by))} · ${esc(timeOf(m.createdAt))}</span></div>`;
+    const files = (m.attachments || []).map((a, i) => {
+      const img = /^image\//.test(a.fileType || "");
+      const face = img && a.fileId ? `<img src="${esc(state.diary.fileUrl(a.fileId))}" alt="">` : `<span class="att-icon"><svg><use href="#${img ? "i-image" : "i-doc"}"/></svg></span>`;
+      const text = `<span class="att-text"><span class="att-name">${esc(a.fileName)}</span><span class="att-note">${img ? "Photo" : "PDF"}${a.fileId ? "" : " · not kept"}</span></span>`;
+      return a.fileId
+        ? `<button type="button" class="att" data-act="att-open" data-msg="${m.id}" data-i="${i}" aria-label="Open ${esc(a.fileName)}">${face}${text}</button>`
+        : `<span class="att">${face}${text}</span>`;
+    }).join("");
+    return `<div class="msg user">${files ? `<div class="msg-files">${files}</div>` : ""}${m.text ? `<div class="bubble">${esc(m.text)}</div>` : ""}<span class="who">${esc(who(m.by))} · ${esc(timeOf(m.createdAt))}</span></div>`;
   }
   return `<div class="msg assistant">
     ${warningHtml(m.warnings)}
@@ -381,7 +413,8 @@ function renderComposer() {
   $("composerText").placeholder = `How was ${name()} today?`;
   $("sendBtn").hidden = state.busy;
   $("stopBtn").hidden = !state.busy;
-  $("sendBtn").disabled = !state.sample || !state.online || !$("composerText").value.trim();
+  $("sendBtn").disabled = !state.sample || !state.online || (!$("composerText").value.trim() && !state.attachments.length);
+  $("attachBtn").hidden = !canAttach() || state.busy;
   $("footnote").textContent = state.sample || state.loading
     ? `${name()} Wellness keeps a diary and shares ideas. It is not a doctor.`
     : "Claude can't answer on this view. You can still add entries yourself in Time-based analysis.";
@@ -396,49 +429,173 @@ function growComposer() {
   const t = $("composerText");
   t.style.height = "auto";
   t.style.height = `${Math.min(t.scrollHeight, 160)}px`;
-  $("sendBtn").disabled = !state.sample || !state.online || !t.value.trim();
+  $("sendBtn").disabled = !state.sample || !state.online || (!t.value.trim() && !state.attachments.length);
+}
+
+// ─── Talk: sending a message ─────────────────────────────────────────────
+
+// ─── Talk: attaching files ───────────────────────────────────────────────
+
+const ATTACH_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+const ATTACH_MOST = 3;
+const isPdfFile = (f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name || "");
+
+function canAttach() {
+  return state.canWrite && !!state.diary && (state.diary.canUpload || !!state.imageLimits);
+}
+
+function addAttachments(fileList) {
+  const problems = [];
+  for (const file of fileList) {
+    if (state.attachments.length >= ATTACH_MOST) { problems.push(`Up to ${ATTACH_MOST} files at a time.`); break; }
+    if (!ATTACH_TYPES.includes(file.type) && !isPdfFile(file)) { problems.push(`${file.name || "That file"}: only photos and PDFs can be attached.`); continue; }
+    if (file.size > 20 * 1048576) { problems.push(`${file.name}: over 20 MB.`); continue; }
+    state.attachments.push({ file, url: isPdfFile(file) ? null : URL.createObjectURL(file) });
+  }
+  if (problems.length) toast(problems[0]);
+  renderAttachments();
+  growComposer();
+}
+
+function removeAttachment(i) {
+  const [gone] = state.attachments.splice(i, 1);
+  if (gone?.url) URL.revokeObjectURL(gone.url);
+  renderAttachments();
+  growComposer();
+}
+
+function clearAttachments() {
+  for (const a of state.attachments) if (a.url) URL.revokeObjectURL(a.url);
+  state.attachments = [];
+  renderAttachments();
+}
+
+function renderAttachments() {
+  const box = $("attachList");
+  box.hidden = !state.attachments.length;
+  box.innerHTML = state.attachments.map((a, i) => `
+    <span class="att">
+      ${a.url ? `<img src="${esc(a.url)}" alt="">` : `<span class="att-icon"><svg><use href="#i-doc"/></svg></span>`}
+      <span class="att-text"><span class="att-name">${esc(a.file.name || "file")}</span><span class="att-note">${isPdfFile(a.file) ? "PDF" : "Photo"} · ${sizeText(a.file.size)}</span></span>
+      <button type="button" class="icon-btn" data-act="attach-remove" data-i="${i}" aria-label="Remove ${esc(a.file.name || "file")}"><svg><use href="#i-close"/></svg></button>
+    </span>`).join("");
+}
+
+// What Claude is shown: photos as they are, and the first pages of each PDF
+// as pictures, within the number of pictures this view allows.
+async function picturesFor(files) {
+  const limits = state.imageLimits;
+  const pictures = [];
+  const perFile = files.map(() => 0);
+  if (!limits) return { pictures, perFile };
+  let room = limits.maxCount;
+  for (let i = 0; i < files.length && room > 0; i += 1) {
+    const f = files[i];
+    if (isPdfFile(f)) {
+      try {
+        const pages = await pdfPagesAsPictures(f, Math.min(3, room));
+        pictures.push(...pages);
+        perFile[i] = pages.length;
+        room -= pages.length;
+      } catch { /* Claude is told it can't see this one */ }
+    } else if (limits.mediaTypes.includes(f.type) && f.size <= limits.maxInputBytes) {
+      pictures.push(f);
+      perFile[i] = 1;
+      room -= 1;
+    }
+  }
+  return { pictures, perFile };
+}
+
+async function pdfPagesAsPictures(file, most) {
+  const lib = await loadPdfJs();
+  const pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
+  const out = [];
+  for (let n = 1; n <= Math.min(pdf.numPages, most); n += 1) {
+    const page = await pdf.getPage(n);
+    const viewport = page.getViewport({ scale: Math.min(1400 / page.getViewport({ scale: 1 }).width, 3) });
+    const canvas = Object.assign(document.createElement("canvas"), { width: Math.floor(viewport.width), height: Math.floor(viewport.height) });
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    out.push(await new Promise((ok) => canvas.toBlob(ok, "image/jpeg", 0.85)));
+  }
+  return out.filter(Boolean);
 }
 
 // ─── Talk: sending a message ─────────────────────────────────────────────
 
 async function send(text, { retry = false } = {}) {
   text = text.trim();
-  if (!text || state.busy || !state.sample) return;
+  const files = retry ? (state.failed?.files || []) : state.attachments.map(a => a.file);
+  if ((!text && !files.length) || state.busy || !state.sample) return;
   if (!state.online) { toast("You're offline. Try again when you're back online."); return; }
   state.today = dayKey();
   if (state.day !== state.today) openDay(state.today);
   const day = state.today;
   const history = state.messages.slice();
+  let metas = retry ? (state.failed?.metas || []) : [];
 
   state.failed = null;
   state.busy = true;
   state.streamText = "";
   state.liveWarnings = checkWarnings({ profile: state.profile, text, entries: state.entries, today: day });
+  const waiting = state.attachments.slice();
   $("composerText").value = "";
+  state.attachments = [];
+  renderAttachments();
   growComposer();
   render();
   renderMessages(true);
 
-  try {
-    if (!retry) {
-      await state.diary.addMessage(day, { role: "user", text }, { isFirst: history.length === 0 });
-    }
-  } catch (e) {
+  const putBack = () => {
     state.busy = false;
     $("composerText").value = text;
-    onWriteError(e);
+    state.attachments = waiting;
+    renderAttachments();
+    growComposer();
     render();
+  };
+
+  try {
+    if (!retry) {
+      // Keep each file with the message (where this person can upload), then save the message.
+      for (let i = 0; i < files.length; i += 1) {
+        if (state.diary.canUpload) {
+          state.streamText = `Uploading ${files.length === 1 ? "the file" : `file ${i + 1} of ${files.length}`}…`;
+          renderMessages(true);
+          metas.push(await state.diary.uploadFile(files[i]));
+        } else {
+          metas.push({ fileName: files[i].name || "file", fileType: files[i].type || (isPdfFile(files[i]) ? "application/pdf" : ""), fileSize: files[i].size });
+        }
+      }
+      state.streamText = "";
+      await state.diary.addMessage(day, { role: "user", text, ...(metas.length ? { attachments: metas } : {}) }, { isFirst: history.length === 0 });
+    }
+  } catch (e) {
+    putBack();
+    if (UPLOAD_PROBLEM[e?.code]) toast(UPLOAD_PROBLEM[e.code]); else onWriteError(e);
     return;
   }
+  for (const a of waiting) if (a.url) URL.revokeObjectURL(a.url);
 
   // On a retry, the message is already in the chat history.
   const past = retry ? history.slice(0, history.map(m => m.role).lastIndexOf("user")) : history;
-  const { turns, saw } = buildTurns({ profile: state.profile, entries: state.entries, schedules: state.schedules, documents: state.documents, history: past, newText: text, today: day });
+  if (files.length) { state.streamText = "Reading the attached files…"; renderMessages(true); }
+  const { pictures, perFile } = await picturesFor(files);
+  const shown = metas.map((m, i) => ({ ...m, seen: perFile[i] > 0, pagesShown: isPdfFile({ type: m.fileType, name: m.fileName }) ? perFile[i] : 0 }));
+  const { turns, saw } = buildTurns({
+    profile: state.profile, entries: state.entries, schedules: state.schedules, documents: state.documents,
+    history: past, newText: text, attachments: shown, today: day,
+  });
+  state.streamText = "";
   state.controller = new AbortController();
 
   let raw;
   try {
     raw = await askClaude(state.sample, turns, {
+      images: pictures,
       signal: state.controller.signal,
       onText: ({ text: t }) => {
         state.streamText = visiblePart(t);
@@ -450,13 +607,21 @@ async function send(text, { retry = false } = {}) {
     });
   } catch (e) {
     state.busy = false;
-    state.failed = { text, error: errorText(e?.code) };
+    state.failed = { text, error: errorText(e?.code), files, metas };
     if (e?.code === "cancelled" && e?.text) raw = e.text;     // keep what was written before Stop
     else { render(); renderMessages(true); return; }
   }
 
-  const { reply, entries: proposed, schedules: proposedSchedules } = parseReply(raw, day);
-  const warnings = checkWarnings({ profile: state.profile, text, proposed, entries: state.entries, today: day });
+  const { reply, entries: proposed, schedules: proposedSchedules, documents: offers } = parseReply(raw, day);
+  // A file can only be kept in Documents if it was uploaded.
+  const proposedDocuments = offers
+    .map(o => ({ o, meta: metas[o.file - 1] }))
+    .filter(({ meta }) => meta?.fileId)
+    .map(({ o, meta }) => ({ ...meta, title: o.title || meta.fileName.replace(/\.[a-z0-9]+$/i, ""), brief: o.brief, date: o.date }));
+  const warnings = checkWarnings({
+    profile: state.profile, text, entries: state.entries, today: day,
+    proposed: [...proposed, ...proposedDocuments.map(d => ({ what: d.title, details: d.brief }))],
+  });
   const dose = doseNote({ text, entries: state.entries, profile: state.profile });
   try {
     await state.diary.addMessage(day, {
@@ -464,6 +629,7 @@ async function send(text, { retry = false } = {}) {
       text: reply || "Noted.",
       proposal: proposed.length ? proposed : null,
       proposedSchedules: proposedSchedules.length ? proposedSchedules : null,
+      proposedDocuments: proposedDocuments.length ? proposedDocuments : null,
       warnings,
       dose,
       saw,
@@ -480,20 +646,26 @@ async function send(text, { retry = false } = {}) {
 }
 
 async function saveAll(msgId) {
-  const d = state.drafts[msgId] || { entries: [], schedules: [] };
+  const d = state.drafts[msgId] || { entries: [], schedules: [], documents: [] };
   const entries = d.entries.map(e => cleanEntry(e, state.today)).filter(Boolean);
   const schedules = d.schedules.map(x => cleanSchedule(x, state.today)).filter(Boolean);
-  if (!entries.length && !schedules.length) return skip(msgId);
+  const docs = (d.documents || []).map(x => ({ ...x, title: String(x.title || "").trim(), brief: String(x.brief || "").trim() }));
+  if (docs.some(x => !x.title || !x.brief)) { toast("Each document needs a title and a brief. Add them, or remove the document."); return; }
+  if (!entries.length && !schedules.length && !docs.length) return skip(msgId);
   try {
     const entryIds = entries.length ? await state.diary.addEntries(entries, msgId) : [];
     const scheduleIds = schedules.length ? await state.diary.addSchedules(schedules, msgId) : [];
+    const documentIds = [];
+    for (const x of docs) documentIds.push(await state.diary.addDocumentFromFile(x, { title: x.title, brief: x.brief, date: /^\d{4}-\d{2}-\d{2}$/.test(x.date) ? x.date : state.today }));
     await state.diary.updateMessage(state.day, msgId, {
-      proposal: null, proposedSchedules: null, savedEntryIds: entryIds, savedScheduleIds: scheduleIds,
+      proposal: null, proposedSchedules: null, proposedDocuments: null,
+      savedEntryIds: entryIds, savedScheduleIds: scheduleIds, savedDocumentIds: documentIds,
     });
     delete state.drafts[msgId];
     const parts = [];
     if (entries.length) parts.push(entries.length === 1 ? "1 diary entry" : `${entries.length} diary entries`);
     if (schedules.length) parts.push(schedules.length === 1 ? "1 schedule item" : `${schedules.length} schedule items`);
+    if (docs.length) parts.push(docs.length === 1 ? "1 document" : `${docs.length} documents`);
     toast(`Saved ${parts.join(" and ")}`);
   } catch (e) {
     onWriteError(e);
@@ -502,7 +674,7 @@ async function saveAll(msgId) {
 
 async function skip(msgId) {
   try {
-    await state.diary.updateMessage(state.day, msgId, { proposal: null, proposedSchedules: null, skipped: true });
+    await state.diary.updateMessage(state.day, msgId, { proposal: null, proposedSchedules: null, proposedDocuments: null, skipped: true });
     delete state.drafts[msgId];
   } catch (e) {
     onWriteError(e);
@@ -726,6 +898,22 @@ async function saveDoc() {
     f.status = UPLOAD_PROBLEM[e?.code] || (e?.code === "invalid_argument" ? "You can't add to this diary." : "Couldn't save. Check your connection and try again.");
   }
   renderDocs();
+}
+
+let viewerFile = null;
+function openFileViewer(meta) {
+  viewerFile = meta;
+  $("fvTitle").textContent = meta.fileName || "Attached file";
+  const body = $("fvBody");
+  body.className = "doc-file";
+  if (/^image\//.test(meta.fileType || "")) {
+    body.innerHTML = `<img src="${esc(state.diary.fileUrl(meta.fileId))}" alt="${esc(meta.fileName)}">`;
+  } else {
+    body.innerHTML = `<p class="missing">Opening the PDF…</p>`;
+    showPdf(body, meta.fileId);
+  }
+  $("fvDownload").hidden = !state.downloads;
+  $("fileViewer").showModal();
 }
 
 async function downloadDoc(d) {
@@ -1248,6 +1436,18 @@ function wire() {
   });
 
   $("composer").addEventListener("submit", (e) => { e.preventDefault(); send($("composerText").value); });
+  $("attachBtn").addEventListener("click", () => $("attachInput").click());
+  $("attachInput").addEventListener("change", (e) => { addAttachments([...e.target.files]); e.target.value = ""; $("composerText").focus(); });
+  $("composerText").addEventListener("paste", (e) => {
+    const pasted = [...(e.clipboardData?.files || [])];
+    if (pasted.length && canAttach()) { e.preventDefault(); addAttachments(pasted); }
+  });
+  for (const ev of ["dragenter", "dragover"]) $("composer").addEventListener(ev, (e) => { if (canAttach() && [...(e.dataTransfer?.types || [])].includes("Files")) { e.preventDefault(); $("composer").classList.add("dropping"); } });
+  for (const ev of ["dragleave", "drop"]) $("composer").addEventListener(ev, () => $("composer").classList.remove("dropping"));
+  $("composer").addEventListener("drop", (e) => { if (canAttach() && e.dataTransfer?.files?.length) { e.preventDefault(); addAttachments([...e.dataTransfer.files]); } });
+  $("fvClose").addEventListener("click", () => { pdfRun += 1; $("fileViewer").close(); });
+  $("fileViewer").addEventListener("close", () => { pdfRun += 1; });
+  $("fvDownload").addEventListener("click", () => { if (viewerFile) downloadDoc({ ...viewerFile, title: viewerFile.fileName }); });
   $("composerText").addEventListener("input", growComposer);
   $("composerText").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send($("composerText").value); }
@@ -1365,6 +1565,13 @@ function wire() {
       if (d) state.diary.deleteDocument(d).then(() => { state.docOpen = null; state.docConfirmDelete = false; toast("Document removed"); renderDocs(); }).catch(onWriteError);
     }
     else if (act === "doc-download") { const d = docById(b.dataset.id); if (d) downloadDoc(d); }
+    else if (act === "attach-remove") removeAttachment(Number(b.dataset.i));
+    else if (act === "att-open") {
+      const m = state.messages.find(x => x.id === b.dataset.msg);
+      const meta = m?.attachments?.[Number(b.dataset.i)];
+      if (meta?.fileId) openFileViewer(meta);
+    }
+    else if (act === "doc-open-chat") { state.docOpen = b.dataset.id; state.docForm = null; location.hash = "#documents"; renderDocs(); }
   });
 }
 
@@ -1381,7 +1588,12 @@ async function start() {
   state.canWrite = diary.canWrite;
   render();
 
-  window.claude.use("sample").then(s => { state.sample = s; renderComposer(); renderNotes(); });
+  window.claude.use("sample").then(async (s) => {
+    state.sample = s;
+    state.imageLimits = s ? await s.limits().then(l => l?.images || null).catch(() => null) : null;
+    renderComposer();
+    renderNotes();
+  });
   window.claude.use("downloads").then(d => { state.downloads = d; });
 
   diary.watchProfile((p) => { state.profile = p || {}; render(); }, () => toast("Couldn't load About Divisha. Reload the page."));

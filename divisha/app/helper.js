@@ -95,17 +95,34 @@ export function parseReply(text, today = dayKey()) {
   const fences = [...String(text).matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)];
   const last = fences[fences.length - 1];
   if (!last) {
-    return { reply: visiblePart(text), entries: [], schedules: [] };
+    return { reply: visiblePart(text), entries: [], schedules: [], documents: [] };
   }
   const reply = (text.slice(0, last.index) + text.slice(last.index + last[0].length)).trim();
-  let entries = [], schedules = [];
+  let entries = [], schedules = [], documents = [];
   try {
     const data = JSON.parse(last[1]);
     const list = Array.isArray(data) ? data : data?.entries;
     if (Array.isArray(list)) entries = list.map(e => cleanEntry(e, today)).filter(Boolean);
     if (Array.isArray(data?.schedules)) schedules = data.schedules.map(x => cleanSchedule(x, today)).filter(Boolean);
+    if (Array.isArray(data?.documents)) {
+      const seen = new Set();
+      documents = data.documents.map(x => cleanDocumentOffer(x, today)).filter(x => x && !seen.has(x.file) && seen.add(x.file));
+    }
   } catch { /* a broken block means nothing to note */ }
-  return { reply, entries, schedules };
+  return { reply, entries, schedules, documents };
+}
+
+// An attached file Claude offers to keep in Documents: which file (1, 2, 3),
+// and a suggested title, date and brief. The parent can change all three.
+export function cleanDocumentOffer(raw, today = dayKey()) {
+  if (!raw || typeof raw !== "object") return null;
+  const file = Number(raw.file);
+  if (!Number.isInteger(file) || file < 1 || file > 10) return null;
+  const title = String(raw.title ?? "").trim().slice(0, 120);
+  const brief = String(raw.brief ?? "").trim().slice(0, 600);
+  let date = String(raw.date || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) date = today;
+  return { file, title, brief, date };
 }
 
 // While Claude is still writing, show only the words, never the JSON block.
@@ -162,9 +179,9 @@ How to reply:
 - If anything sounds serious, say plainly to call the doctor now.
 - Offer at most one idea or one question.
 
-After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary, and anything to add to her schedule (use empty lists if nothing new):
+After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary, anything to add to her schedule, and any attached file worth keeping as a document (use empty lists if nothing new):
 \`\`\`json
-{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"${today}","time":"09:00","until":"","details":""}]}
+{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"${today}","time":"09:00","until":"","details":""}],"documents":[{"file":1,"title":"Blood test report","date":"${today}","brief":"Haemoglobin 10.4, a little low. Recheck in 3 months."}]}
 \`\`\`
 Types:
 - health: how she is overall. "what" must be exactly "well", "off" or "sick".
@@ -174,18 +191,33 @@ Types:
 - growth: weight, height, milestones, happy moments.
 Rules for entries: one thing per entry. Only note what the parent says happened. Do not repeat anything already in the diary below. Use today's date unless they mention another day.
 
-Rules for schedules: add one only when the parent asks for a reminder or schedule, or describes a plan with dates, such as a course of medicine, a follow-up visit or a vaccination. "repeat" is "once", "daily", "weekly" or "monthly". "date" is the first or only day. "time" is 24-hour "HH:MM", or "" if not said. "until" is the last day, or "". Keep doses exactly as the parent said them and never add one. Do not repeat anything already in her schedule below. Mention in your reply what you've offered to add.`;
+Rules for schedules: add one only when the parent asks for a reminder or schedule, or describes a plan with dates, such as a course of medicine, a follow-up visit or a vaccination. "repeat" is "once", "daily", "weekly" or "monthly". "date" is the first or only day. "time" is 24-hour "HH:MM", or "" if not said. "until" is the last day, or "". Keep doses exactly as the parent said them and never add one. Do not repeat anything already in her schedule below. Mention in your reply what you've offered to add.
+
+Attached files: the parent may attach photos or PDFs, such as a prescription, a test report or a vaccination card. You'll see them as pictures, and PDFs as pictures of their first pages. Read them carefully and say briefly what they show. Only use what is clearly written; if something is hard to read, say so instead of guessing. For each attached file worth keeping, add one item under "documents": "file" is its number in the list of attachments, "title" is a short name, "date" is the date on the paper or today, and "brief" is one or two sentences on what it is and what matters in it. A prescription with timings and a duration can also go under "schedules", with doses exactly as written. A doctor's visit on the paper can go under "entries".`;
 }
 
 // Builds the conversation for one message: the packet goes first, then the
 // chat so far (last 20 messages), then the new message.
-export function buildTurns({ profile, entries, schedules = [], documents = [], history = [], newText, today = dayKey() }) {
+// How attachments are described in text. `shown` says what Claude can see now:
+// for the new message, the pictures go with it; earlier ones are not re-sent.
+export function attachmentNote(attachments = [], { shown = false } = {}) {
+  if (!attachments.length) return "";
+  const list = attachments.map((a, i) => {
+    const kind = /pdf/.test(a.fileType || "") ? "PDF" : "photo";
+    const pages = a.pagesShown ? `, first ${a.pagesShown} page${a.pagesShown === 1 ? "" : "s"} shown as pictures` : "";
+    return `${i + 1}. ${a.fileName || "file"} (${kind}${shown ? pages : ""})`;
+  }).join("; ");
+  if (!shown) return `[Attached earlier: ${list}]`;
+  return attachments.some(a => a.seen) ? `[Attached: ${list}]` : `[Attached, but you can't see the files on this view: ${list}]`;
+}
+
+export function buildTurns({ profile, entries, schedules = [], documents = [], history = [], newText, attachments = [], today = dayKey() }) {
   const saw = contextPacket({ profile, entries, schedules, documents, today });
   const packet = `${instructions({ profile, today })}\n\n${saw}`;
 
-  const raw = history.slice(-20).map(m => ({ role: m.role, content: String(m.text || "").trim() }))
+  const raw = history.slice(-20).map(m => ({ role: m.role, content: [String(m.text || "").trim(), attachmentNote(m.attachments)].filter(Boolean).join("\n") }))
     .filter(t => t.content && (t.role === "user" || t.role === "assistant"));
-  raw.push({ role: "user", content: String(newText).trim() });
+  raw.push({ role: "user", content: [String(newText).trim(), attachmentNote(attachments, { shown: true })].filter(Boolean).join("\n") || "(no message)" });
 
   while (raw.length && raw[0].role !== "user") raw.shift();
   const turns = [];
@@ -200,8 +232,8 @@ export function buildTurns({ profile, entries, schedules = [], documents = [], h
 
 // ─── Talking to Claude ───────────────────────────────────────────────────
 
-export async function askClaude(sample, turns, { signal, onText } = {}) {
-  const result = await sample(turns, { modelTier: "default", cache: false, signal, onText });
+export async function askClaude(sample, turns, { signal, onText, images = [] } = {}) {
+  const result = await sample(turns, { modelTier: "default", cache: false, signal, onText, ...(images.length ? { images } : {}) });
   return result.text;
 }
 
@@ -215,6 +247,8 @@ export function errorText(code) {
     case "refused": return "Claude didn't answer that. Try saying it another way.";
     case "prompt_too_large": return "There's too much to send at once. Try a shorter message or a shorter time span.";
     case "invalid_json": return "Claude's notes came back in a form the app couldn't read. Try again.";
+    case "images_unavailable": return "Claude can't look at attached files on this view. Send it without them, or describe what they say.";
+    case "image_rejected": return "Claude couldn't read one of the attached files. Try a clearer photo, or a JPG or PNG.";
     default: return "Claude couldn't answer just now. Try again.";
   }
 }

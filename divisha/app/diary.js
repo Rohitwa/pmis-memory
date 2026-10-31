@@ -70,7 +70,8 @@ export async function openDiary() {
         await ref.set({ day, messages: { [id]: msg } });       // first message of the day
       }
       if (isFirst && message.role === "user") {
-        await db.doc(`chatList/${day}`).set({ day, firstLine: String(message.text).slice(0, 90) });
+        const files = (message.attachments || []).map(a => a.fileName).join(", ");
+        await db.doc(`chatList/${day}`).set({ day, firstLine: String(message.text || (files ? `Attached ${files}` : "")).slice(0, 90) });
       }
       return id;
     },
@@ -165,24 +166,33 @@ export async function openDiary() {
       return db.collection("documents").orderBy("date", "desc").limit(1000)
         .onSnapshot(s => onChange(s.docs.map(d => ({ id: d.id, ...d.data() }))), onError);
     },
-    // Uploads the file, then saves its title and brief. Both or neither:
-    // if saving the details fails, the uploaded file is removed again.
-    async addDocument(file, { title, brief, date }) {
+    // Uploads one file (a photo or PDF) and returns what to remember about it.
+    async uploadFile(file) {
       if (!files) throw { code: "not_granted" };
       const type = file.type || (/\.pdf$/i.test(file.name) ? "application/pdf" : "");
       const up = await files.upload(file, type ? { type } : undefined);
+      return { fileId: up.id, fileName: file.name || "file", fileType: up.contentType, fileSize: up.sizeBytes };
+    },
+    // Keeps an uploaded file as a document, with its title and brief.
+    async addDocumentFromFile(meta, { title, brief, date }) {
       const id = newId();
+      await db.doc(`documents/${id}`).set({
+        title, brief, date,
+        fileId: meta.fileId, fileName: meta.fileName, fileType: meta.fileType, fileSize: meta.fileSize,
+        ...stamp(),
+      });
+      return id;
+    },
+    // Uploads the file, then saves its title and brief. Both or neither:
+    // if saving the details fails, the uploaded file is removed again.
+    async addDocument(file, details) {
+      const meta = await this.uploadFile(file);
       try {
-        await db.doc(`documents/${id}`).set({
-          title, brief, date,
-          fileId: up.id, fileName: file.name || "document", fileType: up.contentType, fileSize: up.sizeBytes,
-          ...stamp(),
-        });
+        return await this.addDocumentFromFile(meta, details);
       } catch (e) {
-        await files.delete(up.id).catch(() => {});
+        await files.delete(meta.fileId).catch(() => {});
         throw e;
       }
-      return id;
     },
     updateDocument(id, { title, brief, date }) {
       return db.doc(`documents/${id}`).update({ title, brief, date, editedBy: me, editedAt: new Date().toISOString() });

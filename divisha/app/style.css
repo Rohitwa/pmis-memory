@@ -659,6 +659,55 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
 .note-card .group-title { padding: var(--s2) var(--s4) 0; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
 .tag.schedule { background: var(--care-soft); color: var(--care); }
 
+/* ── Attachments in the chat ─────────────────────────────────────── */
+
+.attach-btn {
+  display: grid; place-items: center; flex: none;
+  width: 40px; height: 40px; margin-left: -8px;
+  border: 0; border-radius: var(--r-pill); background: transparent; color: var(--muted); cursor: pointer;
+}
+.attach-btn:hover { background: var(--sunk); color: var(--ink); }
+.attach-btn[hidden] { display: none; }
+.composer { padding-left: 10px; }
+.composer.dropping { border-color: var(--accent); background: var(--accent-soft); }
+.attach-list { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.attach-list[hidden] { display: none; }
+.att {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  max-width: 240px; padding: 4px 4px 4px 4px;
+  border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface);
+  font-size: var(--t-sm); color: var(--ink); text-align: left;
+}
+button.att { cursor: pointer; }
+button.att:hover { border-color: var(--accent); }
+.att img, .att .att-icon { width: 40px; height: 40px; border-radius: var(--r-sm); object-fit: cover; flex: none; }
+.att .att-icon { display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.att .att-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.att .att-note { font-size: var(--t-xs); color: var(--muted); }
+.att .att-text { display: grid; min-width: 0; padding-right: 4px; }
+.att .icon-btn { width: 28px; height: 28px; }
+.msg.user .msg-files { display: flex; flex-wrap: wrap; gap: var(--s2); justify-content: flex-end; max-width: min(85%, 560px); }
+
+.note-card .doc-offer {
+  display: grid; gap: var(--s2); align-items: start;
+  grid-template-columns: 44px minmax(0, 1fr) 150px 36px;
+  grid-template-areas: "icon title date remove" "icon brief brief brief";
+  margin: var(--s2) var(--s4); padding: var(--s2);
+  border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface);
+}
+.doc-offer .doc-icon { grid-area: icon; }
+.doc-offer .f-title { grid-area: title; }
+.doc-offer .f-date { grid-area: date; }
+.doc-offer .f-remove { grid-area: remove; width: 36px; height: 36px; }
+.doc-offer .f-brief { grid-area: brief; min-height: 60px; resize: vertical; }
+.doc-offer input, .doc-offer textarea { padding: 6px 8px; font-size: var(--t-sm); }
+.tag.document { background: var(--accent-soft); color: var(--accent); }
+
+.viewer { width: min(860px, calc(100% - 24px)); }
+.viewer-inner { display: grid; gap: var(--s3); padding: var(--s4); }
+.viewer .sheet-head h2 { font-size: var(--t-lg); overflow-wrap: anywhere; }
+.viewer .doc-file img { max-height: 70vh; }
+
 /* ── About Divisha sheet ──────────────────────────────────────────── */
 
 .sheet {
@@ -756,6 +805,7 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
   .doc-form .two { grid-template-columns: 1fr; }
   .doc-row { grid-template-columns: 40px minmax(0, 1fr); }
   .doc-row .doc-date { display: none; }
+  .note-card .doc-offer { grid-template-columns: 40px minmax(0, 1fr) 36px; grid-template-areas: "icon title remove" "date date date" "brief brief brief"; margin: var(--s2) var(--s3); }
   .note-row .f-details { grid-column: 2 / 3; }
   .note-row .f-date { grid-column: 1 / 2; grid-row: 2; }
   .entry { grid-template-columns: minmax(0, 1fr) auto; }
