@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sign in · Divisha Wellness</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Hind:wght@400;500;600&display=swap">
+<style>
+  :root { --paper:#f6f5f9; --surface:#fff; --line:#e1deea; --ink:#221f2b; --muted:#676373; --accent:#5b3a8e; --accent-ink:#fff; --sick:#b83c33; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --paper:#15131b; --surface:#1f1c27; --line:#322e3d; --ink:#ece9f4; --muted:#a39eb2; --accent:#b99ce4; --accent-ink:#1b1426; --sick:#f18b81; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; display: grid; place-items: center; background: var(--paper); color: var(--ink); font: 16px/1.5 "Hind", "Segoe UI", system-ui, sans-serif;
+         padding-block: 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  form { width: 100%; max-width: 380px; display: grid; gap: 14px; padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+  h1 { margin: 0; font: 700 1.75rem/1.15 "Baloo 2", "Trebuchet MS", system-ui, sans-serif; color: var(--accent); }
+  p { margin: 0; color: var(--muted); font-size: .95rem; }
+  label { display: grid; gap: 4px; font-size: .875rem; color: var(--muted); font-weight: 500; }
+  input { font: inherit; color: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button { font: inherit; font-weight: 600; min-height: 44px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .error { color: var(--sick); font-weight: 600; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<form method="post" action="/login">
+  <h1>Divisha Wellness</h1>
+  <p>Sign in to open Divisha's diary.</p>
+  <p class="error" role="alert" {{hidden}}>{{error}}</p>
+  <label>Username <input name="username" id="username" autocomplete="username" autocapitalize="none" required autofocus></label>
+  <label>Password <input name="password" id="password" type="password" autocomplete="current-password" required></label>
+  <button type="submit" id="signIn">Sign in</button>
+</form>
+</body>
+</html>

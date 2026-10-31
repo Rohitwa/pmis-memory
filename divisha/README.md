@@ -7,6 +7,7 @@ each; and **Time-based analysis**, how she's doing over a week, month or year.
 
 - **Live page:** https://claude.ai/artifact/Pro9ma6DELS2utcssBPCRp
 - **Why it's built this way:** [DESIGN.md](DESIGN.md)
+- **Hosting it on fly.io instead:** [DEPLOY.md](DEPLOY.md). The same five files run there, with `server/` providing sign-in, storage and Claude.
 
 ## The five files
 

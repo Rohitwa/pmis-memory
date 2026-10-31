@@ -1,0 +1,39 @@
+# Divisha Wellness on fly.io. Deploy from this folder (divisha/): see DEPLOY.md.
+app = "divisha-wellness"
+primary_region = "bom"              # Mumbai. If Fly says it isn't offered, use "sin" (Singapore).
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DATA_DIR = "/data"
+  COOKIE_SECURE = "1"
+  DAILY_CLAUDE_LIMIT = "150"
+
+# The diary and its files. One machine, one volume.
+[mounts]
+  source = "divisha_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"       # sleeps when nobody has it open; wakes in a few seconds
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "connections"
+    soft_limit = 50
+    hard_limit = 100
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "30s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

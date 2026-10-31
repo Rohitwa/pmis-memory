@@ -728,6 +728,7 @@ button.att:hover { border-color: var(--accent); }
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
 .field-grid .wide { grid-column: 1 / -1; }
 .sheet-foot { display: flex; justify-content: flex-end; gap: var(--s2); }
+.sheet-foot .sign-out { margin-right: auto; }
 
 .keep-copy { display: grid; gap: var(--s2); padding-top: var(--s4); border-top: 1px solid var(--line); }
 .keep-copy h3 { font-size: var(--t-lg); }

@@ -95,3 +95,5 @@ proxy/.wrangler/
 divisha/tests/browser/preview/
 divisha/tests/browser/shots/
 !divisha/app/index.html
+!divisha/server/static/*.html
+divisha/data/

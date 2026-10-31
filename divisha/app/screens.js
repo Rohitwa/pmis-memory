@@ -1310,6 +1310,7 @@ function openSettings() {
   for (const el of $("settingsForm").querySelectorAll("#sName, #sDob, #sAllergies, #sDoctor, #sPhone, #addScheduleBtn, #settingsSave")) el.disabled = !state.canWrite;
   $("keepCopy").hidden = !state.downloads || !state.diary;
   $("copyStatus").textContent = "";
+  $("signOut").hidden = !window.divishaHost?.signOutUrl;      // only on the self-hosted copy
   $("settings").showModal();
 }
 
@@ -1421,6 +1422,7 @@ function wire() {
   window.addEventListener("offline", () => { state.online = false; renderOnline(); });
   $("settingsClose").addEventListener("click", () => $("settings").close());
   $("settingsCancel").addEventListener("click", () => $("settings").close());
+  $("signOut").addEventListener("click", () => { location.href = window.divishaHost.signOutUrl; });
   $("settingsForm").addEventListener("submit", (e) => { e.preventDefault(); saveSettings(); });
   $("addScheduleBtn").addEventListener("click", () => {
     scheduleDraft.push({ what: "", repeat: "daily", date: state.today, time: "", until: "", details: "" });
