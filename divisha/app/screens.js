@@ -10,6 +10,7 @@ import {
   buildTurns, askClaude, errorText, ideasForToday, checkWarnings, WARNINGS, doseNote,
   addDays, makeSpan, stepSpan, spanLabel, comparisonSpan, compareText, countSpan,
   NOTE_SECTIONS, notesRequest, readNotes, writeNotes, changedSince,
+  readableDiary, backupFile, copyFileNames,
 } from "./helper.js";
 
 const $ = (id) => document.getElementById(id);
@@ -17,6 +18,8 @@ const $ = (id) => document.getElementById(id);
 const state = {
   diary: null,
   sample: null,
+  downloads: null,
+  online: navigator.onLine !== false,
   loading: true,
   problem: null,            // "signed-out" when the diary can't open
   canWrite: true,
@@ -323,7 +326,7 @@ function renderComposer() {
   $("composerText").placeholder = `How was ${name()} today?`;
   $("sendBtn").hidden = state.busy;
   $("stopBtn").hidden = !state.busy;
-  $("sendBtn").disabled = !state.sample || !$("composerText").value.trim();
+  $("sendBtn").disabled = !state.sample || !state.online || !$("composerText").value.trim();
   $("footnote").textContent = state.sample || state.loading
     ? `${name()} Wellness keeps a diary and shares ideas. It is not a doctor.`
     : "Claude can't answer on this view. You can still add entries yourself in Look back.";
@@ -336,7 +339,7 @@ function growComposer() {
   const t = $("composerText");
   t.style.height = "auto";
   t.style.height = `${Math.min(t.scrollHeight, 160)}px`;
-  $("sendBtn").disabled = !state.sample || !t.value.trim();
+  $("sendBtn").disabled = !state.sample || !state.online || !t.value.trim();
 }
 
 // ─── Talk: sending a message ─────────────────────────────────────────────
@@ -344,6 +347,7 @@ function growComposer() {
 async function send(text, { retry = false } = {}) {
   text = text.trim();
   if (!text || state.busy || !state.sample) return;
+  if (!state.online) { toast("You're offline. Try again when you're back online."); return; }
   state.today = dayKey();
   if (state.day !== state.today) openDay(state.today);
   const day = state.today;
@@ -817,6 +821,8 @@ function openSettings() {
   if (!routineDraft.length) routineDraft.push({ what: "", often: "daily" });
   renderRoutine();
   for (const el of $("settingsForm").querySelectorAll("input, select, #addRoutineBtn, #settingsSave")) el.disabled = !state.canWrite;
+  $("keepCopy").hidden = !state.downloads || !state.diary;
+  $("copyStatus").textContent = "";
   $("settings").showModal();
 }
 
@@ -836,6 +842,55 @@ async function saveSettings() {
   } catch (e) {
     onWriteError(e);
   }
+}
+
+// ─── Keep a copy ─────────────────────────────────────────────────────────
+
+const SAVE_PROBLEM = {
+  declined: null,
+  rate_limited: "A save prompt is already open. Finish it, then try again.",
+  too_large: "The copy is too big to save here. Try from a computer.",
+};
+
+async function downloadCopy() {
+  const btn = $("downloadBtn");
+  if (!state.downloads || !state.diary || btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = "Gathering the diary…";
+  $("copyStatus").textContent = "";
+  let saved = 0, problem = null;
+  try {
+    const all = await state.diary.everything();
+    const names = { ...(await state.diary.names(all.entries.map(e => e.by))) };
+    const files = copyFileNames(dayKey());
+    const plan = [
+      { filename: files.readable, data: readableDiary({ ...all, names, today: dayKey() }) },
+      { filename: files.backup, data: backupFile(all) },
+    ];
+    for (const f of plan) {
+      btn.textContent = `Saving ${saved + 1} of 2…`;
+      try {
+        await state.downloads.save(f);
+        saved += 1;
+      } catch (e) {
+        if (e?.code in SAVE_PROBLEM) problem = problem || SAVE_PROBLEM[e.code];
+        else { problem = "Downloads aren't available here. Try opening the page on claude.ai."; break; }
+      }
+    }
+  } catch {
+    problem = "Couldn't gather the diary. Check your connection and try again.";
+  }
+  btn.disabled = false;
+  btn.textContent = "Download a copy";
+  // Shown inside the sheet: a toast would sit behind it.
+  const status = $("copyStatus");
+  status.textContent = problem || (saved === 2 ? "Saved both files." : saved === 1 ? "Saved one of the two files." : "Nothing was saved.");
+  status.classList.toggle("problem", saved < 2);
+}
+
+function renderOnline() {
+  $("offline").hidden = state.online;
+  renderComposer();
 }
 
 // ─── Everything ──────────────────────────────────────────────────────────
@@ -858,6 +913,9 @@ function wire() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
 
   $("settingsBtn").addEventListener("click", openSettings);
+  $("downloadBtn").addEventListener("click", downloadCopy);
+  window.addEventListener("online", () => { state.online = true; renderOnline(); });
+  window.addEventListener("offline", () => { state.online = false; renderOnline(); });
   $("settingsClose").addEventListener("click", () => $("settings").close());
   $("settingsCancel").addEventListener("click", () => $("settings").close());
   $("settingsForm").addEventListener("submit", (e) => { e.preventDefault(); saveSettings(); });
@@ -956,6 +1014,7 @@ function wire() {
 async function start() {
   wire();
   readHash();
+  $("offline").hidden = state.online;
   render();
 
   const diary = await openDiary();
@@ -966,6 +1025,7 @@ async function start() {
   render();
 
   window.claude.use("sample").then(s => { state.sample = s; renderComposer(); renderNotes(); });
+  window.claude.use("downloads").then(d => { state.downloads = d; });
 
   diary.watchProfile((p) => { state.profile = p || {}; render(); }, () => toast("Couldn't load About Divisha. Reload the page."));
   diary.watchEntries((list) => {

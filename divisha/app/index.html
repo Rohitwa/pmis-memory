@@ -33,6 +33,7 @@
     <button type="button" class="icon-btn" id="settingsBtn" aria-label="About Divisha">
       <svg><use href="#i-child"/></svg>
     </button>
+    <p class="offline" id="offline" role="status" hidden>You're offline. Nothing new can be saved until you're back online.</p>
   </header>
 
   <!-- Talk -->
@@ -118,6 +119,12 @@
       <div id="routineRows"></div>
       <button type="button" class="btn quiet" id="addRoutineBtn"><svg><use href="#i-plus"/></svg>Add to routine</button>
     </fieldset>
+    <section class="keep-copy" id="keepCopy" aria-labelledby="keepCopyTitle">
+      <h3 id="keepCopyTitle">Keep a copy</h3>
+      <p class="hint">Downloads two files: a readable diary you can open in any notes app or show a doctor, and a full backup with every chat. You'll be asked to confirm each one.</p>
+      <button type="button" class="btn" id="downloadBtn">Download a copy</button>
+      <p class="copy-status" id="copyStatus" role="status"></p>
+    </section>
     <div class="sheet-foot">
       <button type="button" class="btn quiet" id="settingsCancel">Cancel</button>
       <button type="submit" class="btn primary" id="settingsSave">Save</button>

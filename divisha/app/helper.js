@@ -613,3 +613,82 @@ export function changedSince(entries, span, writtenAt) {
   return entries.filter(e => e.date >= span.from && e.date <= span.to
     && ((e.createdAt || "") > writtenAt || (e.editedAt || "") > writtenAt)).length;
 }
+
+// ═════════════════════════════════════════════════════════════════════════
+// Keep a copy
+// ═════════════════════════════════════════════════════════════════════════
+
+function longDay(key) {
+  return toDate(key).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+}
+
+export function copyFileNames(today = dayKey()) {
+  return {
+    readable: `divisha-wellness-diary-${today}.md`,
+    backup: `divisha-wellness-backup-${today}.json`,
+  };
+}
+
+// A diary anyone can read: About Divisha, every entry by month (newest
+// first), then Claude's saved notes with the dates each point is based on.
+export function readableDiary({ profile = {}, entries = [], notes = [], names = {}, today = dayKey() }) {
+  const name = profile.name || "Divisha";
+  const sorted = entries.slice().sort((a, b) => (a.date !== b.date ? (a.date < b.date ? 1 : -1) : (a.createdAt || "") < (b.createdAt || "") ? -1 : 1));
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const out = [`# ${name} Wellness: diary`, ""];
+
+  const span = sorted.length ? ` from ${longDay(sorted[sorted.length - 1].date)} to ${longDay(sorted[0].date)}` : "";
+  out.push(`Downloaded ${longDay(today)}. ${sorted.length} ${sorted.length === 1 ? "entry" : "entries"}${span}.`, "");
+
+  const routine = (profile.routine || []).filter(r => r.what).map(r => `${r.what} (${r.often === "weekly" ? "every week" : "every day"})`);
+  out.push(`## About ${name}`, "");
+  out.push(`- Birth date: ${profile.dob ? `${longDay(profile.dob)} (${ageText(profile.dob, today)})` : "not given"}`);
+  out.push(`- Allergies: ${profile.allergies || "none noted"}`);
+  out.push(`- Doctor: ${[profile.doctorName, profile.doctorPhone].filter(Boolean).join(", ") || "not given"}`);
+  out.push(`- Usual routine: ${routine.length ? routine.join(", ") : "none noted"}`, "");
+
+  out.push("## Diary", "");
+  if (!sorted.length) out.push("Nothing noted yet.", "");
+  let month = "", day = "";
+  for (const e of sorted) {
+    const m = e.date.slice(0, 7);
+    if (m !== month) { month = m; day = ""; const d = toDate(`${m}-01`); out.push(`### ${MONTHS[d.getMonth()]} ${d.getFullYear()}`, ""); }
+    if (e.date !== day) { if (day) out.push(""); day = e.date; out.push(`**${longDay(e.date)}**`, ""); }
+    const what = e.type === "health" ? HEALTH[e.what] || e.what : e.what;
+    const by = names[e.by] ? ` (added by ${names[e.by]})` : "";
+    out.push(`- ${TYPES[e.type]?.label || e.type}: ${what}${e.details ? `, ${e.details}` : ""}${by}`);
+  }
+  if (sorted.length) out.push("");
+
+  const saved = notes.filter(n => n.body).sort((a, b) => (a.from < b.from ? 1 : -1));
+  if (saved.length) {
+    out.push("## Claude's notes", "");
+    for (const n of saved) {
+      const span = makeSpan(n.kind || "month", n.from);
+      out.push(`### ${spanLabel(span, "0000-00-00")} (written ${n.writtenAt ? longDay(dayKey(new Date(n.writtenAt))) : "earlier"})`, "");
+      for (const sec of NOTE_SECTIONS) {
+        const points = n.body[sec.key] || [];
+        if (!points.length) continue;
+        out.push(`**${sec.title}**`, "");
+        for (const p of points) {
+          const dates = [...new Set(p.see.map(id => byId.get(id)?.date).filter(Boolean))].sort().map(shortDay);
+          out.push(`- ${p.text}${dates.length ? ` (from entries on ${dates.join(", ")})` : ""}`);
+        }
+        out.push("");
+      }
+    }
+  }
+  out.push("---", "", `${name} Wellness keeps a diary and shares ideas. It is not a doctor.`, "");
+  return out.join("\n");
+}
+
+// Everything, in a form a computer can read back in later.
+export function backupFile({ profile = {}, entries = [], chatList = [], chats = [], notes = [], exportedAt = new Date().toISOString() }) {
+  return JSON.stringify({
+    app: "Divisha Wellness",
+    format: 1,
+    exportedAt,
+    counts: { entries: entries.length, chatDays: chats.length, notes: notes.length },
+    profile, entries, chatList, chats, notes,
+  }, null, 2);
+}

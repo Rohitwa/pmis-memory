@@ -249,3 +249,46 @@ test("a span still in progress is compared with the same days of the one before"
   const done = comparisonSpan(makeSpan("month", "2026-09-15"), TODAY);
   assert.deepEqual([done.span.from, done.span.to, done.name], ["2026-08-01", "2026-08-31", "August"]);
 });
+
+// ─── Keep a copy ────────────────────────────────────────────────────────
+import { readableDiary, backupFile, copyFileNames } from "../app/helper.js";
+
+test("the readable diary lists About Divisha, entries by month, and notes with their dates", () => {
+  const text = readableDiary({
+    profile: { ...toddler, doctorName: "Dr Mehta", doctorPhone: "98200 12345", routine: [{ what: "Vitamin D", often: "daily" }] },
+    entries: [
+      { id: "a", date: "2026-09-30", type: "health", what: "sick", by: "u1", createdAt: "1" },
+      { id: "b", date: "2026-10-02", type: "care", what: "Steam", details: "before bed", by: "u2", createdAt: "2" },
+      { id: "c", date: "2026-10-02", type: "symptom", what: "Cough at night", by: "u2", createdAt: "1" },
+    ],
+    notes: [{ kind: "month", from: "2026-10-01", writtenAt: "2026-10-20T10:00:00", body: { working: [{ text: "Steam helps.", see: ["b", "gone"] }] } }],
+    names: { u1: "Rohit", u2: "Ananya" },
+    today: TODAY,
+  });
+  assert.match(text, /^# Divisha Wellness: diary/);
+  assert.match(text, /3 entries from Wed, 30 Sept 2026 to Fri, 2 Oct 2026/);
+  assert.match(text, /- Doctor: Dr Mehta, 98200 12345/);
+  assert.match(text, /- Usual routine: Vitamin D \(every day\)/);
+  assert.ok(text.indexOf("### October 2026") < text.indexOf("### September 2026"), "newest month first");
+  assert.ok(text.indexOf("Cough at night") < text.indexOf("Care given: Steam"), "within a day, in the order they were added");
+  assert.match(text, /- How she is: Sick \(added by Rohit\)/);
+  assert.match(text, /- Care given: Steam, before bed \(added by Ananya\)/);
+  assert.match(text, /### October 2026 \(written Tue, 20 Oct 2026\)/);
+  assert.match(text, /- Steam helps\. \(from entries on 2 Oct\)/);
+  assert.match(text, /It is not a doctor\./);
+});
+
+test("an empty diary still makes a sensible file", () => {
+  const text = readableDiary({ today: TODAY });
+  assert.match(text, /0 entries\./);
+  assert.match(text, /Nothing noted yet\./);
+  assert.doesNotMatch(text, /Claude's notes/);
+});
+
+test("the backup holds everything and says what it is", () => {
+  const data = JSON.parse(backupFile({ profile: { name: "Divisha" }, entries: [{ id: "a" }], chats: [{ id: "2026-10-01", messages: {} }], exportedAt: "x" }));
+  assert.equal(data.app, "Divisha Wellness");
+  assert.deepEqual(data.counts, { entries: 1, chatDays: 1, notes: 0 });
+  assert.equal(data.profile.name, "Divisha");
+  assert.deepEqual(copyFileNames(TODAY), { readable: "divisha-wellness-diary-2026-10-28.md", backup: "divisha-wellness-backup-2026-10-28.json" });
+});

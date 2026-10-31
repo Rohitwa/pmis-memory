@@ -125,6 +125,34 @@ export async function openDiary() {
       return db.doc(`notes/${spanKey}`).set({ ...notes, writtenAt: new Date().toISOString(), writtenBy: me });
     },
 
+    // ── Everything, for "Download a copy" ────────────────────────────
+    // Reads each collection in pages of 1000, oldest first, so nothing is
+    // left out however long the diary gets.
+    async everything() {
+      async function all(path, field) {
+        const found = new Map();
+        let from = null;
+        for (;;) {
+          let q = db.collection(path).orderBy(field, "asc").limit(1000);
+          if (from !== null) q = q.where(field, ">=", from);
+          const snap = await q.get();
+          let added = 0;
+          for (const d of snap.docs) if (!found.has(d.id)) { found.set(d.id, { id: d.id, ...d.data() }); added += 1; }
+          if (snap.docs.length < 1000 || added === 0) break;
+          from = snap.docs[snap.docs.length - 1].data()[field];
+        }
+        return [...found.values()];
+      }
+      const [profileSnap, entries, chatList, chats, notes] = await Promise.all([
+        db.doc("profile/divisha").get(),
+        all("entries", "date"),
+        all("chatList", "day"),
+        all("chats", "day"),
+        all("notes", "from"),
+      ]);
+      return { profile: profileSnap.exists ? profileSnap.data() : {}, entries, chatList, chats, notes };
+    },
+
     // ── Names for "added by" ─────────────────────────────────────────
     async names(ids) {
       const wanted = [...new Set(ids.filter(id => id && !(id in nameCache)))];

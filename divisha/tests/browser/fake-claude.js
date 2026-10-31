@@ -44,8 +44,8 @@
   const db = { doc: docRef, collection: (p) => collRef(p) };
 
   const user = {
-    id: async () => "u_me", can: async () => true, canEdit: async () => true, isOwner: async () => true,
-    profiles: async (ids) => Object.fromEntries(ids.map(id => [id, { id, name: id === "u_partner" ? "Ananya Singh" : "" }])),
+    id: async () => "u_me", can: async () => !location.search.includes("readonly"), canEdit: async () => true, isOwner: async () => true,
+    profiles: async (ids) => Object.fromEntries(ids.map(id => [id, { id, name: id === "u_partner" ? "Ananya Singh" : id === "u_me" ? "Rohit Singh" : "" }])),
   };
 
   const replies = {
@@ -111,6 +111,15 @@
     };
   };
 
-  const caps = { db, user, sample: location.search.includes("nosample") ? null : sample };
+  window.__saved = [];
+  const downloads = {
+    save: async ({ filename, data }) => {
+      if (!/\.(md|json)$/.test(filename)) throw { code: "rejected_extension" };
+      if (location.search.includes("decline")) throw { code: "declined" };
+      window.__saved.push({ filename, data: String(data) });
+      return { status: "saved" };
+    },
+  };
+  const caps = { db, user, sample: location.search.includes("nosample") ? null : sample, downloads: location.search.includes("nodownloads") ? null : downloads };
   window.claude = { use: async (name) => (name in caps ? caps[name] : null) };
 })();

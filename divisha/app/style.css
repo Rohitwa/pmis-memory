@@ -594,6 +594,26 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
 .routine-row { display: grid; grid-template-columns: minmax(0, 1fr) 130px 40px; gap: var(--s2); align-items: center; }
 .sheet-foot { display: flex; justify-content: flex-end; gap: var(--s2); }
 
+.keep-copy { display: grid; gap: var(--s2); padding-top: var(--s4); border-top: 1px solid var(--line); }
+.keep-copy h3 { font-size: var(--t-lg); }
+.keep-copy .btn, .routine > .btn { justify-self: start; }
+.copy-status { margin: 0; font-size: var(--t-sm); font-weight: 600; color: var(--well); }
+.copy-status:empty { display: none; }
+.copy-status.problem { color: var(--sick); }
+
+/* Offline notice, under the top bar */
+.topbar { flex-wrap: wrap; }
+.offline {
+  flex-basis: 100%;
+  margin: 0;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-sm);
+  background: var(--off-soft);
+  color: var(--off);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
 /* ── Toast ────────────────────────────────────────────────────────── */
 
 .toast {

@@ -186,5 +186,94 @@ const phoneWidth = await LP.evaluate(() => document.documentElement.scrollWidth)
 check(phoneWidth <= 390, `Look back has no sideways scroll on a phone (width ${phoneWidth})`);
 await LP.screenshot({ path: `${S}/shots/16-phone-lookback.png`, fullPage: true });
 
+// ── Keep a copy ──
+const K = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1");
+await K.waitForSelector(".welcome");
+await K.click("#settingsBtn");
+check(await K.isVisible("#downloadBtn"), "About Divisha offers 'Download a copy'");
+await K.click("#downloadBtn");
+await K.waitForSelector("#copyStatus:has-text('Saved both files')");
+const files = await K.evaluate(() => window.__saved);
+check(files.length === 2, "two files are saved");
+check(/^divisha-wellness-diary-\d{4}-\d{2}-\d{2}\.md$/.test(files[0].filename), `readable diary is named ${files[0].filename}`);
+check(/^divisha-wellness-backup-\d{4}-\d{2}-\d{2}\.json$/.test(files[1].filename), `backup is named ${files[1].filename}`);
+check(/Cough at night, dry, woke twice \(added by Ananya\)/.test(files[0].data), "the readable diary has entries with who added them");
+check(/added by Rohit/.test(files[0].data) && !/added by you/.test(files[0].data), "it names each parent, never 'you'");
+const backup = JSON.parse(files[1].data);
+const storeCounts = await K.evaluate(() => ({ entries: [...window.__store.keys()].filter(k => k.startsWith("entries/")).length, chats: [...window.__store.keys()].filter(k => k.startsWith("chats/")).length }));
+check(backup.counts.entries === storeCounts.entries && backup.counts.chatDays === storeCounts.chats, `the backup holds every entry (${backup.counts.entries}) and chat day (${backup.counts.chatDays})`);
+await K.screenshot({ path: `${S}/shots/17-keep-copy.png` });
+
+const KD = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&decline=1");
+await KD.waitForSelector(".welcome");
+await KD.click("#settingsBtn");
+await KD.click("#downloadBtn");
+await KD.waitForSelector("#copyStatus:has-text('Nothing was saved')");
+check(true, "saying no to both saves is reported plainly");
+const KN = await page({ viewport: { width: 1280, height: 900 } }, base + "?nodownloads=1");
+await KN.waitForSelector(".welcome");
+await KN.click("#settingsBtn");
+check(!(await KN.isVisible("#downloadBtn")), "no download button where downloads don't work");
+
+// ── Someone who can view but not edit ──
+const R = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&readonly=1");
+await R.waitForSelector(".past-note:has-text('You can read')");
+check(!(await R.isVisible("#composer")), "view-only: no typing box");
+check(!(await R.isVisible(".ideas .chip")), "view-only: no ideas to act on");
+await R.goto(base + "?seed=1&readonly=1#look-back");
+await R.waitForSelector(".tiles .tile");
+check(!(await R.isVisible("#addEntryBtn")), "view-only: no 'Add an entry'");
+check(await R.locator("[data-act=edit], [data-act=del]").count() === 0, "view-only: no Edit or Remove");
+check(!(await R.isVisible("[data-act=notes-write]")) && await R.isVisible("text=You can read notes here"), "view-only: can't ask for new notes, and says why");
+await R.click("#settingsBtn");
+check(await R.isDisabled("#settingsSave") && await R.isDisabled("#sDob"), "view-only: About Divisha can be read but not changed");
+check(await R.isVisible("#downloadBtn"), "view-only: can still download a copy");
+
+// ── Offline ──
+const offCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+const O = await offCtx.newPage();
+O.on("pageerror", e => errors.push(String(e)));
+await O.goto(base + "?seed=1");
+await O.waitForSelector(".welcome");
+await offCtx.setOffline(true);
+await O.waitForSelector("#offline:not([hidden])");
+await O.fill("#composerText", "She was fine");
+check(await O.isDisabled("#sendBtn"), "offline: Send is off and a notice says why");
+await O.screenshot({ path: `${S}/shots/18-offline.png` });
+await offCtx.setOffline(false);
+await O.waitForSelector("#offline", { state: "hidden" });
+check(!(await O.isDisabled("#sendBtn")), "back online: Send works again");
+
+// ── Keyboard only ──
+const KB = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1");
+await KB.waitForSelector(".welcome");
+await KB.focus("#tabLook");
+await KB.keyboard.press("Enter");
+await KB.waitForSelector(".tiles .tile");
+check(true, "keyboard: Enter on Look back switches screens");
+await KB.focus(".cal .day.lv-sick");
+await KB.keyboard.press("Enter");
+await KB.waitForSelector(".focus-bar");
+check(true, "keyboard: a calendar day opens its entries");
+await KB.focus("#settingsBtn");
+await KB.keyboard.press("Enter");
+await KB.waitForSelector("#settings[open]");
+await KB.keyboard.press("Escape");
+await KB.waitForSelector("#settings:not([open])", { state: "attached" });
+check(!(await KB.evaluate(() => document.getElementById("settings").open)), "keyboard: Escape closes About Divisha");
+const ring = await KB.evaluate(() => { const b = document.getElementById("spanPrev"); b.focus(); return getComputedStyle(b, ":focus-visible").outlineStyle; });
+check(ring !== "none", "keyboard: focused buttons show a ring");
+
+// ── The narrowest phones ──
+const N = await page({ viewport: { width: 320, height: 640 }, colorScheme: "light", isMobile: true, hasTouch: true }, base + "?seed=1");
+await N.waitForSelector(".welcome");
+const talkW = await N.evaluate(() => document.documentElement.scrollWidth);
+await N.screenshot({ path: `${S}/shots/19-320-talk.png` });
+await N.goto(base + "?seed=1#look-back");
+await N.waitForSelector(".tiles .tile");
+const lookW = await N.evaluate(() => document.documentElement.scrollWidth);
+await N.screenshot({ path: `${S}/shots/20-320-lookback.png`, fullPage: true });
+check(talkW <= 320 && lookW <= 320, `320 px phone: no sideways scroll (Talk ${talkW}, Look back ${lookW})`);
+
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

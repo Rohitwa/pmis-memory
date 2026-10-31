@@ -176,7 +176,7 @@ Three steps. After each one you have something to open on your phone.
 | **2. Look back** | Pick a week, month or year and read the numbers, the coloured strip, Claude's three sections, and open the entries behind each point. |
 | **3. Move in** | See the old Health Log entries in the new diary, download everything as a file, and find a "we've moved" note on the old page. |
 
-The old Health Log has no saved entries today. Step 3 still copies across anything you add before switching.
+At switch-over on 31 October the old Health Log had no saved entries, so nothing needed moving. The old page now shows a one-screen note pointing here. "Download a copy" in About Divisha saves a readable diary and a full backup.
 
 ## 9. What we cut from the earlier plan, and why
 
