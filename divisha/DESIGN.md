@@ -100,7 +100,7 @@ The left pane lists them, top to bottom: **Talk** (where the app opens), **Docum
 
 ### Documents
 
-A record of papers about her: prescriptions, test reports, vaccination cards. Each one is a photo or PDF, up to 20 MB, with a **title** and a **brief**, and the app won't save one without all three. They're listed by month. Tapping one opens it, with Download, Edit title and brief, and Remove. Claude sees the titles and briefs of the latest ten, not the files.
+A record of papers about her: prescriptions, test reports, vaccination cards. Each one is a photo or PDF, up to 20 MB, with a **title** and a **brief**, and the app won't save one without all three. They're listed by month. Tapping one opens it, with Download, Edit title and brief, and Remove. PDFs are drawn page by page on the page itself (the first 40 pages), because claude.ai's frame won't run the browser's own PDF viewer. Claude sees the titles and briefs of the latest ten, not the files.
 
 Only people who can edit the page can add documents. That's claude.ai's rule for file storage. Contributors can open and download them.
 

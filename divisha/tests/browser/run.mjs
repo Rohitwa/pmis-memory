@@ -19,9 +19,40 @@ const PNG = Buffer.from((await painter.evaluate(() => {
   return c.toDataURL("image/png").split(",")[1];
 })), "base64");
 
-async function page(opts, url = base) {
+// A two-page PDF, made by the browser itself.
+await painter.setContent(`<style>body{font:16px sans-serif;margin:40px} h1{font-size:26px} .p2{page-break-before:always}</style>
+  <h1>Discharge summary</h1><p>Patient: Divisha, 2 years 4 months</p><p>Diagnosis: lower respiratory infection</p><p>Advice: nebuliser at home for 5 days; review with Dr Mehta.</p>
+  <div class="p2"><h1>Page 2: medicines</h1><p>Salbutamol nebules as prescribed. Paracetamol only as advised by the doctor.</p></div>`);
+const PDF = await painter.pdf({ format: "A5" });
+
+// Stored files: an uploaded one comes back as uploaded; the example PDF is the
+// one above; any other example file is the clinic picture.
+async function serveBlob(r) {
+  const id = r.request().url().split("/").pop();
+  if (id === "c".repeat(32)) return r.fulfill({ body: PDF, contentType: "application/pdf" });
+  const pg = r.request().frame()?.page();
+  const got = pg ? await pg.evaluate(async (id) => {
+    const b = window.__assetBlobs?.[id];
+    if (!b) return null;
+    const u = new Uint8Array(await b.arrayBuffer());
+    let s = "";
+    for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode(...u.subarray(i, i + 32768));
+    return [btoa(s), b.type];
+  }, id).catch(() => null) : null;
+  if (got) return r.fulfill({ body: Buffer.from(got[0], "base64"), contentType: got[1] });
+  return r.fulfill({ body: PNG, contentType: "image/png" });
+}
+
+async function page(opts, url = base, { pdfjs = true } = {}) {
   const ctx = await browser.newContext(opts);
-  await ctx.route("**/_blob/**", r => r.fulfill({ body: PNG, contentType: "image/png" }));
+  ctx.setDefaultTimeout(30000);
+  await ctx.route("**/_blob/**", serveBlob);
+  // PDF.js comes from cdnjs. Set PDFJS_DIR to serve a downloaded copy instead.
+  await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/**", r => {
+    if (!pdfjs) return r.abort();
+    if (process.env.PDFJS_DIR) return r.fulfill({ path: `${process.env.PDFJS_DIR}/${r.request().url().split("/").pop()}`, contentType: "text/javascript" });
+    return r.continue();
+  });
   const p = await ctx.newPage();
   p.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
   p.on("pageerror", e => errors.push(String(e)));
@@ -330,9 +361,9 @@ check(true, "removing an item in About Divisha deletes it");
 // ── Documents ──
 const D = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#documents");
 await D.waitForSelector(".doc-row");
-check(await D.locator(".doc-row").count() === 2, "documents are listed");
+check(await D.locator(".doc-row").count() === 3, "documents are listed");
 check(await D.locator(".doc-month h3").count() === 2, "grouped by month");
-check((await D.textContent(".sections a[data-view=docs] .count")) === "2", "the left pane shows how many");
+check((await D.textContent(".sections a[data-view=docs] .count")) === "3", "the left pane shows how many");
 await D.screenshot({ path: `${S}/shots/23-documents.png` });
 await D.click("#addDocBtn");
 check(await D.isDisabled("#docSave"), "nothing to save without a file, title and brief");
@@ -361,8 +392,8 @@ await D.waitForSelector(".doc-view .brief:has-text('Edited: steam')");
 check(true, "the title and brief can be edited");
 await D.click("[data-act=doc-del]");
 await D.click("[data-act=doc-del-yes]");
-await D.waitForFunction(() => document.querySelectorAll(".doc-row").length === 2);
-check(await D.locator(".doc-row").count() === 2 && !(await D.evaluate((id) => !!window.__assets[id], kept.fileId)), "removing a document removes its file too");
+await D.waitForFunction(() => document.querySelectorAll(".doc-row").length === 3);
+check(await D.locator(".doc-row").count() === 3 && !(await D.evaluate((id) => !!window.__assets[id], kept.fileId)), "removing a document removes its file too");
 
 const DR = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&readonly=1#documents");
 await DR.waitForSelector(".doc-row");
@@ -389,6 +420,41 @@ await DP.screenshot({ path: `${S}/shots/28-phone-menu.png` });
 await DP.click(".side .sections a[data-view=talk]");
 await DP.waitForSelector(".side.open", { state: "detached" }).catch(() => {});
 check(!(await DP.evaluate(() => document.getElementById("chatPane").classList.contains("open"))) && await DP.isVisible("#composer"), "phone: choosing a section closes the menu and opens it");
+
+// ── PDFs ──
+const PD = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#documents");
+await PD.waitForSelector(".doc-row");
+await PD.click(".doc-row:has-text('Discharge summary')");
+await PD.waitForFunction(() => document.querySelectorAll("#docFilePdf canvas").length === 2, null, { timeout: 30000 });
+const drawn = await PD.evaluate(() => {
+  const c = document.querySelector("#docFilePdf canvas");
+  const px = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+  let dark = 0;
+  for (let i = 0; i < px.length; i += 4) if (px[i] < 120) dark += 1;
+  return { w: c.getBoundingClientRect().width, dark, label: c.getAttribute("aria-label") };
+});
+check(drawn.w > 300 && drawn.dark > 500, `a two-page PDF shows both pages, with text drawn (${drawn.dark} dark pixels)`);
+check(drawn.label === "Page 1 of 2", "each page is labelled for screen readers");
+await PD.screenshot({ path: `${S}/shots/29-pdf-view.png`, fullPage: true });
+await PD.click("[data-act=doc-back]");
+await PD.click("#addDocBtn");
+await PD.setInputFiles("#docFile", { name: "eye-checkup.pdf", mimeType: "application/pdf", buffer: PDF });
+await PD.fill("#docBrief", "Routine eye check, all normal.");
+await PD.click("#docSave");
+await PD.waitForFunction(() => document.querySelectorAll("#docFilePdf canvas").length === 2, null, { timeout: 30000 });
+check(true, "an uploaded PDF opens and shows its pages");
+const PF = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1#documents", { pdfjs: false });
+await PF.waitForSelector(".doc-row");
+await PF.click(".doc-row:has-text('Discharge summary')");
+await PF.waitForSelector("#docFilePdf .missing:has-text('Use Download')");
+check(await PF.isVisible("[data-act=doc-download]"), "if the PDF reader can't load, it says so and Download is there");
+const PPh = await page({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true, hasTouch: true }, base + "?seed=1#documents");
+await PPh.waitForSelector(".doc-row");
+await PPh.click(".doc-row:has-text('Discharge summary')");
+await PPh.waitForFunction(() => document.querySelectorAll("#docFilePdf canvas").length === 2, null, { timeout: 30000 });
+const ppw = await PPh.evaluate(() => document.documentElement.scrollWidth);
+check(ppw <= 390, `a PDF fits a phone (width ${ppw})`);
+await PPh.screenshot({ path: `${S}/shots/30-phone-pdf.png`, fullPage: true });
 
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

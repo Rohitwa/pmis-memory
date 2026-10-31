@@ -16,3 +16,7 @@ mkdir -p shots && node run.mjs .             # PASS/FAIL lines, then console err
 Set `PLAYWRIGHT` to Playwright's `index.js` path and `CHROMIUM` to a browser
 binary if they aren't found on their own. Add `?seed=1` to the preview URL to
 see the app with a few weeks of example entries.
+
+PDFs are drawn with PDF.js from cdnjs. Without internet access, download
+`pdf.min.js` and `pdf.worker.min.js` (version 3.11.174) into a folder and set
+`PDFJS_DIR` to it.

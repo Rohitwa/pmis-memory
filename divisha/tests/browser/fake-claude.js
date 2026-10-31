@@ -78,6 +78,7 @@
     store.set("schedules/s2", { what: "Saline nasal drops", repeat: "daily", date: key(1), time: "20:00", until: key(-3), details: "", by: "u_partner", createdAt: new Date().toISOString() });
     store.set("schedules/s3", { what: "Dr Mehta follow-up", repeat: "once", date: key(-2), time: "17:00", until: "", details: "bring the cough notes", by: "u_me", createdAt: new Date().toISOString() });
     store.set("documents/d1", { title: "Blood test report", brief: "Haemoglobin 10.4, a little low. Dr Mehta suggests iron-rich food and a recheck in 3 months.", date: key(3), fileId: "a".repeat(32), fileName: "blood-test.png", fileType: "image/png", fileSize: 182000, by: "u_me", createdAt: new Date().toISOString() });
+    store.set("documents/d3", { title: "Discharge summary", brief: "Two-day stay for a chest infection in September. Nebuliser at home for 5 days, review with Dr Mehta.", date: key(10), fileId: "c".repeat(32), fileName: "discharge-summary.pdf", fileType: "application/pdf", fileSize: 64000, by: "u_me", createdAt: new Date().toISOString() });
     store.set("documents/d2", { title: "Vaccination card", brief: "All due vaccines done up to 18 months. Next: flu shot this winter.", date: key(40), fileId: "b".repeat(32), fileName: "vaccination-card.png", fileType: "image/png", fileSize: 240000, by: "u_partner", createdAt: new Date().toISOString() });
     const rows = [
       [1, "symptom", "Cough at night", "dry, woke twice", "u_partner"], [1, "care", "Steam", "10 min before bed", "u_partner"], [1, "health", "off", "", "u_partner"],
@@ -135,6 +136,7 @@
       if (blob.size > 20 * 1048576) throw { code: "too_large" };
       const id = Array.from({ length: 32 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join("");
       window.__assets[id] = { type, size: blob.size };
+      (window.__assetBlobs = window.__assetBlobs || {})[id] = blob;
       return { id, url: "/_blob/" + id, sizeBytes: blob.size, contentType: type };
     },
     delete: async (id) => { delete window.__assets[id]; },

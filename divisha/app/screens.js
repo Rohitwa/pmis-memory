@@ -549,15 +549,14 @@ function docViewHtml(d) {
   const url = state.diary.fileUrl(d.fileId);
   const file = isImage(d)
     ? `<img src="${esc(url)}" alt="${esc(d.title)}" id="docImg">`
-    : `<iframe src="${esc(url)}" title="${esc(d.title)}"></iframe>`;
+    : `<p class="missing">Opening the PDF…</p>`;
   return `<div class="doc-view">
     <button type="button" class="btn quiet back" data-act="doc-back"><svg><use href="#i-left"/></svg>All documents</button>
     <h2>${esc(d.title)}</h2>
     <p class="meta">${esc(long)} · ${isImage(d) ? "Photo" : "PDF"}${d.fileSize ? ` · ${sizeText(d.fileSize)}` : ""}${esc(by)}</p>
     <p class="brief">${esc(d.brief)}</p>
     ${actions ? `<div class="doc-actions">${actions}</div>` : ""}
-    <div class="doc-file">${file}</div>
-    ${isImage(d) ? "" : `<p class="hint">If the PDF doesn't show here, use Download to open it.</p>`}
+    <div class="doc-file" id="docFile${isImage(d) ? "" : "Pdf"}">${file}</div>
   </div>`;
 }
 
@@ -577,9 +576,11 @@ function renderDocs() {
       body.innerHTML = docViewHtml(open).replace('<div class="doc-view">', `<div class="doc-view" data-id="${open.id}">`);
       body.dataset.sig = `${open.title}|${open.brief}|${open.date}|${state.docConfirmDelete}|${who(open.by)}`;
       $("docImg")?.addEventListener("error", (e) => { e.target.replaceWith(Object.assign(document.createElement("p"), { className: "missing", textContent: "This photo can't be shown here. Try Download." })); });
+      if ($("docFilePdf")) showPdf($("docFilePdf"), open.fileId);
     }
     return;
   }
+  pdfRun += 1;                      // stop drawing a PDF that's no longer open
   body.dataset.sig = "";
   if (state.docForm && state.docForm.id !== "new") { body.innerHTML = ""; return; }
   const noUpload = state.canWrite && !state.diary?.canUpload
@@ -598,6 +599,73 @@ function renderDocs() {
     const [y, m] = k.split("-").map(Number);
     return `<section class="doc-month"><h3>${esc(new Date(y, m - 1, 1).toLocaleDateString("en-GB", MONTH_FMT))}</h3>${list.map(docRowHtml).join("")}</section>`;
   }).join("");
+}
+
+// ── Showing a PDF ──
+// claude.ai's frame won't run the browser's own PDF viewer, so the pages are
+// drawn here with PDF.js (Mozilla's PDF reader). It loads from cdnjs only the
+// first time a PDF is opened. Loading its worker file as a plain script first
+// lets it run on the page itself, which the frame allows.
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+const PDF_PAGE_LIMIT = 40;
+let pdfjsReady = null;
+let pdfRun = 0;
+
+function loadScript(src) {
+  return new Promise((ok, fail) => {
+    const el = Object.assign(document.createElement("script"), { src, onload: ok, onerror: () => fail(new Error(`couldn't load ${src}`)) });
+    document.head.append(el);
+  });
+}
+
+function loadPdfJs() {
+  if (!pdfjsReady) {
+    pdfjsReady = loadScript(`${PDFJS}pdf.worker.min.js`)
+      .then(() => loadScript(`${PDFJS}pdf.min.js`))
+      .then(() => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS}pdf.worker.min.js`;
+        return window.pdfjsLib;
+      })
+      .catch((e) => { pdfjsReady = null; throw e; });
+  }
+  return pdfjsReady;
+}
+
+async function showPdf(box, fileId) {
+  const run = ++pdfRun;
+  const fail = (text) => { if (run === pdfRun) box.innerHTML = `<p class="missing">${esc(text)}</p>`; };
+  try {
+    const [lib, blob] = await Promise.all([loadPdfJs(), state.diary.fileBlob(fileId)]);
+    const data = new Uint8Array(await blob.arrayBuffer());
+    const pdf = await lib.getDocument({ data, isEvalSupported: false }).promise;
+    if (run !== pdfRun) return;
+    box.innerHTML = "";
+    box.classList.add("pages");
+    const width = Math.max(240, box.clientWidth - 24);
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const count = Math.min(pdf.numPages, PDF_PAGE_LIMIT);
+    for (let n = 1; n <= count; n += 1) {
+      const page = await pdf.getPage(n);
+      if (run !== pdfRun) return;
+      const scale = Math.min(width / page.getViewport({ scale: 1 }).width, 2.5);
+      const viewport = page.getViewport({ scale: scale * ratio });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      canvas.style.width = `${Math.floor(viewport.width / ratio)}px`;
+      canvas.setAttribute("role", "img");
+      canvas.setAttribute("aria-label", `Page ${n} of ${pdf.numPages}`);
+      box.append(canvas);
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+    }
+    if (pdf.numPages > count && run === pdfRun) {
+      box.append(Object.assign(document.createElement("p"), { className: "missing", textContent: `Showing the first ${count} of ${pdf.numPages} pages. Use Download to see the rest.` }));
+    }
+  } catch (e) {
+    fail(e?.name === "PasswordException" ? "This PDF has a password, so it can't be shown here. Use Download to open it."
+      : e?.code === "not_found" ? "This file can't be reached right now. Try again later, or use Download."
+      : "This PDF can't be shown here. Use Download to open it.");
+  }
 }
 
 const UPLOAD_PROBLEM = {
@@ -1255,7 +1323,7 @@ function wire() {
     }
     else if (act === "sched-remove") { scheduleDraft.splice(Number(b.dataset.i), 1); renderScheduleRows(); }
     else if (act === "doc-open") { state.docOpen = b.dataset.id; state.docForm = null; state.docConfirmDelete = false; renderDocs(); $("docsView").scrollTop = 0; }
-    else if (act === "doc-back") { state.docOpen = null; state.docConfirmDelete = false; renderDocs(); }
+    else if (act === "doc-back") { state.docOpen = null; state.docConfirmDelete = false; pdfRun += 1; renderDocs(); }
     else if (act === "doc-cancel") { state.docForm = null; renderDocs(); }
     else if (act === "doc-save") saveDoc();
     else if (act === "doc-edit") {
