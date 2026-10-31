@@ -1,0 +1,33 @@
+{
+  "about": "Shared by tests/helper.test.js (the app) and server/tests/test_schedule.py (the reminder server), so both apply the same schedule rules.",
+  "due": [
+    { "name": "once, on its day", "s": { "repeat": "once", "date": "2026-11-02", "times": ["17:00"] },
+      "days": { "2026-11-01": [], "2026-11-02": ["2026-11-02 17:00"], "2026-11-03": [] } },
+    { "name": "daily, twice a day, for 3 days", "s": { "repeat": "daily", "date": "2026-11-01", "until": "2026-11-03", "times": ["09:00", "21:00"] },
+      "days": { "2026-10-31": [], "2026-11-01": ["2026-11-01 09:00", "2026-11-01 21:00"], "2026-11-03": ["2026-11-03 09:00", "2026-11-03 21:00"], "2026-11-04": [] } },
+    { "name": "every other day", "s": { "repeat": "daily", "every": 2, "date": "2026-11-01", "times": ["08:00"] },
+      "days": { "2026-11-01": ["2026-11-01 08:00"], "2026-11-02": [], "2026-11-03": ["2026-11-03 08:00"], "2026-12-01": ["2026-12-01 08:00"] } },
+    { "name": "weekly on Mon, Wed, Fri", "s": { "repeat": "weekly", "weekdays": [1, 3, 5], "date": "2026-11-01", "times": ["19:30"] },
+      "days": { "2026-11-01": [], "2026-11-02": ["2026-11-02 19:30"], "2026-11-04": ["2026-11-04 19:30"], "2026-11-05": [], "2026-11-06": ["2026-11-06 19:30"] } },
+    { "name": "weekly with no days chosen uses the start day", "s": { "repeat": "weekly", "date": "2026-11-01" },
+      "days": { "2026-11-08": ["2026-11-08"], "2026-11-09": [] } },
+    { "name": "monthly on the 31st falls on short months' last day", "s": { "repeat": "monthly", "date": "2026-01-31", "times": ["10:00"] },
+      "days": { "2026-02-28": ["2026-02-28 10:00"], "2026-03-31": ["2026-03-31 10:00"], "2026-04-30": ["2026-04-30 10:00"], "2026-04-29": [] } },
+    { "name": "paused shows nothing", "s": { "repeat": "daily", "date": "2026-11-01", "paused": true, "times": ["09:00"] },
+      "days": { "2026-11-02": [] } },
+    { "name": "an older item with a single time", "s": { "repeat": "daily", "date": "2026-11-01", "time": "09:00" },
+      "days": { "2026-11-02": ["2026-11-02 09:00"] } }
+  ],
+  "reminders": [
+    { "name": "30 minutes before, by default", "s": { "repeat": "daily", "date": "2026-11-01", "times": ["21:00"] },
+      "at": { "2026-11-02T20:29": [], "2026-11-02T20:30": ["2026-11-02 21:00"], "2026-11-02T20:39": ["2026-11-02 21:00"], "2026-11-02T20:41": [] } },
+    { "name": "1 day before crosses midnight", "s": { "repeat": "once", "date": "2026-11-03", "times": ["10:00"], "lead": 1440 },
+      "at": { "2026-11-02T10:00": ["2026-11-03 10:00"], "2026-11-03T09:30": [] } },
+    { "name": "at the time", "s": { "repeat": "once", "date": "2026-11-03", "times": ["07:05"], "lead": 0 },
+      "at": { "2026-11-03T07:05": ["2026-11-03 07:05"], "2026-11-03T06:35": [] } },
+    { "name": "an item with no time is reminded at 9 am that day", "s": { "repeat": "daily", "date": "2026-11-01" },
+      "at": { "2026-11-02T09:00": ["2026-11-02"], "2026-11-02T08:30": [] } },
+    { "name": "nothing before it starts", "s": { "repeat": "daily", "date": "2026-11-05", "times": ["09:00"] },
+      "at": { "2026-11-04T08:30": [] } }
+  ]
+}

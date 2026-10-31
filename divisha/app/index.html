@@ -49,6 +49,7 @@
       </div>
       <nav class="sections" aria-label="Sections">
         <a href="#talk" data-view="talk"><svg><use href="#i-talk"/></svg>Talk</a>
+        <a href="#schedule" data-view="schedule"><svg><use href="#i-clock"/></svg>Schedule<span class="count" id="dueCount"></span></a>
         <a href="#documents" data-view="docs"><svg><use href="#i-doc"/></svg>Documents<span class="count" id="docCount"></span></a>
         <a href="#analysis" data-view="look"><svg><use href="#i-chart"/></svg>Time-based analysis</a>
       </nav>
@@ -76,6 +77,25 @@
           <p class="footnote" id="footnote">Divisha Wellness keeps a diary and shares ideas. It is not a doctor.</p>
         </div>
       </section>
+    </main>
+
+    <!-- Schedule: today, the next 7 days, and everything set for her -->
+    <main class="sched" id="scheduleView" hidden>
+      <div class="docs-inner">
+        <div class="look-head">
+          <h2>Schedule</h2>
+          <div class="head-actions">
+            <button type="button" class="btn" id="shareRoutineBtn">Share routine</button>
+            <button type="button" class="btn primary" id="addSchedBtn"><svg><use href="#i-plus"/></svg>Add</button>
+          </div>
+        </div>
+        <div id="reminderBar"></div>
+        <div id="schedShare"></div>
+        <div id="schedForm"></div>
+        <section class="sched-sec" aria-labelledby="todayTitle"><h3 id="todayTitle">Today</h3><div id="schedToday"></div></section>
+        <section class="sched-sec" aria-labelledby="nextTitle"><h3 id="nextTitle">Coming up in the next 7 days</h3><div id="schedNext"></div></section>
+        <section class="sched-sec" aria-labelledby="allTitle"><h3 id="allTitle">Everything scheduled</h3><div id="schedAll"></div></section>
+      </div>
     </main>
 
     <!-- Documents: each one is a file with a title and a brief -->
@@ -142,12 +162,12 @@
       <label>Doctor <input id="sDoctor" type="text" placeholder="Dr Mehta"></label>
       <label>Doctor's phone <input id="sPhone" type="tel" placeholder="98xxxxxxxx"></label>
     </div>
-    <fieldset class="schedule-set">
-      <legend>Her schedule</legend>
-      <p class="hint">Medicines, drops, visits and vaccinations. Due items show up in ideas for today. You can also ask Claude in Talk, for example "remind me to give vitamin D every day at 9".</p>
-      <div id="scheduleRows"></div>
-      <button type="button" class="btn quiet" id="addScheduleBtn"><svg><use href="#i-plus"/></svg>Add to schedule</button>
-    </fieldset>
+    <p class="hint sheet-note">Her schedule has its own section in the left pane.</p>
+    <section class="keep-copy" id="sharedLinks" aria-labelledby="sharedLinksTitle" hidden>
+      <h3 id="sharedLinksTitle">Shared links</h3>
+      <p class="hint">Anyone with one of these links can see what it shares, without an account. Turn a link off to stop it working.</p>
+      <div id="sharedList"></div>
+    </section>
     <section class="keep-copy" id="keepCopy" aria-labelledby="keepCopyTitle">
       <h3 id="keepCopyTitle">Keep a copy</h3>
       <p class="hint">Downloads two files: a readable diary you can open in any notes app or show a doctor, and a full backup with every chat. Document files stay here; the copy lists their titles and briefs. You'll be asked to confirm each file.</p>

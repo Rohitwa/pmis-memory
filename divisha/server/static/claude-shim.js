@@ -236,7 +236,53 @@
     downloads: async () => downloads,
   };
   window.claude = Object.freeze({ use: async (name) => (caps[name] ? caps[name]().catch(() => null) : null) });
-  window.divishaHost = Object.freeze({ signOutUrl: "/logout" });
+  // ── Only on the self-hosted copy: reminders, share links, people ──
+  const keyBytes = (b64) => {
+    const raw = atob((b64 + "=".repeat((4 - (b64.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
+    return Uint8Array.from(raw, c => c.charCodeAt(0));
+  };
+  const pushReady = () => ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window);
+
+  const reminders = freeze({
+    // "on" | "off" | "blocked" | "unsupported"
+    state: async () => {
+      if (!pushReady()) return "unsupported";
+      if (Notification.permission === "denied") return "blocked";
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg && await reg.pushManager.getSubscription();
+      return sub && Notification.permission === "granted" ? "on" : "off";
+    },
+    enable: async () => {
+      if (!pushReady()) return "unsupported";
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return permission === "denied" ? "blocked" : "off";
+      const reg = await navigator.serviceWorker.ready;
+      const { publicKey } = await json("GET", "/api/push/key");
+      const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(publicKey) });
+      await api("POST", "/api/push/subscribe", { subscription: sub.toJSON(), tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
+      return "on";
+    },
+    disable: async () => {
+      const reg = await navigator.serviceWorker?.getRegistration();
+      const sub = reg && await reg.pushManager.getSubscription();
+      if (sub) { await api("POST", "/api/push/unsubscribe", { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe(); }
+      return "off";
+    },
+    test: () => json("POST", "/api/push/test", {}),
+  });
+
+  const shares = freeze({
+    create: (kind, target, days) => json("POST", "/api/shares", { kind, target, days }),
+    list: async () => (await json("GET", "/api/shares")).shares,
+    revoke: (token) => api("DELETE", `/api/shares/${encodeURIComponent(token)}`),
+  });
+
+  window.divishaHost = Object.freeze({
+    signOutUrl: "/logout",
+    reminders,
+    shares,
+    people: async () => Object.fromEntries(Object.entries(await json("GET", "/api/people")).map(([id, p]) => [id, p.name])),
+  });
 
   // Installable app: a small helper that lets it open without a connection.
   if ("serviceWorker" in navigator) {

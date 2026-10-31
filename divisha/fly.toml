@@ -9,6 +9,7 @@ primary_region = "sin"              # Singapore: the closest Fly region to India
   DATA_DIR = "/data"
   COOKIE_SECURE = "1"
   DAILY_CLAUDE_LIMIT = "150"
+  DEFAULT_TZ = "Asia/Kolkata"        # used when a phone doesn't say its time zone
 
 # The diary and its files. One machine, one volume.
 [mounts]
@@ -18,9 +19,9 @@ primary_region = "sin"              # Singapore: the closest Fly region to India
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"       # sleeps when nobody has it open; wakes in a few seconds
+  auto_stop_machines = "off"        # stays awake so reminders go out on time, even with every phone locked
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
 
   [http_service.concurrency]
     type = "connections"

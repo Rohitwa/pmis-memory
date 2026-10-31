@@ -11,7 +11,7 @@ import {
   addDays, makeSpan, stepSpan, spanLabel, comparisonSpan, compareText, countSpan,
   NOTE_SECTIONS, notesRequest, readNotes, writeNotes, changedSince,
   readableDiary, backupFile, copyFileNames,
-  REPEATS, cleanSchedule, scheduleLine,
+  REPEATS, cleanSchedule, scheduleLine, CATEGORIES, LEADS, WEEKDAYS, timesOf, agenda, adherence, timeText,
 } from "./helper.js";
 
 const $ = (id) => document.getElementById(id);
@@ -42,6 +42,13 @@ const state = {
   imageLimits: null,        // what Claude can be shown on this view, or null
   drafts: {},               // edits to a "note this down?" card, by message id
   names: {},
+  // Schedule
+  schedForm: null,          // the item being added or changed
+  schedConfirmDelete: null,
+  reminders: "unknown",     // on | off | blocked | unsupported (this phone)
+  people: {},               // id → name, for "For" (self-hosted copy)
+  shareBox: null,           // { kind: "routine" | "document", target, days, url, expires, busy, error }
+  docBlobs: {},             // document files fetched for "Send the file"
   // Documents
   docOpen: null,            // the id of the document being shown
   docForm: null,            // { id: "new" or a document id, title, brief, date, file, busy, status }
@@ -137,12 +144,13 @@ function resolveNames(ids) {
     renderNotes();
     renderEntries();
     renderDocs();
+    renderSchedule();
   });
 }
 
 // ─── Top bar and the three sections ──────────────────────────────────────
 
-const VIEWS = { talk: "talkView", docs: "docsView", look: "lookView" };
+const VIEWS = { talk: "talkView", schedule: "scheduleView", docs: "docsView", look: "lookView" };
 
 function renderTop() {
   const age = ageText(state.profile.dob, state.today);
@@ -159,7 +167,7 @@ function renderTop() {
 // (#look-back, the old name, still works).
 function readHash() {
   const h = location.hash;
-  state.view = h === "#documents" ? "docs" : h === "#analysis" || h === "#look-back" ? "look" : "talk";
+  state.view = h === "#schedule" ? "schedule" : h === "#documents" ? "docs" : h === "#analysis" || h === "#look-back" ? "look" : "talk";
   closeDrawer();
   renderTop();
   renderChatList();
@@ -272,7 +280,7 @@ function schedNoteRowHtml(msgId, x, i) {
     <select class="f-repeat" id="${base}-repeat" ${attrs("repeat")} aria-label="How often">${repeatOptions(x.repeat)}</select>
     <button type="button" class="icon-btn f-remove" data-act="draft-remove" data-msg="${msgId}" data-g="schedules" data-i="${i}" aria-label="Don't add this"><svg><use href="#i-close"/></svg></button>
     <label class="f-date">${x.repeat === "once" ? "On" : "From"} <input type="date" id="${base}-date" ${attrs("date")} value="${esc(x.date)}"></label>
-    <label class="f-time">Time <input type="time" id="${base}-time" ${attrs("time")} value="${esc(x.time)}"></label>
+    <label class="f-time">Times <input id="${base}-times" ${attrs("times")} value="${esc(Array.isArray(x.times) ? x.times.join(", ") : x.times || x.time || "")}" placeholder="9:00, 21:00" inputmode="numeric"></label>
     <label class="f-until" ${x.repeat === "once" ? "hidden" : ""}>Until <input type="date" id="${base}-until" ${attrs("until")} value="${esc(x.until)}"></label>
   </div>`;
 }
@@ -737,6 +745,7 @@ function docViewHtml(d) {
   const [y, m, day] = d.date.split("-").map(Number);
   const long = new Date(y, m - 1, day).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
   const actions = [
+    state.canWrite && state.diary?.shares ? `<button type="button" class="btn primary" data-act="doc-share" data-id="${d.id}">Share</button>` : "",
     state.downloads ? `<button type="button" class="btn" data-act="doc-download" data-id="${d.id}">Download</button>` : "",
     state.canWrite ? `<button type="button" class="btn" data-act="doc-edit" data-id="${d.id}">Edit title and brief</button>` : "",
     state.canWrite ? (state.docConfirmDelete
@@ -753,6 +762,7 @@ function docViewHtml(d) {
     <p class="meta">${esc(long)} · ${isImage(d) ? "Photo" : "PDF"}${d.fileSize ? ` · ${sizeText(d.fileSize)}` : ""}${esc(by)}</p>
     <p class="brief">${esc(d.brief)}</p>
     ${actions ? `<div class="doc-actions">${actions}</div>` : ""}
+    <div id="docShareSlot"></div>
     <div class="doc-file" id="docFile${isImage(d) ? "" : "Pdf"}">${file}</div>
   </div>`;
 }
@@ -774,7 +784,10 @@ function renderDocs() {
       body.dataset.sig = `${open.title}|${open.brief}|${open.date}|${state.docConfirmDelete}|${who(open.by)}`;
       $("docImg")?.addEventListener("error", (e) => { e.target.replaceWith(Object.assign(document.createElement("p"), { className: "missing", textContent: "This photo can't be shown here. Try Download." })); });
       if ($("docFilePdf")) showPdf($("docFilePdf"), open.fileId);
+      // Fetch the file now, so "Send the file" can open the share sheet straight away.
+      if (state.diary?.shares && !state.docBlobs[open.id]) state.diary.fileBlob(open.fileId).then((b) => { state.docBlobs[open.id] = b; }).catch(() => {});
     }
+    renderDocShare();
     return;
   }
   pdfRun += 1;                      // stop drawing a PDF that's no longer open
@@ -916,6 +929,11 @@ function openFileViewer(meta) {
   $("fileViewer").showModal();
 }
 
+function renderDocShare() {
+  const slot = $("docShareSlot");
+  if (slot) patch(slot, state.shareBox?.kind === "document" && state.shareBox.target === state.docOpen ? shareBoxHtml(state.shareBox) : "");
+}
+
 async function downloadDoc(d) {
   if (!state.downloads) return;
   try {
@@ -927,6 +945,257 @@ async function downloadDoc(d) {
   } catch (e) {
     if (e?.code === "declined") return;
     toast(e?.code === "not_found" ? "This file can't be reached right now. Try again later." : "Couldn't download it here. Try opening the page on claude.ai.");
+  }
+}
+
+// ─── Schedule ────────────────────────────────────────────────────────────
+// Today (with Done and Skip), the next 7 days, and every item, with an
+// editor that covers every kind of repeat. Reminders and the routine link
+// only show on the self-hosted copy.
+
+function nowHHMM() { const d = new Date(); return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; }
+
+function personName(id) {
+  if (!id) return "everyone";
+  if (id === state.diary?.me) return "you";
+  return (state.people[id] || state.names[id] || "someone").split(" ")[0];
+}
+
+function schedById(id) { return state.schedules.find(x => x.id === id); }
+
+function occHtml(o, { buttons }) {
+  const s = o.s;
+  const late = o.date === state.today && o.time && o.time < nowHHMM() && !o.status;
+  const mark = s.done?.[o.key];
+  const status = o.status === "done" ? `<span class="occ-status done">Done${mark?.by ? ` · ${esc(personName(mark.by))}` : ""}</span>`
+    : o.status === "skipped" ? `<span class="occ-status skipped">Skipped</span>`
+    : late ? `<span class="occ-status late">Not done yet</span>` : "";
+  const acts = !buttons || !state.canWrite ? "" : o.status
+    ? `<button type="button" class="link-btn" data-act="occ-undo" data-id="${s.id}" data-key="${esc(o.key)}">Undo</button>`
+    : `<button type="button" class="btn occ-done" data-act="occ-done" data-id="${s.id}" data-key="${esc(o.key)}">Done</button><button type="button" class="link-btn" data-act="occ-skip" data-id="${s.id}" data-key="${esc(o.key)}">Skip</button>`;
+  return `<div class="occ${o.status ? ` is-${o.status}` : ""}${late ? " is-late" : ""}">
+    <span class="occ-time">${o.time ? esc(timeText(o.time)) : "Any time"}</span>
+    <span class="occ-what"><strong>${esc(s.what)}</strong>${s.details ? `<span class="occ-details">${esc(s.details)}</span>` : ""}${s.for ? `<span class="occ-details">For ${esc(personName(s.for))}</span>` : ""}</span>
+    <span class="occ-side">${status}${acts}</span>
+  </div>`;
+}
+
+function schedCardHtml(s) {
+  if (state.schedConfirmDelete === s.id) {
+    return `<div class="sched-card"><span>Remove “${esc(s.what)}” from her schedule?</span><span class="confirm"><button type="button" class="btn danger" data-act="se-del-yes" data-id="${s.id}">Remove</button><button type="button" class="btn quiet" data-act="se-del-no">Keep</button></span></div>`;
+  }
+  const ended = s.until && s.until < state.today && s.repeat !== "once";
+  const past = s.repeat === "once" && s.date < state.today;
+  const a = adherence(s, state.today);
+  const line = scheduleLine(s, state.today).slice(s.what.length + 2);
+  const facts = [
+    CATEGORIES[s.category] || "",
+    s.paused ? "Paused" : ended || past ? "Finished" : "",
+    timesOf(s).length ? (LEADS[s.lead ?? 30] || "") : "Reminded at 9 am",
+    s.for ? `For ${personName(s.for)}` : "",
+    a.total ? `Done ${a.done} of ${a.total} in the last 2 weeks` : "",
+  ].filter(Boolean);
+  const acts = state.canWrite ? `<span class="sched-acts">
+      <button type="button" class="link-btn" data-act="se-edit" data-id="${s.id}">Edit</button>
+      ${ended || past ? "" : `<button type="button" class="link-btn" data-act="se-pause" data-id="${s.id}">${s.paused ? "Resume" : "Pause"}</button>`}
+      <button type="button" class="link-btn" data-act="se-del" data-id="${s.id}">Remove</button></span>` : "";
+  return `<div class="sched-card${s.paused || ended || past ? " is-quiet" : ""}">
+    <div class="sched-main"><strong>${esc(s.what)}</strong><span class="sched-line">${esc(line.charAt(0).toUpperCase() + line.slice(1))}</span>
+      ${s.details ? `<span class="sched-details">${esc(s.details)}</span>` : ""}
+      <span class="sched-facts">${facts.map(f => `<span>${esc(f)}</span>`).join("")}</span></div>
+    ${acts}
+  </div>`;
+}
+
+function schedFormFrom(s) {
+  if (!s) {
+    return { id: "new", what: "", category: "medicine", details: "", repeat: "daily", every: 1, weekdays: [], times: ["09:00"],
+      date: state.today, ends: "never", until: "", days: 5, lead: 30, for: "", paused: false };
+  }
+  return { id: s.id, what: s.what, category: s.category || "care", details: s.details || "", repeat: s.repeat, every: s.every || 1,
+    weekdays: [...(s.weekdays || [])], times: [...timesOf(s)], date: s.date, ends: s.until ? "date" : "never", until: s.until || "",
+    days: 5, lead: s.lead ?? 30, for: s.for || "", paused: !!s.paused };
+}
+
+function options(map, current) {
+  return Object.entries(map).map(([k, l]) => `<option value="${esc(k)}" ${String(k) === String(current) ? "selected" : ""}>${esc(l)}</option>`).join("");
+}
+
+function schedFormHtml(f) {
+  const once = f.repeat === "once";
+  const people = { "": "Everyone", ...(state.diary?.me ? { [state.diary.me]: "Me" } : {}), ...Object.fromEntries(Object.entries(state.people).filter(([id]) => id !== state.diary?.me)) };
+  return `<div class="edit-card sched-form">
+    <h3>${f.id === "new" ? "Add to her schedule" : "Change this item"}</h3>
+    <div class="fields">
+      <label class="wide">What <input id="seWhat" data-se="what" value="${esc(f.what)}" placeholder="Cough syrup 5 ml" maxlength="120"></label>
+      <label>Kind <select id="seCategory" data-se="category">${options(CATEGORIES, f.category)}</select></label>
+      <label>Repeats <select id="seRepeat" data-se="repeat">${options(REPEATS, f.repeat)}</select></label>
+      ${f.repeat === "daily" ? `<label>Every <span class="inline"><input id="seEvery" type="number" min="1" max="30" data-se="every" value="${esc(f.every)}"> day(s)</span></label>` : ""}
+      ${f.repeat === "weekly" ? `<div class="wide weekday-pick" role="group" aria-label="On these days">${WEEKDAYS.map((d, i) => `<button type="button" class="chip" data-act="se-day" data-d="${i}" aria-pressed="${f.weekdays.includes(i)}">${d}</button>`).join("")}</div>` : ""}
+      <label>${once ? "On" : "Starts"} <input id="seDate" type="date" data-se="date" value="${esc(f.date)}"></label>
+      ${once ? "" : `<label>Ends <select id="seEnds" data-se="ends">${options({ never: "Never", date: "On a date", days: "After some days" }, f.ends)}</select></label>`}
+      ${!once && f.ends === "date" ? `<label>Last day <input id="seUntil" type="date" data-se="until" value="${esc(f.until)}" min="${esc(f.date)}"></label>` : ""}
+      ${!once && f.ends === "days" ? `<label>For <span class="inline"><input id="seDays" type="number" min="1" max="365" data-se="days" value="${esc(f.days)}"> days</span></label>` : ""}
+      <div class="wide times-pick"><span class="pick-label">Times</span>
+        ${f.times.map((t, i) => `<span class="time-pill"><input type="time" id="seTime${i}" data-se-time="${i}" value="${esc(t)}" aria-label="Time ${i + 1}"><button type="button" class="icon-btn" data-act="se-time-remove" data-i="${i}" aria-label="Remove this time"><svg><use href="#i-close"/></svg></button></span>`).join("")}
+        ${f.times.length < 6 ? `<button type="button" class="btn quiet" data-act="se-time-add"><svg><use href="#i-plus"/></svg>Add a time</button>` : ""}
+        ${f.times.length ? "" : `<span class="hint">No time set: reminded at 9 am that day.</span>`}
+      </div>
+      <label>Remind ${f.times.length ? "" : "(at 9 am)"} <select id="seLead" data-se="lead" ${f.times.length ? "" : "disabled"}>${options(LEADS, f.lead)}</select></label>
+      <label>For <select id="seFor" data-se="for">${options(people, f.for)}</select></label>
+      ${f.id !== "new" ? `<label class="check"><input type="checkbox" id="sePaused" data-se="paused" ${f.paused ? "checked" : ""}> Paused</label>` : ""}
+      <label class="wide">Notes <input id="seDetails" data-se="details" value="${esc(f.details)}" placeholder="After food; as Dr Mehta said" maxlength="300"></label>
+    </div>
+    <p class="error" id="seError"></p>
+    <div class="row">
+      <button type="button" class="btn quiet" data-act="se-cancel">Cancel</button>
+      <button type="button" class="btn primary" data-act="se-save">${f.id === "new" ? "Add to schedule" : "Save changes"}</button>
+    </div>
+  </div>`;
+}
+
+function reminderBarHtml() {
+  const r = state.reminders;
+  if (!state.diary?.reminders || r === "unknown") return "";
+  if (r === "unsupported") return `<div class="reminder-bar"><span>This browser can't show reminders. On Android, use Chrome and install the app. On iPhone, add it to your Home Screen first.</span></div>`;
+  if (r === "blocked") return `<div class="reminder-bar warn"><span>Notifications are blocked for this site on this phone. Allow them in the browser's site settings, then come back.</span></div>`;
+  if (r === "on") return `<div class="reminder-bar on"><span><strong>Reminders are on</strong> for this phone. They come before each item, with your phone's notification sound.</span><span class="bar-acts"><button type="button" class="btn" data-act="rem-test">Send a test</button><button type="button" class="link-btn" data-act="rem-off">Turn off</button></span></div>`;
+  return `<div class="reminder-bar"><span>Get a notification on this phone before each item: 30 minutes before, unless you change it.</span><span class="bar-acts"><button type="button" class="btn primary" data-act="rem-on">Turn on reminders</button></span></div>`;
+}
+
+function shareBoxHtml(b) {
+  const what = b.kind === "routine" ? "her routine" : "this document";
+  const canFile = b.kind === "document" && !!navigator.canShare && !!window.divishaHost;
+  const body = b.url
+    ? `<div class="share-url"><input readonly id="shareUrl" value="${esc(b.url)}" aria-label="Link"><button type="button" class="btn primary" data-act="share-send">Share…</button><button type="button" class="btn" data-act="share-copy">Copy</button></div>
+       <p class="hint">Anyone with this link can see ${what}${b.expires ? ` until ${esc(dayLabel(b.expires.slice(0, 10), state.today))}` : ""}, without an account. Turn it off any time in About Divisha, under Shared links.</p>`
+    : `<div class="share-make"><label>Link works for <select id="shareDays">${options({ 7: "7 days", 30: "30 days", 90: "90 days", 0: "Until I turn it off" }, b.days)}</select></label>
+       <button type="button" class="btn primary" data-act="share-create" ${b.busy ? "disabled" : ""}>${b.busy ? "Making the link…" : "Make a link"}</button></div>
+       ${b.kind === "routine" ? `<p class="hint">The page always shows her current routine, and has a Save as PDF button.</p>` : ""}`;
+  return `<div class="share-box">
+    <div class="share-head"><h3>Share ${what}</h3><button type="button" class="icon-btn" data-act="share-close" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    ${canFile ? `<div class="share-file"><button type="button" class="btn" data-act="share-file">Send the file…</button><span class="hint">Opens your phone's share options, such as WhatsApp or email.</span></div><p class="hint or">Or share a link:</p>` : ""}
+    ${body}
+    ${b.error ? `<p class="error">${esc(b.error)}</p>` : ""}
+  </div>`;
+}
+
+function renderSchedule() {
+  if (!$("scheduleView")) return;
+  const today = agenda(state.schedules, state.today, 1);
+  const open = today.filter(o => !o.status).length;
+  $("dueCount").textContent = open || "";
+  $("addSchedBtn").hidden = !state.canWrite || !!state.schedForm;
+  $("shareRoutineBtn").hidden = !state.canWrite || !state.diary?.shares;
+  patch($("reminderBar"), reminderBarHtml());
+  patch($("schedShare"), state.shareBox?.kind === "routine" ? shareBoxHtml(state.shareBox) : "");
+  patch($("schedForm"), state.schedForm ? schedFormHtml(state.schedForm) : "");
+  if (state.loading || state.problem) { $("schedToday").innerHTML = `<div class="empty">${state.problem ? "Sign in to open her schedule." : "Opening her schedule…"}</div>`; return; }
+
+  patch($("schedToday"), today.length ? `<div class="occ-list">${today.map(o => occHtml(o, { buttons: true })).join("")}</div>`
+    : `<div class="empty">Nothing scheduled for today.${state.canWrite ? " Add something, or ask in Talk: “remind me to give vitamin D every day at 9”." : ""}</div>`);
+
+  // Every-day items are the same each day, so "Coming up" leaves them out.
+  const everyDay = (s) => s.repeat === "daily" && (s.every || 1) === 1;
+  const next = agenda(state.schedules.filter(s => !everyDay(s)), addDays(state.today, 1), 7);
+  const byDay = new Map();
+  for (const o of next) { if (!byDay.has(o.date)) byDay.set(o.date, []); byDay.get(o.date).push(o); }
+  patch($("schedNext"), next.length ? [...byDay.entries()].map(([d, list]) => `<div class="next-day"><h4>${esc(dayLabel(d, state.today))}</h4><div class="occ-list">${list.map(o => occHtml(o, { buttons: false })).join("")}</div></div>`).join("")
+    : `<div class="empty">Nothing else in the next 7 days besides the every-day items.</div>`);
+
+  const order = (s) => (s.paused ? 1 : 0) + ((s.until && s.until < state.today && s.repeat !== "once") || (s.repeat === "once" && s.date < state.today) ? 2 : 0);
+  const all = state.schedules.slice().sort((a, b) => order(a) - order(b) || (timesOf(a)[0] || "99") .localeCompare(timesOf(b)[0] || "99") || a.what.localeCompare(b.what));
+  patch($("schedAll"), all.length ? `<div class="sched-list">${all.map(schedCardHtml).join("")}</div>` : `<div class="empty">Nothing is scheduled yet.</div>`);
+}
+
+async function refreshReminders() {
+  if (!state.diary?.reminders) return;
+  state.reminders = await state.diary.reminders.state().catch(() => "unsupported");
+  renderSchedule();
+}
+
+async function saveSchedForm() {
+  const f = state.schedForm;
+  const raw = {
+    what: f.what, category: f.category, details: f.details, repeat: f.repeat, every: Number(f.every), weekdays: f.weekdays,
+    times: f.times.filter(Boolean), date: f.date, until: f.ends === "date" ? f.until : "", days: f.ends === "days" ? Number(f.days) : undefined,
+    lead: Number(f.lead), for: f.for, paused: f.paused,
+  };
+  const clean = cleanSchedule(raw, state.today);
+  if (!clean) { $("seError").textContent = "Say what it is first."; $("seWhat")?.focus(); return; }
+  if (f.repeat === "weekly" && !f.weekdays.length) { $("seError").textContent = "Choose at least one day."; return; }
+  try {
+    if (f.id === "new") await state.diary.addSchedules([clean]); else await state.diary.updateSchedule(f.id, clean);
+    state.schedForm = null;
+    toast(f.id === "new" ? "Added to her schedule" : "Saved");
+    renderSchedule();
+  } catch (e) {
+    onWriteError(e);
+  }
+}
+
+// ── Sharing (the routine, or a document) ─────────────────────────────
+
+function openShare(kind, target) {
+  state.shareBox = { kind, target, days: kind === "routine" ? 0 : 7, url: "", expires: null, busy: false, error: "" };
+  renderShare();
+}
+
+function renderShare() {
+  // One share box at a time: empty the other screen's slot so its link never lingers.
+  const other = state.shareBox?.kind === "routine" ? $("docShareSlot") : $("schedShare");
+  if (other) other.innerHTML = "";
+  if (state.shareBox?.kind === "routine") renderSchedule(); else renderDocShare();
+}
+
+async function createShare() {
+  const b = state.shareBox;
+  b.days = Number($("shareDays")?.value || 0);
+  b.busy = true; b.error = "";
+  renderShare();
+  try {
+    const made = await state.diary.shares.create(b.kind, b.target, b.days || null);
+    b.url = made.url; b.expires = made.expires_at;
+  } catch (e) {
+    b.error = e?.code === "invalid_argument" ? "You can read this diary but not share from it." : "Couldn't make the link. Check your connection and try again.";
+  }
+  b.busy = false;
+  renderShare();
+}
+
+async function sendShare() {
+  const b = state.shareBox;
+  const title = b.kind === "routine" ? `${name()}'s routine` : docById(b.target)?.title || "Document";
+  try {
+    if (navigator.share) await navigator.share({ title, text: title, url: b.url });
+    else { await navigator.clipboard.writeText(b.url); toast("Link copied"); }
+  } catch (e) {
+    if (e?.name !== "AbortError") { await navigator.clipboard?.writeText(b.url).then(() => toast("Link copied")).catch(() => {}); }
+  }
+}
+
+async function shareFile() {
+  const d = docById(state.shareBox?.target);
+  const blob = d && state.docBlobs[d.id];
+  if (!blob) { toast("The file is still loading. Try again in a moment."); return; }
+  const file = new File([blob], d.fileName || `${d.title}.${/pdf/.test(d.fileType) ? "pdf" : "jpg"}`, { type: d.fileType || blob.type });
+  if (!navigator.canShare?.({ files: [file] })) { toast("This phone can't send the file from here. Share a link instead."); return; }
+  try { await navigator.share({ files: [file], title: d.title, text: `${d.title}: ${d.brief}` }); }
+  catch (e) { if (e?.name !== "AbortError") toast("Couldn't open the share options. Share a link instead."); }
+}
+
+async function renderSharedLinks() {
+  const box = $("sharedLinks");
+  if (!box) return;
+  box.hidden = !state.diary?.shares || !state.canWrite;
+  if (box.hidden) return;
+  $("sharedList").innerHTML = `<p class="hint">Loading…</p>`;
+  try {
+    const list = await state.diary.shares.list();
+    $("sharedList").innerHTML = list.length ? list.map(sh => `<div class="link-row"><span><strong>${esc(sh.label)}</strong><span class="hint">${sh.expires_at ? `Until ${esc(dayLabel(sh.expires_at.slice(0, 10), state.today))}` : "No end date"}</span></span><button type="button" class="btn quiet danger" data-act="share-revoke" data-token="${esc(sh.token)}">Turn off</button></div>`).join("")
+      : `<p class="hint">Nothing is shared right now.</p>`;
+  } catch {
+    $("sharedList").innerHTML = `<p class="hint">Couldn't load the links. Check your connection.</p>`;
   }
 }
 
@@ -1282,21 +1551,6 @@ async function saveEdit() {
 
 // ─── About Divisha ───────────────────────────────────────────────────────
 
-let scheduleDraft = [];
-
-function renderScheduleRows() {
-  const disabled = state.canWrite ? "" : "disabled";
-  $("scheduleRows").innerHTML = scheduleDraft.map((x, i) => `
-    <div class="sched-row">
-      <input class="f-what" id="sc-${i}-what" data-sched="${i}" data-f="what" value="${esc(x.what)}" placeholder="Vitamin D drops" aria-label="What" ${disabled}>
-      <select class="f-repeat" id="sc-${i}-repeat" data-sched="${i}" data-f="repeat" aria-label="How often" ${disabled}>${repeatOptions(x.repeat)}</select>
-      <button type="button" class="icon-btn f-remove" data-act="sched-remove" data-i="${i}" aria-label="Remove" ${disabled}><svg><use href="#i-close"/></svg></button>
-      <label class="f-date">${x.repeat === "once" ? "On" : "From"} <input type="date" id="sc-${i}-date" data-sched="${i}" data-f="date" value="${esc(x.date)}" ${disabled}></label>
-      <label class="f-time">Time <input type="time" id="sc-${i}-time" data-sched="${i}" data-f="time" value="${esc(x.time)}" ${disabled}></label>
-      <label class="f-until" ${x.repeat === "once" ? "hidden" : ""}>Until <input type="date" id="sc-${i}-until" data-sched="${i}" data-f="until" value="${esc(x.until)}" ${disabled}></label>
-    </div>`).join("") || `<p class="hint">Nothing set yet.</p>`;
-}
-
 function openSettings() {
   const p = state.profile;
   $("sName").value = p.name || "";
@@ -1305,9 +1559,8 @@ function openSettings() {
   $("sAllergies").value = p.allergies || "";
   $("sDoctor").value = p.doctorName || "";
   $("sPhone").value = p.doctorPhone || "";
-  scheduleDraft = state.schedules.map(x => ({ ...x }));
-  renderScheduleRows();
-  for (const el of $("settingsForm").querySelectorAll("#sName, #sDob, #sAllergies, #sDoctor, #sPhone, #addScheduleBtn, #settingsSave")) el.disabled = !state.canWrite;
+  for (const el of $("settingsForm").querySelectorAll("#sName, #sDob, #sAllergies, #sDoctor, #sPhone, #settingsSave")) el.disabled = !state.canWrite;
+  renderSharedLinks();
   $("keepCopy").hidden = !state.downloads || !state.diary;
   $("copyStatus").textContent = "";
   $("signOut").hidden = !window.divishaHost?.signOutUrl;      // only on the self-hosted copy
@@ -1324,19 +1577,6 @@ async function saveSettings() {
   };
   try {
     await state.diary.saveProfile(profile);
-    // Her schedule: add new rows, save changed ones, remove deleted ones.
-    const kept = new Set();
-    for (const row of scheduleDraft) {
-      const clean = cleanSchedule(row, state.today);
-      if (!clean) continue;
-      if (!row.id) { await state.diary.addSchedules([clean]); continue; }
-      kept.add(row.id);
-      const was = state.schedules.find(x => x.id === row.id);
-      if (was && ["what", "repeat", "date", "time", "until", "details"].some(k => (was[k] || "") !== (clean[k] || ""))) {
-        await state.diary.updateSchedule(row.id, clean);
-      }
-    }
-    for (const x of state.schedules) if (!kept.has(x.id)) await state.diary.deleteSchedule(x.id);
     $("settings").close();
     toast("Saved");
   } catch (e) {
@@ -1401,6 +1641,7 @@ function render() {
   renderDayBar();
   renderMessages();
   renderComposer();
+  renderSchedule();
   renderDocs();
   renderLook();
 }
@@ -1422,13 +1663,20 @@ function wire() {
   window.addEventListener("offline", () => { state.online = false; renderOnline(); });
   $("settingsClose").addEventListener("click", () => $("settings").close());
   $("settingsCancel").addEventListener("click", () => $("settings").close());
-  $("signOut").addEventListener("click", () => { location.href = window.divishaHost.signOutUrl; });
-  $("settingsForm").addEventListener("submit", (e) => { e.preventDefault(); saveSettings(); });
-  $("addScheduleBtn").addEventListener("click", () => {
-    scheduleDraft.push({ what: "", repeat: "daily", date: state.today, time: "", until: "", details: "" });
-    renderScheduleRows();
-    $(`sc-${scheduleDraft.length - 1}-what`).focus();
+  $("signOut").addEventListener("click", async () => {
+    // This phone stops getting her reminders once signed out (waits at most 3 seconds).
+    const off = window.divishaHost.reminders?.disable?.();
+    if (off) await Promise.race([off.catch(() => {}), new Promise(r => setTimeout(r, 3000))]);
+    location.href = window.divishaHost.signOutUrl;
   });
+  $("settingsForm").addEventListener("submit", (e) => { e.preventDefault(); saveSettings(); });
+  $("addSchedBtn").addEventListener("click", () => {
+    state.schedForm = schedFormFrom(null);
+    renderSchedule();
+    $("seWhat")?.focus();
+  });
+  $("shareRoutineBtn").addEventListener("click", () => openShare("routine", "all"));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { state.today = dayKey(); renderSchedule(); refreshReminders(); } });
 
   $("addDocBtn").addEventListener("click", () => {
     state.docForm = { id: "new", title: "", brief: "", date: state.today, file: null, busy: false, status: "" };
@@ -1473,8 +1721,10 @@ function wire() {
       if (row) row[t.dataset.f] = t.value;
     } else if (t.dataset.edit && state.edit) {
       state.edit[t.dataset.edit] = t.value;
-    } else if (t.dataset.sched) {
-      scheduleDraft[Number(t.dataset.sched)][t.dataset.f] = t.value;
+    } else if (t.dataset.se && state.schedForm) {
+      state.schedForm[t.dataset.se] = t.type === "checkbox" ? t.checked : t.value;
+    } else if (t.dataset.seTime !== undefined && state.schedForm) {
+      state.schedForm.times[Number(t.dataset.seTime)] = t.value;
     } else if (t.dataset.doc && state.docForm) {
       state.docForm[t.dataset.doc] = t.value;
       $("docSave").disabled = !docFormReady(state.docForm) || state.docForm.busy;
@@ -1489,8 +1739,10 @@ function wire() {
       if (row) { row.type = t.value; row.what = t.value === "health" ? "well" : (HEALTH[row.what] ? "" : row.what); renderMessages(); }
     } else if (t.dataset.draft && t.dataset.f === "repeat") {
       renderMessages();                                   // "Until" shows only for repeats
-    } else if (t.dataset.sched && t.dataset.f === "repeat") {
-      renderScheduleRows();
+    } else if (state.schedForm && ["repeat", "ends"].includes(t.dataset.se)) {
+      const f = state.schedForm;
+      if (f.repeat === "weekly" && !f.weekdays.length) { const [y, m, d] = f.date.split("-").map(Number); f.weekdays = [new Date(y, m - 1, d).getDay()]; }
+      renderSchedule();                                   // these change which fields show
     } else if (t.id === "docFile" && state.docForm) {
       const file = t.files?.[0] || null;
       state.docForm.file = file;
@@ -1551,9 +1803,40 @@ function wire() {
       state.diary.deleteEntry(b.dataset.id).then(() => { toast("Removed from the diary"); afterDiaryChange(); }).catch(onWriteError);
       state.confirmDelete = null;
     }
-    else if (act === "sched-remove") { scheduleDraft.splice(Number(b.dataset.i), 1); renderScheduleRows(); }
+    else if (act === "occ-done" || act === "occ-skip" || act === "occ-undo") {
+      const status = act === "occ-done" ? "done" : act === "occ-skip" ? "skipped" : null;
+      state.diary.markOccurrence(b.dataset.id, b.dataset.key, status).then(() => { if (status === "done") toast("Marked done"); }).catch(onWriteError);
+    }
+    else if (act === "se-edit") { state.schedForm = schedFormFrom(schedById(b.dataset.id)); state.schedConfirmDelete = null; renderSchedule(); $("schedForm").scrollIntoView({ block: "nearest" }); $("seWhat")?.focus(); }
+    else if (act === "se-cancel") { state.schedForm = null; renderSchedule(); }
+    else if (act === "se-save") saveSchedForm();
+    else if (act === "se-day") {
+      const d = Number(b.dataset.d), w = state.schedForm.weekdays;
+      state.schedForm.weekdays = w.includes(d) ? w.filter(x => x !== d) : [...w, d].sort();
+      renderSchedule();
+    }
+    else if (act === "se-time-add") { state.schedForm.times.push(state.schedForm.times.at(-1) ? "21:00" : "09:00"); renderSchedule(); $(`seTime${state.schedForm.times.length - 1}`)?.focus(); }
+    else if (act === "se-time-remove") { state.schedForm.times.splice(Number(b.dataset.i), 1); renderSchedule(); }
+    else if (act === "se-pause") { const x = schedById(b.dataset.id); if (x) state.diary.setPaused(x.id, !x.paused).then(() => toast(x.paused ? "Resumed" : "Paused")).catch(onWriteError); }
+    else if (act === "se-del") { state.schedConfirmDelete = b.dataset.id; renderSchedule(); }
+    else if (act === "se-del-no") { state.schedConfirmDelete = null; renderSchedule(); }
+    else if (act === "se-del-yes") { state.diary.deleteSchedule(b.dataset.id).then(() => toast("Removed from her schedule")).catch(onWriteError); state.schedConfirmDelete = null; }
+    else if (act === "rem-on") {
+      b.disabled = true;
+      state.diary.reminders.enable().then((r) => { state.reminders = r; renderSchedule(); toast(r === "on" ? "Reminders are on for this phone" : r === "blocked" ? "Notifications are blocked for this site" : "Reminders weren't turned on"); })
+        .catch(() => { toast("Couldn't turn reminders on. Try again."); b.disabled = false; });
+    }
+    else if (act === "rem-off") state.diary.reminders.disable().then((r) => { state.reminders = r; renderSchedule(); toast("Reminders are off for this phone"); });
+    else if (act === "rem-test") state.diary.reminders.test().then((r) => toast(r.sent ? "Test sent. It should arrive in a few seconds." : "No phone is set up for reminders yet.")).catch(() => toast("Couldn't send a test."));
+    else if (act === "share-create") createShare();
+    else if (act === "share-send") sendShare();
+    else if (act === "share-copy") { navigator.clipboard?.writeText(state.shareBox.url).then(() => toast("Link copied")).catch(() => { $("shareUrl")?.select(); }); }
+    else if (act === "share-file") shareFile();
+    else if (act === "share-close") { const k = state.shareBox?.kind; state.shareBox = null; if (k === "routine") renderSchedule(); else renderDocShare(); }
+    else if (act === "share-revoke") { state.diary.shares.revoke(b.dataset.token).then(() => { toast("Link turned off"); renderSharedLinks(); }).catch(() => toast("Couldn't turn it off. Try again.")); }
+    else if (act === "doc-share") openShare("document", b.dataset.id);
     else if (act === "doc-open") { state.docOpen = b.dataset.id; state.docForm = null; state.docConfirmDelete = false; renderDocs(); $("docsView").scrollTop = 0; }
-    else if (act === "doc-back") { state.docOpen = null; state.docConfirmDelete = false; pdfRun += 1; renderDocs(); }
+    else if (act === "doc-back") { state.docOpen = null; state.docConfirmDelete = false; if (state.shareBox?.kind === "document") state.shareBox = null; pdfRun += 1; renderDocs(); }
     else if (act === "doc-cancel") { state.docForm = null; renderDocs(); }
     else if (act === "doc-save") saveDoc();
     else if (act === "doc-edit") {
@@ -1607,7 +1890,9 @@ async function start() {
     renderLook();
   }, () => toast("Couldn't load the diary. Reload the page."));
   diary.watchChatList((list) => { state.chatList = list; renderChatList(); }, () => {});
-  diary.watchSchedules((list) => { state.schedules = list; renderComposer(); renderMessages(); }, () => {});
+  diary.watchSchedules((list) => { state.schedules = list; resolveNames(list.flatMap(x => Object.values(x.done || {}).map(m => m?.by))); renderComposer(); renderMessages(); renderSchedule(); }, () => {});
+  if (diary.people) diary.people().then((p) => { state.people = p; renderSchedule(); }).catch(() => {});
+  refreshReminders();
   diary.watchDocuments((list) => {
     state.documents = list;
     if (state.docOpen && !docById(state.docOpen)) state.docOpen = null;

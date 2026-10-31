@@ -113,6 +113,18 @@ class Store:
                 CREATE TABLE IF NOT EXISTS files (
                   id TEXT PRIMARY KEY, type TEXT NOT NULL, size INTEGER NOT NULL,
                   uploaded_by TEXT, created_at TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS push_subs (
+                  endpoint TEXT PRIMARY KEY, user_id TEXT NOT NULL, keys TEXT NOT NULL,
+                  tz TEXT NOT NULL, created_at TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS reminders_sent (
+                  schedule_id TEXT NOT NULL, occ_key TEXT NOT NULL, endpoint TEXT NOT NULL, sent_at TEXT NOT NULL,
+                  PRIMARY KEY (schedule_id, occ_key, endpoint));
+                CREATE TABLE IF NOT EXISTS snoozes (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT, endpoint TEXT NOT NULL, schedule_id TEXT NOT NULL,
+                  occ_key TEXT NOT NULL, due_at TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0);
+                CREATE TABLE IF NOT EXISTS shares (
+                  token TEXT PRIMARY KEY, kind TEXT NOT NULL, target TEXT NOT NULL, created_by TEXT,
+                  created_at TEXT NOT NULL, expires_at TEXT, revoked_at TEXT);
             """)
 
     # ── Documents ──────────────────────────────────────────────────────
@@ -270,3 +282,73 @@ class Store:
             Path(meta["path"]).unlink(missing_ok=True)
             with self.lock:
                 self.db.execute("DELETE FROM files WHERE id = ?", (file_id,))
+
+    # ── Phones that get reminders ──────────────────────────────────────
+
+    def add_push_sub(self, endpoint: str, user_id: str, keys: dict, tz: str) -> None:
+        with self.lock:
+            self.db.execute("INSERT OR REPLACE INTO push_subs VALUES (?, ?, ?, ?, ?)", (endpoint, user_id, json.dumps(keys), tz, now()))
+
+    def remove_push_sub(self, endpoint: str) -> None:
+        with self.lock:
+            self.db.execute("DELETE FROM push_subs WHERE endpoint = ?", (endpoint,))
+            self.db.execute("DELETE FROM snoozes WHERE endpoint = ?", (endpoint,))
+
+    def push_subs(self, user_id: str | None = None) -> list[dict]:
+        with self.lock:
+            rows = self.db.execute("SELECT * FROM push_subs" + (" WHERE user_id = ?" if user_id else ""), (user_id,) if user_id else ()).fetchall()
+        return [{"endpoint": r["endpoint"], "user_id": r["user_id"], "keys": json.loads(r["keys"]), "tz": r["tz"]} for r in rows]
+
+    def was_sent(self, schedule_id: str, occ_key: str, endpoint: str) -> bool:
+        with self.lock:
+            return self.db.execute("SELECT 1 FROM reminders_sent WHERE schedule_id = ? AND occ_key = ? AND endpoint = ?",
+                                   (schedule_id, occ_key, endpoint)).fetchone() is not None
+
+    def mark_sent(self, schedule_id: str, occ_key: str, endpoint: str) -> None:
+        with self.lock:
+            self.db.execute("INSERT OR IGNORE INTO reminders_sent VALUES (?, ?, ?, ?)", (schedule_id, occ_key, endpoint, now()))
+
+    def prune_sent(self, before_iso: str) -> None:
+        with self.lock:
+            self.db.execute("DELETE FROM reminders_sent WHERE sent_at < ?", (before_iso,))
+            self.db.execute("DELETE FROM snoozes WHERE sent = 1 AND due_at < ?", (before_iso,))
+
+    def add_snooze(self, endpoint: str, schedule_id: str, occ_key: str, due_at_iso: str) -> None:
+        with self.lock:
+            self.db.execute("INSERT INTO snoozes (endpoint, schedule_id, occ_key, due_at) VALUES (?, ?, ?, ?)", (endpoint, schedule_id, occ_key, due_at_iso))
+
+    def due_snoozes(self, now_iso: str) -> list[dict]:
+        with self.lock:
+            return [dict(r) for r in self.db.execute("SELECT * FROM snoozes WHERE sent = 0 AND due_at <= ?", (now_iso,))]
+
+    def mark_snooze_sent(self, snooze_id: int) -> None:
+        with self.lock:
+            self.db.execute("UPDATE snoozes SET sent = 1 WHERE id = ?", (snooze_id,))
+
+    # ── Share links ────────────────────────────────────────────────────
+
+    def create_share(self, kind: str, target: str, user_id: str, days: int | None) -> dict:
+        token = secrets.token_urlsafe(24)
+        expires = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat() if days else None
+        with self.lock:
+            self.db.execute("INSERT INTO shares VALUES (?, ?, ?, ?, ?, ?, NULL)", (token, kind, target, user_id, now(), expires))
+        return {"token": token, "kind": kind, "target": target, "expires_at": expires}
+
+    def share(self, token: str) -> dict | None:
+        """A link that still works: not revoked and not expired."""
+        if not re.fullmatch(r"[A-Za-z0-9_\-]{20,64}", token or ""):
+            return None
+        with self.lock:
+            row = self.db.execute("SELECT * FROM shares WHERE token = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)",
+                                  (token, now())).fetchone()
+        return dict(row) if row else None
+
+    def shares(self) -> list[dict]:
+        with self.lock:
+            rows = self.db.execute("SELECT * FROM shares WHERE revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?) ORDER BY created_at DESC",
+                                   (now(),)).fetchall()
+        return [dict(r) for r in rows]
+
+    def revoke_share(self, token: str) -> None:
+        with self.lock:
+            self.db.execute("UPDATE shares SET revoked_at = ? WHERE token = ?", (now(), token))

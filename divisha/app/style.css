@@ -659,6 +659,80 @@ details.saw pre { white-space: pre-wrap; overflow-wrap: anywhere; background: va
 .note-card .group-title { padding: var(--s2) var(--s4) 0; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
 .tag.schedule { background: var(--care-soft); color: var(--care); }
 
+/* ── Schedule ─────────────────────────────────────────────────────── */
+
+.sched { overflow-y: auto; }
+.head-actions { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.sched-sec { display: grid; gap: var(--s2); }
+.sched-sec > h3, .next-day h4 { font-size: var(--t-sm); font-family: var(--body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin: 0; }
+.next-day { display: grid; gap: var(--s2); }
+.next-day + .next-day { margin-top: var(--s3); }
+.next-day h4 { text-transform: none; letter-spacing: 0; font-size: var(--t-sm); color: var(--ink); }
+
+.reminder-bar { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap;
+  padding: var(--s3) var(--s4); border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); font-size: var(--t-sm); }
+.reminder-bar:empty, #reminderBar:empty, #schedShare:empty, #schedForm:empty { display: none; }
+.reminder-bar.on { background: var(--well-soft); border-color: color-mix(in srgb, var(--well) 35%, transparent); }
+.reminder-bar.warn { background: var(--off-soft); border-color: color-mix(in srgb, var(--off) 35%, transparent); }
+.bar-acts { display: flex; gap: var(--s3); align-items: center; }
+
+.occ-list { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.occ { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto; gap: var(--s3); align-items: center; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); }
+.occ:last-child { border-bottom: 0; }
+.occ-time { font-weight: 600; font-variant-numeric: tabular-nums; font-size: var(--t-sm); }
+.occ-what { display: grid; min-width: 0; }
+.occ-what strong { overflow-wrap: anywhere; }
+.occ-details { color: var(--muted); font-size: var(--t-xs); }
+.occ-side { display: flex; align-items: center; gap: var(--s3); justify-content: flex-end; flex-wrap: wrap; }
+.occ-status { font-size: var(--t-xs); font-weight: 600; padding: 2px 10px; border-radius: var(--r-pill); }
+.occ-status.done { background: var(--well-soft); color: var(--well); }
+.occ-status.skipped { background: var(--sunk); color: var(--muted); }
+.occ-status.late { background: var(--off-soft); color: var(--off); }
+.occ.is-done .occ-what strong, .occ.is-skipped .occ-what strong { color: var(--muted); }
+.occ.is-skipped .occ-what strong { text-decoration: line-through; }
+.occ-done { min-height: 34px; padding: 4px 14px; }
+
+.sched-list { display: grid; gap: var(--s2); }
+.sched-card { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); flex-wrap: wrap;
+  padding: var(--s3) var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); }
+.sched-card.is-quiet { opacity: 0.7; }
+.sched-main { display: grid; gap: 2px; min-width: 0; flex: 1 1 260px; }
+.sched-main strong { overflow-wrap: anywhere; }
+.sched-line { font-size: var(--t-sm); }
+.sched-details { font-size: var(--t-sm); color: var(--muted); }
+.sched-facts { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: var(--t-xs); color: var(--muted); }
+.sched-acts { display: flex; gap: var(--s3); align-items: center; }
+
+.sched-form .fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sched-form .inline { display: flex; align-items: center; gap: var(--s2); color: var(--ink); }
+.sched-form .inline input { width: 5rem; }
+.sched-form label.check { display: flex; align-items: center; gap: var(--s2); color: var(--ink); align-self: end; padding-bottom: 8px; }
+.sched-form label.check input { width: auto; }
+.weekday-pick, .times-pick { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.pick-label { font-size: var(--t-sm); color: var(--muted); font-weight: 500; flex-basis: 100%; }
+.time-pill { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 6px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--paper); }
+.time-pill input { border: 0; background: transparent; padding: 4px; width: auto; }
+.time-pill .icon-btn { width: 30px; height: 30px; }
+.sched-form .error:empty, .share-box .error:empty { display: none; }
+.sched-form .error, .share-box .error { color: var(--sick); font-size: var(--t-sm); margin: 0; }
+
+/* Sharing */
+.share-box { display: grid; gap: var(--s3); padding: var(--s4); background: var(--surface); border: 1px solid var(--accent); border-radius: var(--r-md); }
+.share-head { display: flex; justify-content: space-between; align-items: center; }
+.share-head h3 { font-size: var(--t-lg); margin: 0; }
+.share-box .hint { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+.share-box .hint.or { margin-top: var(--s1); }
+.share-make, .share-file { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: end; }
+.share-make label { min-width: 12rem; }
+.share-url { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.share-url input { flex: 1 1 220px; font-size: var(--t-sm); }
+.link-row { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
+.link-row:last-child { border-bottom: 0; }
+.link-row > span { display: grid; min-width: 0; }
+.link-row .hint { font-size: var(--t-xs); }
+.sheet-note { margin: 0; }
+#docShareSlot:empty { display: none; }
+
 /* ── Attachments in the chat ─────────────────────────────────────── */
 
 .attach-btn {
@@ -806,6 +880,9 @@ button.att:hover { border-color: var(--accent); }
   .doc-form .two { grid-template-columns: 1fr; }
   .doc-row { grid-template-columns: 40px minmax(0, 1fr); }
   .doc-row .doc-date { display: none; }
+  .sched-form .fields { grid-template-columns: 1fr 1fr; }
+  .occ { grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .occ-side { grid-column: 1 / -1; justify-content: flex-start; }
   .note-card .doc-offer { grid-template-columns: 40px minmax(0, 1fr) 36px; grid-template-areas: "icon title remove" "date date date" "brief brief brief"; margin: var(--s2) var(--s3); }
   .note-row .f-details { grid-column: 2 / 3; }
   .note-row .f-date { grid-column: 1 / 2; grid-row: 2; }

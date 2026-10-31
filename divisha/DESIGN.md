@@ -16,9 +16,9 @@ Two parents. Three moments.
 
 Everything below exists to serve one of these three moments. If a feature serves none of them, it is not in the app.
 
-## 2. The app has three sections
+## 2. The app has four sections
 
-The left pane lists them, top to bottom: **Talk** (where the app opens), **Documents** and **Time-based analysis**. Past chats sit below them. Like ChatGPT's sidebar, the pane stays open beside the page on anything 600 px or wider; the top-left button collapses it, and each device remembers. On a phone it's a menu that slides in from that button.
+The left pane lists them, top to bottom: **Talk** (where the app opens), **Schedule**, **Documents** and **Time-based analysis**. Past chats sit below them. Like ChatGPT's sidebar, the pane stays open beside the page on anything 600 px or wider; the top-left button collapses it, and each device remembers. On a phone it's a menu that slides in from that button.
 
 *Time-based analysis was called "Look back" until 31 October. The sketches below still use the old name.*
 
@@ -49,7 +49,7 @@ The left pane lists them, top to bottom: **Talk** (where the app opens), **Docum
 - **You type the way you text each other.** Hindi words like kadha, crocin and bhaap are fine.
 - **Claude answers and offers to note things down.** Nothing is saved until you tap **Save all**. You can fix anything first.
 - **Ideas for today** sit above the typing box, most relevant first, at most four. Her schedule comes first: anything due within two hours, then anything due today without a time, then one-off items in the next three days, then later today. Other rules follow, for example "she had a cough yesterday, try steam tonight?" or "you haven't said how she was today". An item drops off once that day's entries mention it.
-- **Schedules can be made in the chat.** Say "remind me to give vitamin D every day at 9" and the card offers it under "Add to her schedule?". Nothing is added until you tap Save. About Divisha lists her whole schedule to edit or remove.
+- **Schedules can be made in the chat.** Say "cough syrup 5 ml at 9 and 9 for five days" and the card offers it under "Add to her schedule?", with its times, repeat and end. Nothing is added until you tap Save. The Schedule section lists everything to edit, pause or remove.
 - **Files can be attached.** The paperclip in the typing box (or pasting, or dropping a file on it) attaches up to 3 photos or PDFs, with or without a message. Each file is kept with the message and opens from the chat. Claude sees the photos, and the first pages of each PDF as pictures, for that message only. Its card can offer to keep each file in Documents with a suggested title and brief, plus any diary entries or schedule items it read from the paper. You check all of it before saving. People who can't upload files can still show Claude a photo; it just isn't kept.
 - **There is no welcome card.** The day opens straight to ideas and the typing box. If her birth date is missing, an idea asks for it.
 - **Past chats** are on the left, one per day. On a phone they slide in from the side.
@@ -99,11 +99,41 @@ The left pane lists them, top to bottom: **Talk** (where the app opens), **Docum
 | Grey days and Claude | Claude is told they are unknown, never that she was well. |
 | Claude's points | Each must name the entries behind it. The app drops any point whose entries don't exist. |
 
+### Schedule
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Schedule                     [Share routine] [+ Add]  │
+│  Reminders are on for this phone.  [Send a test]       │
+│                                                        │
+│  Today                                                 │
+│   9:00 am  Cough syrup 5 ml · after food   ✓ Done      │
+│   9:00 pm  Cough syrup 5 ml           [Done] [Skip]    │
+│                                                        │
+│  Coming up in the next 7 days                          │
+│   Mon 2 Nov, 5 pm   Dr Mehta follow-up                 │
+│                                                        │
+│  Everything                                            │
+│   Cough syrup 5 ml · Every day at 9 am and 9 pm,       │
+│   until 4 Nov · done 3 of 4       [Edit] [Pause]       │
+└────────────────────────────────────────────────────────┘
+```
+
+- **Every kind of repeat.** Once, every day, every N days, chosen weekdays, or monthly. Several times a day. A start date and an end (a date, or "for N days"). A category (medicine, food, sleep, doctor, activity, care), notes, and who it's for.
+- **Today** lists each time due today with **Done** and **Skip** (and Undo). Late ones are marked. Each item shows "done X of Y" so far.
+- **Pause** keeps an item but stops it showing and reminding until you resume it.
+- **Reminders** (hosted app only). Each phone turns them on once. The server sends a notification before each time: 30 minutes ahead unless the item says otherwise (5 minutes to a day). It plays the phone's normal notification sound, stays until dismissed, and has **Done** and **Snooze 10 min** buttons. An item set "for" one parent reminds only that parent's phones. A time already marked Done isn't reminded. Items without a time are reminded at 9 am.
+- **Share routine** makes a link to a simple page of her routine: every day, certain days, and coming up. It stays up to date as the schedule changes and has a **Save as PDF** button (the browser's print to PDF). Links can last 7, 30 or 90 days or until turned off.
+
+**The same rules in two places.** The app (`helper.js`) works out what's due for the screen; the server (`server/schedule.py`) works it out for reminders. `tests/schedule-cases.json` is checked against both, so they can't drift apart.
+
 ### Documents
 
 A record of papers about her: prescriptions, test reports, vaccination cards. Each one is a photo or PDF, up to 20 MB, with a **title** and a **brief**, and the app won't save one without all three. They're listed by month. Tapping one opens it, with Download, Edit title and brief, and Remove. PDFs are drawn page by page on the page itself (the first 40 pages), because claude.ai's frame won't run the browser's own PDF viewer. Claude sees the titles and briefs of the latest ten, not the files.
 
 Only people who can edit the page can add documents. That's claude.ai's rule for file storage. Contributors can open and download them.
+
+**Sharing a document** (hosted app only). **Share** offers two ways: **Send the file**, which hands the file itself to the phone's share options (WhatsApp, email), or a link that opens a page with its title, brief and the file, for 7, 30 or 90 days or until turned off. About Divisha lists every shared link with **Turn off**. A link shows only that one thing, never the rest of the diary, and search engines are told not to index it.
 
 ## 3. What the app saves
 
@@ -112,7 +142,7 @@ Six things. That is all.
 | What | One example | Why we keep it |
 |---|---|---|
 | **About Divisha** | Birth date, allergies, doctor's name and number | So Claude's answers and the warnings fit her age. You fill it in once. |
-| **Her schedule** | "Vitamin D drops, every day at 9 am", "Dr Mehta follow-up, 2 Nov at 5 pm" | So ideas for today can remind you. Made in the chat or in About Divisha. |
+| **Her schedule** | "Vitamin D drops, every day at 9 am", "Dr Mehta follow-up, 2 Nov at 5 pm", and which times were done or skipped | So you're reminded, and can see what was given. Made in the chat or in Schedule. |
 | **Documents** | "Blood test report, 28 Oct: haemoglobin a little low, recheck in 3 months", with the photo | A findable record of her papers. |
 | **Chats** | Everything you and Claude said, grouped by day | So you can scroll back and see what you were thinking at the time. |
 | **Entries** | "21 Oct · Care · Paracetamol 5 ml · given at 9 pm · added by Rohit" | The diary. The summaries are built only from these. |
@@ -149,7 +179,9 @@ Claude does not remember anything by itself. Each time, the app hands it a short
 
 It is a claude.ai page, the same kind as the current Divisha Health Log. Both of you sign in with your claude.ai accounts and see the same diary. Saving uses the page's built-in storage. There is no server to run, nothing to install, and nothing to pay for beyond your Claude plans.
 
-**The honest limits:** it cannot send you a reminder at 8 pm, and it only works when you are online. The "ideas for today" appear when you open it instead.
+**The honest limits on claude.ai:** it cannot send notifications or make share links, and it only works when you are online. The "ideas for today" and the Schedule's Today list show what's due when you open it.
+
+**The hosted copy** at divisha-singh.com (see DEPLOY.md) runs the same five files on a small server of your own. That server adds what claude.ai can't: reminders on your phones, and share links.
 
 ## 7. How it is built
 

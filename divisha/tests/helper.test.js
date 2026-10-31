@@ -301,15 +301,28 @@ test("the backup holds everything and says what it is", () => {
 import { cleanSchedule, isDueOn, nextDue, doneOn, scheduleLine, timeText, contextPacket } from "../app/helper.js";
 
 test("schedules are cleaned, and a one-off can be in the future", () => {
-  assert.deepEqual(cleanSchedule({ what: " Flu shot ", repeat: "once", date: "2026-11-15", time: "9:30" }, TODAY),
-    { what: "Flu shot", repeat: "once", date: "2026-11-15", time: "09:30", until: "", details: "" });
+  assert.deepEqual(cleanSchedule({ what: " Flu shot ", repeat: "once", date: "2026-11-15", time: "9:30" }, TODAY), {
+    what: "Flu shot", details: "", category: "vaccine", repeat: "once", date: "2026-11-15", until: "", every: 1, weekdays: [], times: ["09:30"], lead: 30, for: "", paused: false,
+  });
   assert.equal(cleanSchedule({ what: "Drops", repeat: "hourly" }, TODAY).repeat, "once", "unknown repeats become once");
   assert.equal(cleanSchedule({ what: "Drops", repeat: "daily", date: TODAY, until: "2026-10-01" }, TODAY).until, "", "an end before the start is dropped");
-  assert.equal(cleanSchedule({ what: "Drops", time: "25:00" }, TODAY).time, "");
+  assert.deepEqual(cleanSchedule({ what: "Drops", time: "25:00" }, TODAY).times, []);
   assert.equal(cleanSchedule({ what: "" }, TODAY), null);
   assert.equal(timeText("09:00"), "9 am");
   assert.equal(timeText("20:30"), "8:30 pm");
   assert.equal(timeText("00:15"), "12:15 am");
+});
+
+test("schedules take several times, a length in days, weekdays, and a reminder lead", () => {
+  const syrup = cleanSchedule({ what: "Cough syrup 5 ml", repeat: "daily", date: TODAY, times: ["21:00", "9:00", "21:00"], days: 5, lead: 15 }, TODAY);
+  assert.deepEqual([syrup.times, syrup.until, syrup.lead, syrup.category], [["09:00", "21:00"], "2026-11-01", 15, "medicine"]);
+  assert.deepEqual(cleanSchedule({ what: "Drops", times: "9:00, 21:00" }, TODAY).times, ["09:00", "21:00"], "times can be a list in text");
+  assert.equal(cleanSchedule({ what: "Drops", lead: 7 }, TODAY).lead, 30, "only the offered leads are kept");
+  const massage = cleanSchedule({ what: "Oil massage", repeat: "weekly", weekdays: [0, 0, 6, 9], date: TODAY }, TODAY);
+  assert.deepEqual([massage.weekdays, massage.category], [[0, 6], "care"]);
+  assert.deepEqual(cleanSchedule({ what: "Walk", repeat: "weekly", date: TODAY }, TODAY).weekdays, [3], "no days chosen: the start day (a Wednesday)");
+  assert.equal(cleanSchedule({ what: "Iron syrup", repeat: "daily", every: 2 }, TODAY).every, 2);
+  assert.equal(cleanSchedule({ what: "Dr Mehta follow-up" }, TODAY).category, "doctor");
 });
 
 test("each repeat is due on the right days", () => {
@@ -367,7 +380,7 @@ test("Claude's reply can offer schedules, which are cleaned", () => {
   const { reply, entries, schedules } = parseReply(text, TODAY);
   assert.equal(reply, "I'll add that.");
   assert.deepEqual(entries, []);
-  assert.deepEqual(schedules, [{ what: "Vitamin D", repeat: "daily", date: "2026-10-28", time: "09:00", until: "", details: "" }]);
+  assert.deepEqual([schedules.length, schedules[0].what, schedules[0].times, schedules[0].category], [1, "Vitamin D", ["09:00"], "medicine"]);
 });
 
 test("Claude is told her schedule and the documents you've kept", () => {
@@ -407,4 +420,51 @@ test("attachments are described to Claude, and earlier ones are named, not re-se
   assert.match(turns[0].content, /Clinic today\n\[Attached earlier: 1\. old\.png \(photo\)\]/);
   assert.match(turns.at(-1).content, /^\[Attached: 1\. rx\.jpg/);
   assert.match(turns[0].content, /Attached files: the parent may attach photos or PDFs/);
+});
+
+// ─── The shared schedule cases (the reminder server runs the same ones) ──
+import { readFileSync } from "node:fs";
+import { occurrencesOn, agenda, adherence, repeatText } from "../app/helper.js";
+const CASES = JSON.parse(readFileSync(new URL("./schedule-cases.json", import.meta.url), "utf8"));
+
+for (const c of CASES.due) {
+  test(`due: ${c.name}`, () => {
+    for (const [day, keys] of Object.entries(c.days)) {
+      assert.deepEqual(occurrencesOn({ what: "x", ...c.s }, day).map(o => o.key), keys, day);
+    }
+  });
+}
+
+test("the agenda lists every occurrence in order, with Done and Skip", () => {
+  const drops = { id: "a", what: "Drops", repeat: "daily", date: "2026-10-28", times: ["21:00", "09:00"], done: { "2026-10-28 09:00": { status: "done" } } };
+  const visit = { id: "b", what: "Dr Mehta", repeat: "once", date: "2026-10-29", times: ["17:00"] };
+  const walk = { id: "c", what: "Walk", repeat: "daily", date: "2026-10-28" };
+  const list = agenda([drops, visit, walk], TODAY, 2);
+  assert.deepEqual(list.map(o => `${o.key} ${o.s.what} ${o.status || ""}`.trim()), [
+    "2026-10-28 Walk", "2026-10-28 09:00 Drops done", "2026-10-28 21:00 Drops",
+    "2026-10-29 Walk", "2026-10-29 09:00 Drops", "2026-10-29 17:00 Dr Mehta", "2026-10-29 21:00 Drops",
+  ]);
+});
+
+test("adherence counts the last two weeks before today", () => {
+  const done = {};
+  for (let i = 1; i <= 10; i += 1) done[`${addDays(TODAY, -i)} 09:00`] = { status: "done" };
+  done[`${addDays(TODAY, -11)} 09:00`] = { status: "skipped" };
+  done[`${TODAY} 09:00`] = { status: "done" };
+  assert.deepEqual(adherence({ repeat: "daily", date: "2026-10-01", times: ["09:00"], done }, TODAY), { done: 10, skipped: 1, total: 14 });
+});
+
+test("repeats read plainly", () => {
+  assert.equal(repeatText({ repeat: "daily", every: 2, date: TODAY }), "every 2 days");
+  assert.equal(repeatText({ repeat: "weekly", weekdays: [1, 2, 3, 4, 5], date: TODAY }), "on weekdays");
+  assert.equal(repeatText({ repeat: "weekly", weekdays: [0], date: TODAY }), "every Sunday");
+  assert.equal(repeatText({ repeat: "weekly", weekdays: [1, 3], date: TODAY }), "every Mon, Wed");
+  assert.equal(repeatText({ repeat: "monthly", date: "2026-10-02" }), "every month on the 2nd");
+  assert.equal(scheduleLine({ what: "Syrup", repeat: "daily", date: TODAY, times: ["09:00", "21:00"], until: "2026-11-01" }, TODAY), "Syrup: every day at 9 am and 9 pm, until Sun 1 Nov");
+});
+
+test("an occurrence marked done or skipped drops out of ideas", () => {
+  const at = new Date(2026, 9, 28, 8, 30);
+  const s = { what: "Vitamin D", repeat: "daily", date: "2026-10-01", times: ["09:00"], done: { "2026-10-28 09:00": { status: "skipped" } } };
+  assert.ok(!ideasForToday({ profile: toddler, entries: [], schedules: [s], now: at }).some(i => i.label.startsWith("Vitamin D")));
 });

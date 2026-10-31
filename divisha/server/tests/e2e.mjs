@@ -3,6 +3,8 @@
 // Needs PLAYWRIGHT (path to Playwright's index.js) or a local playwright, and
 // optionally CHROMIUM and PDFJS_DIR (see tests/browser/README.md).
 import { readFileSync, mkdirSync } from "node:fs";
+import crypto from "node:crypto";
+import http from "node:http";
 const pw = await import(process.env.PLAYWRIGHT || "playwright"); const { chromium } = pw.default || pw;
 const BASE = process.env.BASE;
 const SHOTS = process.env.SHOTS || "shots";
@@ -147,6 +149,153 @@ await V.click(".sections a[data-view=docs]");
 await V.waitForSelector(".doc-row");
 check(!(await V.isVisible("#addDocBtn")), "the viewer can see documents but not add them");
 
+
+
+// ── Reminders: a real push, decrypted by the "phone" ──
+// A stand-in push service records what the server sends. The test holds the
+// phone's keys and decrypts each message with Node's own crypto (RFC 8291),
+// independently of the server's Python code.
+const received = [];
+const pushService = http.createServer((req, res) => {
+  const chunks = [];
+  req.on("data", c => chunks.push(c));
+  req.on("end", () => { received.push({ headers: req.headers, body: Buffer.concat(chunks) }); res.writeHead(201); res.end(); });
+}).listen(8798, "127.0.0.1");
+const phone = crypto.createECDH("prime256v1");
+phone.generateKeys();
+const phoneAuth = crypto.randomBytes(16);
+const b64u = (b) => Buffer.from(b).toString("base64url");
+const hmac = (key, data) => crypto.createHmac("sha256", key).update(data).digest();
+function decrypt(body) {
+  const salt = body.subarray(0, 16), idlen = body[20], asPublic = body.subarray(21, 21 + idlen), ct = body.subarray(21 + idlen);
+  const shared = phone.computeSecret(asPublic);
+  const ikm = hmac(hmac(phoneAuth, shared), Buffer.concat([Buffer.from("WebPush: info\0"), phone.getPublicKey(), asPublic, Buffer.from([1])])).subarray(0, 32);
+  const prk = hmac(salt, ikm);
+  const cek = hmac(prk, Buffer.concat([Buffer.from("Content-Encoding: aes128gcm\0"), Buffer.from([1])])).subarray(0, 16);
+  const nonce = hmac(prk, Buffer.concat([Buffer.from("Content-Encoding: nonce\0"), Buffer.from([1])])).subarray(0, 12);
+  const d = crypto.createDecipheriv("aes-128-gcm", cek, nonce);
+  d.setAuthTag(ct.subarray(ct.length - 16));
+  const plain = Buffer.concat([d.update(ct.subarray(0, ct.length - 16)), d.final()]);
+  return JSON.parse(plain.subarray(0, plain.lastIndexOf(2)).toString());
+}
+const waitFor = async (cond, ms = 8000) => { const t = Date.now(); while (Date.now() - t < ms) { if (cond()) return true; await new Promise(r => setTimeout(r, 200)); } return false; };
+
+await R.goto(BASE + "/#schedule");
+await R.waitForSelector("#messages[data-state=ready]", { state: "attached" });
+await R.waitForSelector("#reminderBar .reminder-bar");
+check(await R.isVisible("[data-act=rem-on]") && await R.isVisible("#shareRoutineBtn"), "Schedule offers reminders on this phone, and sharing the routine");
+check((await raw(R, "POST", "/api/push/subscribe", JSON.stringify({ subscription: { endpoint: "http://127.0.0.1:8798/phone/rohit", keys: { p256dh: b64u(phone.getPublicKey()), auth: b64u(phoneAuth) } }, tz: "Asia/Kolkata" }))).status === 200,
+  "a phone signs up for reminders");
+const kolkata = (offsetMin) => {
+  const d = new Date(Date.now() + offsetMin * 60000);
+  const f = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(d).map(p => [p.type, p.value]));
+  return { date: `${f.year}-${f.month}-${f.day}`, time: `${f.hour}:${f.minute}` };
+};
+const due = kolkata(30);
+await raw(R, "PUT", "/api/doc?path=schedules/e2e-syrup", JSON.stringify({ data: { what: "Cough syrup 5 ml", details: "after food", category: "medicine", repeat: "daily", date: due.date, times: [due.time], lead: 30, every: 1, weekdays: [], for: "", paused: false, done: {} } }));
+await raw(R, "PUT", "/api/doc?path=schedules/e2e-done", JSON.stringify({ data: { what: "Already given", repeat: "daily", date: due.date, times: [due.time], lead: 30, done: { [`${due.date} ${due.time}`]: { status: "done" } } } }));
+check(await waitFor(() => received.length >= 1), "the server sends the reminder 30 minutes ahead");
+const pushed = received.map(r => decrypt(r.body));
+check(pushed.length === 1 && pushed[0].title === "Cough syrup 5 ml" && /^In (29|30) minutes, at .* · after food$/.test(pushed[0].body), `the phone decrypts it: "${pushed[0]?.title}: ${pushed[0]?.body}"`);
+check(received[0].headers["content-encoding"] === "aes128gcm" && /^vapid t=[\w-]+\.[\w-]+\.[\w-]+, k=[\w-]+$/.test(received[0].headers.authorization || "") && received[0].headers.urgency === "high",
+  "it's encrypted and signed the standard way");
+await new Promise(r => setTimeout(r, 2500));
+check(received.length === 1, "it's sent once, and nothing is sent for an occurrence already marked done");
+const testSend = JSON.parse((await raw(R, "POST", "/api/push/test", "{}")).body);
+check(testSend.sent === 1 && await waitFor(() => received.length === 2) && decrypt(received[1].body).title === "Reminders are on", "Send a test reaches the phone");
+
+// The app's offline helper shows it as a notification with Done and Snooze.
+await rCtx.grantPermissions(["notifications"], { origin: BASE });
+const swCdp = await rCtx.newCDPSession(R);
+const regs = [];
+swCdp.on("ServiceWorker.workerRegistrationUpdated", e => regs.push(...e.registrations));
+await swCdp.send("ServiceWorker.enable");
+await R.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+await waitFor(() => regs.some(r => !r.isDeleted), 5000);
+const reg = regs.find(r => !r.isDeleted);
+if (reg) {
+  await swCdp.send("ServiceWorker.deliverPushMessage", { origin: BASE, registrationId: reg.registrationId, data: JSON.stringify(pushed[0]) });
+  let shown = [];
+  for (let i = 0; i < 25 && !shown.length; i++) {
+    await new Promise(r => setTimeout(r, 200));
+    shown = await R.evaluate(() => navigator.serviceWorker.ready.then(r => r.getNotifications()).then(ns => ns.map(n => ({ title: n.title, body: n.body, tag: n.tag, actions: n.actions.map(a => a.title), sticky: n.requireInteraction }))));
+  }
+  check(shown.length === 1 && shown[0].title === "Cough syrup 5 ml" && shown[0].actions.join() === "Done,Snooze 10 min" && shown[0].sticky, `the phone shows it with Done and Snooze 10 min (${JSON.stringify(shown[0] || {})})`);
+} else {
+  check(false, "the offline helper is registered for notifications");
+}
+check((await raw(R, "POST", "/api/schedule/mark", JSON.stringify({ id: "e2e-syrup", key: `${due.date} ${due.time}`, status: "done" }))).status === 200, "Done on a notification marks that time done");
+await R.waitForSelector("#schedToday .occ.is-done:has-text('Cough syrup 5 ml')");
+check(true, "and the Schedule shows it, without reloading");
+check((await raw(R, "POST", "/api/schedule/snooze", JSON.stringify({ id: "e2e-syrup", key: `${due.date} ${due.time}`, minutes: 10, endpoint: "http://127.0.0.1:8798/phone/rohit" }))).status === 200, "Snooze 10 min is accepted for this phone");
+pushService.close();
+
+// ── Sharing the routine ──
+await R.click("#shareRoutineBtn");
+await R.waitForSelector(".share-box");
+await R.selectOption("#shareDays", "7");
+await R.click("[data-act=share-create]");
+await R.waitForSelector("#shareUrl");
+const routineUrl = await R.inputValue("#shareUrl");
+await R.screenshot({ path: `${SHOTS}/e2e-06-share-routine.png` });
+const stranger = await (await browser.newContext({ viewport: { width: 412, height: 915 } })).newPage();
+const rr = await stranger.goto(routineUrl);
+check(rr.status() === 200 && rr.headers()["x-robots-tag"]?.includes("noindex"), "the routine link opens without an account, and isn't indexed");
+check(await stranger.isVisible("h1:has-text('routine')") && await stranger.isVisible(".what:has-text('Cough syrup 5 ml')") && await stranger.isVisible("button:has-text('Save as PDF')"),
+  "it shows her routine, with Save as PDF");
+check(await stranger.isVisible("text=This link works until"), "and says when the link stops working");
+await stranger.screenshot({ path: `${SHOTS}/e2e-07-routine-page.png`, fullPage: true });
+await stranger.emulateMedia({ media: "print" });
+check(!(await stranger.isVisible("button:has-text('Save as PDF')")), "the PDF leaves the button out");
+check((await stranger.request.get(BASE + "/api/doc?path=entries/x")).status() === 401, "a link opens nothing else in the diary");
+
+// ── Sharing a document ──
+await R.click(".sections a[data-view=docs]");
+await R.waitForSelector(".doc-row, [data-act=doc-back]");
+if (await R.isVisible("[data-act=doc-back]")) await R.click("[data-act=doc-back]");     // still open from earlier
+await R.click(".doc-row:has-text('Discharge summary')");
+await R.click("[data-act=doc-share]");
+await R.waitForSelector("#docShareSlot .share-box");
+await R.click("#docShareSlot [data-act=share-create]");
+await R.waitForSelector("#docShareSlot #shareUrl");
+const docUrl = await R.inputValue("#shareUrl");
+await stranger.emulateMedia({ media: "screen" });
+await stranger.goto(docUrl);
+check(await stranger.isVisible("h1:has-text('Discharge summary')") && await stranger.isVisible(".brief"), "a document link shows its title and brief");
+const fileRes = await stranger.request.get(docUrl + "/file");
+check(fileRes.status() === 200 && fileRes.headers()["content-type"] === "application/pdf", "and opens the file");
+const dlRes = await stranger.request.get(docUrl + "/file?download=1");
+check(/attachment/.test(dlRes.headers()["content-disposition"] || ""), "or downloads it");
+await stranger.screenshot({ path: `${SHOTS}/e2e-08-document-page.png` });
+
+// Turning links off in About Divisha
+await R.click("#settingsBtn");
+await R.waitForSelector("#sharedList .link-row");
+check(await R.locator("#sharedList .link-row").count() === 2, "About Divisha lists both shared links");
+await R.click("#sharedList .link-row:has-text('routine') [data-act=share-revoke]");
+await R.waitForFunction(() => document.querySelectorAll("#sharedList .link-row").length === 1);
+await R.keyboard.press("Escape");
+const gone = await stranger.goto(routineUrl);
+check(gone.status() === 404 && await stranger.isVisible("text=isn't available"), "a link that's turned off stops working");
+check((await raw(V, "POST", "/api/shares", JSON.stringify({ kind: "routine" }))).status === 403, "a viewer can't make share links");
+
+// "Send the file" hands the real file to the phone's share sheet.
+const sCtx = await context();
+await sCtx.addInitScript(() => {
+  window.__shared = null;
+  navigator.canShare = (d) => !!d?.files?.length;
+  navigator.share = async (d) => { window.__shared = { title: d.title, text: d.text, files: (d.files || []).map(f => ({ name: f.name, type: f.type, size: f.size })) }; };
+});
+const SP = await signIn(sCtx, "rohit", "test-password-rohit");
+await SP.click(".sections a[data-view=docs]");
+await SP.click(".doc-row:has-text('Discharge summary')");
+await SP.waitForTimeout(800);
+await SP.click("[data-act=doc-share]");
+await SP.click("[data-act=share-file]");
+await SP.waitForFunction(() => !!window.__shared);
+const sharedFile = await SP.evaluate(() => window.__shared);
+check(sharedFile.files.length === 1 && sharedFile.files[0].name === "discharge.pdf" && sharedFile.files[0].type === "application/pdf" && sharedFile.files[0].size > 1000,
+  `"Send the file" shares the PDF itself (${sharedFile.files[0]?.name}, ${sharedFile.files[0]?.size} bytes)`);
 
 // ── Installable as an Android app ──
 const man = await anon.request.get(BASE + "/manifest.webmanifest");

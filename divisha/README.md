@@ -1,13 +1,14 @@
 # Divisha Wellness
 
 A shared diary for Divisha's health and care, made for two parents.
-The left pane has three sections: **Talk**, where you tell Claude about her
-day and set her schedule; **Documents**, her papers with a title and brief
-each; and **Time-based analysis**, how she's doing over a week, month or year.
+The left pane has four sections: **Talk**, where you tell Claude about her
+day; **Schedule**, her medicines, meals and visits with reminders and a
+shareable routine; **Documents**, her papers with a title and brief each; and
+**Time-based analysis**, how she's doing over a week, month or year.
 
 - **Live page:** https://claude.ai/artifact/Pro9ma6DELS2utcssBPCRp
 - **Why it's built this way:** [DESIGN.md](DESIGN.md)
-- **Hosting it on fly.io instead:** [DEPLOY.md](DEPLOY.md). The same five files run there, with `server/` providing sign-in, storage and Claude.
+- **Hosted copy:** https://divisha-singh.com, set up as in [DEPLOY.md](DEPLOY.md). The same five files run there, with `server/` providing sign-in, storage, Claude, phone reminders and share links.
 
 ## The five files
 
@@ -15,7 +16,7 @@ All in `app/`. Each has one job.
 
 | File | Its job |
 |---|---|
-| `index.html` | The layout: the left pane, the three sections and the About Divisha sheet |
+| `index.html` | The layout: the left pane, the four sections and the About Divisha sheet |
 | `style.css` | How it looks, in light and dark |
 | `screens.js` | Draws the screens and handles taps |
 | `diary.js` | **The only file that saves or loads** |
@@ -36,7 +37,7 @@ with as Contributor or Editor:
 | `chats/<day>` | That day's whole conversation |
 | `entries/<id>` | One diary entry each |
 | `notes/<span>` | Claude's notes in Time-based analysis, for example `notes/month-2026-10-01` |
-| `schedules/<id>` | One item in her schedule |
+| `schedules/<id>` | One item in her schedule, with which times were done or skipped |
 | `documents/<id>` | One document's title, brief, date and file id |
 | file storage | The document files themselves, shown at `/_blob/<file id>` |
 
@@ -52,6 +53,9 @@ node --test divisha/tests/*.test.js     # counting, ideas, warnings, Claude pack
 `tests/browser/` runs the whole app in a headless browser with a stand-in
 for claude.ai. It covers Talk, Look back, the copy, view-only access,
 offline, keyboard use, a 320 px phone, her schedule and documents. Its README says how to run it.
+
+`tests/schedule-cases.json` holds shared examples of what's due when; both
+the app's rules and the server's reminder rules are checked against them.
 
 ## Publishing a change
 

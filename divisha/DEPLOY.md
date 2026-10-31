@@ -2,7 +2,8 @@
 
 The same app that runs on claude.ai can run on its own address. The five app
 files don't change. `server/` adds what claude.ai provided: sign-in, the shared
-diary, live updates between parents, file storage, and Claude.
+diary, live updates between parents, file storage, and Claude. It also adds
+two things claude.ai can't do: reminders on your phones, and share links.
 
 ## What runs where
 
@@ -13,6 +14,8 @@ diary, live updates between parents, file storage, and Claude.
 | Photos and PDFs | Files on the same volume, under `/data/files/` |
 | Sign-in | Username and password per person. Passwords are stored as scrypt hashes; sessions last 60 days |
 | Claude | The Anthropic API, with your API key, paid per use |
+| Reminders | Checked every 30 seconds by the server and sent as web push notifications. The signing key is made on first start and kept at `/data/vapid.json` |
+| Share links | Random, unguessable addresses under `/s/`, stored with an end date; turning one off works at once |
 
 Everyone needs to sign in. A **parent** can read and change everything; a
 **viewer** can only read.
@@ -21,7 +24,7 @@ Everyone needs to sign in. A **parent** can read and change everything; a
 
 | Item | Roughly |
 |---|---|
-| Fly machine in Singapore (shared CPU, 512 MB, sleeps when unused) | A few dollars a month at most |
+| Fly machine in Singapore (shared CPU, 512 MB, always on so reminders go out on time) | About $3 to $5 a month (about $2 to $3 more than when it slept) |
 | Fly volume (1 GB) | Under $0.20 a month |
 | Claude Opus 5.5 through the Anthropic API | About 2 to 3 US cents per chat message; more with photos |
 
@@ -87,6 +90,31 @@ Time-based analysis. Signing out also clears the app's saved copy on that
 device. The diary, Claude's replies and document files are never stored in that
 saved copy; they always come from the server.
 
+## Reminders on your phones
+
+Do this once on each phone, after installing the app (below):
+
+1. Open the app and go to **Schedule**.
+2. Tap **Turn on reminders**, then **Allow** when the phone asks about notifications.
+3. Tap **Send a test**. A notification should arrive within a few seconds.
+
+The notification uses the phone's normal notification sound. To change the
+sound or make it louder on Android: long-press a Divisha notification, tap the
+settings icon, then **Sound**. If nothing arrives, check that notifications
+for the app (or for Chrome) are allowed in the phone's settings, and that
+battery saver isn't restricting Chrome.
+
+Each phone is reminded in its own time zone. Signing out stops that phone's
+reminders. On iPhone, reminders work only once the app is added to the Home
+Screen (iOS 16.4 or later).
+
+## Share links
+
+**Share routine** in Schedule, and **Share** on a document, make links that
+open without signing in. Each link shows only that one thing. About Divisha
+lists all of them under **Shared links**, each with **Turn off**. Viewers
+can't make links.
+
 ## Bringing the diary over from claude.ai
 
 1. In the claude.ai page, open About Divisha and use **Download a copy**. Keep the backup `.json` file.
@@ -113,13 +141,15 @@ fly ssh console -a divisha-wellness -C "python -m server.manage import /data/imp
 (`fly volumes snapshots list`). For a copy you hold yourself, use **Download a
 copy** in About Divisha now and then.
 
-**Keep one machine.** The diary is one SQLite file and live updates are kept in
-memory, so the app must run as a single machine. `deploy.sh` deploys with
-`--ha=false` for that reason.
+**Keep one machine, always on.** The diary is one SQLite file and live updates
+are kept in memory, so the app must run as a single machine. `deploy.sh`
+deploys with `--ha=false` for that reason. `fly.toml` keeps it running
+(`auto_stop_machines = "off"`), because a sleeping machine can't send
+reminders.
 
 ## Checking it before a deploy
 
 ```bash
-python -m unittest discover -s server/tests -t .     # the server's storage
-bash server/tests/run_e2e.sh                         # the whole hosted app in a browser, with a stand-in for Claude
+python -m unittest discover -s server/tests -t .     # storage, push encryption, schedule rules, reminders
+bash server/tests/run_e2e.sh                         # the whole hosted app in a browser, with stand-ins for Claude and a phone's push service
 ```

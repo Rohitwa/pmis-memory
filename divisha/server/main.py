@@ -28,7 +28,13 @@ from urllib.parse import parse_qs
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 
+from contextlib import asynccontextmanager
+from datetime import datetime, timedelta, timezone
+
 from .claude_api import ClaudeError, configured, stream_reply
+from .push import Pusher
+from .reminders import Reminders
+from .shares import document_page, gone_page, routine_page
 from .store import Store, StoreError
 
 HERE = Path(__file__).parent
@@ -62,7 +68,19 @@ for noisy in ("httpx", "httpx2", "anthropic"):
     logging.getLogger(noisy).setLevel(logging.WARNING)       # log problems, not every request
 if not configured():
     logging.getLogger("divisha").warning("ANTHROPIC_API_KEY is not set: Claude won't answer until it is")
-app = FastAPI(title="Divisha Wellness", docs_url=None, redoc_url=None, openapi_url=None)
+pusher = Pusher(store.dir)
+reminders = Reminders(store, pusher, interval=float(os.environ.get("REMINDER_INTERVAL", "30")))
+ALLOW_HTTP_PUSH = os.environ.get("ALLOW_HTTP_PUSH") == "1"      # tests only: a local stand-in push service
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    task = asyncio.create_task(reminders.run())                 # sends reminders while the server runs
+    yield
+    task.cancel()
+
+
+app = FastAPI(title="Divisha Wellness", docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
 
 
 # ─── Security basics ─────────────────────────────────────────────────────
@@ -174,7 +192,7 @@ def service_worker():
     return FileResponse(STATIC / "sw.js", media_type="text/javascript", headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"})
 
 
-ICONS = {"icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "icon.svg"}
+ICONS = {"icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "badge-96.png", "icon.svg"}
 
 
 @app.get("/icons/{name}")
@@ -183,6 +201,155 @@ def icon(name: str):
         raise HTTPException(404)
     return FileResponse(STATIC / "icons" / name, media_type="image/svg+xml" if name.endswith(".svg") else "image/png",
                         headers={"Cache-Control": "public, max-age=604800"})
+
+
+# ─── Reminders on phones ─────────────────────────────────────────────────
+
+@app.get("/api/push/key")
+def push_key(_: dict = Depends(current_user)):
+    return {"publicKey": pusher.public_key}
+
+
+@app.post("/api/push/subscribe")
+async def push_subscribe(request: Request, user: dict = Depends(current_user)):
+    body = await request.json()
+    sub = body.get("subscription") or {}
+    endpoint, keys = str(sub.get("endpoint", "")), sub.get("keys") or {}
+    if not (endpoint.startswith("https://") or (ALLOW_HTTP_PUSH and endpoint.startswith("http://127.0.0.1"))) or not keys.get("p256dh") or not keys.get("auth"):
+        raise StoreError("invalid_argument", "that isn't a push subscription")
+    store.add_push_sub(endpoint, user["id"], {"p256dh": keys["p256dh"], "auth": keys["auth"]}, str(body.get("tz") or "")[:64])
+    return {"ok": True}
+
+
+@app.post("/api/push/unsubscribe")
+async def push_unsubscribe(request: Request, user: dict = Depends(current_user)):
+    endpoint = (await request.json()).get("endpoint", "")
+    if any(x["endpoint"] == endpoint for x in store.push_subs(user["id"])):
+        store.remove_push_sub(endpoint)
+    return {"ok": True}
+
+
+@app.post("/api/push/test")
+async def push_test(user: dict = Depends(current_user)):
+    subs = store.push_subs(user["id"])
+    msg = {"title": "Reminders are on", "body": "This phone will be reminded 30 minutes before each item in her schedule.", "tag": "test", "url": "/#schedule"}
+    sent = 0
+    for sub in subs:
+        try:
+            status = await asyncio.to_thread(pusher.send, sub, msg)
+        except Exception:
+            logging.getLogger("divisha").warning("test push failed", exc_info=True)
+            continue
+        if status in (404, 410):
+            store.remove_push_sub(sub["endpoint"])
+        elif 200 <= status < 300:
+            sent += 1
+    return {"sent": sent, "phones": len(subs)}
+
+
+@app.post("/api/schedule/mark")
+async def schedule_mark(request: Request, user: dict = Depends(parent)):
+    """Done or Skip for one occurrence (also used by the buttons on a notification)."""
+    body = await request.json()
+    path, key, status = f"schedules/{body.get('id', '')}", str(body.get("key", ""))[:32], body.get("status")
+    if status not in ("done", "skipped", None) or not key:
+        raise StoreError("invalid_argument", "status must be done, skipped or null")
+    if not store.get(path)["exists"]:
+        raise StoreError("not_found", "no such schedule item", 404)
+    mark = {"status": status, "by": user["id"], "at": datetime.now(timezone.utc).isoformat()} if status else None
+    store.update(path, {"done": {key: mark}})
+    await changes.publish(path)
+    return {"ok": True}
+
+
+@app.post("/api/schedule/snooze")
+async def schedule_snooze(request: Request, user: dict = Depends(current_user)):
+    body = await request.json()
+    endpoint = body.get("endpoint", "")
+    if not any(x["endpoint"] == endpoint for x in store.push_subs(user["id"])):
+        raise StoreError("invalid_argument", "this phone isn't set up for reminders")
+    minutes = max(1, min(120, int(body.get("minutes") or 10)))
+    due = (datetime.now(timezone.utc) + timedelta(minutes=minutes)).isoformat()
+    store.add_snooze(endpoint, str(body.get("id", "")), str(body.get("key", ""))[:32], due)
+    return {"ok": True, "due_at": due}
+
+
+# ─── Share links ─────────────────────────────────────────────────────────
+
+@app.post("/api/shares")
+async def create_share(request: Request, user: dict = Depends(parent)):
+    body = await request.json()
+    kind, target = body.get("kind"), str(body.get("target") or "")
+    if kind == "routine":
+        target = "all"
+    elif kind == "document":
+        if not store.get(f"documents/{target}")["exists"]:
+            raise StoreError("not_found", "no such document", 404)
+    else:
+        raise StoreError("invalid_argument", "kind must be routine or document")
+    days = body.get("days")
+    days = int(days) if days in (1, 7, 30, 90) else None
+    share = store.create_share(kind, target, user["id"], days)
+    return {**share, "url": f"{str(request.base_url).rstrip('/')}/s/{share['token']}"}
+
+
+@app.get("/api/shares")
+def list_shares(request: Request, _: dict = Depends(parent)):
+    out = []
+    for sh in store.shares():
+        label = "Her routine"
+        if sh["kind"] == "document":
+            doc = store.get(f"documents/{sh['target']}")
+            label = doc["data"].get("title", "A document") if doc["exists"] else "A removed document"
+        out.append({**sh, "label": label, "url": f"{str(request.base_url).rstrip('/')}/s/{sh['token']}"})
+    return {"shares": out}
+
+
+@app.delete("/api/shares/{token}")
+def revoke_share(token: str, _: dict = Depends(parent)):
+    store.revoke_share(token)
+    return {"ok": True}
+
+
+SHARE_HEADERS = {"X-Robots-Tag": "noindex, nofollow", "Referrer-Policy": "no-referrer", "Cache-Control": "no-store"}
+
+
+@app.get("/s/{token}", response_class=HTMLResponse)
+def open_share(token: str):
+    sh = store.share(token)
+    if not sh:
+        return HTMLResponse(gone_page(), status_code=404, headers=SHARE_HEADERS)
+    by = (store.user_by_id(sh["created_by"]) or {}).get("name", "").split(" ")[0]
+    if sh["kind"] == "routine":
+        profile = store.get("profile/divisha")
+        name = (profile["data"].get("name") if profile["exists"] else None) or "Divisha"
+        tz = reminders_zone()
+        today = datetime.now(timezone.utc).astimezone(tz).date().isoformat()
+        schedules = [dict(d["data"], id=d["id"]) for d in store.query("schedules")]
+        return HTMLResponse(routine_page(name, schedules, today, by, sh["expires_at"]), headers=SHARE_HEADERS)
+    doc = store.get(f"documents/{sh['target']}")
+    if not doc["exists"]:
+        return HTMLResponse(gone_page(), status_code=404, headers=SHARE_HEADERS)
+    return HTMLResponse(document_page(doc["data"], token, by, sh["expires_at"]), headers=SHARE_HEADERS)
+
+
+@app.get("/s/{token}/file")
+def open_share_file(token: str, download: int = 0):
+    sh = store.share(token)
+    doc = store.get(f"documents/{sh['target']}") if sh and sh["kind"] == "document" else None
+    meta = store.file(doc["data"].get("fileId", "")) if doc and doc["exists"] else None
+    if not meta:
+        raise HTTPException(404)
+    name = doc["data"].get("fileName") or "document"
+    return FileResponse(meta["path"], media_type=meta["type"], filename=name if download else None, headers={
+        **SHARE_HEADERS, "Content-Security-Policy": "default-src 'none'; sandbox",
+        **({} if download else {"Content-Disposition": "inline"}),
+    })
+
+
+def reminders_zone():
+    from .reminders import zone
+    return zone(None)
 
 
 @app.get("/{name}")

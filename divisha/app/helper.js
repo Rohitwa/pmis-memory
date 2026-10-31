@@ -181,7 +181,7 @@ How to reply:
 
 After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary, anything to add to her schedule, and any attached file worth keeping as a document (use empty lists if nothing new):
 \`\`\`json
-{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"${today}","time":"09:00","until":"","details":""}],"documents":[{"file":1,"title":"Blood test report","date":"${today}","brief":"Haemoglobin 10.4, a little low. Recheck in 3 months."}]}
+{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Cough syrup 5 ml","category":"medicine","repeat":"daily","date":"${today}","times":["09:00","21:00"],"days":5,"lead":30,"details":"after food"}],"documents":[{"file":1,"title":"Blood test report","date":"${today}","brief":"Haemoglobin 10.4, a little low. Recheck in 3 months."}]}
 \`\`\`
 Types:
 - health: how she is overall. "what" must be exactly "well", "off" or "sick".
@@ -191,7 +191,7 @@ Types:
 - growth: weight, height, milestones, happy moments.
 Rules for entries: one thing per entry. Only note what the parent says happened. Do not repeat anything already in the diary below. Use today's date unless they mention another day.
 
-Rules for schedules: add one only when the parent asks for a reminder or schedule, or describes a plan with dates, such as a course of medicine, a follow-up visit or a vaccination. "repeat" is "once", "daily", "weekly" or "monthly". "date" is the first or only day. "time" is 24-hour "HH:MM", or "" if not said. "until" is the last day, or "". Keep doses exactly as the parent said them and never add one. Do not repeat anything already in her schedule below. Mention in your reply what you've offered to add.
+Rules for schedules: add one only when the parent asks for a reminder or schedule, or describes a plan with dates, such as a course of medicine, a follow-up visit or a vaccination. "repeat" is "once", "daily", "weekly" or "monthly". "date" is the first or only day. "times" lists 24-hour "HH:MM" times (several for "twice a day" if the parent gives the times), or [] if none were said. "days" is how many days it lasts, or leave it out. For "weekly", "weekdays" lists the days as numbers, 0 = Sunday to 6 = Saturday. For "every other day" use "daily" with "every": 2. "lead" is how many minutes before to remind (default 30). "category" is "medicine", "care", "doctor", "vaccine" or "other". Keep doses exactly as the parent said them and never add one. Do not repeat anything already in her schedule below. Mention in your reply what you've offered to add.
 
 Attached files: the parent may attach photos or PDFs, such as a prescription, a test report or a vaccination card. You'll see them as pictures, and PDFs as pictures of their first pages. Read them carefully and say briefly what they show. Only use what is clearly written; if something is hard to read, say so instead of guessing. For each attached file worth keeping, add one item under "documents": "file" is its number in the list of attachments, "title" is a short name, "date" is the date on the paper or today, and "brief" is one or two sentences on what it is and what matters in it. A prescription with timings and a duration can also go under "schedules", with doses exactly as written. A doctor's visit on the paper can go under "entries".`;
 }
@@ -254,11 +254,45 @@ export function errorText(code) {
 }
 
 // ─── Her schedule ────────────────────────────────────────────────────────
-// Things set for her: a medicine every day at 9, a follow-up visit on a
-// date, a weekly oil massage. Each has: what, repeat, date (the first or
-// only day), an optional time ("HH:MM"), an optional last day, and details.
+// Things set for her: drops twice a day, a follow-up visit on a date, an
+// oil massage on Sundays. Each item has:
+//   what, details, category
+//   repeat    once | daily | weekly | monthly
+//   date      the first (or only) day          until  the last day, or ""
+//   every     daily only: every N days (1 = every day)
+//   weekdays  weekly only: 0 = Sunday … 6 = Saturday
+//   times     ["09:00", "21:00"], or [] for "any time that day"
+//   lead      minutes before each time to send the reminder (default 30)
+//   for       "" for everyone, or one person's id
+//   paused    true stops it showing and reminding
+//   done      { "2026-11-02 09:00": { status: "done" | "skipped", by, at } }
+// The server repeats these rules in server/schedule.py to send reminders;
+// tests/schedule-cases.json keeps the two in step.
 
-export const REPEATS = { once: "Once", daily: "Every day", weekly: "Every week", monthly: "Every month" };
+export const REPEATS = { once: "Once", daily: "Every day", weekly: "On certain days", monthly: "Every month" };
+export const CATEGORIES = { medicine: "Medicine", care: "Care & routine", doctor: "Doctor visit", vaccine: "Vaccination", other: "Other" };
+export const LEADS = { 0: "At the time", 5: "5 min before", 15: "15 min before", 30: "30 min before", 60: "1 hour before", 120: "2 hours before", 1440: "1 day before" };
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const VISIT = /\b(dr|doctor|visit|check-?up|appointment|clinic|vaccin\w*|shot|test|follow-?up)\b/i;
+
+function cleanTime(raw) {
+  const t = String(raw || "").trim().match(/^(\d{1,2}):(\d{2})$/);
+  return t && Number(t[1]) < 24 && Number(t[2]) < 60 ? `${t[1].padStart(2, "0")}:${t[2]}` : "";
+}
+
+// Older items have one `time`; newer ones a list of `times`.
+export function timesOf(s) {
+  if (Array.isArray(s.times) && s.times.length) return s.times;
+  return s.time ? [s.time] : [];
+}
+
+function guessCategory(what) {
+  if (/vaccin|\bshot\b|immuni/i.test(what)) return "vaccine";
+  if (VISIT.test(what)) return "doctor";
+  if (/drop|syrup|tablet|\bmg\b|\bml\b|medicine|antibiotic|vitamin|nebul|inhaler|paracetamol|calpol|crocin|ors\b|iron/i.test(what)) return "medicine";
+  return "care";
+}
 
 export function cleanSchedule(raw, today = dayKey()) {
   if (!raw || typeof raw !== "object") return null;
@@ -267,13 +301,27 @@ export function cleanSchedule(raw, today = dayKey()) {
   const repeat = REPEATS[raw.repeat] ? raw.repeat : "once";
   let date = String(raw.date || "").trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) date = today;
-  let time = String(raw.time || "").trim();
-  const t = time.match(/^(\d{1,2}):(\d{2})$/);
-  time = t && Number(t[1]) < 24 && Number(t[2]) < 60 ? `${t[1].padStart(2, "0")}:${t[2]}` : "";
+
+  const given = Array.isArray(raw.times) ? raw.times : typeof raw.times === "string" ? raw.times.split(/[,\s]+/) : [raw.time];
+  const times = [...new Set(given.map(cleanTime).filter(Boolean))].sort().slice(0, 6);
+
   let until = String(raw.until || "").trim();
+  const days = Number(raw.days);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(until) && Number.isInteger(days) && days > 0) until = addDays(date, days - 1);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(until) || until < date || repeat === "once") until = "";
-  const details = String(raw.details ?? "").trim().slice(0, 300);
-  return { what, repeat, date, time, until, details };
+
+  const every = repeat === "daily" ? Math.min(30, Math.max(1, Math.round(Number(raw.every) || 1))) : 1;
+  let weekdays = [];
+  if (repeat === "weekly") {
+    weekdays = [...new Set((Array.isArray(raw.weekdays) ? raw.weekdays : []).map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6))].sort();
+    if (!weekdays.length) weekdays = [toDate(date).getDay()];
+  }
+  const lead = Object.prototype.hasOwnProperty.call(LEADS, String(raw.lead)) ? Number(raw.lead) : 30;
+  const category = CATEGORIES[raw.category] ? raw.category : guessCategory(what);
+  return {
+    what, details: String(raw.details ?? "").trim().slice(0, 300), category, repeat, date, until, every, weekdays, times, lead,
+    for: typeof raw.for === "string" ? raw.for : "", paused: !!raw.paused,
+  };
 }
 
 export function timeText(time) {
@@ -283,10 +331,15 @@ export function timeText(time) {
   return `${hour}${m ? `:${String(m).padStart(2, "0")}` : ""} ${h < 12 ? "am" : "pm"}`;
 }
 
+function daysBetween(a, b) { return Math.round((toDate(b) - toDate(a)) / 864e5); }
+
 export function isDueOn(s, day) {
-  if (day < s.date || (s.until && day > s.until)) return false;
-  if (s.repeat === "daily") return true;
-  if (s.repeat === "weekly") return toDate(day).getDay() === toDate(s.date).getDay();
+  if (s.paused || !s.date || day < s.date || (s.until && day > s.until)) return false;
+  if (s.repeat === "daily") return daysBetween(s.date, day) % Math.max(1, s.every || 1) === 0;
+  if (s.repeat === "weekly") {
+    const wds = Array.isArray(s.weekdays) && s.weekdays.length ? s.weekdays : [toDate(s.date).getDay()];
+    return wds.includes(toDate(day).getDay());
+  }
   if (s.repeat === "monthly") {
     const want = Number(s.date.slice(8));
     const d = toDate(day);
@@ -294,6 +347,39 @@ export function isDueOn(s, day) {
     return d.getDate() === Math.min(want, last);
   }
   return day === s.date;
+}
+
+// Each time it happens on a day. The key is how Done and Skip are recorded.
+export function occurrencesOn(s, day) {
+  if (!isDueOn(s, day)) return [];
+  const times = timesOf(s);
+  return times.length ? times.map(time => ({ key: `${day} ${time}`, date: day, time })) : [{ key: day, date: day, time: "" }];
+}
+
+export function statusOf(s, key) { return s.done?.[key]?.status || null; }
+
+// Everything due from `from` for `days` days, in time order ("any time" first each day).
+export function agenda(schedules, from, days = 7) {
+  const out = [];
+  for (let i = 0; i < days; i += 1) {
+    const day = addDays(from, i);
+    for (const s of schedules) for (const o of occurrencesOn(s, day)) out.push({ s, ...o, status: statusOf(s, o.key) });
+  }
+  return out.sort((a, b) => (a.date !== b.date ? (a.date < b.date ? -1 : 1) : a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
+}
+
+// How it went over the last `days` days before today: { done, skipped, total }.
+export function adherence(s, today = dayKey(), days = 14) {
+  const result = { done: 0, skipped: 0, total: 0 };
+  for (let i = days; i >= 1; i -= 1) {
+    for (const o of occurrencesOn(s, addDays(today, -i))) {
+      result.total += 1;
+      const st = statusOf(s, o.key);
+      if (st === "done") result.done += 1;
+      if (st === "skipped") result.skipped += 1;
+    }
+  }
+  return result;
 }
 
 export function nextDue(s, from, withinDays = 62) {
@@ -307,9 +393,25 @@ export function whenDay(key, today = dayKey()) {
   return ["Today", "Tomorrow", "Yesterday"].includes(label) ? label.toLowerCase() : `on ${label}`;
 }
 
+function ordinal(n) { return `${n}${["th", "st", "nd", "rd"][(n % 100 >= 11 && n % 100 <= 13) || n % 10 > 3 ? 0 : n % 10]}`; }
+
+export function repeatText(s) {
+  if (s.repeat === "daily") return (s.every || 1) > 1 ? `every ${s.every} days` : "every day";
+  if (s.repeat === "weekly") {
+    const wds = Array.isArray(s.weekdays) && s.weekdays.length ? [...s.weekdays].sort() : [toDate(s.date).getDay()];
+    if (wds.length === 7) return "every day";
+    if (wds.join() === "1,2,3,4,5") return "on weekdays";
+    if (wds.join() === "0,6") return "at weekends";
+    return `every ${wds.map(d => (wds.length === 1 ? WEEKDAY_NAMES[d] : WEEKDAYS[d])).join(", ")}`;
+  }
+  if (s.repeat === "monthly") return `every month on the ${ordinal(Number(s.date.slice(8)))}`;
+  return "";
+}
+
 export function scheduleLine(s, today = dayKey()) {
-  const when = s.repeat === "once" ? whenDay(s.date, today) : REPEATS[s.repeat].toLowerCase();
-  const at = s.time ? ` at ${timeText(s.time)}` : "";
+  const when = s.repeat === "once" ? whenDay(s.date, today) : repeatText(s);
+  const times = timesOf(s);
+  const at = times.length ? ` at ${times.map(timeText).join(" and ")}` : "";
   const from = s.repeat !== "once" && s.date > today ? `, from ${dayLabel(s.date, today)}` : "";
   const until = s.until ? `, until ${dayLabel(s.until, today)}` : "";
   return `${s.what}: ${when}${at}${from}${until}`;
@@ -328,7 +430,6 @@ export function doneOn(s, entries, day) {
     && words.some(w => `${e.what} ${e.details || ""}`.toLowerCase().includes(w)));
 }
 
-const VISIT = /\b(dr|doctor|visit|check-?up|appointment|clinic|vaccin\w*|shot|test|follow-?up)\b/i;
 function schedulePrefill(s) {
   return VISIT.test(s.what) ? `${s.what}: ` : `Gave ${s.what.toLowerCase()}`;
 }
@@ -359,13 +460,14 @@ export function ideasForToday({ profile = {}, entries = [], schedules = [], now 
 
   // 2. Her schedule for today, not yet done: anything due by two hours from now first, by time.
   const minutes = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
-  const dueToday = schedules.filter(s => isDueOn(s, today) && !doneOn(s, entries, today))
-    .map(s => ({ s, at: s.time ? minutes(s.time) : null }));
+  const dueToday = schedules.flatMap(s => occurrencesOn(s, today)
+    .filter(o => !statusOf(s, o.key) && !doneOn(s, entries, today))
+    .map(o => ({ s, time: o.time, at: o.time ? minutes(o.time) : null })));
   const soon = dueToday.filter(x => x.at !== null && x.at <= minutesNow + 120).sort((a, b) => a.at - b.at);
   const anytime = dueToday.filter(x => x.at === null);
   const later = dueToday.filter(x => x.at !== null && x.at > minutesNow + 120).sort((a, b) => a.at - b.at);
-  for (const { s } of [...soon, ...anytime]) {
-    add({ label: `${s.what}${s.time ? `, ${timeText(s.time)}` : ""}: done?`, prefill: schedulePrefill(s), schedule: true });
+  for (const { s, time } of [...soon, ...anytime]) {
+    add({ label: `${s.what}${time ? `, ${timeText(time)}` : ""}: done?`, prefill: schedulePrefill(s), schedule: true });
   }
 
   // 3. While she's unwell, the care you've used most in the last two months.
@@ -380,12 +482,12 @@ export function ideasForToday({ profile = {}, entries = [], schedules = [], now 
   }
 
   // 4. One-off things coming up in the next three days.
-  const upcoming = schedules.filter(s => s.repeat === "once" && s.date > today && s.date <= addDays(today, 3))
+  const upcoming = schedules.filter(s => !s.paused && s.repeat === "once" && s.date > today && s.date <= addDays(today, 3))
     .sort((a, b) => (a.date < b.date ? -1 : 1));
   for (const s of upcoming) add({ label: `Coming up: ${s.what}, ${whenDay(s.date, today).replace(/^on /, "")}`, prefill: `About ${s.what} ${whenDay(s.date, today)}: `, schedule: true });
 
   // 5. Later today.
-  for (const { s } of later) add({ label: `Later: ${s.what}, ${timeText(s.time)}`, prefill: schedulePrefill(s), schedule: true });
+  for (const { s, time } of later) add({ label: `Later: ${s.what}, ${timeText(time)}`, prefill: schedulePrefill(s), schedule: true });
 
   // 6. Evening, and nothing yet about how she was.
   if (!healthToday && now.getHours() >= 17) add({ label: `How was ${name} today?`, prefill: `${name} was ` });

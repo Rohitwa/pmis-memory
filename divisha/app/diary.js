@@ -13,6 +13,13 @@
 // Document files themselves live in the page's file storage; each
 // documents/<id> holds the file's id, and "/_blob/<id>" shows it.
 
+function scheduleFields(x) {
+  return {
+    what: x.what, details: x.details || "", category: x.category || "care", repeat: x.repeat, date: x.date, until: x.until || "",
+    every: x.every || 1, weekdays: x.weekdays || [], times: x.times || [], lead: x.lead ?? 30, for: x.for || "", paused: !!x.paused,
+  };
+}
+
 function newId() {
   // Time first, so ids sort in the order they were made.
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -31,9 +38,16 @@ export async function openDiary() {
 
   const stamp = () => ({ by: me, createdAt: new Date().toISOString() });
 
+  // Reminders, share links and the list of people come from the self-hosted
+  // server (window.divishaHost). On claude.ai they're absent and hidden.
+  const host = window.divishaHost || null;
+
   return {
     me,
     canWrite,
+    reminders: host?.reminders || null,
+    shares: host?.shares || null,
+    people: host?.people || null,
     canUpload: !!files,            // only people who can edit the page get file storage
 
     // ── About Divisha ────────────────────────────────────────────────
@@ -143,19 +157,21 @@ export async function openDiary() {
       const ids = [];
       for (const x of list) {
         const id = newId();
-        await db.doc(`schedules/${id}`).set({
-          what: x.what, repeat: x.repeat, date: x.date, time: x.time || "", until: x.until || "", details: x.details || "",
-          ...stamp(), ...(fromMessage ? { fromMessage } : {}),
-        });
+        await db.doc(`schedules/${id}`).set({ ...scheduleFields(x), done: {}, ...stamp(), ...(fromMessage ? { fromMessage } : {}) });
         ids.push(id);
       }
       return ids;
     },
     updateSchedule(id, x) {
-      return db.doc(`schedules/${id}`).update({
-        what: x.what, repeat: x.repeat, date: x.date, time: x.time || "", until: x.until || "", details: x.details || "",
-        editedBy: me, editedAt: new Date().toISOString(),
-      });
+      // `time: ""` clears the single time older items had; `times` replaces it.
+      return db.doc(`schedules/${id}`).update({ ...scheduleFields(x), time: "", editedBy: me, editedAt: new Date().toISOString() });
+    },
+    setPaused(id, paused) {
+      return db.doc(`schedules/${id}`).update({ paused: !!paused, editedBy: me, editedAt: new Date().toISOString() });
+    },
+    // Done or Skip for one occurrence ("2026-11-02 09:00"); null clears it.
+    markOccurrence(id, key, status) {
+      return db.doc(`schedules/${id}`).update({ done: { [key]: status ? { status, by: me, at: new Date().toISOString() } : null } });
     },
     deleteSchedule(id) {
       return db.doc(`schedules/${id}`).delete();
