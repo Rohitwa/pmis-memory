@@ -21,5 +21,5 @@ if ! flyctl secrets list -a "$APP" 2>/dev/null | grep -q ANTHROPIC_API_KEY; then
   echo "  fly secrets set ANTHROPIC_API_KEY=... -a $APP"
 fi
 
-flyctl deploy --app "$APP" --ha=false --remote-only --primary-region "$REGION"
+flyctl deploy --app "$APP" --ha=false --remote-only     # region comes from fly.toml
 echo "Live at: https://$APP.fly.dev"
