@@ -4,6 +4,7 @@
   python -m server.manage set-password rohit
   python -m server.manage users
   python -m server.manage import backup.json --as rohit [--files DIR]
+  python -m server.manage check-claude
 
 Passwords are asked for, never typed on the command line. `import` reads the
 full backup the app's "Download a copy" makes (or the same shape exported from
@@ -89,6 +90,26 @@ def import_backup(store: Store, path: str, as_user: str, files_dir: str | None) 
         print(f"  not found: {file_id}")
 
 
+def check_claude() -> None:
+    import asyncio
+    from .claude_api import MODEL, ClaudeError, configured, stream_reply
+
+    print(f"Model: {MODEL}")
+    print(f"API key set on the server: {'yes' if configured() else 'NO'}")
+
+    async def run():
+        text = ""
+        async for piece in stream_reply([{"role": "user", "content": "Reply with just the word OK."}], [], as_json=False):
+            text += piece.get("text", "")
+        return text
+
+    try:
+        print(f"Claude answered: {asyncio.run(run()).strip()[:80]!r}")
+        print("Claude is working.")
+    except ClaudeError as e:
+        sys.exit(f"Claude didn't answer: {e.code}: {e}")
+
+
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(prog="python -m server.manage", description="Look after the hosted Divisha Wellness.")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -99,6 +120,7 @@ def main(argv=None) -> None:
     pw = sub.add_parser("set-password", help="set a new password (signs that person out everywhere)")
     pw.add_argument("username")
     sub.add_parser("users", help="list who can sign in")
+    sub.add_parser("check-claude", help="make one tiny call to Claude and say what happened")
     imp = sub.add_parser("import", help="bring in a backup from the app or from claude.ai")
     imp.add_argument("backup")
     imp.add_argument("--as", dest="as_user", required=True, help="the username to credit entries to")
@@ -117,6 +139,8 @@ def main(argv=None) -> None:
         elif args.cmd == "users":
             for u in store.users():
                 print(f"{u['username']:<16} {u['name']:<24} {'parent' if u['role'] == 'parent' else 'viewer (read only)'}")
+        elif args.cmd == "check-claude":
+            check_claude()
         elif args.cmd == "import":
             import_backup(store, args.backup, args.as_user.strip().lower(), args.files)
     except StoreError as e:

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import time
 from collections import defaultdict, deque
@@ -27,7 +28,7 @@ from urllib.parse import parse_qs
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 
-from .claude_api import ClaudeError, stream_reply
+from .claude_api import ClaudeError, configured, stream_reply
 from .store import Store, StoreError
 
 HERE = Path(__file__).parent
@@ -47,6 +48,9 @@ SKELETON = ('<!doctype html><html lang="en"><head><meta charset=utf8><meta name=
             '[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="/claude-shim.js"></script></head><body>\n')
 
 store = Store(os.environ.get("DATA_DIR", HERE.parent / "data"))
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+if not configured():
+    logging.getLogger("divisha").warning("ANTHROPIC_API_KEY is not set: Claude won't answer until it is")
 app = FastAPI(title="Divisha Wellness", docs_url=None, redoc_url=None, openapi_url=None)
 
 
@@ -128,7 +132,8 @@ def logout(request: Request):
 
 @app.get("/healthz")
 def healthz():
-    return {"ok": True}
+    # Says whether an Anthropic API key is set (never the key itself).
+    return {"ok": True, "claude_key_set": configured()}
 
 
 # ─── The app ─────────────────────────────────────────────────────────────

@@ -45,6 +45,14 @@ class Handler(BaseHTTPRequestHandler):
                   "auth": self.headers.get("authorization"), "headers": sorted(self.headers.keys()), "body": body}
         with open(LOG, "a") as f:
             f.write(json.dumps(record) + "\n")
+        if os.environ.get("MOCK_REJECT_FALLBACKS") and "fallbacks" in body:
+            msg = json.dumps({"type": "error", "error": {"type": "invalid_request_error", "message": "fallbacks: not available for this organization"}}).encode()
+            self.send_response(400)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(msg)))
+            self.end_headers()
+            self.wfile.write(msg)
+            return
         last = body["messages"][-1]["content"]
         text = last if isinstance(last, str) else next(b["text"] for b in last if b["type"] == "text")
         if body.get("system"):

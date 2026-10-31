@@ -91,7 +91,9 @@ fly ssh console -a divisha-wellness -C "python -m server.manage import /data/imp
 |---|---|
 | New password (signs that person out everywhere) | `fly ssh console --pty -a divisha-wellness -C "python -m server.manage set-password rohit"` |
 | Who can sign in | `fly ssh console -a divisha-wellness -C "python -m server.manage users"` |
-| Logs | `fly logs -a divisha-wellness` |
+| Logs (every failed Claude call is logged with its reason) | `fly logs -a divisha-wellness` |
+| Is Claude working? (one tiny test call) | `fly ssh console -a divisha-wellness -C "python -m server.manage check-claude"` |
+| Is an API key set? | open `/healthz`: `claude_key_set` is true or false |
 | Deploy a change | `bash deploy.sh` |
 
 **Backups.** Fly takes a daily snapshot of the volume and keeps it for 5 days
