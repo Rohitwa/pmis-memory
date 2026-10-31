@@ -29,6 +29,10 @@ MAGIC = {b"%PDF-": "application/pdf", b"\x89PNG": "image/png", b"\xff\xd8\xff": 
 
 
 def ask_password() -> str:
+    # Without a real terminal the password would show as it's typed.
+    if not sys.stdin.isatty():
+        sys.exit("No terminal, so the password would show on screen. Run this through "
+                 "`fly ssh console --pty -C \"...\"`, or open `fly ssh console` first and run it there.")
     first = getpass.getpass("New password (10 or more characters): ")
     if first != getpass.getpass("Same password again: "):
         sys.exit("The two passwords don't match.")

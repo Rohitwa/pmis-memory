@@ -41,24 +41,38 @@ fly secrets set ANTHROPIC_API_KEY=sk-ant-... -a divisha-wellness
 ```
 
 Then add the people who can sign in. Each one is asked for a password (10 or
-more characters), which never appears on screen or in shell history:
+more characters). Keep `--pty`: without it there's no real terminal, the
+password would show as it's typed, and the tool refuses to ask:
 
 ```bash
-fly ssh console -a divisha-wellness -C "python -m server.manage add-user rohit 'Rohit Singh'"
-fly ssh console -a divisha-wellness -C "python -m server.manage add-user ananya 'Ananya Singh'"
-fly ssh console -a divisha-wellness -C "python -m server.manage add-user nani 'Nani' --viewer"
+fly ssh console --pty -a divisha-wellness -C "python -m server.manage add-user rohit 'Rohit Singh'"
+fly ssh console --pty -a divisha-wellness -C "python -m server.manage add-user ananya 'Ananya Singh'"
+fly ssh console --pty -a divisha-wellness -C "python -m server.manage add-user nani 'Nani' --viewer"
 ```
 
 It's live at `https://divisha-wellness.fly.dev`.
 
-## Your own web address
+## Your own web address: divisha-singh.com
+
+The domain's DNS is at GoDaddy. Fly serves the site at the bare domain and at
+`www`, each with its own HTTPS certificate:
 
 ```bash
-fly certs add wellness.example.com -a divisha-wellness
+fly certs add divisha-singh.com -a divisha-wellness
+fly certs add www.divisha-singh.com -a divisha-wellness
 ```
 
-Fly prints the DNS records to add at your domain registrar. HTTPS starts once
-they're in place.
+At GoDaddy (Domains, then divisha-singh.com, then DNS):
+
+| Record | Name | Value |
+|---|---|---|
+| A (edit the existing "Parked" one; keep only one A for @) | `@` | `66.241.124.121` |
+| AAAA (add) | `@` | `2a09:8280:1::1da:b48d:0` |
+| CNAME (already there; keep) | `www` | `divisha-singh.com.` |
+
+Leave the NS, SOA, `_domainconnect` and `_dmarc` records as they are, and make
+sure no domain forwarding is set. Then check with
+`fly certs check divisha-singh.com -a divisha-wellness`.
 
 ## Bringing the diary over from claude.ai
 
@@ -75,7 +89,7 @@ fly ssh console -a divisha-wellness -C "python -m server.manage import /data/imp
 
 | Task | Command |
 |---|---|
-| New password (signs that person out everywhere) | `fly ssh console -a divisha-wellness -C "python -m server.manage set-password rohit"` |
+| New password (signs that person out everywhere) | `fly ssh console --pty -a divisha-wellness -C "python -m server.manage set-password rohit"` |
 | Who can sign in | `fly ssh console -a divisha-wellness -C "python -m server.manage users"` |
 | Logs | `fly logs -a divisha-wellness` |
 | Deploy a change | `bash deploy.sh` |
