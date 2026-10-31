@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 APP=${APP:-divisha-wellness}
-REGION=${REGION:-bom}
+REGION=${REGION:-sin}
 
 if ! command -v flyctl >/dev/null; then
   curl -fsSL https://fly.io/install.sh | sh

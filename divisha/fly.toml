@@ -1,6 +1,6 @@
 # Divisha Wellness on fly.io. Deploy from this folder (divisha/): see DEPLOY.md.
 app = "divisha-wellness"
-primary_region = "bom"              # Mumbai. If Fly says it isn't offered, use "sin" (Singapore).
+primary_region = "sin"              # Singapore: the closest Fly region to India (Fly has no Indian region)
 
 [build]
   dockerfile = "Dockerfile"

@@ -21,7 +21,7 @@ Everyone needs to sign in. A **parent** can read and change everything; a
 
 | Item | Roughly |
 |---|---|
-| Fly machine (shared CPU, 512 MB, sleeps when unused) | A few dollars a month at most |
+| Fly machine in Singapore (shared CPU, 512 MB, sleeps when unused) | A few dollars a month at most |
 | Fly volume (1 GB) | Under $0.20 a month |
 | Claude Opus 5.5 through the Anthropic API | About 2 to 3 US cents per chat message; more with photos |
 
