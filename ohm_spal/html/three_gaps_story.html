@@ -4,12 +4,12 @@
 <style>
 /* Layout: one centred column, large type, generous air; two views switched by hash. */
 :root {
-  --bg: #fbfbfd; --fg: #1d1d1f; --fg2: #6e6e73; --line: #d2d2d7; --accent: #0066cc; --soft: #f5f5f7;
+  --bg: #fbfbfd; --fg: #1d1d1f; --fg2: #6e6e73; --line: #d2d2d7; --accent: #0066cc; --soft: #f5f5f7; --gapc: #c2410c;
   --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000; --fg: #f5f5f7; --fg2: #a1a1a6; --line: #3a3a3c; --accent: #2997ff; --soft: #1c1c1e; color-scheme: dark } }
-:root[data-theme="dark"] { --bg: #000; --fg: #f5f5f7; --fg2: #a1a1a6; --line: #3a3a3c; --accent: #2997ff; --soft: #1c1c1e; color-scheme: dark }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000; --fg: #f5f5f7; --fg2: #a1a1a6; --line: #3a3a3c; --accent: #2997ff; --soft: #1c1c1e; --gapc: #ff9f0a; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #000; --fg: #f5f5f7; --fg2: #a1a1a6; --line: #3a3a3c; --accent: #2997ff; --soft: #1c1c1e; --gapc: #ff9f0a; color-scheme: dark }
 
 body { background: var(--bg); color: var(--fg); font-family: var(--text); -webkit-font-smoothing: antialiased; line-height: 1.5; }
 .wrap { max-width: 980px; margin: 0 auto; padding-block: 24px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -82,6 +82,62 @@ h2 { font-family: var(--display); font-size: clamp(26px, 4vw, 38px); font-weight
 .foot { margin-top: 96px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg2); line-height: 1.6; }
 .foot a { color: inherit; }
 @media (prefers-reduced-motion: no-preference) { .view { animation: in .35s ease-out; } @keyframes in { from { opacity: .4; transform: translateY(6px) } to { opacity: 1; transform: none } } }
+
+/* Section labels */
+.sec { margin: 112px auto 0; }
+.sec h2 { margin: 0 auto 10px; }
+.sec .sub { font-size: clamp(16px, 2vw, 19px); color: var(--fg2); text-align: center; max-width: 34em; margin: 0 auto 40px; text-wrap: balance; }
+
+/* ERP diagram */
+.diagram { overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 680px; height: auto; color: var(--fg2); font-family: var(--text); }
+.diagram .box { fill: var(--soft); stroke: var(--line); stroke-width: 1.5; }
+.diagram .erp { fill: var(--fg); stroke: none; }
+.diagram .t { fill: var(--fg); font-size: 14px; }
+.diagram .t2 { fill: var(--fg2); font-size: 12.5px; }
+.diagram .tw { fill: var(--bg); }
+.diagram .lab { fill: var(--accent); font-size: 13px; font-weight: 600; }
+.diagram .ln { fill: none; stroke: var(--fg2); stroke-width: 1.5; }
+.diagram .pill { fill: none; stroke: var(--line); stroke-width: 1.5; }
+
+/* Today vs with OHM: one grid, rows aligned */
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 40px; align-items: stretch; }
+.compare .head { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.015em; padding-bottom: 14px; border-bottom: 2px solid var(--fg); margin-bottom: 8px; }
+.compare .head.o { border-bottom-color: var(--accent); color: var(--accent); }
+.step { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 0 14px; padding: 14px 0; }
+.step .day { font-size: 12px; font-weight: 600; color: var(--fg2); letter-spacing: .02em; text-transform: uppercase; padding-top: 4px; font-variant-numeric: tabular-nums; }
+.step b { display: block; font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -.01em; margin-bottom: 4px; }
+.step p { margin: 0; font-size: 15.5px; color: var(--fg); }
+.step small { display: block; font-size: 12px; color: var(--fg2); margin-top: 4px; }
+.conn { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 0 14px; min-height: 44px; align-items: center; }
+.conn::before { content: ""; justify-self: center; height: 100%; min-height: 44px; border-left: 2px solid var(--line); }
+.conn.gap::before { border-left: 2px dashed var(--gapc); }
+.conn.ok::before { border-left: 2px solid var(--accent); }
+.conn em { font-style: normal; font-size: 13px; font-weight: 600; color: var(--fg2); }
+.conn.gap em { color: var(--gapc); }
+.conn.ok em { color: var(--accent); }
+.conn em span { font-weight: 400; color: var(--fg2); }
+.compare > .t { grid-column: 1; }
+.compare > .o { grid-column: 2; }
+.outcome { padding: 24px 0 0; border-top: 1px solid var(--line); margin-top: 10px; }
+.outcome .big { font-family: var(--display); font-size: clamp(34px, 4.6vw, 48px); font-weight: 700; letter-spacing: -.03em; line-height: 1; margin: 0 0 8px; font-variant-numeric: tabular-nums; }
+.outcome.o .big { color: var(--accent); }
+.outcome p { margin: 0; font-size: 15.5px; color: var(--fg2); }
+@media (max-width: 720px) {
+  .compare { grid-template-columns: 1fr; }
+  .compare > .t { grid-column: 1; order: 1; }
+  .compare > .o { grid-column: 1; order: 2; }
+  .compare > .head.o { margin-top: 56px; }
+}
+
+/* Scorecard */
+.score { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 72px auto 0; }
+@media (max-width: 640px) { .score { grid-template-columns: 1fr; } }
+.score div { padding: 20px 0 0; border-top: 2px solid var(--line); }
+.score b { display: block; font-family: var(--display); font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.score .st { display: inline-block; margin: 8px 0 10px; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--soft); color: var(--accent); }
+.score .st.part { color: var(--gapc); }
+.score p { margin: 0; font-size: 15px; color: var(--fg2); }
 </style></head><body>
 
 <div class="wrap">
@@ -90,48 +146,90 @@ h2 { font-family: var(--display); font-size: clamp(26px, 4vw, 38px); font-weight
 <section class="view" id="problem">
   <p class="eyebrow">The problem</p>
   <h1>Your ERP sees everything. Someone still has to look.</h1>
-  <p class="lede">Every event in the business becomes a record, gets checked, and feeds a decision. At each handover, something is lost. The three losses add up.</p>
+  <p class="lede">The ERP records what happens. People turn those records into the tasks the business runs on. The gaps are in that turning.</p>
 
-  <div class="flow" aria-label="Flow from event to decision with three gaps">
-    <div class="node"><b>What happens</b><span>on the floor, at the gate, in the store</span></div>
-    <div class="gap"><em>time</em></div>
-    <div class="node"><b>What is recorded</b><span>in the ERP</span></div>
-    <div class="gap"><em>attention</em></div>
-    <div class="node"><b>What is checked</b><span>by a person</span></div>
-    <div class="gap"><em>capacity</em></div>
-    <div class="node"><b>What is decided</b><span>at the review</span></div>
+  <div class="sec">
+    <h2>What the ERP does</h2>
+    <p class="sub">Data comes in from the floor, the gate, the store and the bank. Data goes out as ledgers, stock lists and reports. People process it to run six tasks.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 880 470" role="img" aria-label="Diagram: data flows into the ERP at the bottom, out to people who process it, and up to six business tasks">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+        </defs>
+        <g font-size="12.5">
+          <rect class="pill" x="0" y="20" width="140" height="40" rx="20"/><text class="t" x="70" y="45" text-anchor="middle">Planning</text>
+          <rect class="pill" x="148" y="20" width="140" height="40" rx="20"/><text class="t" x="218" y="45" text-anchor="middle">Resource allocation</text>
+          <rect class="pill" x="296" y="20" width="140" height="40" rx="20"/><text class="t" x="366" y="45" text-anchor="middle">Inventory tracking</text>
+          <rect class="pill" x="444" y="20" width="140" height="40" rx="20"/><text class="t" x="514" y="45" text-anchor="middle">Material planning</text>
+          <rect class="pill" x="592" y="20" width="140" height="40" rx="20"/><text class="t" x="662" y="45" text-anchor="middle">Procurement risk</text>
+          <rect class="pill" x="740" y="20" width="140" height="40" rx="20"/><text class="t" x="810" y="45" text-anchor="middle">Working capital</text>
+        </g>
+        <path class="ln" d="M70 60 V84 H810 V60"/>
+        <path class="ln" d="M218 60 V84 M366 60 V84 M514 60 V84 M662 60 V84"/>
+        <path class="ln" d="M440 200 V96" marker-end="url(#ah)"/>
+        <text class="lab" x="452" y="150">Tasks</text>
+        <rect class="box" x="290" y="200" width="300" height="76" rx="14"/>
+        <text class="t" x="440" y="232" text-anchor="middle" font-weight="600">People process the data</text>
+        <text class="t2" x="440" y="254" text-anchor="middle">check it, filter it, make it relevant</text>
+        <rect class="erp" x="290" y="350" width="300" height="90" rx="16"/>
+        <text class="tw" x="440" y="392" text-anchor="middle" font-size="30" font-weight="700" letter-spacing="-0.5">ERP</text>
+        <text class="tw" x="440" y="418" text-anchor="middle" font-size="12.5" opacity="0.75">system of record</text>
+        <path class="ln" d="M40 395 H286" marker-end="url(#ah)"/>
+        <text class="lab" x="160" y="378" text-anchor="middle">Data in</text>
+        <text class="t2" x="160" y="420" text-anchor="middle">receipts, bills, sales,</text>
+        <text class="t2" x="160" y="437" text-anchor="middle">counts, payments</text>
+        <path class="ln" d="M590 395 H760 V238 H596" marker-end="url(#ah)"/>
+        <text class="lab" x="675" y="378" text-anchor="middle">Data out</text>
+        <text class="t2" x="675" y="420" text-anchor="middle">ledgers, stock lists,</text>
+        <text class="t2" x="675" y="437" text-anchor="middle">reports</text>
+      </svg>
+    </div>
   </div>
 
-  <div class="three">
-    <div class="g">
-      <h3>The recording gap</h3>
-      <p class="big">9 days</p>
-      <p class="what">A bill sits nine days before it enters the system.</p>
-      <p>The month's picture arrives six days after the month ends.<small>APQC, median of 10,000 companies</small></p>
-      <p>Two of every three stock records are wrong, by about a third of the quantity.<small>DeHoratius and Raman, 370,000 records</small></p>
-    </div>
-    <div class="g">
-      <h3>The attention gap</h3>
-      <p class="big">4 to 5</p>
-      <p class="what">The number of checks a person can hold on one transaction.</p>
-      <p>One bill in five fails the match and goes to a person.<small>Ardent Partners, 212 teams</small></p>
-      <p>A human check misses a fifth to a third of what it looks at.<small>Drury; See, Human Factors</small></p>
-    </div>
-    <div class="g">
-      <h3>The decision gap</h3>
-      <p class="big">46%</p>
-      <p class="what">Of planning time goes to collecting and cleaning data.</p>
-      <p>Managers call most of their decision time wasted.<small>McKinsey, 1,259 managers</small></p>
-      <p>The review calendar sets the pace. The market does not wait for it.</p>
-    </div>
-  </div>
+  <div class="sec">
+    <h2>One task, two ways</h2>
+    <p class="sub">A truck of raw material arrives at the gate. Follow it to the decision it should trigger. Left is how it runs today. Right is the same task with OHM reading the ERP's data as it comes out.</p>
 
-  <div class="result">
-    <p class="big">30 to 70 days</p>
-    <p>From the event to the decision about it. By then the money has left, the price has moved and the stock has aged. The decision is a correction, not a choice.</p>
-    <ul class="six">
-      <li>Planning</li><li>Resource allocation</li><li>Inventory tracking</li><li>Material planning</li><li>Procurement risk</li><li>Working capital</li>
-    </ul>
+    <div class="compare">
+      <div class="head t">Today</div>
+      <div class="head o">With OHM</div>
+
+      <div class="step t"><span class="day">Day 0</span><div><b>Material arrives</b><p>The truck is at the gate. The gate register is on paper. The event is real; the system does not know yet.</p></div></div>
+      <div class="step o"><span class="day">Day 0</span><div><b>Material arrives</b><p>Same event. OHM does not change what happens on the floor.</p></div></div>
+
+      <div class="conn gap t"><em>Time gap <span>· the system is wrong by omission</span></em></div>
+      <div class="conn ok o"><em>Narrowed <span>· the lag is made visible</span></em></div>
+
+      <div class="step t"><span class="day">Day 1 to 9</span><div><b>Recorded in the ERP</b><p>Receipt posted at shift end. The bill is posted nine days after it arrives, seventeen at the slowest firms.</p><small>Ardent Partners 2025, 212 AP teams</small></div></div>
+      <div class="step o"><span class="day">Day 1 to 9</span><div><b>Recorded in the ERP</b><p>Same entry, same ERP. OHM sees a receipt without a bill, a bill without a receipt, and a stock count that drifts from the ledger, on the day it happens.</p></div></div>
+
+      <div class="conn gap t"><em>Attention gap <span>· four or five checks, then accepted</span></em></div>
+      <div class="conn ok o"><em>Closed <span>· every check, every record</span></em></div>
+
+      <div class="step t"><span class="day">Day 9 to 16</span><div><b>Checked by a person</b><p>Quantity, order, price, tax. Not checked: duplicate, rate against contract, weight against lot, credit days, vendor status. One bill in five fails the match and waits in a queue.</p><small>Ardent Partners; a human check misses 20 to 30% (Drury; See 2015)</small></div></div>
+      <div class="step o"><span class="day">Same day</span><div><b>Checked by OHM</b><p>All the checks, on all the records, the day they land. Nothing waits in a queue. What fails goes to the person who owns it, with the number attached.</p></div></div>
+
+      <div class="conn gap t"><em>Capacity gap <span>· the picture is assembled by hand</span></em></div>
+      <div class="conn ok o"><em>Closed <span>· nothing to assemble</span></em></div>
+
+      <div class="step t"><span class="day">Day 36</span><div><b>Put into a report</b><p>The month ends. Six days later the close is done. Planners spent 46% of their time collecting and cleaning the data in it.</p><small>APQC median close; FP&amp;A Trends 2025</small></div></div>
+      <div class="step o"><span class="day">Same day</span><div><b>The exception is the report</b><p>No month-end wait, no spreadsheet. The one line that needs a decision arrives on its own, with the records behind it.</p></div></div>
+
+      <div class="conn t"><em>Review calendar</em></div>
+      <div class="conn ok o"><em>Owner acts</em></div>
+
+      <div class="step t"><span class="day">Day 30 to 70</span><div><b>Decided</b><p>At the review meeting. The money is paid, the price has moved, the stock has aged. The decision corrects what already happened.</p><small>McKinsey: 61% of decision time ineffective, 1,259 managers</small></div></div>
+      <div class="step o"><span class="day">Days</span><div><b>Decided</b><p>While it can still be changed: hold the payment, re-price the order, move the stock, call the vendor.</p></div></div>
+
+      <div class="outcome t"><p class="big">30 to 70 days</p><p>From the event to the decision about it.</p></div>
+      <div class="outcome o"><p class="big">Days, not months</p><p>The only wait left is the time it takes to record the event.</p></div>
+    </div>
+
+    <div class="score">
+      <div><b>Time gap</b><span class="st part">Narrowed</span><p>OHM cannot post the receipt for you. It shows every record that should exist and does not yet, so the lag is seen and shortened.</p></div>
+      <div><b>Attention gap</b><span class="st">Closed</span><p>A person holds four or five checks. OHM holds all of them, on every record, every day.</p></div>
+      <div><b>Capacity gap</b><span class="st">Closed</span><p>No one collects, cleans and assembles. The decision arrives as a single exception, with its evidence.</p></div>
+    </div>
   </div>
 </section>
 
