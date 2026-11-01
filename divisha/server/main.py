@@ -51,8 +51,8 @@ MAX_UPLOAD = 20 * 1024 * 1024
 APP_HEAD = ('<link rel="manifest" href="/manifest.webmanifest">'
             '<meta name="theme-color" content="#f6f5f9" media="(prefers-color-scheme: light)">'
             '<meta name="theme-color" content="#15131b" media="(prefers-color-scheme: dark)">'
-            '<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=2">'
-            '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=2">'
+            '<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=3">'
+            '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=3">'
             '<meta name="apple-mobile-web-app-title" content="Divisha">')
 
 # The same wrapper claude.ai puts around the page, plus the adapter script.
