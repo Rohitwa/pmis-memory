@@ -34,7 +34,7 @@ from datetime import datetime, timedelta, timezone
 from .claude_api import ClaudeError, configured, stream_reply
 from .push import Pusher
 from .reminders import Reminders
-from .shares import document_page, gone_page, routine_page
+from .shares import document_page, gone_page, guide_page, routine_page
 from .store import Store, StoreError
 
 HERE = Path(__file__).parent
@@ -282,11 +282,11 @@ async def create_share(request: Request, user: dict = Depends(parent)):
     kind, target = body.get("kind"), str(body.get("target") or "")
     if kind == "routine":
         target = "all"
-    elif kind == "document":
-        if not store.get(f"documents/{target}")["exists"]:
-            raise StoreError("not_found", "no such document", 404)
+    elif kind in ("document", "guide"):
+        if not store.get(f"{kind}s/{target}")["exists"]:
+            raise StoreError("not_found", f"no such {kind}", 404)
     else:
-        raise StoreError("invalid_argument", "kind must be routine or document")
+        raise StoreError("invalid_argument", "kind must be routine, document or guide")
     days = body.get("days")
     days = int(days) if days in (1, 7, 30, 90) else None
     share = store.create_share(kind, target, user["id"], days)
@@ -298,9 +298,9 @@ def list_shares(request: Request, _: dict = Depends(parent)):
     out = []
     for sh in store.shares():
         label = "Her routine"
-        if sh["kind"] == "document":
-            doc = store.get(f"documents/{sh['target']}")
-            label = doc["data"].get("title", "A document") if doc["exists"] else "A removed document"
+        if sh["kind"] in ("document", "guide"):
+            doc = store.get(f"{sh['kind']}s/{sh['target']}")
+            label = doc["data"].get("title", f"A {sh['kind']}") if doc["exists"] else f"A removed {sh['kind']}"
         out.append({**sh, "label": label, "url": f"{str(request.base_url).rstrip('/')}/s/{sh['token']}"})
     return {"shares": out}
 
@@ -326,7 +326,17 @@ def open_share(token: str):
         tz = reminders_zone()
         today = datetime.now(timezone.utc).astimezone(tz).date().isoformat()
         schedules = [dict(d["data"], id=d["id"]) for d in store.query("schedules")]
-        return HTMLResponse(routine_page(name, schedules, today, by, sh["expires_at"]), headers=SHARE_HEADERS)
+        guides = {d["id"]: d["data"] for d in store.query("guides")}
+        return HTMLResponse(routine_page(name, schedules, today, by, sh["expires_at"], guides), headers=SHARE_HEADERS)
+    if sh["kind"] == "guide":
+        guide = store.get(f"guides/{sh['target']}")
+        if not guide["exists"]:
+            return HTMLResponse(gone_page(), status_code=404, headers=SHARE_HEADERS)
+        profile = store.get("profile/divisha")
+        name = (profile["data"].get("name") if profile["exists"] else None) or "Divisha"
+        today = datetime.now(timezone.utc).astimezone(reminders_zone()).date().isoformat()
+        uses = [dict(d["data"], id=d["id"]) for d in store.query("schedules") if d["data"].get("guideId") == sh["target"]]
+        return HTMLResponse(guide_page(name, guide["data"], uses, today, by, sh["expires_at"]), headers=SHARE_HEADERS)
     doc = store.get(f"documents/{sh['target']}")
     if not doc["exists"]:
         return HTMLResponse(gone_page(), status_code=404, headers=SHARE_HEADERS)

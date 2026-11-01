@@ -25,7 +25,7 @@ from pathlib import Path
 from .store import Store, StoreError
 
 PEOPLE_FIELDS = ("by", "writtenBy", "editedBy", "updatedBy")
-COLLECTIONS = ("entries", "chatList", "chats", "notes", "schedules", "documents")
+COLLECTIONS = ("entries", "chatList", "chats", "notes", "schedules", "documents", "guides")
 MAGIC = {b"%PDF-": "application/pdf", b"\x89PNG": "image/png", b"\xff\xd8\xff": "image/jpeg", b"GIF8": "image/gif"}
 
 

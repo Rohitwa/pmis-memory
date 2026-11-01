@@ -46,7 +46,7 @@ The left pane lists them, top to bottom: **Talk** (where the app opens), **Sched
 └──────────────┴──────────────────────────────────────────┘
 ```
 
-- **You type the way you text each other.** Hindi words like kadha, crocin and bhaap are fine.
+- **You type the way you text each other.** Hindi words like kadha, crocin and bhaap are fine. **Enter starts a new line**, so a long recipe or a list can be typed as it is; tap **Send** to send (on a computer keyboard, Ctrl+Enter also sends).
 - **Claude answers and offers to note things down.** Nothing is saved until you tap **Save all**. You can fix anything first.
 - **Ideas for today** sit above the typing box, most relevant first, at most four. Her schedule comes first: anything due within two hours, then anything due today without a time, then one-off items in the next three days, then later today. Other rules follow, for example "she had a cough yesterday, try steam tonight?" or "you haven't said how she was today". An item drops off once that day's entries mention it.
 - **Schedules can be made in the chat.** Say "cough syrup 5 ml at 9 and 9 for five days" and the card offers it under "Add to her schedule?", with its times, repeat and end. Nothing is added until you tap Save. The Schedule section lists everything to edit, pause or remove.
@@ -123,7 +123,38 @@ The left pane lists them, top to bottom: **Talk** (where the app opens), **Sched
 - **Today** lists each time due today with **Done** and **Skip** (and Undo). Late ones are marked. Each item shows "done X of Y" so far.
 - **Pause** keeps an item but stops it showing and reminding until you resume it.
 - **Reminders** (hosted app only). Each phone turns them on once. The server sends a notification before each time: 30 minutes ahead unless the item says otherwise (5 minutes to a day). It plays the phone's normal notification sound, stays until dismissed, and has **Done** and **Snooze 10 min** buttons. An item set "for" one parent reminds only that parent's phones. A time already marked Done isn't reminded. Items without a time are reminded at 9 am.
+- **Guides** sit inside Schedule (see below).
 - **Share routine** makes a link to a simple page of her routine: every day, certain days, and coming up. It stays up to date as the schedule changes and has a **Save as PDF** button (the browser's print to PDF). Links can last 7, 30 or 90 days or until turned off.
+
+#### Guides
+
+A guide is your own step-by-step way of doing one thing for her: making kadha, giving steam, the bedtime routine. Each one has four parts in plain words: **what it's for** (with how much it makes and how long it takes), **what you need**, the **steps**, and things to **keep in mind**.
+
+```
+┌────────────────────────────────────────────────────────┐
+│  ‹ Her schedule                                        │
+│  How to make Kadha                                     │
+│  For cough and cold · Makes 1 small cup · 10 minutes   │
+│  ⏱ In her schedule: Kadha, every day at 8 am           │
+│  [Download PDF] [Share] [Change with Claude] [Edit]    │
+│                                                        │
+│  You need          Steps                               │
+│  • 1 cup paani     1. Boil the paani with tulsi, adrak │
+│  • 4 tulsi leaves  2. Add haldi, simmer 5 minutes      │
+│  • adrak, haldi    3. Strain and cool till warm        │
+│  Keep in mind: give it warm, not hot · at 8 am         │
+│  ▸ Made from 3 chat messages · changed 2 times         │
+└────────────────────────────────────────────────────────┘
+```
+
+- **Make from chats.** Type what it's about ("kadha"). The app finds every message on any day that mentions it, even spelled differently (kadha, kaadha, kada). Your own messages are ticked; Claude's replies are there to tick if they help. Claude puts the ticked ones together, keeping your amounts and words, and following the latest message where they disagree. You check it, and can add it to her schedule at the time it mentions, before saving.
+- **Change with Claude.** Say what to change in your own words ("give it at 8 AM", "add 2 laung"). Claude rewrites the guide, the changed parts are highlighted, and nothing is saved until you tap Save. If the change gives a time, it offers to move her schedule item too.
+- **Changes in Talk work too.** Claude sees your guides, so "add 2 laung to the kadha guide" in Talk offers the change on its card, and a recipe you type there is offered as a new guide. Its schedule item, if any, is linked to it.
+- **Download PDF** makes a one-page PDF on the phone itself, on both the claude.ai page and the hosted copy: the title, what it's for, when she gets it, and the steps. It's always the latest version.
+- **Share** (hosted copy only) makes a link to the guide that always shows its latest version, with Save as PDF. The shared routine page shows each item's guide steps under it, so a grandparent or nanny has one sheet.
+- Every guide keeps a short history: which messages it came from, and a note for each change. Schedule items with a guide show **See how**.
+
+Guides are written in English letters (Hinglish), which is what the PDF's built-in font prints. Devanagari script would need a different approach.
 
 **The same rules in two places.** The app (`helper.js`) works out what's due for the screen; the server (`server/schedule.py`) works it out for reminders. `tests/schedule-cases.json` is checked against both, so they can't drift apart.
 
@@ -137,12 +168,13 @@ Only people who can edit the page can add documents. That's claude.ai's rule for
 
 ## 3. What the app saves
 
-Six things. That is all.
+Seven things. That is all.
 
 | What | One example | Why we keep it |
 |---|---|---|
 | **About Divisha** | Birth date, allergies, doctor's name and number | So Claude's answers and the warnings fit her age. You fill it in once. |
 | **Her schedule** | "Vitamin D drops, every day at 9 am", "Dr Mehta follow-up, 2 Nov at 5 pm", and which times were done or skipped | So you're reminded, and can see what was given. Made in the chat or in Schedule. |
+| **Guides** | "How to make Kadha": what you need, the steps, keep in mind, and a note for each change | Your own way of doing things, in one place, to follow or hand to someone. |
 | **Documents** | "Blood test report, 28 Oct: haemoglobin a little low, recheck in 3 months", with the photo | A findable record of her papers. |
 | **Chats** | Everything you and Claude said, grouped by day | So you can scroll back and see what you were thinking at the time. |
 | **Entries** | "21 Oct · Care · Paracetamol 5 ml · given at 9 pm · added by Rohit" | The diary. The summaries are built only from these. |
@@ -192,7 +224,7 @@ Five files. Each one has one job and is named for it.
 | `index.html` | The layout of both screens | 150 lines |
 | `style.css` | How it looks, in light and dark | 300 lines |
 | `screens.js` | Draws the screens and handles taps | 500 lines |
-| `diary.js` | Saves and loads the four things in section 3 | 150 lines |
+| `diary.js` | Saves and loads the seven things in section 3 | 300 lines |
 | `helper.js` | Talks to Claude, counts the numbers, makes the "ideas for today", checks warning signs | 400 lines |
 
 Plus one test file that checks the counting, the ideas and the warning signs with made-up data.

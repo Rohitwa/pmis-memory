@@ -28,6 +28,17 @@ REPLIES = {
 }
 
 
+GUIDE = {"title": "How to make Kadha", "forWhat": "Cough and cold", "makes": "1 small cup", "takes": "10 minutes",
+         "need": ["1 cup paani", "4 tulsi leaves", "Small piece of adrak"], "steps": ["Boil the paani with tulsi and adrak.", "Simmer 5 minutes, then strain.", "Cool till warm."],
+         "tips": ["Give it warm, not hot."]}
+
+
+def guide_reply(prompt: str) -> str:
+    if prompt.startswith("You are updating a guide"):
+        return json.dumps({**GUIDE, "tips": GUIDE["tips"] + ["Give it at 8 am."], "time": "08:00", "change": "Time set to 8 am"})
+    return json.dumps({**GUIDE, "time": "08:00", "change": ""})
+
+
 def notes_reply(prompt: str) -> str:
     import re
     nums = [int(n) for n in re.findall(r"^\[(\d+)\]", prompt, re.M)]
@@ -55,7 +66,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         last = body["messages"][-1]["content"]
         text = last if isinstance(last, str) else next(b["text"] for b in last if b["type"] == "text")
-        if body.get("system"):
+        if body.get("system") and text.startswith(("You are writing a guide", "You are updating a guide")):
+            reply = guide_reply(text)
+        elif body.get("system"):
             reply = notes_reply(text)
         elif "[Attached" in text:
             reply = REPLIES["attached"]

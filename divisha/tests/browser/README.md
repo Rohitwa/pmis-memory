@@ -17,6 +17,10 @@ Set `PLAYWRIGHT` to Playwright's `index.js` path and `CHROMIUM` to a browser
 binary if they aren't found on their own. Add `?seed=1` to the preview URL to
 see the app with a few weeks of example entries.
 
-PDFs are drawn with PDF.js from cdnjs. Without internet access, download
-`pdf.min.js` and `pdf.worker.min.js` (version 3.11.174) into a folder and set
+PDFs are drawn with PDF.js from cdnjs, and guide PDFs are made with jsPDF from
+cdnjs. Without internet access, download `pdf.min.js` and `pdf.worker.min.js`
+(PDF.js 3.11.174) and `jspdf.umd.min.js` (jsPDF 2.5.1) into one folder and set
 `PDFJS_DIR` to it.
+
+Early in a month (days 1 to 7) the pages' clock runs two weeks behind, so
+"this month" in Time-based analysis has example entries to show.

@@ -52,6 +52,8 @@
     fever: 'Sorry she\'s unwell tonight. Keep giving her small sips of water, and check her temperature again in an hour.\n\n```json\n{"entries":[{"date":"TODAY","type":"symptom","what":"Fever 39.4","details":"since evening"},{"type":"care","what":"Paracetamol 5 ml","details":"crocin"},{"type":"care","what":"Kadha","details":"before bed"},{"type":"health","what":"sick"}]}\n```',
     attach: 'This is a prescription from Dr Mehta for a dry cough, and a discharge summary. I\'ve offered to keep both in Documents and add the syrup to her schedule.\n\n```json\n{"entries":[{"type":"doctor","what":"Dr Mehta","details":"dry cough, no antibiotic"}],"schedules":[{"what":"Cough syrup 5 ml","repeat":"daily","date":"TODAY","time":"21:00","until":"","details":"at night for 5 days"}],"documents":[{"file":1,"title":"Cough syrup prescription","date":"TODAY","brief":"Dr Mehta: dry cough, no antibiotic. Syrup at night for 5 days."},{"file":2,"title":"Discharge summary","date":"TODAY","brief":"Chest infection; nebuliser at home for 5 days."}]}\n```',
     remind: 'Done. I\'ve offered to add vitamin D drops at 9 am every day to her schedule.\n\n```json\n{"entries":[],"schedules":[{"what":"Vitamin D drops","repeat":"daily","date":"TODAY","time":"09:00","until":"","details":"400 IU, as Dr Mehta said"}]}\n```',
+    recipe: 'Nice, that sounds soothing. I\'ve offered to keep it as a guide, and to add it to her schedule at 8 am.\n\n```json\n{"entries":[],"schedules":[{"what":"Steam","category":"care","repeat":"daily","date":"TODAY","times":["20:00"]}],"guides":[{"guide":null,"title":"How to give steam","forWhat":"Blocked nose","makes":"","takes":"10 minutes","need":["Bowl of hot paani","Towel"],"steps":["Fill the bowl with hot paani.","Sit with her on your lap, a little away from the bowl.","Cover both heads with the towel for 5 minutes."],"tips":["Never leave her alone near hot water."],"change":""}]}\n```',
+    guidechange: 'Done, the kadha guide now says 2 laung. Check it below.\n\n```json\n{"entries":[],"schedules":[],"guides":[{"guide":1,"title":"How to make Kadha","forWhat":"Cough and cold","makes":"1 small cup","takes":"10 minutes","need":["1 cup paani","4 tulsi leaves","Small piece of adrak","2 laung"],"steps":["Boil the paani with tulsi, adrak and laung.","Simmer 5 minutes, then strain.","Cool till warm."],"tips":["Give it warm, not hot."],"change":"Added 2 laung"}]}\n```',
     default: 'Lovely to hear she had a good day. Keep the routine going.\n\n```json\n{"entries":[{"type":"health","what":"well"}]}\n```',
   };
   async function sample(turns, opts = {}) {
@@ -61,7 +63,8 @@
     const d = new Date(); const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     window.__lastImages = (opts.images || []).map(b => ({ type: b.type, size: b.size }));
     if (opts.images?.length && location.search.includes("noimages")) throw { code: "images_unavailable" };
-    const full = (last.includes("[attached") ? replies.attach : last.includes("fever") ? replies.fever : /remind|every day at/.test(last) ? replies.remind : replies.default).replace(/TODAY/g, today);
+    const full = (last.includes("[attached") ? replies.attach : last.includes("fever") ? replies.fever : /remind|every day at/.test(last) ? replies.remind
+      : /steam recipe|steam kaise/.test(last) ? replies.recipe : /kadha guide/.test(last) ? replies.guidechange : replies.default).replace(/TODAY/g, today);
     let text = "";
     for (const word of full.split(/(?<= )/)) {
       if (opts.signal?.aborted) throw { code: "cancelled", text };
@@ -102,6 +105,12 @@
     store.set(`chatList/${key(1)}`, { day: key(1), firstLine: "Cough at night again, gave steam" });
     store.set(`chats/${key(1)}`, { day: key(1), messages: { a: { role: "user", text: "Cough at night again, gave steam", by: "u_partner", createdAt: new Date(Date.now() - 864e5).toISOString() }, b: { role: "assistant", text: "Poor thing. Steam was a good call. Keep her room warm tonight.", createdAt: new Date(Date.now() - 864e5 + 6e4).toISOString(), savedEntryIds: ["e0", "e1", "e2"] } } });
     store.set(`chatList/${key(3)}`, { day: key(3), firstLine: "Clinic visit, 12.3 kg" });
+    store.set(`chatList/${key(5)}`, { day: key(5), firstLine: "Kaadha recipe for her cough" });
+    store.set(`chats/${key(5)}`, { day: key(5), messages: {
+      k1: { role: "user", text: "Kaadha recipe: 1 cup paani, 4 tulsi leaves, small piece of adrak. Boil and simmer 5 min, strain.", by: "u_me", createdAt: new Date(Date.now() - 5 * 864e5).toISOString() },
+      k2: { role: "assistant", text: "That kadha sounds soothing for her cough. Give it warm, not hot.", createdAt: new Date(Date.now() - 5 * 864e5 + 6e4).toISOString() },
+      k3: { role: "user", text: "Also add a pinch of haldi to the kadha", by: "u_partner", createdAt: new Date(Date.now() - 5 * 864e5 + 3e5).toISOString() },
+    } });
   }
 
   sample.limits = async () => ({
@@ -109,6 +118,15 @@
     ...(location.search.includes("noimages") ? {} : { images: { maxCount: 5, maxInputBytes: 20 * 1048576, mediaTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"] } }),
   });
   sample.json = async (prompt, opts = {}) => {
+    if (/^You are (writing|updating) a guide/.test(prompt)) {
+      window.__guidePrompt = prompt;
+      await new Promise((r, j) => { const t = setTimeout(r, 300); opts.signal?.addEventListener("abort", () => { clearTimeout(t); j({ code: "cancelled" }); }); });
+      const base = { title: "How to make Kadha", forWhat: "Cough and cold", makes: "1 small cup", takes: "10 minutes",
+        need: ["1 cup paani", "4 tulsi leaves", "Small piece of adrak", "Pinch of haldi"], steps: ["Boil the paani with tulsi and adrak.", "Add haldi and simmer 5 minutes.", "Strain and cool till warm."], tips: ["Give it warm, not hot."] };
+      if (prompt.startsWith("You are writing")) return { ...base, time: "08:00", change: "" };
+      const now = JSON.parse(prompt.match(/The guide now:\n(.*)\n/)[1]);
+      return { ...now, tips: [...now.tips, "Give it at 8 am, after breakfast."], time: "08:00", change: "Time set to 8 am" };
+    }
     window.__notesPrompt = prompt;
     window.__notesCalls = (window.__notesCalls || 0) + 1;
     await new Promise((r, j) => { const t = setTimeout(r, 400); opts.signal?.addEventListener("abort", () => { clearTimeout(t); j({ code: "cancelled" }); }); });
@@ -131,7 +149,8 @@
     save: async ({ filename, data }) => {
       if (!/\.(gif|png|jpg|jpeg|webp|mp4|webm|txt|json|md|csv|pdf|svg|html|zip)$/i.test(filename)) throw { code: "rejected_extension" };
       if (location.search.includes("decline")) throw { code: "declined" };
-      window.__saved.push({ filename, data: String(data) });
+      if (data instanceof Blob) window.__lastBlob = data;
+      window.__saved.push({ filename, data: data instanceof Blob ? `[blob ${data.size} bytes]` : String(data), size: data instanceof Blob ? data.size : String(data).length, head: data instanceof Blob ? await data.slice(0, 8).text() : "" });
       return { status: "saved" };
     },
   };

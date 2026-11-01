@@ -95,10 +95,10 @@ export function parseReply(text, today = dayKey()) {
   const fences = [...String(text).matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)];
   const last = fences[fences.length - 1];
   if (!last) {
-    return { reply: visiblePart(text), entries: [], schedules: [], documents: [] };
+    return { reply: visiblePart(text), entries: [], schedules: [], documents: [], guides: [] };
   }
   const reply = (text.slice(0, last.index) + text.slice(last.index + last[0].length)).trim();
-  let entries = [], schedules = [], documents = [];
+  let entries = [], schedules = [], documents = [], guides = [];
   try {
     const data = JSON.parse(last[1]);
     const list = Array.isArray(data) ? data : data?.entries;
@@ -108,8 +108,9 @@ export function parseReply(text, today = dayKey()) {
       const seen = new Set();
       documents = data.documents.map(x => cleanDocumentOffer(x, today)).filter(x => x && !seen.has(x.file) && seen.add(x.file));
     }
+    if (Array.isArray(data?.guides)) guides = data.guides.map(cleanGuideOffer).filter(Boolean).slice(0, 3);
   } catch { /* a broken block means nothing to note */ }
-  return { reply, entries, schedules, documents };
+  return { reply, entries, schedules, documents, guides };
 }
 
 // An attached file Claude offers to keep in Documents: which file (1, 2, 3),
@@ -139,7 +140,7 @@ export function entryLine(e) {
 }
 
 // The short packet the app hands Claude: about Divisha + the last two weeks.
-export function contextPacket({ profile = {}, entries = [], schedules = [], documents = [], today = dayKey() }) {
+export function contextPacket({ profile = {}, entries = [], schedules = [], documents = [], guides = [], today = dayKey() }) {
   const name = profile.name || "Divisha";
   const from = addDays(today, -13);
   const recent = entries
@@ -155,6 +156,9 @@ export function contextPacket({ profile = {}, entries = [], schedules = [], docu
     "",
     `Her schedule (${plan.length}):`,
     ...(plan.length ? plan.map(x => `- ${scheduleLine(x, today)}${x.details ? ` · ${x.details}` : ""}`) : ["- nothing set"]),
+    "",
+    `Guides kept (${Math.min(guides.length, GUIDES_SHOWN)}):`,
+    ...(guides.length ? guideOrder(guides).slice(0, GUIDES_SHOWN).map((g, i) => guideBrief(g, i + 1)) : ["- none"]),
     "",
     `Documents kept (latest ${docs.length}):`,
     ...(docs.length ? docs.map(d => `- ${d.date} · ${d.title} · ${d.brief}`) : ["- none"]),
@@ -179,9 +183,9 @@ How to reply:
 - If anything sounds serious, say plainly to call the doctor now.
 - Offer at most one idea or one question.
 
-After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary, anything to add to her schedule, and any attached file worth keeping as a document (use empty lists if nothing new):
+After your reply, always add one block exactly like this, listing what the parent told you that should go in the diary, anything to add to her schedule, any attached file worth keeping as a document, and any guide to keep or change (use empty lists if nothing new):
 \`\`\`json
-{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Cough syrup 5 ml","category":"medicine","repeat":"daily","date":"${today}","times":["09:00","21:00"],"days":5,"lead":30,"details":"after food"}],"documents":[{"file":1,"title":"Blood test report","date":"${today}","brief":"Haemoglobin 10.4, a little low. Recheck in 3 months."}]}
+{"entries":[{"date":"${today}","type":"symptom","what":"Fever 38.4","details":"since evening"}],"schedules":[{"what":"Cough syrup 5 ml","category":"medicine","repeat":"daily","date":"${today}","times":["09:00","21:00"],"days":5,"lead":30,"details":"after food"}],"documents":[{"file":1,"title":"Blood test report","date":"${today}","brief":"Haemoglobin 10.4, a little low. Recheck in 3 months."}],"guides":[]}
 \`\`\`
 Types:
 - health: how she is overall. "what" must be exactly "well", "off" or "sick".
@@ -193,7 +197,9 @@ Rules for entries: one thing per entry. Only note what the parent says happened.
 
 Rules for schedules: add one only when the parent asks for a reminder or schedule, or describes a plan with dates, such as a course of medicine, a follow-up visit or a vaccination. "repeat" is "once", "daily", "weekly" or "monthly". "date" is the first or only day. "times" lists 24-hour "HH:MM" times (several for "twice a day" if the parent gives the times), or [] if none were said. "days" is how many days it lasts, or leave it out. For "weekly", "weekdays" lists the days as numbers, 0 = Sunday to 6 = Saturday. For "every other day" use "daily" with "every": 2. "lead" is how many minutes before to remind (default 30). "category" is "medicine", "care", "doctor", "vaccine" or "other". Keep doses exactly as the parent said them and never add one. Do not repeat anything already in her schedule below. Mention in your reply what you've offered to add.
 
-Attached files: the parent may attach photos or PDFs, such as a prescription, a test report or a vaccination card. You'll see them as pictures, and PDFs as pictures of their first pages. Read them carefully and say briefly what they show. Only use what is clearly written; if something is hard to read, say so instead of guessing. For each attached file worth keeping, add one item under "documents": "file" is its number in the list of attachments, "title" is a short name, "date" is the date on the paper or today, and "brief" is one or two sentences on what it is and what matters in it. A prescription with timings and a duration can also go under "schedules", with doses exactly as written. A doctor's visit on the paper can go under "entries".`;
+Attached files: the parent may attach photos or PDFs, such as a prescription, a test report or a vaccination card. You'll see them as pictures, and PDFs as pictures of their first pages. Read them carefully and say briefly what they show. Only use what is clearly written; if something is hard to read, say so instead of guessing. For each attached file worth keeping, add one item under "documents": "file" is its number in the list of attachments, "title" is a short name, "date" is the date on the paper or today, and "brief" is one or two sentences on what it is and what matters in it. A prescription with timings and a duration can also go under "schedules", with doses exactly as written. A doctor's visit on the paper can go under "entries".
+
+Guides: a guide is the parents' own step-by-step way of doing one thing for her, such as making kadha, giving steam or the bedtime routine. Offer one under "guides" only when the parent gives a recipe or steps, or asks to keep or change a guide. Write it like this: {"guide":null,"title":"How to make Kadha","forWhat":"Cough and cold","makes":"1 small cup","takes":"10 minutes","need":["1 cup water","3 tulsi leaves"],"steps":["Boil the water with the tulsi.","Strain and cool until warm."],"tips":["Give it warm, not hot."],"change":""}. To change a guide listed below, set "guide" to its number (G1 is 1), write the whole guide again with the change made and everything else kept exactly, and say in "change" what changed in a few words. Use the parents' own words, amounts and Hinglish names (tulsi, adrak, haldi). Never add a medicine or a dose they didn't give.`;
 }
 
 // Builds the conversation for one message: the packet goes first, then the
@@ -211,8 +217,8 @@ export function attachmentNote(attachments = [], { shown = false } = {}) {
   return attachments.some(a => a.seen) ? `[Attached: ${list}]` : `[Attached, but you can't see the files on this view: ${list}]`;
 }
 
-export function buildTurns({ profile, entries, schedules = [], documents = [], history = [], newText, attachments = [], today = dayKey() }) {
-  const saw = contextPacket({ profile, entries, schedules, documents, today });
+export function buildTurns({ profile, entries, schedules = [], documents = [], guides = [], history = [], newText, attachments = [], today = dayKey() }) {
+  const saw = contextPacket({ profile, entries, schedules, documents, guides, today });
   const packet = `${instructions({ profile, today })}\n\n${saw}`;
 
   const raw = history.slice(-20).map(m => ({ role: m.role, content: [String(m.text || "").trim(), attachmentNote(m.attachments)].filter(Boolean).join("\n") }))
@@ -321,6 +327,7 @@ export function cleanSchedule(raw, today = dayKey()) {
   return {
     what, details: String(raw.details ?? "").trim().slice(0, 300), category, repeat, date, until, every, weekdays, times, lead,
     for: typeof raw.for === "string" ? raw.for : "", paused: !!raw.paused,
+    guideId: typeof raw.guideId === "string" ? raw.guideId.slice(0, 40) : "",
   };
 }
 
@@ -852,6 +859,201 @@ export function changedSince(entries, span, writtenAt) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════
+// Guides: the parents' own step-by-step way of doing one thing
+// ═════════════════════════════════════════════════════════════════════════
+// A guide has a title, what it's for, how much it makes and how long it
+// takes, what you need, the steps, and things to keep in mind. It can be
+// made from several chat messages, changed by telling Claude what to change,
+// linked from items in her schedule, and downloaded as a PDF.
+
+const GUIDES_SHOWN = 12;
+
+// "1. Boil water", "- tulsi", "• ginger" → the words alone.
+function cleanLine(t, most) {
+  return String(t ?? "").replace(/^\s*(?:[-*•·–]|\d{1,2}[.):]|step\s*\d+[.):]?)\s*/i, "").replace(/\s+/g, " ").trim().slice(0, most);
+}
+
+export function linesOf(value, most = 400, count = 30) {
+  const list = Array.isArray(value) ? value : String(value ?? "").split(/\n+/);
+  return list.map(t => cleanLine(t, most)).filter(Boolean).slice(0, count);
+}
+
+// Keeps what a guide needs, within sensible lengths. No title or no steps
+// means it isn't a guide yet.
+export function cleanGuide(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const title = String(raw.title ?? "").replace(/\s+/g, " ").trim().slice(0, 80);
+  const steps = linesOf(raw.steps, 400, 30);
+  if (!title || !steps.length) return null;
+  return {
+    title,
+    forWhat: String(raw.forWhat ?? "").replace(/\s+/g, " ").trim().slice(0, 200),
+    makes: String(raw.makes ?? "").trim().slice(0, 60),
+    takes: String(raw.takes ?? "").trim().slice(0, 60),
+    need: linesOf(raw.need, 160, 30),
+    steps,
+    tips: linesOf(raw.tips, 300, 15),
+  };
+}
+
+// A guide offered on a chat card: new (guide: null) or a change to guide G<n>.
+export function cleanGuideOffer(raw) {
+  const g = cleanGuide(raw);
+  if (!g) return null;
+  const n = Number(raw.guide);
+  return { ...g, guide: Number.isInteger(n) && n >= 1 && n <= GUIDES_SHOWN ? n : null, change: String(raw.change ?? "").trim().slice(0, 160) };
+}
+
+// The same order everywhere, so "G2" means the same guide to Claude and the app.
+export function guideOrder(guides) {
+  return guides.slice().sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || "") || a.title.localeCompare(b.title));
+}
+
+function guideBrief(g, n) {
+  const parts = [
+    g.forWhat && `for ${g.forWhat}`,
+    g.makes && `makes ${g.makes}`,
+    g.takes && `takes ${g.takes}`,
+    g.need?.length && `needs: ${g.need.join("; ")}`,
+    `steps: ${g.steps.map((t, i) => `${i + 1}) ${t}`).join(" ")}`,
+    g.tips?.length && `keep in mind: ${g.tips.join("; ")}`,
+  ].filter(Boolean).join(" · ");
+  return `- G${n}. ${g.title} · ${parts}`.slice(0, 1600);
+}
+
+// The whole guide as plain text, for Claude and for the downloaded copy.
+export function guideAsText(g) {
+  const out = [g.title];
+  const facts = [g.forWhat && `For: ${g.forWhat}`, g.makes && `Makes: ${g.makes}`, g.takes && `Takes: ${g.takes}`].filter(Boolean);
+  if (facts.length) out.push(facts.join(" · "));
+  if (g.need?.length) out.push("", "You need:", ...g.need.map(t => `- ${t}`));
+  out.push("", "Steps:", ...g.steps.map((t, i) => `${i + 1}. ${t}`));
+  if (g.tips?.length) out.push("", "Keep in mind:", ...g.tips.map(t => `- ${t}`));
+  return out.join("\n");
+}
+
+// Finding what was said about something across every chat. Hinglish is
+// spelled many ways (kadha, kaadha, kada), so words are compared loosely.
+export function looseWord(w) {
+  return String(w).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "")
+    .replace(/([kgcjtdpb])h/g, "$1").replace(/(.)\1+/g, "$1").replace(/[aeiou]+$/, "");
+}
+
+const SEARCH_SKIP = new Set(["how", "make", "making", "the", "and", "for", "her", "give", "giving", "guide", "about", "with", "what"]);
+
+export function topicWords(topic) {
+  return [...new Set(String(topic).split(/[^\p{L}\p{N}]+/u).filter(w => w.length >= 3 && !SEARCH_SKIP.has(w.toLowerCase())).map(looseWord).filter(w => w.length >= 2))];
+}
+
+// chats: [{ day, messages: { id: { role, text, by, createdAt } } }]
+// → the messages that mention the topic, oldest first.
+export function findMessages(chats, topic, most = 40) {
+  const words = topicWords(topic);
+  if (!words.length) return [];
+  const found = [];
+  for (const c of chats) {
+    for (const [id, m] of Object.entries(c.messages || {})) {
+      const text = String(m?.text || "");
+      if (!text || (m.role !== "user" && m.role !== "assistant")) continue;
+      const loose = new Set(text.split(/[^\p{L}\p{N}]+/u).map(looseWord));
+      if (words.some(w => loose.has(w) || [...loose].some(x => x.length > w.length + 1 && x.startsWith(w)))) {
+        found.push({ day: c.day, id, role: m.role, text, by: m.by || null, createdAt: m.createdAt || "" });
+      }
+    }
+  }
+  return found.sort((a, b) => (a.day + a.createdAt).localeCompare(b.day + b.createdAt)).slice(-most);
+}
+
+const GUIDE_REPLY = `{"title":"How to make Kadha","forWhat":"Cough and cold","makes":"1 small cup","takes":"10 minutes","need":["1 cup water","3 to 4 tulsi leaves"],"steps":["Boil the water with the tulsi.","Strain and cool until warm."],"tips":["Give it warm, not hot."],"time":"08:00","change":""}`;
+
+function guideRules(name, age) {
+  return `Rules:
+- Use only what the parents said. Keep their amounts, ingredients and order exactly. Keep their Hinglish names (tulsi, adrak, haldi, gud) as they wrote them.
+- If messages disagree, follow the latest one.
+- Never add a medicine, a dose or an ingredient they didn't mention. You may add one short caution under "tips" if it clearly matters for ${name}${age ? ` at ${age}` : ""} (for example "no honey under 1 year"), starting it with "Note:".
+- "title" starts with "How to" when it's something you make or do. "need" lists ingredients or things needed, one per line, or [] if none. "steps" are short, plain sentences in order, one action each. "tips" is anything to keep in mind: when to give it, how often, cautions.
+- "makes" and "takes" are short ("1 small cup", "10 minutes") or "" if not said.
+- "time" is the time of day the parents said to give or do it, as 24-hour "HH:MM", or "" if not said.`;
+}
+
+// Writing a guide from the messages the parent picked.
+export function guideRequest({ profile = {}, topic, messages, today = dayKey() }) {
+  const name = profile.name || "Divisha";
+  const age = ageText(profile.dob, today);
+  const said = messages.map((m, i) => `[${i + 1}] ${m.day} · ${m.role === "user" ? "Parent" : "Helper's reply"}:\n${m.text}`).join("\n\n");
+  return `You are writing a guide in Divisha Wellness, a diary two parents keep about their daughter ${name}. A guide is their own step-by-step way of doing one thing for her, written so anyone looking after her (a grandparent, a nanny) can follow it.
+
+Write the guide for: ${topic}
+Put together everything the messages below say about it. Parents' messages count; the helper's replies only show what was discussed.
+
+${guideRules(name, age)}
+
+Reply with only this JSON:
+${GUIDE_REPLY}
+
+Messages:
+${said}`;
+}
+
+// Changing a guide as the parent says.
+export function guideRevisionRequest({ profile = {}, guide, instruction, today = dayKey() }) {
+  const name = profile.name || "Divisha";
+  const age = ageText(profile.dob, today);
+  return `You are updating a guide in Divisha Wellness, a diary two parents keep about their daughter ${name}.
+
+The guide now:
+${JSON.stringify({ title: guide.title, forWhat: guide.forWhat || "", makes: guide.makes || "", takes: guide.takes || "", need: guide.need || [], steps: guide.steps, tips: guide.tips || [] })}
+
+What the parent wants changed:
+${instruction}
+
+Make exactly that change and keep everything else word for word. Write the whole guide again. In "change", say in a few plain words what changed, like "Time set to 8 am" or "Added 2 cloves".
+
+${guideRules(name, age)}
+
+Reply with only this JSON:
+${GUIDE_REPLY}`;
+}
+
+// Claude's guide, checked. `time` is a suggestion for her schedule.
+export function readGuideReply(raw) {
+  const guide = cleanGuide(raw);
+  if (!guide) return null;
+  return { guide, time: cleanTime(raw.time), change: String(raw?.change ?? "").trim().slice(0, 160) };
+}
+
+export async function writeGuide(sample, prompt, { signal } = {}) {
+  return sample.json(prompt, { modelTier: "default", cache: false, signal });
+}
+
+// Which parts of a guide changed, for the "see what changed" view.
+export function guideDiff(before, after) {
+  const changed = new Set();
+  for (const k of ["title", "forWhat", "makes", "takes"]) if ((before?.[k] || "") !== (after?.[k] || "")) changed.add(k);
+  for (const k of ["need", "steps", "tips"]) if (JSON.stringify(before?.[k] || []) !== JSON.stringify(after?.[k] || [])) changed.add(k);
+  return changed;
+}
+
+// Items in her schedule that use this guide, in plain words.
+export function guideUses(guide, schedules, today = dayKey()) {
+  return schedules.filter(s => s.guideId === guide.id && !s.paused && !(s.until && s.until < today && s.repeat !== "once"))
+    .map(s => scheduleLine(s, today));
+}
+
+// A file name for the PDF: "How to make Kadha" → "how-to-make-kadha.pdf".
+export function guideFileName(g) {
+  const base = String(g.title || "guide").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+  return `${base || "guide"}.pdf`;
+}
+
+// Text a PDF's standard font can print: curly quotes, dashes and the like
+// become their plain forms; anything else outside Latin-1 is dropped.
+export function pdfSafe(text) {
+  return String(text ?? "").replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-")
+    .replace(/…/g, "...").replace(/[•·]/g, "-").replace(/₹/g, "Rs ").replace(/[^\x09\x0a\x20-\x7e\xa0-\xff]/g, "");
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 // Keep a copy
 // ═════════════════════════════════════════════════════════════════════════
 
@@ -868,7 +1070,7 @@ export function copyFileNames(today = dayKey()) {
 
 // A diary anyone can read: About Divisha, every entry by month (newest
 // first), then Claude's saved notes with the dates each point is based on.
-export function readableDiary({ profile = {}, entries = [], notes = [], schedules = [], documents = [], names = {}, today = dayKey() }) {
+export function readableDiary({ profile = {}, entries = [], notes = [], schedules = [], documents = [], guides = [], names = {}, today = dayKey() }) {
   const name = profile.name || "Divisha";
   const sorted = entries.slice().sort((a, b) => (a.date !== b.date ? (a.date < b.date ? 1 : -1) : (a.createdAt || "") < (b.createdAt || "") ? -1 : 1));
   const byId = new Map(entries.map(e => [e.id, e]));
@@ -886,6 +1088,14 @@ export function readableDiary({ profile = {}, entries = [], notes = [], schedule
   out.push("## Her schedule", "");
   if (!schedules.length) out.push("Nothing set.", "");
   else out.push(...schedules.slice().sort((a, b) => (a.date < b.date ? -1 : 1)).map(x => `- ${scheduleLine(x, today)}${x.details ? `. ${x.details}` : ""}`), "");
+
+  if (guides.length) {
+    out.push("## Guides", "");
+    for (const g of guideOrder(guides)) {
+      const t = guideAsText(g).split("\n");
+      out.push(`### ${t[0]}`, "", ...t.slice(1).map(l => l.replace(/^(You need|Steps|Keep in mind):$/, "**$1**")), "");
+    }
+  }
 
   out.push("## Documents", "");
   if (!documents.length) out.push("None kept.", "");
@@ -930,13 +1140,13 @@ export function readableDiary({ profile = {}, entries = [], notes = [], schedule
 }
 
 // Everything, in a form a computer can read back in later.
-export function backupFile({ profile = {}, entries = [], chatList = [], chats = [], notes = [], schedules = [], documents = [], exportedAt = new Date().toISOString() }) {
+export function backupFile({ profile = {}, entries = [], chatList = [], chats = [], notes = [], schedules = [], documents = [], guides = [], exportedAt = new Date().toISOString() }) {
   return JSON.stringify({
     app: "Divisha Wellness",
     format: 2,
     exportedAt,
-    counts: { entries: entries.length, chatDays: chats.length, notes: notes.length, schedules: schedules.length, documents: documents.length },
+    counts: { entries: entries.length, chatDays: chats.length, notes: notes.length, schedules: schedules.length, documents: documents.length, guides: guides.length },
     note: "Documents are listed with their titles and briefs. The files themselves stay in Divisha Wellness.",
-    profile, entries, chatList, chats, notes, schedules, documents,
+    profile, entries, chatList, chats, notes, schedules, documents, guides,
   }, null, 2);
 }

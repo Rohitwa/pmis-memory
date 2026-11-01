@@ -1,9 +1,10 @@
 """shares.py — the pages a share link opens, for people without an account.
 
 A routine link shows her current schedule (it updates as the schedule
-changes) with a Save as PDF button. A document link shows one document's
-title, date and brief, and lets the reader open or download the file.
-Nothing else in the diary is reachable from a link.
+changes), with the steps of any guide an item uses, and a Save as PDF button.
+A guide link shows one guide, always its latest version. A document link
+shows one document's title, date and brief, and lets the reader open or
+download the file. Nothing else in the diary is reachable from a link.
 """
 
 from __future__ import annotations
@@ -43,10 +44,20 @@ p { margin: 0; }
 .brief { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; white-space: pre-wrap; }
 .file img { display: block; max-width: 100%; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
 footer { color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); padding-top: 12px; }
+.how { margin-top: 6px; font-size: .9rem; }
+.how summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.how ol, .how ul, .sheet ol, .sheet ul { margin: 6px 0 0; padding-left: 1.4em; display: grid; gap: 4px; }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; display: grid; gap: 14px; }
+.sheet h2 { margin: 0; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.sheet ol li::marker { font-weight: 700; color: var(--accent); }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--muted); font-size: .9rem; }
+.facts strong { color: var(--ink); }
+.uses { background: var(--soft); border-radius: 12px; padding: 10px 14px; font-size: .9rem; }
 @media (max-width: 520px) { .row { grid-template-columns: 1fr; gap: 2px; } }
 @media print {
   :root { --paper:#fff; --surface:#fff; --ink:#000; --muted:#444; --accent:#3b2366; --line:#ccc; --soft:#eee; color-scheme: light; }
   body { padding: 0; font-size: 12pt; } .actions { display: none; } .card { break-inside: auto; } .row { break-inside: avoid; }
+  .how[open] summary, .how summary { list-style: none; color: var(--ink); } .sheet li { break-inside: avoid; }
 }
 """
 
@@ -89,7 +100,22 @@ def repeat_text(s: dict) -> str:
     return short_date(s["date"])
 
 
-def _row(s: dict, today: str, when: str) -> str:
+def _list(items: list, ordered: bool = False) -> str:
+    tag = "ol" if ordered else "ul"
+    return f"<{tag}>" + "".join(f"<li>{escape(str(t))}</li>" for t in items or []) + f"</{tag}>"
+
+
+def _how(guide: dict | None) -> str:
+    # The steps of the guide an item uses, folded away on screen and open in the PDF.
+    if not guide or not guide.get("steps"):
+        return ""
+    need = f"<p><strong>You need:</strong> {escape('; '.join(str(t).rstrip('.') for t in guide.get('need') or []))}</p>" if guide.get("need") else ""
+    tips = f"<p><strong>Keep in mind:</strong> {escape('; '.join(str(t).rstrip('.') for t in guide.get('tips') or []))}.</p>" if guide.get("tips") else ""
+    return (f'<details class="how" open><summary>{escape(guide.get("title", "How to"))}</summary>'
+            f'{need}{_list(guide["steps"], True)}{tips}</details>')
+
+
+def _row(s: dict, today: str, when: str, guides: dict | None = None) -> str:
     times = times_of(s)
     clock = ", ".join(time_text(t) for t in times) if times else "Any time"
     extra = []
@@ -100,11 +126,12 @@ def _row(s: dict, today: str, when: str) -> str:
     note = f' <span class="note">· {escape(", ".join(extra))}</span>' if extra else ""
     tag = f'<span class="tag">{escape(CATEGORY.get(s.get("category"), ""))}</span>' if s.get("category") in CATEGORY else ""
     details = f'<p class="details">{escape(s["details"])}</p>' if s.get("details") else ""
+    how = _how((guides or {}).get(s.get("guideId") or ""))
     return (f'<div class="row"><div class="when">{escape(clock)}<div class="note">{escape(when)}</div></div>'
-            f'<div><span class="what">{escape(s.get("what", ""))}</span>{tag}{note}{details}</div></div>')
+            f'<div><span class="what">{escape(s.get("what", ""))}</span>{tag}{note}{details}{how}</div></div>')
 
 
-def routine_page(name: str, schedules: list[dict], today: str, shared_by: str, expires_at: str | None) -> str:
+def routine_page(name: str, schedules: list[dict], today: str, shared_by: str, expires_at: str | None, guides: dict | None = None) -> str:
     live = [s for s in schedules if not s.get("paused") and not (s.get("until") and s["until"] < today)]
     daily = [s for s in live if (s.get("repeat") == "daily" and int(s.get("every") or 1) == 1) or (s.get("repeat") == "weekly" and len(s.get("weekdays") or []) == 7)]
     once = sorted([s for s in live if s.get("repeat") == "once" and s.get("date", "") >= today], key=lambda s: (s["date"], (times_of(s) or [""])[0]))
@@ -113,11 +140,11 @@ def routine_page(name: str, schedules: list[dict], today: str, shared_by: str, e
 
     sections = []
     if daily:
-        sections.append("<h2>Every day</h2><div class='card'>" + "".join(_row(s, today, "") for s in sorted(daily, key=first_time)) + "</div>")
+        sections.append("<h2>Every day</h2><div class='card'>" + "".join(_row(s, today, "", guides) for s in sorted(daily, key=first_time)) + "</div>")
     if other:
-        sections.append("<h2>On certain days</h2><div class='card'>" + "".join(_row(s, today, repeat_text(s)) for s in sorted(other, key=first_time)) + "</div>")
+        sections.append("<h2>On certain days</h2><div class='card'>" + "".join(_row(s, today, repeat_text(s), guides) for s in sorted(other, key=first_time)) + "</div>")
     if once:
-        sections.append("<h2>Coming up</h2><div class='card'>" + "".join(_row(s, today, short_date(s["date"])) for s in once) + "</div>")
+        sections.append("<h2>Coming up</h2><div class='card'>" + "".join(_row(s, today, short_date(s["date"]), guides) for s in once) + "</div>")
     if not sections:
         sections.append("<p class='meta'>Nothing is scheduled right now.</p>")
     until = f" This link works until {short_date(expires_at[:10])}." if expires_at else ""
@@ -150,6 +177,36 @@ def document_page(doc: dict, token: str, shared_by: str, expires_at: str | None)
 {shown}
 <footer>Shared from Divisha Wellness.</footer>"""
     return page(doc.get("title", "Document"), body)
+
+
+def schedule_line(s: dict) -> str:
+    times = times_of(s)
+    clock = ", ".join(time_text(t) for t in times)
+    when = repeat_text(s)
+    return f"{when} at {clock}" if clock else when
+
+
+def guide_page(name: str, guide: dict, uses: list[dict], today: str, shared_by: str, expires_at: str | None) -> str:
+    title = guide.get("title") or "Guide"
+    facts = [(k, guide.get(f)) for k, f in (("For", "forWhat"), ("Makes", "makes"), ("Takes", "takes")) if guide.get(f)]
+    facts_html = f'<p class="facts">{"".join(f"<span><strong>{k}</strong> {escape(v)}</span>" for k, v in facts)}</p>' if facts else ""
+    live = [s for s in uses if not s.get("paused") and not (s.get("until") and s["until"] < today and s.get("repeat") != "once")]
+    uses_html = f'<p class="uses">In {escape(name)}\'s schedule: {escape("; ".join(schedule_line(s) for s in live))}</p>' if live else ""
+    need = f"<section><h2>You need</h2>{_list(guide.get('need'))}</section>" if guide.get("need") else ""
+    tips = f"<section><h2>Keep in mind</h2>{_list(guide.get('tips'))}</section>" if guide.get("tips") else ""
+    updated = (guide.get("editedAt") or guide.get("createdAt") or "")[:10]
+    until = f" This link works until {short_date(expires_at[:10])}." if expires_at else ""
+    body = f"""
+<header style="display:grid;gap:6px">
+  <h1>{escape(title)}</h1>
+  {facts_html}
+  <p class="meta">{escape(name)}'s guide, shared by {escape(shared_by or "a parent")} from Divisha Wellness.{f" Updated {escape(long_date(updated))}." if updated else ""} This page always shows the latest version.{escape(until)}</p>
+</header>
+{uses_html}
+<div class="actions"><button class="btn primary" type="button" onclick="window.print()">Save as PDF</button></div>
+<div class="sheet">{need}<section><h2>Steps</h2>{_list(guide.get("steps"), True)}</section>{tips}</div>
+<footer>Shared from Divisha Wellness. Follow the doctor's advice for medicines and doses.</footer>"""
+    return page(title, body)
 
 
 def gone_page() -> str:

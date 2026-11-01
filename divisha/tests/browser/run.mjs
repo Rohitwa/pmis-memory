@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 const pw = await import(process.env.PLAYWRIGHT || "playwright"); const { chromium } = pw.default || pw;
 const S = process.argv[2] || ".";
 const base = `http://127.0.0.1:${process.env.PORT || 8765}/index.html`;
@@ -43,9 +44,25 @@ async function serveBlob(r) {
   return r.fulfill({ body: PNG, contentType: "image/png" });
 }
 
+// The example data is relative to today. Early in a month, "this month" in
+// Time-based analysis would be nearly empty, so the pages' clock runs two
+// weeks behind then. Everything in the app reads time through Date.
+const CLOCK_SHIFT = new Date().getDate() < 8 ? -14 * 864e5 : 0;
+const nowShifted = () => new Date(Date.now() + CLOCK_SHIFT);
+
 async function page(opts, url = base, { pdfjs = true } = {}) {
   const ctx = await browser.newContext(opts);
   ctx.setDefaultTimeout(30000);
+  if (CLOCK_SHIFT) {
+    await ctx.addInitScript((shift) => {
+      const RealDate = Date;
+      class ShiftedDate extends RealDate {
+        constructor(...a) { super(...(a.length ? a : [RealDate.now() + shift])); }
+        static now() { return RealDate.now() + shift; }
+      }
+      window.Date = ShiftedDate;
+    }, CLOCK_SHIFT);
+  }
   await ctx.route("**/_blob/**", serveBlob);
   // PDF.js comes from cdnjs. Set PDFJS_DIR to serve a downloaded copy instead.
   await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/**", r => {
@@ -53,6 +70,9 @@ async function page(opts, url = base, { pdfjs = true } = {}) {
     if (process.env.PDFJS_DIR) return r.fulfill({ path: `${process.env.PDFJS_DIR}/${r.request().url().split("/").pop()}`, contentType: "text/javascript" });
     return r.continue();
   });
+  // jsPDF (for guide PDFs) also comes from cdnjs; PDFJS_DIR can hold a copy of it too.
+  await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/jspdf/**", r => process.env.PDFJS_DIR
+    ? r.fulfill({ path: `${process.env.PDFJS_DIR}/jspdf.umd.min.js`, contentType: "text/javascript" }) : r.continue());
   const p = await ctx.newPage();
   p.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
   p.on("pageerror", e => errors.push(String(e)));
@@ -84,7 +104,7 @@ check(true, "an item can be added in the Schedule section");
 await d.click(".sections a[data-view=talk]");
 
 await d.fill("#composerText", "Fever 39.4 since evening, gave 5 ml crocin and kadha before bed");
-await d.keyboard.press("Enter");
+await d.click("#sendBtn");
 await d.waitForSelector(".note-card .note-row");
 const rows = await d.locator(".note-card .note-row").count();
 check(rows === 4, `card offers 4 entries (got ${rows})`);
@@ -133,7 +153,7 @@ await d.screenshot({ path: `${S}/shots/5-desktop-lookback.png` });
 // Stop mid-answer keeps the words written so far
 await d.click(".sections a[data-view=talk]");
 await d.fill("#composerText", "She was fine all day");
-await d.keyboard.press("Enter");
+await d.click("#sendBtn");
 await d.waitForSelector("#stopBtn:not([hidden])");
 await d.click("#stopBtn");
 await d.waitForSelector("#sendBtn:not([hidden])");
@@ -168,10 +188,10 @@ await n.screenshot({ path: `${S}/shots/10-phone-light-nosample.png` });
 // ── Look back with two months of example data (desktop, light) ──
 const L = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1#analysis");
 await L.waitForSelector(".tiles .tile");
-const monthName = new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+const monthName = nowShifted().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 check((await L.textContent("#spanTitle")) === monthName, `opens on this month (${monthName})`);
 check(await L.locator(".tiles .tile").count() === 4, "four numbers: well, off or sick, spells, doctor");
-const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+const daysInMonth = new Date(nowShifted().getFullYear(), nowShifted().getMonth() + 1, 0).getDate();
 check(await L.locator(".cal .day").count() === daysInMonth, `one square per day of the month (${daysInMonth})`);
 check(await L.locator(".cal .day.is-today").count() === 1, "today is marked on the calendar");
 check(await L.isDisabled("#spanNext"), "can't step into the future");
@@ -222,7 +242,7 @@ check(true, "notes say when entries changed after they were written");
 await L.click("[data-act=span-kind][data-kind=year]");
 await L.waitForSelector(".year-grid");
 check(await L.locator(".year-row").count() === 12, "Year shows twelve rows");
-check((await L.textContent("#spanTitle")) === String(new Date().getFullYear()), "Year is this year");
+check((await L.textContent("#spanTitle")) === String(nowShifted().getFullYear()), "Year is this year");
 await L.screenshot({ path: `${S}/shots/15-lookback-year.png`, fullPage: true });
 await L.click("[data-act=span-kind][data-kind=week]");
 check((await L.textContent("#spanTitle")) === "This week", "Week opens on this week");
@@ -343,7 +363,7 @@ await SC.waitForSelector("#messages[data-state=ready]");
 check(await SC.isVisible(".ideas .chip.schedule:has-text('Coming up: Dr Mehta follow-up')"), "ideas include something coming up in her schedule");
 check(await SC.locator(".ideas .chip").count() <= 4, "ideas stop at four");
 await SC.fill("#composerText", "Remind me to give vitamin D drops every day at 9 am");
-await SC.keyboard.press("Enter");
+await SC.click("#sendBtn");
 await SC.waitForSelector(".note-card .sched-row");
 check(await SC.isVisible(".note-card h3:has-text('Add to her schedule?')"), "Claude offers a schedule item in the card");
 const scTurns = await SC.evaluate(() => window.__lastTurns[0].content);
@@ -571,7 +591,7 @@ await AT.click("#attachList .att >> nth=1 >> [data-act=attach-remove]");
 check(await AT.locator("#attachList .att").count() === 1, "a waiting file can be removed");
 await AT.setInputFiles("#attachInput", [{ name: "discharge.pdf", mimeType: "application/pdf", buffer: PDF }]);
 await AT.fill("#composerText", "Prescription and discharge summary from today");
-await AT.keyboard.press("Enter");
+await AT.click("#sendBtn");
 await AT.waitForSelector(".note-card .doc-offer", { timeout: 60000 });
 const sent = await AT.evaluate(() => ({
   images: window.__lastImages,
@@ -621,7 +641,7 @@ await ATN.waitForSelector("#messages[data-state=ready]");
 check(await ATN.isVisible("#attachBtn"), "without file storage, Claude can still be shown a photo");
 await ATN.setInputFiles("#attachInput", [{ name: "rash.png", mimeType: "image/png", buffer: PNG }]);
 await ATN.fill("#composerText", "Rash on her arm");
-await ATN.keyboard.press("Enter");
+await ATN.click("#sendBtn");
 await ATN.waitForSelector(".msg.user .att:has-text('not kept')");
 await ATN.waitForSelector(".msg.assistant .text");
 check(await ATN.locator(".doc-offer").count() === 0, "and a file that wasn't kept isn't offered for Documents");
@@ -636,6 +656,133 @@ await ATP.waitForSelector(".note-card .doc-offer", { timeout: 60000 });
 const apw = await ATP.evaluate(() => document.documentElement.scrollWidth);
 check(apw <= 390, `phone: attachments and the card fit (width ${apw})`);
 await ATP.screenshot({ path: `${S}/shots/38-phone-attach-card.png`, fullPage: true });
+
+// ── Guides, inside Schedule ──
+const G = await page({ viewport: { width: 1280, height: 900 }, colorScheme: "light" }, base + "?seed=1");
+await G.waitForSelector("#messages[data-state=ready]");
+// Enter makes a new line in Talk; the Send button sends (Ctrl+Enter too, on a keyboard).
+const sentBefore = await G.locator(".msg.user").count();
+await G.fill("#composerText", "Line one");
+await G.focus("#composerText");
+await G.keyboard.press("End");
+await G.keyboard.press("Enter");
+await G.keyboard.type("Line two");
+await G.waitForTimeout(300);
+check(await G.inputValue("#composerText") === "Line one\nLine two" && await G.locator(".msg.user").count() === sentBefore, "Enter starts a new line in the message instead of sending it");
+await G.keyboard.press("Control+Enter");
+await G.waitForSelector(".msg.user .bubble:has-text('Line two')");
+check(true, "Ctrl+Enter still sends from a keyboard");
+await G.waitForSelector("#sendBtn:not([hidden])");
+
+await G.click(".sections a[data-view=schedule]");
+await G.waitForSelector("#guideList .empty");
+check(await G.isVisible("#gatherBtn") && await G.isVisible("#addGuideBtn"), "Schedule has Guides, with Make from chats and Write one");
+await G.click("#gatherBtn");
+await G.fill("#gTopic", "kadha");
+await G.keyboard.press("Enter");
+await G.waitForSelector(".found");
+const foundAll = await G.locator(".found").count(), foundTicked = await G.locator(".found input:checked").count();
+check(foundAll === 3 && foundTicked === 2, `it finds every message about kadha, on any day, and ticks your own (${foundTicked} of ${foundAll})`);
+await G.screenshot({ path: `${S}/shots/40-guide-gather.png` });
+await G.click("[data-act=guide-write]");
+await G.waitForSelector(".guide-form");
+const gp = await G.evaluate(() => window.__guidePrompt);
+check(/Kaadha recipe: 1 cup paani/.test(gp) && /pinch of haldi/.test(gp) && !/sounds soothing/.test(gp), "Claude is sent the two ticked messages, not the unticked reply");
+check(await G.inputValue("#gfTitle") === "How to make Kadha" && (await G.inputValue("#gfSteps")).split("\n").length === 3, "Claude's guide comes back to check before saving");
+check(await G.isChecked("#gfAdd") && await G.inputValue("#gfTime") === "08:00", "the time Claude read (8 am) is offered for her schedule");
+await G.screenshot({ path: `${S}/shots/41-guide-check.png`, fullPage: true });
+await G.click("[data-act=guide-form-save]");
+await G.waitForSelector(".guide-view h2:has-text('How to make Kadha')");
+const saved1 = await G.evaluate(() => {
+  const all = [...window.__store.entries()];
+  const [gid, g] = all.find(([k]) => k.startsWith("guides/"));
+  const s = all.find(([k, v]) => k.startsWith("schedules/") && v.what === "Kadha")?.[1];
+  return { gid: gid.split("/")[1], sources: g.sources.length, notes: Object.values(g.changes).map(c => c.note), s: s && { times: s.times, repeat: s.repeat, guideId: s.guideId } };
+});
+check(saved1.sources === 2 && saved1.notes.join() === "Made from 2 chat messages", "the guide remembers which messages it came from");
+check(saved1.s?.repeat === "daily" && saved1.s.times.join() === "08:00" && saved1.s.guideId === saved1.gid, "and Kadha is in her schedule every day at 8 am, linked to the guide");
+check(await G.waitForSelector(".guide-uses:has-text('Kadha: every day at 8 am')", { timeout: 5000 }).then(() => true, () => false), "the guide shows where it's used in her schedule");
+await G.screenshot({ path: `${S}/shots/42-guide.png`, fullPage: true });
+
+await G.click("[data-act=guide-pdf]");
+await G.waitForFunction(() => window.__saved.some(f => f.filename.endsWith(".pdf")));
+const pdf = await G.evaluate(async () => ({ f: window.__saved.find(f => f.filename.endsWith(".pdf")), text: await window.__lastBlob.text() }));
+check(pdf.f.filename === "how-to-make-kadha.pdf" && pdf.f.head.startsWith("%PDF-") && pdf.f.size > 2000, `Download PDF saves a real PDF (${pdf.f.filename}, ${pdf.f.size} bytes)`);
+check(/\(How to make Kadha\)/.test(pdf.text) && /Boil the paani with tulsi and adrak\./.test(pdf.text) && /In Divisha's schedule: Kadha: every day at 8 am/.test(pdf.text), "the PDF has the title, the steps and when she gets it");
+writeFileSync(`${S}/shots/43-kadha.pdf`, Buffer.from(await G.evaluate(async () => btoa(String.fromCharCode(...new Uint8Array(await window.__lastBlob.arrayBuffer())))), "base64"));
+
+await G.click("[data-act=guide-revise]");
+await G.fill("#grText", "Give it at 8 AM after breakfast");
+await G.click("[data-act=guide-revise-go]");
+await G.waitForSelector(".revise-box .change-line");
+check(await G.textContent(".change-line") === "Time set to 8 am", "Change with Claude says what changed");
+check(await G.locator(".guide-sheet section.changed").count() === 1 && await G.isVisible(".guide-sheet section.changed[data-sec=tips]"), "and highlights only the changed part");
+check(!(await G.isVisible("#grSchedule")), "her schedule already says 8 am, so it isn't offered again");
+await G.screenshot({ path: `${S}/shots/44-guide-change.png`, fullPage: true });
+await G.click("[data-act=guide-revise-save]");
+await G.waitForSelector(".guide-history summary:has-text('changed 1 time')");
+const saved2 = await G.evaluate(() => [...window.__store.entries()].find(([k]) => k.startsWith("guides/"))[1]);
+check(saved2.tips.includes("Give it at 8 am, after breakfast.") && Object.values(saved2.changes).some(c => c.note === "Time set to 8 am"), "saving keeps the new version and a note of the change");
+
+await G.click("[data-act=guide-edit]");
+await G.fill("#gfMakes", "1 cup");
+await G.click("[data-act=guide-form-save]");
+await G.waitForSelector(".guide-facts:has-text('1 cup')");
+check(true, "a guide can be edited by hand");
+
+await G.click("[data-act=guide-close]");
+await G.waitForSelector(".sched-card:has-text('Kadha') [data-act=guide-open]");
+check(await G.isVisible(".guide-row:has-text('How to make Kadha')"), "the guide is listed in Schedule");
+await G.click(".sched-card:has-text('Kadha') [data-act=guide-open]");
+await G.waitForSelector(".guide-view h2:has-text('How to make Kadha')");
+check(true, "See how on a schedule item opens its guide");
+await G.click("[data-act=guide-close]");
+
+// Changing a guide from Talk
+await G.click(".sections a[data-view=talk]");
+await G.fill("#composerText", "Add 2 laung to the kadha guide");
+await G.click("#sendBtn");
+await G.waitForSelector(".note-card .guide-offer");
+check(/G1\. How to make Kadha/.test(await G.evaluate(() => window.__lastTurns[0].content)), "Claude in Talk sees the guides");
+check(await G.isVisible(".note-card h3:has-text('Update the guide?')") && await G.isVisible(".guide-offer .offer-head:has-text('Change “How to make Kadha”: Added 2 laung')"), "and can offer a change to one, to check first");
+await G.click(".note-card:has(.guide-offer) [data-act=save-all]");
+await G.waitForSelector(".saved-list .tag.guide");
+const saved3 = await G.evaluate(() => [...window.__store.entries()].filter(([k]) => k.startsWith("guides/")).map(([, g]) => g));
+check(saved3.length === 1 && saved3[0].need.includes("2 laung"), "saving it changes the same guide, not a new one");
+
+// A new guide from Talk links to a schedule item about the same thing
+await G.fill("#composerText", "Steam recipe for her blocked nose");
+await G.click("#sendBtn");
+await G.waitForSelector(".note-card .guide-offer");
+check(await G.inputValue(".guide-offer input") === "How to give steam" && await G.isVisible(".note-card:has(.guide-offer) .sched-row"), "a recipe in Talk is offered as a new guide, with its schedule item");
+await G.click(".note-card:has(.guide-offer) [data-act=save-all]");
+await G.waitForFunction(() => [...window.__store.values()].some(v => v.what === "Steam" && v.guideId));
+check(true, "a new guide from Talk is saved, and its schedule item links to it");
+await G.click(".saved-list button:has-text('How to give steam')");
+await G.waitForSelector(".guide-view h2:has-text('How to give steam')");
+check(await G.waitForSelector(".guide-uses:has-text('Steam: every day at 8 pm')", { timeout: 5000 }).then(() => true, () => false), "the saved guide opens from the chat");
+
+const GR = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&readonly=1#schedule");
+await GR.waitForSelector("#guideList .empty");
+check(!(await GR.isVisible("#gatherBtn")) && !(await GR.isVisible("#addGuideBtn")), "viewers can't add guides");
+const GN = await page({ viewport: { width: 1280, height: 900 } }, base + "?seed=1&nosample=1#schedule");
+await GN.waitForSelector("#guideList .empty");
+check(!(await GN.isVisible("#gatherBtn")) && await GN.isVisible("#addGuideBtn"), "without Claude, guides can still be written by hand");
+
+const GP = await page({ viewport: { width: 390, height: 844 }, colorScheme: "dark", isMobile: true, hasTouch: true }, base + "?seed=1#schedule");
+await GP.waitForSelector("#guideList .empty");
+await GP.click("#gatherBtn");
+await GP.fill("#gTopic", "kaadha");
+await GP.click("[data-act=guide-find]");
+await GP.waitForSelector(".found");
+await GP.screenshot({ path: `${S}/shots/45-phone-gather.png`, fullPage: true });
+await GP.click("[data-act=guide-write]");
+await GP.waitForSelector(".guide-form");
+await GP.click("[data-act=guide-form-save]");
+await GP.waitForSelector(".guide-view h2");
+const gpw = await GP.evaluate(() => document.documentElement.scrollWidth);
+check(gpw <= 390, `phone: a guide fits the screen (width ${gpw})`);
+await GP.screenshot({ path: `${S}/shots/46-phone-guide.png`, fullPage: true });
 
 console.log(errors.length ? `CONSOLE ERRORS:\n${errors.join("\n")}` : "No console errors");
 await browser.close();

@@ -2,8 +2,9 @@
 
 A shared diary for Divisha's health and care, made for two parents.
 The left pane has four sections: **Talk**, where you tell Claude about her
-day; **Schedule**, her medicines, meals and visits with reminders and a
-shareable routine; **Documents**, her papers with a title and brief each; and
+day; **Schedule**, her medicines, meals and visits with reminders, a
+shareable routine, and guides (your own step-by-step ways, like making
+kadha, each downloadable as a PDF); **Documents**, her papers with a title and brief each; and
 **Time-based analysis**, how she's doing over a week, month or year.
 
 - **Live page:** https://claude.ai/artifact/Pro9ma6DELS2utcssBPCRp
@@ -38,6 +39,7 @@ with as Contributor or Editor:
 | `entries/<id>` | One diary entry each |
 | `notes/<span>` | Claude's notes in Time-based analysis, for example `notes/month-2026-10-01` |
 | `schedules/<id>` | One item in her schedule, with which times were done or skipped |
+| `guides/<id>` | One guide: title, what it's for, what you need, steps, keep in mind, the messages it came from, and a note per change |
 | `documents/<id>` | One document's title, brief, date and file id |
 | file storage | The document files themselves, shown at `/_blob/<file id>` |
 

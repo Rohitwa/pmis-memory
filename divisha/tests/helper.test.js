@@ -38,8 +38,8 @@ test("a reply splits into words and entries", () => {
 });
 
 test("a reply with a broken or missing block keeps the words", () => {
-  assert.deepEqual(parseReply("All good!\n```json\n{oops}\n```", TODAY), { reply: "All good!", entries: [], schedules: [], documents: [] });
-  assert.deepEqual(parseReply("Just words", TODAY), { reply: "Just words", entries: [], schedules: [], documents: [] });
+  assert.deepEqual(parseReply("All good!\n```json\n{oops}\n```", TODAY), { reply: "All good!", entries: [], schedules: [], documents: [], guides: [] });
+  assert.deepEqual(parseReply("Just words", TODAY), { reply: "Just words", entries: [], schedules: [], documents: [], guides: [] });
   assert.equal(visiblePart("Hello there\n```json\n{\"entr"), "Hello there");
 });
 
@@ -292,7 +292,7 @@ test("an empty diary still makes a sensible file", () => {
 test("the backup holds everything and says what it is", () => {
   const data = JSON.parse(backupFile({ profile: { name: "Divisha" }, entries: [{ id: "a" }], chats: [{ id: "2026-10-01", messages: {} }], exportedAt: "x" }));
   assert.equal(data.app, "Divisha Wellness");
-  assert.deepEqual(data.counts, { entries: 1, chatDays: 1, notes: 0, schedules: 0, documents: 0 });
+  assert.deepEqual(data.counts, { entries: 1, chatDays: 1, notes: 0, schedules: 0, documents: 0, guides: 0 });
   assert.equal(data.profile.name, "Divisha");
   assert.deepEqual(copyFileNames(TODAY), { readable: "divisha-wellness-diary-2026-10-28.md", backup: "divisha-wellness-backup-2026-10-28.json" });
 });
@@ -302,7 +302,7 @@ import { cleanSchedule, isDueOn, nextDue, doneOn, scheduleLine, timeText, contex
 
 test("schedules are cleaned, and a one-off can be in the future", () => {
   assert.deepEqual(cleanSchedule({ what: " Flu shot ", repeat: "once", date: "2026-11-15", time: "9:30" }, TODAY), {
-    what: "Flu shot", details: "", category: "vaccine", repeat: "once", date: "2026-11-15", until: "", every: 1, weekdays: [], times: ["09:30"], lead: 30, for: "", paused: false,
+    what: "Flu shot", details: "", category: "vaccine", repeat: "once", date: "2026-11-15", until: "", every: 1, weekdays: [], times: ["09:30"], lead: 30, for: "", paused: false, guideId: "",
   });
   assert.equal(cleanSchedule({ what: "Drops", repeat: "hourly" }, TODAY).repeat, "once", "unknown repeats become once");
   assert.equal(cleanSchedule({ what: "Drops", repeat: "daily", date: TODAY, until: "2026-10-01" }, TODAY).until, "", "an end before the start is dropped");

@@ -12,6 +12,8 @@ import {
   NOTE_SECTIONS, notesRequest, readNotes, writeNotes, changedSince,
   readableDiary, backupFile, copyFileNames,
   REPEATS, cleanSchedule, scheduleLine, CATEGORIES, LEADS, WEEKDAYS, timesOf, agenda, adherence, timeText,
+  cleanGuide, guideOrder, guideUses, findMessages, topicWords, guideRequest, guideRevisionRequest, readGuideReply, writeGuide,
+  guideDiff, guideFileName, pdfSafe,
 } from "./helper.js";
 
 const $ = (id) => document.getElementById(id);
@@ -30,6 +32,7 @@ const state = {
   messages: [],
   schedules: [],
   documents: [],
+  guides: [],
   today: dayKey(),
   day: dayKey(),            // which day's chat is open
   view: "talk",             // talk, docs or look
@@ -47,8 +50,9 @@ const state = {
   schedConfirmDelete: null,
   reminders: "unknown",     // on | off | blocked | unsupported (this phone)
   people: {},               // id → name, for "For" (self-hosted copy)
-  shareBox: null,           // { kind: "routine" | "document", target, days, url, expires, busy, error }
+  shareBox: null,           // { kind: "routine" | "document" | "guide", target, days, url, expires, busy, error }
   docBlobs: {},             // document files fetched for "Send the file"
+  guideView: null,          // what the Guides area shows (see "Guides" below)
   // Documents
   docOpen: null,            // the id of the document being shown
   docForm: null,            // { id: "new" or a document id, title, brief, date, file, busy, status }
@@ -247,6 +251,7 @@ function draftFor(m) {
       entries: (m.proposal || []).map(e => ({ ...e })),
       schedules: (m.proposedSchedules || []).map(x => ({ ...x })),
       documents: (m.proposedDocuments || []).map(x => ({ ...x })),
+      guides: (m.proposedGuides || []).map(x => ({ ...x, need: (x.need || []).join("\n"), steps: (x.steps || []).join("\n"), tips: (x.tips || []).join("\n") })),
     };
   }
   return state.drafts[m.id];
@@ -306,17 +311,36 @@ function savedScheduleHtml(x) {
   return `<li><span class="tag schedule">Schedule</span> <span>${esc(scheduleLine(x, state.today))}</span></li>`;
 }
 
+function guideOfferHtml(msgId, x, i) {
+  const base = `d-${msgId}-g${i}`;
+  const attrs = (f) => `data-draft="${msgId}" data-g="guides" data-i="${i}" data-f="${f}"`;
+  const target = x.guideId ? guideById(x.guideId) : null;
+  return `<div class="guide-offer">
+    <div class="offer-head">${target ? `Change “${esc(target.title)}”${x.change ? `: ${esc(x.change)}` : ""}` : "New guide"}</div>
+    <input id="${base}-title" ${attrs("title")} value="${esc(x.title)}" aria-label="Guide title">
+    <label>You need, one per line<textarea id="${base}-need" ${attrs("need")}>${esc(x.need)}</textarea></label>
+    <label>Steps, one per line<textarea id="${base}-steps" ${attrs("steps")}>${esc(x.steps)}</textarea></label>
+    <label>Keep in mind<textarea id="${base}-tips" ${attrs("tips")}>${esc(x.tips)}</textarea></label>
+    <button type="button" class="link-btn" data-act="draft-remove" data-msg="${msgId}" data-g="guides" data-i="${i}">Don't keep this guide</button>
+  </div>`;
+}
+
+function savedGuideHtml(g) {
+  return `<li><span class="tag guide">Guide</span> <button type="button" class="link-btn" data-act="guide-open" data-id="${g.id}">${esc(g.title)}</button></li>`;
+}
+
 function cardHtml(m) {
-  const offered = (m.proposal?.length || 0) + (m.proposedSchedules?.length || 0) + (m.proposedDocuments?.length || 0);
+  const offered = (m.proposal?.length || 0) + (m.proposedSchedules?.length || 0) + (m.proposedDocuments?.length || 0) + (m.proposedGuides?.length || 0);
   if (offered && state.canWrite) {
     const d = draftFor(m);
-    const n = d.entries.length + d.schedules.length + d.documents.length;
+    const n = d.entries.length + d.schedules.length + d.documents.length + d.guides.length;
     if (!n) {
       return `<div class="note-card"><footer><span>Nothing left to save.</span><button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Done</button></footer></div>`;
     }
-    const kinds = [d.entries.length, d.schedules.length, d.documents.length].filter(Boolean).length;
+    const kinds = [d.entries.length, d.schedules.length, d.documents.length, d.guides.length].filter(Boolean).length;
     const several = kinds > 1;
-    const title = several ? "Save these?" : d.schedules.length ? "Add to her schedule?" : d.documents.length ? "Keep in Documents?" : "Note in the diary?";
+    const title = several ? "Save these?" : d.schedules.length ? "Add to her schedule?" : d.documents.length ? "Keep in Documents?"
+      : d.guides.length ? (d.guides.every(x => x.guideId && guideById(x.guideId)) ? "Update the guide?" : "Keep as a guide?") : "Note in the diary?";
     return `<div class="note-card">
       <header><h3>${title}</h3><span>Fix anything first</span></header>
       ${several && d.documents.length ? `<div class="group-title">In Documents</div>` : ""}
@@ -325,6 +349,8 @@ function cardHtml(m) {
       ${d.entries.map((e, i) => noteRowHtml(m.id, e, i)).join("")}
       ${several && d.schedules.length ? `<div class="group-title">In her schedule</div>` : ""}
       ${d.schedules.map((x, i) => schedNoteRowHtml(m.id, x, i)).join("")}
+      ${several && d.guides.length ? `<div class="group-title">Guides</div>` : ""}
+      ${d.guides.map((x, i) => guideOfferHtml(m.id, x, i)).join("")}
       <footer>
         <button type="button" class="btn quiet" data-act="skip" data-msg="${m.id}">Don't save</button>
         <button type="button" class="btn primary" data-act="save-all" data-msg="${m.id}">Save ${n === 1 ? "it" : `all ${n}`}</button>
@@ -332,17 +358,18 @@ function cardHtml(m) {
     </div>`;
   }
   if (offered) {
-    return `<div class="note-card"><header><h3>Suggested</h3></header><ul class="saved-list">${(m.proposedDocuments || []).map(x => `<li><span class="tag document">Document</span> ${esc(x.title)}</li>`).join("")}${(m.proposal || []).map(e => `<li>${tagHtml(e)} ${esc(whatText(e))}</li>`).join("")}${(m.proposedSchedules || []).map(savedScheduleHtml).join("")}</ul></div>`;
+    return `<div class="note-card"><header><h3>Suggested</h3></header><ul class="saved-list">${(m.proposedDocuments || []).map(x => `<li><span class="tag document">Document</span> ${esc(x.title)}</li>`).join("")}${(m.proposal || []).map(e => `<li>${tagHtml(e)} ${esc(whatText(e))}</li>`).join("")}${(m.proposedSchedules || []).map(savedScheduleHtml).join("")}${(m.proposedGuides || []).map(x => `<li><span class="tag guide">Guide</span> ${esc(x.title)}</li>`).join("")}</ul></div>`;
   }
   const savedEntries = (m.savedEntryIds || []).map(entryById).filter(Boolean);
   const savedScheds = (m.savedScheduleIds || []).map(id => state.schedules.find(x => x.id === id)).filter(Boolean);
   const savedDocs = (m.savedDocumentIds || []).map(docById).filter(Boolean);
-  if (m.savedEntryIds?.length || m.savedScheduleIds?.length || m.savedDocumentIds?.length) {
-    const any = savedEntries.length + savedScheds.length + savedDocs.length;
+  const savedGuides = (m.savedGuideIds || []).map(guideById).filter(Boolean);
+  if (m.savedEntryIds?.length || m.savedScheduleIds?.length || m.savedDocumentIds?.length || m.savedGuideIds?.length) {
+    const any = savedEntries.length + savedScheds.length + savedDocs.length + savedGuides.length;
     return `<div class="note-card">
       <div class="saved-head">Saved</div>
       <ul class="saved-list">${any
-        ? savedDocs.map(savedDocumentHtml).join("") + savedEntries.map(e => `<li>${tagHtml(e)} <span>${esc(whatText(e))}${e.details ? ` · ${esc(e.details)}` : ""}</span></li>`).join("") + savedScheds.map(savedScheduleHtml).join("")
+        ? savedDocs.map(savedDocumentHtml).join("") + savedEntries.map(e => `<li>${tagHtml(e)} <span>${esc(whatText(e))}${e.details ? ` · ${esc(e.details)}` : ""}</span></li>`).join("") + savedScheds.map(savedScheduleHtml).join("") + savedGuides.map(savedGuideHtml).join("")
         : "<li>These were later removed.</li>"}</ul>
     </div>`;
   }
@@ -594,7 +621,7 @@ async function send(text, { retry = false } = {}) {
   const { pictures, perFile } = await picturesFor(files);
   const shown = metas.map((m, i) => ({ ...m, seen: perFile[i] > 0, pagesShown: isPdfFile({ type: m.fileType, name: m.fileName }) ? perFile[i] : 0 }));
   const { turns, saw } = buildTurns({
-    profile: state.profile, entries: state.entries, schedules: state.schedules, documents: state.documents,
+    profile: state.profile, entries: state.entries, schedules: state.schedules, documents: state.documents, guides: state.guides,
     history: past, newText: text, attachments: shown, today: day,
   });
   state.streamText = "";
@@ -620,7 +647,10 @@ async function send(text, { retry = false } = {}) {
     else { render(); renderMessages(true); return; }
   }
 
-  const { reply, entries: proposed, schedules: proposedSchedules, documents: offers } = parseReply(raw, day);
+  const { reply, entries: proposed, schedules: proposedSchedules, documents: offers, guides: guideOffers } = parseReply(raw, day);
+  // "guide": 2 means G2 in the packet Claude saw; anything else is a new guide.
+  const order = guideOrder(state.guides);
+  const proposedGuides = guideOffers.map(({ guide, ...g }) => ({ ...g, guideId: (guide && order[guide - 1]?.id) || null }));
   // A file can only be kept in Documents if it was uploaded.
   const proposedDocuments = offers
     .map(o => ({ o, meta: metas[o.file - 1] }))
@@ -638,6 +668,7 @@ async function send(text, { retry = false } = {}) {
       proposal: proposed.length ? proposed : null,
       proposedSchedules: proposedSchedules.length ? proposedSchedules : null,
       proposedDocuments: proposedDocuments.length ? proposedDocuments : null,
+      proposedGuides: proposedGuides.length ? proposedGuides : null,
       warnings,
       dose,
       saw,
@@ -654,26 +685,39 @@ async function send(text, { retry = false } = {}) {
 }
 
 async function saveAll(msgId) {
-  const d = state.drafts[msgId] || { entries: [], schedules: [], documents: [] };
+  const d = state.drafts[msgId] || { entries: [], schedules: [], documents: [], guides: [] };
   const entries = d.entries.map(e => cleanEntry(e, state.today)).filter(Boolean);
   const schedules = d.schedules.map(x => cleanSchedule(x, state.today)).filter(Boolean);
   const docs = (d.documents || []).map(x => ({ ...x, title: String(x.title || "").trim(), brief: String(x.brief || "").trim() }));
   if (docs.some(x => !x.title || !x.brief)) { toast("Each document needs a title and a brief. Add them, or remove the document."); return; }
-  if (!entries.length && !schedules.length && !docs.length) return skip(msgId);
+  const guides = (d.guides || []).map(x => ({ x, g: cleanGuide(x) }));
+  if (guides.some(({ g }) => !g)) { toast("Each guide needs a title and at least one step."); return; }
+  if (!entries.length && !schedules.length && !docs.length && !guides.length) return skip(msgId);
   try {
+    // Guides first, so a schedule item about the same thing can link to its guide.
+    const guideIds = [];
+    for (const { x, g } of guides) {
+      if (x.guideId && guideById(x.guideId)) { await state.diary.updateGuide(x.guideId, g, x.change || "Changed in Talk"); guideIds.push(x.guideId); }
+      else guideIds.push(await state.diary.addGuide(g, { sources: [{ day: state.day, id: msgId }], note: "Made in Talk" }));
+    }
+    if (guideIds.length === 1) {
+      const words = new Set(topicWords(guides[0].g.title));
+      for (const x of schedules) if (!x.guideId && topicWords(x.what).some(w => words.has(w))) x.guideId = guideIds[0];
+    }
     const entryIds = entries.length ? await state.diary.addEntries(entries, msgId) : [];
     const scheduleIds = schedules.length ? await state.diary.addSchedules(schedules, msgId) : [];
     const documentIds = [];
     for (const x of docs) documentIds.push(await state.diary.addDocumentFromFile(x, { title: x.title, brief: x.brief, date: /^\d{4}-\d{2}-\d{2}$/.test(x.date) ? x.date : state.today }));
     await state.diary.updateMessage(state.day, msgId, {
-      proposal: null, proposedSchedules: null, proposedDocuments: null,
-      savedEntryIds: entryIds, savedScheduleIds: scheduleIds, savedDocumentIds: documentIds,
+      proposal: null, proposedSchedules: null, proposedDocuments: null, proposedGuides: null,
+      savedEntryIds: entryIds, savedScheduleIds: scheduleIds, savedDocumentIds: documentIds, savedGuideIds: guideIds,
     });
     delete state.drafts[msgId];
     const parts = [];
     if (entries.length) parts.push(entries.length === 1 ? "1 diary entry" : `${entries.length} diary entries`);
     if (schedules.length) parts.push(schedules.length === 1 ? "1 schedule item" : `${schedules.length} schedule items`);
     if (docs.length) parts.push(docs.length === 1 ? "1 document" : `${docs.length} documents`);
+    if (guides.length) parts.push(guides.length === 1 ? "1 guide" : `${guides.length} guides`);
     toast(`Saved ${parts.join(" and ")}`);
   } catch (e) {
     onWriteError(e);
@@ -682,7 +726,7 @@ async function saveAll(msgId) {
 
 async function skip(msgId) {
   try {
-    await state.diary.updateMessage(state.day, msgId, { proposal: null, proposedSchedules: null, proposedDocuments: null, skipped: true });
+    await state.diary.updateMessage(state.day, msgId, { proposal: null, proposedSchedules: null, proposedDocuments: null, proposedGuides: null, skipped: true });
     delete state.drafts[msgId];
   } catch (e) {
     onWriteError(e);
@@ -975,7 +1019,7 @@ function occHtml(o, { buttons }) {
     : `<button type="button" class="btn occ-done" data-act="occ-done" data-id="${s.id}" data-key="${esc(o.key)}">Done</button><button type="button" class="link-btn" data-act="occ-skip" data-id="${s.id}" data-key="${esc(o.key)}">Skip</button>`;
   return `<div class="occ${o.status ? ` is-${o.status}` : ""}${late ? " is-late" : ""}">
     <span class="occ-time">${o.time ? esc(timeText(o.time)) : "Any time"}</span>
-    <span class="occ-what"><strong>${esc(s.what)}</strong>${s.details ? `<span class="occ-details">${esc(s.details)}</span>` : ""}${s.for ? `<span class="occ-details">For ${esc(personName(s.for))}</span>` : ""}</span>
+    <span class="occ-what"><strong>${esc(s.what)}</strong>${s.details ? `<span class="occ-details">${esc(s.details)}</span>` : ""}${s.for ? `<span class="occ-details">For ${esc(personName(s.for))}</span>` : ""}${s.guideId && guideById(s.guideId) ? `<span class="occ-details"><button type="button" class="link-btn occ-how" data-act="guide-open" data-id="${s.guideId}">See how</button></span>` : ""}</span>
     <span class="occ-side">${status}${acts}</span>
   </div>`;
 }
@@ -1002,6 +1046,7 @@ function schedCardHtml(s) {
   return `<div class="sched-card${s.paused || ended || past ? " is-quiet" : ""}">
     <div class="sched-main"><strong>${esc(s.what)}</strong><span class="sched-line">${esc(line.charAt(0).toUpperCase() + line.slice(1))}</span>
       ${s.details ? `<span class="sched-details">${esc(s.details)}</span>` : ""}
+      ${s.guideId && guideById(s.guideId) ? `<span><button type="button" class="link-btn sched-how" data-act="guide-open" data-id="${s.guideId}">See how: ${esc(guideById(s.guideId).title)}</button></span>` : ""}
       <span class="sched-facts">${facts.map(f => `<span>${esc(f)}</span>`).join("")}</span></div>
     ${acts}
   </div>`;
@@ -1010,11 +1055,11 @@ function schedCardHtml(s) {
 function schedFormFrom(s) {
   if (!s) {
     return { id: "new", what: "", category: "medicine", details: "", repeat: "daily", every: 1, weekdays: [], times: ["09:00"],
-      date: state.today, ends: "never", until: "", days: 5, lead: 30, for: "", paused: false };
+      date: state.today, ends: "never", until: "", days: 5, lead: 30, for: "", paused: false, guideId: "" };
   }
   return { id: s.id, what: s.what, category: s.category || "care", details: s.details || "", repeat: s.repeat, every: s.every || 1,
     weekdays: [...(s.weekdays || [])], times: [...timesOf(s)], date: s.date, ends: s.until ? "date" : "never", until: s.until || "",
-    days: 5, lead: s.lead ?? 30, for: s.for || "", paused: !!s.paused };
+    days: 5, lead: s.lead ?? 30, for: s.for || "", paused: !!s.paused, guideId: s.guideId || "" };
 }
 
 function options(map, current) {
@@ -1043,6 +1088,7 @@ function schedFormHtml(f) {
       </div>
       <label>Remind ${f.times.length ? "" : "(at 9 am)"} <select id="seLead" data-se="lead" ${f.times.length ? "" : "disabled"}>${options(LEADS, f.lead)}</select></label>
       <label>For <select id="seFor" data-se="for">${options(people, f.for)}</select></label>
+      ${state.guides.length || f.guideId ? `<label>Guide <select id="seGuide" data-se="guideId">${options({ "": "None", ...Object.fromEntries(state.guides.map(g => [g.id, g.title])) }, f.guideId)}</select></label>` : ""}
       ${f.id !== "new" ? `<label class="check"><input type="checkbox" id="sePaused" data-se="paused" ${f.paused ? "checked" : ""}> Paused</label>` : ""}
       <label class="wide">Notes <input id="seDetails" data-se="details" value="${esc(f.details)}" placeholder="After food; as Dr Mehta said" maxlength="300"></label>
     </div>
@@ -1064,14 +1110,14 @@ function reminderBarHtml() {
 }
 
 function shareBoxHtml(b) {
-  const what = b.kind === "routine" ? "her routine" : "this document";
+  const what = b.kind === "routine" ? "her routine" : b.kind === "guide" ? "this guide" : "this document";
   const canFile = b.kind === "document" && !!navigator.canShare && !!window.divishaHost;
   const body = b.url
     ? `<div class="share-url"><input readonly id="shareUrl" value="${esc(b.url)}" aria-label="Link"><button type="button" class="btn primary" data-act="share-send">Share…</button><button type="button" class="btn" data-act="share-copy">Copy</button></div>
        <p class="hint">Anyone with this link can see ${what}${b.expires ? ` until ${esc(dayLabel(b.expires.slice(0, 10), state.today))}` : ""}, without an account. Turn it off any time in About Divisha, under Shared links.</p>`
     : `<div class="share-make"><label>Link works for <select id="shareDays">${options({ 7: "7 days", 30: "30 days", 90: "90 days", 0: "Until I turn it off" }, b.days)}</select></label>
        <button type="button" class="btn primary" data-act="share-create" ${b.busy ? "disabled" : ""}>${b.busy ? "Making the link…" : "Make a link"}</button></div>
-       ${b.kind === "routine" ? `<p class="hint">The page always shows her current routine, and has a Save as PDF button.</p>` : ""}`;
+       ${b.kind === "routine" ? `<p class="hint">The page always shows her current routine, with the steps of each guide, and has a Save as PDF button.</p>` : b.kind === "guide" ? `<p class="hint">The page always shows the latest version of this guide, and has a Save as PDF button.</p>` : ""}`;
   return `<div class="share-box">
     <div class="share-head"><h3>Share ${what}</h3><button type="button" class="icon-btn" data-act="share-close" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
     ${canFile ? `<div class="share-file"><button type="button" class="btn" data-act="share-file">Send the file…</button><span class="hint">Opens your phone's share options, such as WhatsApp or email.</span></div><p class="hint or">Or share a link:</p>` : ""}
@@ -1085,12 +1131,12 @@ function renderSchedule() {
   const today = agenda(state.schedules, state.today, 1);
   const open = today.filter(o => !o.status).length;
   $("dueCount").textContent = open || "";
-  $("addSchedBtn").hidden = !state.canWrite || !!state.schedForm;
-  $("shareRoutineBtn").hidden = !state.canWrite || !state.diary?.shares;
+  $("addSchedBtn").hidden = !state.canWrite || !!state.schedForm || !!state.guideView;
+  $("shareRoutineBtn").hidden = !state.canWrite || !state.diary?.shares || !!state.guideView;
   patch($("reminderBar"), reminderBarHtml());
   patch($("schedShare"), state.shareBox?.kind === "routine" ? shareBoxHtml(state.shareBox) : "");
   patch($("schedForm"), state.schedForm ? schedFormHtml(state.schedForm) : "");
-  if (state.loading || state.problem) { $("schedToday").innerHTML = `<div class="empty">${state.problem ? "Sign in to open her schedule." : "Opening her schedule…"}</div>`; return; }
+  if (state.loading || state.problem) { $("schedToday").innerHTML = `<div class="empty">${state.problem ? "Sign in to open her schedule." : "Opening her schedule…"}</div>`; $("guideAdd").hidden = true; return; }
 
   patch($("schedToday"), today.length ? `<div class="occ-list">${today.map(o => occHtml(o, { buttons: true })).join("")}</div>`
     : `<div class="empty">Nothing scheduled for today.${state.canWrite ? " Add something, or ask in Talk: “remind me to give vitamin D every day at 9”." : ""}</div>`);
@@ -1106,6 +1152,7 @@ function renderSchedule() {
   const order = (s) => (s.paused ? 1 : 0) + ((s.until && s.until < state.today && s.repeat !== "once") || (s.repeat === "once" && s.date < state.today) ? 2 : 0);
   const all = state.schedules.slice().sort((a, b) => order(a) - order(b) || (timesOf(a)[0] || "99") .localeCompare(timesOf(b)[0] || "99") || a.what.localeCompare(b.what));
   patch($("schedAll"), all.length ? `<div class="sched-list">${all.map(schedCardHtml).join("")}</div>` : `<div class="empty">Nothing is scheduled yet.</div>`);
+  renderGuides();
 }
 
 async function refreshReminders() {
@@ -1119,7 +1166,7 @@ async function saveSchedForm() {
   const raw = {
     what: f.what, category: f.category, details: f.details, repeat: f.repeat, every: Number(f.every), weekdays: f.weekdays,
     times: f.times.filter(Boolean), date: f.date, until: f.ends === "date" ? f.until : "", days: f.ends === "days" ? Number(f.days) : undefined,
-    lead: Number(f.lead), for: f.for, paused: f.paused,
+    lead: Number(f.lead), for: f.for, paused: f.paused, guideId: f.guideId || "",
   };
   const clean = cleanSchedule(raw, state.today);
   if (!clean) { $("seError").textContent = "Say what it is first."; $("seWhat")?.focus(); return; }
@@ -1137,15 +1184,15 @@ async function saveSchedForm() {
 // ── Sharing (the routine, or a document) ─────────────────────────────
 
 function openShare(kind, target) {
-  state.shareBox = { kind, target, days: kind === "routine" ? 0 : 7, url: "", expires: null, busy: false, error: "" };
+  state.shareBox = { kind, target, days: kind === "document" ? 7 : 0, url: "", expires: null, busy: false, error: "" };
   renderShare();
 }
 
 function renderShare() {
   // One share box at a time: empty the other screen's slot so its link never lingers.
-  const other = state.shareBox?.kind === "routine" ? $("docShareSlot") : $("schedShare");
-  if (other) other.innerHTML = "";
-  if (state.shareBox?.kind === "routine") renderSchedule(); else renderDocShare();
+  const slots = { routine: "schedShare", document: "docShareSlot", guide: "guideShareSlot" };
+  for (const [kind, id] of Object.entries(slots)) if (kind !== state.shareBox?.kind && $(id)) $(id).innerHTML = "";
+  if (state.shareBox?.kind === "document") renderDocShare(); else renderSchedule();
 }
 
 async function createShare() {
@@ -1165,7 +1212,7 @@ async function createShare() {
 
 async function sendShare() {
   const b = state.shareBox;
-  const title = b.kind === "routine" ? `${name()}'s routine` : docById(b.target)?.title || "Document";
+  const title = b.kind === "routine" ? `${name()}'s routine` : b.kind === "guide" ? guideById(b.target)?.title || "Guide" : docById(b.target)?.title || "Document";
   try {
     if (navigator.share) await navigator.share({ title, text: title, url: b.url });
     else { await navigator.clipboard.writeText(b.url); toast("Link copied"); }
@@ -1197,6 +1244,389 @@ async function renderSharedLinks() {
   } catch {
     $("sharedList").innerHTML = `<p class="hint">Couldn't load the links. Check your connection.</p>`;
   }
+}
+
+// ─── Guides (inside Schedule) ───────────────────────────────────────────
+// A guide is the parents' own step-by-step way of doing one thing (making
+// kadha, giving steam). It can be put together from several chat messages,
+// changed by telling Claude what to change, linked from her schedule, and
+// downloaded as a PDF. state.guideView says what the Guides area shows:
+//   { mode: "open", id, revise, confirmDelete }   one guide
+//   { mode: "gather", topic, found, picked, busy, error }   making one from chats
+//   { mode: "form", id, f, sources, time, addSchedule, error }   writing or editing
+
+const guideById = (id) => state.guides.find(g => g.id === id);
+const foundKey = (m) => `${m.day}|${m.id}`;
+
+function guideTextForm(g) {
+  return { title: g?.title || "", forWhat: g?.forWhat || "", makes: g?.makes || "", takes: g?.takes || "",
+    need: (g?.need || []).join("\n"), steps: (g?.steps || []).join("\n"), tips: (g?.tips || []).join("\n") };
+}
+
+function changesOf(g) {
+  return Object.values(g.changes || {}).filter(Boolean).sort((a, b) => (a.at < b.at ? 1 : -1));
+}
+
+function shortDate(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? "" : dayLabel(dayKey(d), state.today);
+}
+
+// "How to make Kadha" → "Kadha", for her schedule.
+function guideShortName(title) {
+  const t = title.replace(/^how\s+to\s+(?:make|give|do|prepare)?\s*/i, "").trim() || title;
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+function linkedTo(g) { return state.schedules.filter(s => s.guideId === g.id); }
+
+function guideRowHtml(g) {
+  const uses = guideUses(g, state.schedules, state.today);
+  const sub = [g.forWhat, uses[0]].filter(Boolean).join(" · ") || `${g.steps.length} step${g.steps.length === 1 ? "" : "s"}`;
+  return `<button type="button" class="guide-row" data-act="guide-open" data-id="${g.id}">
+    <span class="guide-icon"><svg><use href="#i-steps"/></svg></span>
+    <span class="doc-text"><strong>${esc(g.title)}</strong><span class="brief">${esc(sub)}</span></span>
+    <span class="doc-date">${esc(g.editedAt ? `Updated ${shortDate(g.editedAt)}` : "")}</span>
+  </button>`;
+}
+
+function guideFactsHtml(g) {
+  const f = [
+    g.forWhat && `<span><strong>For</strong> ${esc(g.forWhat)}</span>`,
+    g.makes && `<span><strong>Makes</strong> ${esc(g.makes)}</span>`,
+    g.takes && `<span><strong>Takes</strong> ${esc(g.takes)}</span>`,
+  ].filter(Boolean);
+  return f.length ? `<p class="guide-facts">${f.join("")}</p>` : "";
+}
+
+function guideSheetHtml(g, changed = new Set()) {
+  const sec = (key, title, list, ordered) => list?.length
+    ? `<section class="${changed.has(key) ? "changed" : ""}" data-sec="${key}"><h3>${title}</h3><${ordered ? "ol" : "ul"}>${list.map(t => `<li>${esc(t)}</li>`).join("")}</${ordered ? "ol" : "ul"}></section>` : "";
+  return `<div class="guide-sheet">${sec("need", "You need", g.need)}${sec("steps", "Steps", g.steps, true)}${sec("tips", "Keep in mind", g.tips)}</div>`;
+}
+
+function reviseBoxHtml(g, r) {
+  if (!r) return "";
+  if (r.proposal) {
+    const p = r.proposal, linked = linkedTo(g);
+    const timeOffer = p.time && r.scheduleOffer ? `<label class="check-line"><input type="checkbox" id="grSchedule" data-gr="schedule" ${r.schedule ? "checked" : ""}>
+      ${linked.length ? `Also move “${esc(linked[0].what)}” in her schedule to ${esc(timeText(p.time))}` : `Also add “${esc(guideShortName(p.guide.title))}” to her schedule, every day at ${esc(timeText(p.time))}`}</label>` : "";
+    return `<div class="revise-box" id="reviseBox">
+      <h3>Here's the new version</h3>
+      <p class="change-line">${esc(p.change || "Changed as you asked")}</p>
+      <p class="hint">The changed parts are highlighted below. Nothing is saved until you tap Save.</p>
+      ${timeOffer}
+      <div class="row">
+        <button type="button" class="btn quiet" data-act="guide-revise-cancel">Discard</button>
+        <button type="button" class="btn" data-act="guide-revise-edit">Edit it first</button>
+        <button type="button" class="btn primary" data-act="guide-revise-save">Save this version</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="revise-box" id="reviseBox">
+    <h3>Change this guide</h3>
+    <p class="hint">Say what to change in your own words. Claude rewrites the guide and shows you before anything is saved.</p>
+    <textarea id="grText" data-gr="text" placeholder="Give it at 8 AM. Add 2 laung (cloves). Use gud instead of honey." ${r.busy ? "disabled" : ""}>${esc(r.text)}</textarea>
+    <p class="error">${esc(r.error || "")}</p>
+    <div class="row">
+      <button type="button" class="btn quiet" data-act="guide-revise-cancel">Cancel</button>
+      ${r.busy ? `<button type="button" class="btn" data-act="guide-stop">Stop</button>` : ""}
+      <button type="button" class="btn primary" data-act="guide-revise-go" ${r.busy ? "disabled" : ""}>${r.busy ? "Claude is rewriting it…" : "Change it"}</button>
+    </div>
+  </div>`;
+}
+
+function guideViewHtml(v) {
+  const g = guideById(v.id);
+  if (!g) return `<div class="guide-view"><button type="button" class="btn quiet back" data-act="guide-close"><svg><use href="#i-left"/></svg>Her schedule</button><div class="empty">This guide was removed.</div></div>`;
+  const linked = linkedTo(g);
+  const changes = changesOf(g);
+  const canW = state.canWrite;
+  const r = v.revise;
+  const shown = r?.proposal ? { ...g, ...r.proposal.guide } : g;
+  const changed = r?.proposal ? guideDiff(g, r.proposal.guide) : new Set();
+  const uses = `<div class="guide-uses"><svg><use href="#i-clock"/></svg>
+      <span>${linked.length ? `In her schedule: ${linked.map(s => esc(scheduleLine(s, state.today))).join("; ")}` : "Not in her schedule yet."}</span>
+      ${canW ? `<button type="button" class="link-btn" data-act="guide-schedule" data-id="${g.id}">${linked.length ? "Add another" : "Add to her schedule"}</button>` : ""}</div>`;
+  const acts = v.confirmDelete
+    ? `<div class="doc-actions"><span>Remove this guide? Her schedule stays as it is.</span><button type="button" class="btn danger" data-act="guide-del-yes" data-id="${g.id}">Remove</button><button type="button" class="btn quiet" data-act="guide-del-no">Keep</button></div>`
+    : `<div class="doc-actions">
+      ${state.downloads ? `<button type="button" class="btn primary" data-act="guide-pdf" data-id="${g.id}"><svg><use href="#i-download"/></svg>Download PDF</button>` : ""}
+      ${canW && state.diary?.shares ? `<button type="button" class="btn" data-act="guide-share" data-id="${g.id}">Share</button>` : ""}
+      ${canW && state.sample && !r ? `<button type="button" class="btn" data-act="guide-revise" data-id="${g.id}">Change with Claude</button>` : ""}
+      ${canW ? `<button type="button" class="btn" data-act="guide-edit" data-id="${g.id}">Edit</button><button type="button" class="btn quiet danger" data-act="guide-del">Remove</button>` : ""}
+    </div>`;
+  const sources = (g.sources || []).filter(x => x?.day);
+  const days = [...new Set(sources.map(x => x.day))].sort();
+  const history = `<details class="guide-history"><summary>${sources.length ? `Made from ${sources.length} chat message${sources.length === 1 ? "" : "s"}` : "Written in the app"}${changes.length > 1 ? ` · changed ${changes.length - 1} time${changes.length === 2 ? "" : "s"}` : ""}</summary>
+      <ul>${changes.map(c => `<li>${esc(shortDate(c.at))} · ${esc(who(c.by))} · ${esc(c.note)}</li>`).join("")}</ul>
+      ${days.length ? `<p>From the chats on ${days.map(d => `<button type="button" class="link-btn" data-act="open-day" data-day="${esc(d)}">${esc(dayLabel(d, state.today))}</button>`).join(", ")}.</p>` : ""}
+    </details>`;
+  return `<div class="guide-view" data-id="${g.id}">
+    <button type="button" class="btn quiet back" data-act="guide-close"><svg><use href="#i-left"/></svg>Her schedule</button>
+    <h2>${esc(shown.title)}</h2>
+    ${guideFactsHtml(shown)}
+    ${uses}
+    ${acts}
+    <div id="guideShareSlot">${state.shareBox?.kind === "guide" && state.shareBox.target === g.id ? shareBoxHtml(state.shareBox) : ""}</div>
+    <div id="reviseSlot">${reviseBoxHtml(g, r)}</div>
+    ${guideSheetHtml(shown, changed)}
+    ${history}
+  </div>`;
+}
+
+function gatherHtml(v) {
+  const found = v.found;
+  const n = found ? v.picked.size : 0;
+  const list = found == null ? "" : found.length
+    ? `<p class="hint">Found ${found.length} message${found.length === 1 ? "" : "s"} about “${esc(v.searched)}”. Tick the ones to use. Your own messages are ticked; Claude's replies are there if they help.</p>
+       <div class="found-list">${found.map(m => `<label class="found"><input type="checkbox" data-found="${esc(foundKey(m))}" ${v.picked.has(foundKey(m)) ? "checked" : ""}>
+         <span><span class="found-when">${esc(dayLabel(m.day, state.today))} · ${m.role === "user" ? esc(who(m.by)) : "Claude"}${m.createdAt ? ` · ${esc(timeOf(m.createdAt))}` : ""}</span><span class="found-text">${esc(m.text)}</span></span></label>`).join("")}</div>`
+    : `<p class="hint">No messages mention “${esc(v.searched)}”. Try another word, like the Hindi or English name.</p>`;
+  return `<div class="gather">
+    <button type="button" class="btn quiet back" data-act="guide-close"><svg><use href="#i-left"/></svg>Her schedule</button>
+    <h3>Make a guide from your chats</h3>
+    <p class="hint">Type what it's about. The app finds every message that mentions it, on any day, and Claude puts them together into one guide for you to check.</p>
+    <div class="gather-find"><input id="gTopic" data-gv="topic" value="${esc(v.topic)}" placeholder="Kadha" aria-label="What the guide is about" ${v.busy ? "disabled" : ""}>
+      <button type="button" class="btn" data-act="guide-find" ${v.busy ? "disabled" : ""}>${v.busy === "finding" ? "Looking…" : "Find messages"}</button></div>
+    ${list}
+    <p class="error">${esc(v.error || "")}</p>
+    ${found?.length ? `<div class="row">
+      ${v.busy === "writing" ? `<button type="button" class="btn" data-act="guide-stop">Stop</button>` : ""}
+      <button type="button" class="btn primary" data-act="guide-write" ${v.busy || !n || !state.sample ? "disabled" : ""}>${v.busy === "writing" ? "Claude is writing the guide…" : `Write the guide from ${n} message${n === 1 ? "" : "s"}`}</button></div>` : ""}
+  </div>`;
+}
+
+function guideFormHtml(v) {
+  const f = v.f;
+  const g = v.id !== "new" ? guideById(v.id) : null;
+  const linked = g ? linkedTo(g) : [];
+  return `<div class="guide-form">
+    <h3>${v.id !== "new" ? "Edit the guide" : v.sources?.length ? "Check the guide Claude wrote" : "Write a guide"}</h3>
+    ${v.sources?.length && v.id === "new" ? `<p class="hint">Put together from ${v.sources.length} message${v.sources.length === 1 ? "" : "s"}. Fix anything, then save.</p>` : ""}
+    <div class="fields">
+      <label class="wide">Title <input id="gfTitle" data-gf="title" value="${esc(f.title)}" placeholder="How to make Kadha" maxlength="80"></label>
+      <label class="wide">What it's for <input id="gfFor" data-gf="forWhat" value="${esc(f.forWhat)}" placeholder="Cough and cold" maxlength="200"></label>
+      <label>Makes <input id="gfMakes" data-gf="makes" value="${esc(f.makes)}" placeholder="1 small cup" maxlength="60"></label>
+      <label>Takes <input id="gfTakes" data-gf="takes" value="${esc(f.takes)}" placeholder="10 minutes" maxlength="60"></label>
+      <label class="wide">You need, one per line <textarea id="gfNeed" data-gf="need" placeholder="1 cup paani&#10;4 tulsi leaves">${esc(f.need)}</textarea></label>
+      <label class="wide">Steps, one per line <textarea class="tall" id="gfSteps" data-gf="steps" placeholder="Boil the paani with tulsi and adrak.&#10;Strain and let it cool till warm.">${esc(f.steps)}</textarea></label>
+      <label class="wide">Keep in mind, one per line <textarea id="gfTips" data-gf="tips" placeholder="Give it warm, not hot.">${esc(f.tips)}</textarea></label>
+      ${linked.length ? "" : `<label class="check-line wide"><input type="checkbox" id="gfAdd" data-gv="addSchedule" ${v.addSchedule ? "checked" : ""}> Add to her schedule, every day at <input type="time" id="gfTime" data-gv="time" value="${esc(v.time || "08:00")}" aria-label="Time"></label>`}
+    </div>
+    <p class="error" id="gfError">${esc(v.error || "")}</p>
+    <div class="row">
+      <button type="button" class="btn quiet" data-act="guide-form-cancel">Cancel</button>
+      <button type="button" class="btn primary" data-act="guide-form-save">Save guide</button>
+    </div>
+  </div>`;
+}
+
+function renderGuides() {
+  if (!$("guideList")) return;
+  $("guideAdd").hidden = !state.canWrite;
+  $("gatherBtn").hidden = !state.sample;
+  const list = state.guides.slice().sort((a, b) => a.title.localeCompare(b.title));
+  patch($("guideList"), list.length ? `<div class="guide-list">${list.map(guideRowHtml).join("")}</div>`
+    : `<div class="empty">No guides yet.${state.canWrite ? " A guide keeps your own step-by-step way of doing something, like making kadha, in one place you can download as a PDF." : ""}</div>`);
+  const v = state.guideView;
+  $("schedMain").hidden = !!v;
+  $("guidePane").hidden = !v;
+  if (!v) { $("guidePane").innerHTML = ""; return; }
+  patch($("guidePane"), v.mode === "gather" ? gatherHtml(v) : v.mode === "form" ? guideFormHtml(v) : guideViewHtml(v));
+}
+
+function openGuide(id) {
+  state.guideView = { mode: "open", id, revise: null, confirmDelete: false };
+  state.schedForm = null;
+  if (state.view !== "schedule") location.hash = "#schedule";
+  renderSchedule();
+  $("scheduleView").scrollTop = 0;
+}
+
+async function findForGuide() {
+  const v = state.guideView;
+  const topic = String(v.topic || "").trim();
+  if (!topic) { v.error = "Type what the guide is about, like kadha."; renderGuides(); return; }
+  v.busy = "finding"; v.error = "";
+  renderGuides();
+  try {
+    const chats = await state.diary.allChats();
+    v.found = findMessages(chats, topic);
+    v.picked = new Set(v.found.filter(m => m.role === "user").map(foundKey));
+    v.searched = topic;
+    resolveNames(v.found.map(m => m.by));
+  } catch {
+    v.error = "Couldn't read the chats. Check your connection and try again.";
+  }
+  v.busy = "";
+  if (state.guideView === v) renderGuides();
+}
+
+let guideController = null;
+
+async function writeGuideFromPicked() {
+  const v = state.guideView;
+  const picked = (v.found || []).filter(m => v.picked.has(foundKey(m)));
+  if (!picked.length || !state.sample) return;
+  v.busy = "writing"; v.error = "";
+  renderGuides();
+  guideController = new AbortController();
+  try {
+    const raw = await writeGuide(state.sample, guideRequest({ profile: state.profile, topic: v.searched, messages: picked, today: state.today }), { signal: guideController.signal });
+    const out = readGuideReply(raw);
+    if (!out) v.error = "Claude couldn't make a guide from those messages. Try ticking others, or write it yourself.";
+    else if (state.guideView === v) {
+      state.guideView = { mode: "form", id: "new", f: guideTextForm(out.guide), sources: picked.filter(m => m.role === "user").map(m => ({ day: m.day, id: m.id })), time: out.time || "08:00", addSchedule: !!out.time };
+    }
+  } catch (e) {
+    v.error = e?.code === "cancelled" ? "" : errorText(e?.code);
+  }
+  v.busy = "";
+  renderGuides();
+}
+
+// Adds her schedule item for a guide, or moves its one linked item to `time`.
+async function scheduleGuideAt(guideId, title, time) {
+  const linked = state.schedules.filter(s => s.guideId === guideId);
+  if (linked.length === 1) {
+    const s = linked[0];
+    await state.diary.updateSchedule(s.id, cleanSchedule({ ...s, times: [time] }, state.today));
+  } else if (!linked.length) {
+    await state.diary.addSchedules([cleanSchedule({ what: guideShortName(title), category: "care", repeat: "daily", date: state.today, times: [time], lead: 30, guideId }, state.today)]);
+  }
+}
+
+async function saveGuideForm() {
+  const v = state.guideView;
+  const clean = cleanGuide(v.f);
+  if (!clean) { v.error = "A guide needs a title and at least one step."; renderGuides(); $(v.f.title.trim() ? "gfSteps" : "gfTitle")?.focus(); return; }
+  try {
+    let id = v.id;
+    if (id === "new") id = await state.diary.addGuide(clean, { sources: v.sources || [], note: v.sources?.length ? `Made from ${v.sources.length} chat message${v.sources.length === 1 ? "" : "s"}` : "Written" });
+    else await state.diary.updateGuide(id, clean, "Edited by hand");
+    const time = /^\d{2}:\d{2}$/.test(v.time || "") ? v.time : "";
+    if (v.addSchedule && time) await scheduleGuideAt(id, clean.title, time);
+    state.guideView = { mode: "open", id, revise: null, confirmDelete: false };
+    toast(v.id === "new" ? (v.addSchedule && time ? `Guide saved, and added to her schedule at ${timeText(time)}` : "Guide saved") : "Guide updated");
+    renderSchedule();
+  } catch (e) {
+    onWriteError(e);
+  }
+}
+
+async function reviseGuideNow() {
+  const v = state.guideView, r = v.revise, g = guideById(v.id);
+  if (!g || !r) return;
+  if (!String(r.text || "").trim()) { r.error = "Say what to change first."; renderGuides(); $("grText")?.focus(); return; }
+  r.busy = true; r.error = "";
+  renderGuides();
+  guideController = new AbortController();
+  try {
+    const raw = await writeGuide(state.sample, guideRevisionRequest({ profile: state.profile, guide: g, instruction: r.text.trim(), today: state.today }), { signal: guideController.signal });
+    const out = readGuideReply(raw);
+    if (!out) r.error = "Claude's version came back in a form the app couldn't read. Try again, or use Edit.";
+    else {
+      const linked = linkedTo(g);
+      r.proposal = out;
+      r.scheduleOffer = !!out.time && (linked.length === 0 || (linked.length === 1 && timesOf(linked[0]).join() !== out.time));
+      r.schedule = r.scheduleOffer;
+    }
+  } catch (e) {
+    r.error = e?.code === "cancelled" ? "" : errorText(e?.code);
+  }
+  r.busy = false;
+  renderGuides();
+}
+
+async function saveRevision() {
+  const v = state.guideView, r = v.revise, g = guideById(v.id);
+  if (!g || !r?.proposal) return;
+  const p = r.proposal;
+  try {
+    await state.diary.updateGuide(g.id, p.guide, p.change || r.text.trim().slice(0, 120));
+    if (r.schedule && p.time) await scheduleGuideAt(g.id, p.guide.title, p.time);
+    v.revise = null;
+    toast("Guide updated");
+    renderSchedule();
+  } catch (e) {
+    onWriteError(e);
+  }
+}
+
+// ── The PDF ──
+// Made on the page with jsPDF (from cdnjs, loaded the first time), so it
+// works the same on claude.ai and on the self-hosted copy.
+const JSPDF = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+let jspdfReady = null;
+function loadJsPdf() {
+  if (!jspdfReady) jspdfReady = loadScript(JSPDF).then(() => window.jspdf.jsPDF).catch((e) => { jspdfReady = null; throw e; });
+  return jspdfReady;
+}
+
+async function guidePdf(g) {
+  const JsPDF = await loadJsPdf();
+  const doc = new JsPDF({ unit: "mm", format: "a4" });
+  const M = 18, W = 210 - 2 * M, BOTTOM = 297 - 22;
+  const INK = [34, 31, 43], MUTED = [103, 99, 115], ACCENT = [91, 58, 142], CARE = [39, 111, 127];
+  let y = 24;
+  const lineH = (size, lh = 1.4) => size * 0.3528 * lh;
+  const room = (h) => { if (y + h > BOTTOM) { doc.addPage(); y = 22; } };
+  const para = (text, { size = 11, style = "normal", color = INK, after = 2, lh = 1.4 } = {}) => {
+    doc.setFont("helvetica", style); doc.setFontSize(size); doc.setTextColor(...color);
+    for (const line of doc.splitTextToSize(pdfSafe(text), W)) { room(lineH(size, lh)); doc.text(line, M, y); y += lineH(size, lh); }
+    y += after;
+  };
+  const heading = (text) => {
+    room(lineH(13) + lineH(11.5) * 2 + 6);
+    y += 3;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(...ACCENT);
+    doc.text(pdfSafe(text), M, y);
+    doc.setDrawColor(225, 222, 234); doc.setLineWidth(0.3); doc.line(M, y + 2, M + W, y + 2);
+    y += lineH(13) + 2;
+  };
+  const item = (mark, text) => {
+    const size = 11.5;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(size);
+    const lines = doc.splitTextToSize(pdfSafe(text), W - 9);
+    room(lineH(size) * Math.min(lines.length, 2));
+    doc.setFont("helvetica", "bold"); doc.setTextColor(...ACCENT); doc.text(mark, M + 1, y);
+    doc.setFont("helvetica", "normal"); doc.setTextColor(...INK);
+    lines.forEach((l, i) => { if (i) room(lineH(size)); doc.text(l, M + 9, y); y += lineH(size); });
+    y += 1.8;
+  };
+
+  para(g.title, { size: 22, style: "bold", color: ACCENT, after: 1, lh: 1.25 });
+  const facts = [g.forWhat && `For: ${g.forWhat}`, g.makes && `Makes: ${g.makes}`, g.takes && `Takes: ${g.takes}`].filter(Boolean);
+  if (facts.length) para(facts.join("     "), { size: 10.5, color: MUTED, after: 1 });
+  const uses = guideUses(g, state.schedules, state.today);
+  if (uses.length) para(`In ${name()}'s schedule: ${uses.join("; ")}`, { size: 10.5, style: "bold", color: CARE, after: 1 });
+  if (g.need?.length) { heading("You need"); g.need.forEach(t => item("-", t)); }
+  heading("Steps"); g.steps.forEach((t, i) => item(`${i + 1}.`, t));
+  if (g.tips?.length) { heading("Keep in mind"); g.tips.forEach(t => item("-", t)); }
+
+  const updated = new Date(g.editedAt || g.createdAt || Date.now()).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i += 1) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(...MUTED);
+    doc.text(pdfSafe(`${name()} Wellness · ${g.title} · Updated ${updated}`), M, 297 - 12);
+    doc.text(pages > 1 ? `Page ${i} of ${pages}` : "Follow the doctor's advice for medicines and doses.", 210 - M, 297 - 12, { align: "right" });
+  }
+  return doc.output("blob");
+}
+
+async function downloadGuide(g, btn) {
+  if (!state.downloads) return;
+  if (btn) btn.disabled = true;
+  try {
+    const blob = await guidePdf(g);
+    await state.downloads.save({ filename: guideFileName(g), data: blob });
+    toast("Saved");
+  } catch (e) {
+    if (e?.code !== "declined") toast(e?.code ? "Couldn't download it here. Try opening the page on claude.ai." : "Couldn't make the PDF. Check your connection and try again.");
+  }
+  if (btn) btn.disabled = false;
 }
 
 // ─── Time-based analysis ─────────────────────────────────────────────────
@@ -1676,6 +2106,16 @@ function wire() {
     $("seWhat")?.focus();
   });
   $("shareRoutineBtn").addEventListener("click", () => openShare("routine", "all"));
+  $("gatherBtn").addEventListener("click", () => {
+    state.guideView = { mode: "gather", topic: "", found: null, picked: new Set(), busy: "", error: "" };
+    renderSchedule();
+    $("gTopic")?.focus();
+  });
+  $("addGuideBtn").addEventListener("click", () => {
+    state.guideView = { mode: "form", id: "new", f: guideTextForm(null), sources: [], time: "08:00", addSchedule: false };
+    renderSchedule();
+    $("gfTitle")?.focus();
+  });
   document.addEventListener("visibilitychange", () => { if (!document.hidden) { state.today = dayKey(); renderSchedule(); refreshReminders(); } });
 
   $("addDocBtn").addEventListener("click", () => {
@@ -1699,10 +2139,12 @@ function wire() {
   $("fileViewer").addEventListener("close", () => { pdfRun += 1; });
   $("fvDownload").addEventListener("click", () => { if (viewerFile) downloadDoc({ ...viewerFile, title: viewerFile.fileName }); });
   $("composerText").addEventListener("input", growComposer);
+  // Enter starts a new line; the Send button sends (Ctrl or Cmd + Enter too, on a keyboard).
   $("composerText").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send($("composerText").value); }
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.isComposing) { e.preventDefault(); send($("composerText").value); }
   });
   $("stopBtn").addEventListener("click", () => state.controller?.abort());
+  $("guidePane").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "gTopic") { e.preventDefault(); findForGuide(); } });
 
   $("spanPrev").addEventListener("click", () => openSpan(stepSpan(state.span, -1)));
   $("spanNext").addEventListener("click", () => openSpan(stepSpan(state.span, 1)));
@@ -1725,6 +2167,16 @@ function wire() {
       state.schedForm[t.dataset.se] = t.type === "checkbox" ? t.checked : t.value;
     } else if (t.dataset.seTime !== undefined && state.schedForm) {
       state.schedForm.times[Number(t.dataset.seTime)] = t.value;
+    } else if (t.dataset.gf && state.guideView?.f) {
+      state.guideView.f[t.dataset.gf] = t.value;
+    } else if (t.dataset.gv && state.guideView) {
+      state.guideView[t.dataset.gv] = t.type === "checkbox" ? t.checked : t.value;
+      if (t.dataset.gv === "time" && t.value) { state.guideView.addSchedule = true; const box = $("gfAdd"); if (box) box.checked = true; }
+    } else if (t.dataset.gr && state.guideView?.revise) {
+      state.guideView.revise[t.dataset.gr] = t.type === "checkbox" ? t.checked : t.value;
+    } else if (t.dataset.found && state.guideView?.picked) {
+      if (t.checked) state.guideView.picked.add(t.dataset.found); else state.guideView.picked.delete(t.dataset.found);
+      renderGuides();
     } else if (t.dataset.doc && state.docForm) {
       state.docForm[t.dataset.doc] = t.value;
       $("docSave").disabled = !docFormReady(state.docForm) || state.docForm.busy;
@@ -1832,9 +2284,40 @@ function wire() {
     else if (act === "share-send") sendShare();
     else if (act === "share-copy") { navigator.clipboard?.writeText(state.shareBox.url).then(() => toast("Link copied")).catch(() => { $("shareUrl")?.select(); }); }
     else if (act === "share-file") shareFile();
-    else if (act === "share-close") { const k = state.shareBox?.kind; state.shareBox = null; if (k === "routine") renderSchedule(); else renderDocShare(); }
+    else if (act === "share-close") { const k = state.shareBox?.kind; state.shareBox = null; if (k === "document") renderDocShare(); else renderSchedule(); }
     else if (act === "share-revoke") { state.diary.shares.revoke(b.dataset.token).then(() => { toast("Link turned off"); renderSharedLinks(); }).catch(() => toast("Couldn't turn it off. Try again.")); }
     else if (act === "doc-share") openShare("document", b.dataset.id);
+    else if (act === "guide-open") openGuide(b.dataset.id);
+    else if (act === "guide-close") { guideController?.abort(); state.guideView = null; if (state.shareBox?.kind === "guide") state.shareBox = null; renderSchedule(); }
+    else if (act === "guide-find") findForGuide();
+    else if (act === "guide-write") writeGuideFromPicked();
+    else if (act === "guide-stop") guideController?.abort();
+    else if (act === "guide-form-save") saveGuideForm();
+    else if (act === "guide-form-cancel") { const v = state.guideView; state.guideView = v.id === "new" ? null : { mode: "open", id: v.id, revise: null, confirmDelete: false }; renderSchedule(); }
+    else if (act === "guide-edit") { const g = guideById(b.dataset.id); if (g) { state.guideView = { mode: "form", id: g.id, f: guideTextForm(g), sources: g.sources || [], time: "08:00", addSchedule: false }; renderSchedule(); $("gfTitle")?.focus(); } }
+    else if (act === "guide-revise") { state.guideView.revise = { text: "", busy: false, error: "", proposal: null }; renderGuides(); $("grText")?.focus(); }
+    else if (act === "guide-revise-go") reviseGuideNow();
+    else if (act === "guide-revise-cancel") { guideController?.abort(); state.guideView.revise = null; renderGuides(); }
+    else if (act === "guide-revise-save") saveRevision();
+    else if (act === "guide-revise-edit") {
+      const v = state.guideView, p = v.revise?.proposal;
+      if (p) { state.guideView = { mode: "form", id: v.id, f: guideTextForm(p.guide), sources: [], time: p.time || "08:00", addSchedule: false }; renderGuides(); }
+    }
+    else if (act === "guide-pdf") { const g = guideById(b.dataset.id); if (g) downloadGuide(g, b); }
+    else if (act === "guide-share") openShare("guide", b.dataset.id);
+    else if (act === "guide-schedule") {
+      const g = guideById(b.dataset.id);
+      if (g) { state.guideView = null; state.schedForm = { ...schedFormFrom(null), what: guideShortName(g.title), category: "care", times: ["08:00"], guideId: g.id }; renderSchedule(); $("seWhat")?.focus(); }
+    }
+    else if (act === "guide-del") { state.guideView.confirmDelete = true; renderGuides(); }
+    else if (act === "guide-del-no") { state.guideView.confirmDelete = false; renderGuides(); }
+    else if (act === "guide-del-yes") {
+      const g = guideById(b.dataset.id);
+      if (g) {
+        Promise.all(linkedTo(g).map(s => state.diary.linkGuide(s.id, ""))).then(() => state.diary.deleteGuide(g.id))
+          .then(() => { state.guideView = null; toast("Guide removed"); renderSchedule(); }).catch(onWriteError);
+      }
+    }
     else if (act === "doc-open") { state.docOpen = b.dataset.id; state.docForm = null; state.docConfirmDelete = false; renderDocs(); $("docsView").scrollTop = 0; }
     else if (act === "doc-back") { state.docOpen = null; state.docConfirmDelete = false; if (state.shareBox?.kind === "document") state.shareBox = null; pdfRun += 1; renderDocs(); }
     else if (act === "doc-cancel") { state.docForm = null; renderDocs(); }
@@ -1877,9 +2360,10 @@ async function start() {
     state.sample = s;
     state.imageLimits = s ? await s.limits().then(l => l?.images || null).catch(() => null) : null;
     renderComposer();
+    renderGuides();
     renderNotes();
   });
-  window.claude.use("downloads").then(d => { state.downloads = d; });
+  window.claude.use("downloads").then(d => { state.downloads = d; renderGuides(); });
 
   diary.watchProfile((p) => { state.profile = p || {}; render(); }, () => toast("Couldn't load About Divisha. Reload the page."));
   diary.watchEntries((list) => {
@@ -1891,6 +2375,12 @@ async function start() {
   }, () => toast("Couldn't load the diary. Reload the page."));
   diary.watchChatList((list) => { state.chatList = list; renderChatList(); }, () => {});
   diary.watchSchedules((list) => { state.schedules = list; resolveNames(list.flatMap(x => Object.values(x.done || {}).map(m => m?.by))); renderComposer(); renderMessages(); renderSchedule(); }, () => {});
+  diary.watchGuides((list) => {
+    state.guides = list;
+    resolveNames(list.flatMap(g => Object.values(g.changes || {}).map(c => c?.by)));
+    renderSchedule();
+    renderMessages();
+  }, () => {});
   if (diary.people) diary.people().then((p) => { state.people = p; renderSchedule(); }).catch(() => {});
   refreshReminders();
   diary.watchDocuments((list) => {

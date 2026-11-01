@@ -9,6 +9,9 @@
 //                       (for example notes/month-2026-10-01)
 //   schedules/<id>      One thing set for her: what, repeat, date, time, until
 //   documents/<id>      One kept document: title, brief, date, and its file's id
+//   guides/<id>         One guide: title, what it's for, what you need, steps,
+//                       things to keep in mind, which messages it came from,
+//                       and a short note for each change
 //
 // Document files themselves live in the page's file storage; each
 // documents/<id> holds the file's id, and "/_blob/<id>" shows it.
@@ -17,6 +20,7 @@ function scheduleFields(x) {
   return {
     what: x.what, details: x.details || "", category: x.category || "care", repeat: x.repeat, date: x.date, until: x.until || "",
     every: x.every || 1, weekdays: x.weekdays || [], times: x.times || [], lead: x.lead ?? 30, for: x.for || "", paused: !!x.paused,
+    guideId: x.guideId || "",
   };
 }
 
@@ -177,6 +181,46 @@ export async function openDiary() {
       return db.doc(`schedules/${id}`).delete();
     },
 
+    // ── Guides ───────────────────────────────────────────────────────
+    watchGuides(onChange, onError) {
+      return db.collection("guides").orderBy("title", "asc").limit(200)
+        .onSnapshot(s => onChange(s.docs.map(d => ({ id: d.id, ...d.data() }))), onError);
+    },
+    // g is a checked guide (helper.cleanGuide). Each change is kept under its
+    // own id, so two parents changing a guide at once don't lose a note.
+    async addGuide(g, { sources = [], note = "Made" } = {}) {
+      const id = newId();
+      const at = new Date().toISOString();
+      await db.doc(`guides/${id}`).set({ ...g, sources, changes: { [newId()]: { at, by: me, note } }, ...stamp(), editedAt: at });
+      return id;
+    },
+    updateGuide(id, g, note = "Edited") {
+      const at = new Date().toISOString();
+      return db.doc(`guides/${id}`).update({ ...g, changes: { [newId()]: { at, by: me, note: String(note).slice(0, 160) } }, editedBy: me, editedAt: at });
+    },
+    deleteGuide(id) {
+      return db.doc(`guides/${id}`).delete();
+    },
+    // Links a schedule item to a guide ("" unlinks).
+    linkGuide(scheduleId, guideId) {
+      return db.doc(`schedules/${scheduleId}`).update({ guideId: guideId || "", editedBy: me, editedAt: new Date().toISOString() });
+    },
+    // Every day's chat, for finding what was said about something.
+    async allChats() {
+      const found = new Map();
+      let from = null;
+      for (;;) {
+        let q = db.collection("chats").orderBy("day", "asc").limit(400);
+        if (from !== null) q = q.where("day", ">=", from);
+        const snap = await q.get();
+        let added = 0;
+        for (const d of snap.docs) if (!found.has(d.id)) { found.set(d.id, { day: d.id, ...d.data() }); added += 1; }
+        if (snap.docs.length < 400 || added === 0) break;
+        from = snap.docs[snap.docs.length - 1].data().day;
+      }
+      return [...found.values()];
+    },
+
     // ── Documents ────────────────────────────────────────────────────
     watchDocuments(onChange, onError) {
       return db.collection("documents").orderBy("date", "desc").limit(1000)
@@ -244,7 +288,7 @@ export async function openDiary() {
         }
         return [...found.values()];
       }
-      const [profileSnap, entries, chatList, chats, notes, schedules, documents] = await Promise.all([
+      const [profileSnap, entries, chatList, chats, notes, schedules, documents, guides] = await Promise.all([
         db.doc("profile/divisha").get(),
         all("entries", "date"),
         all("chatList", "day"),
@@ -252,8 +296,9 @@ export async function openDiary() {
         all("notes", "from"),
         all("schedules", "date"),
         all("documents", "date"),
+        all("guides", "title"),
       ]);
-      return { profile: profileSnap.exists ? profileSnap.data() : {}, entries, chatList, chats, notes, schedules, documents };
+      return { profile: profileSnap.exists ? profileSnap.data() : {}, entries, chatList, chats, notes, schedules, documents, guides };
     },
 
     // ── Names for "added by" ─────────────────────────────────────────

@@ -910,3 +910,76 @@ button.att:hover { border-color: var(--accent); }
   .toast { animation: rise 0.18s ease-out; }
   @keyframes rise { from { opacity: 0; transform: translate(-50%, 6px); } }
 }
+
+/* ── Guides (inside Schedule) ─────────────────────────────────────── */
+
+.sec-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.sec-head h3 { font-size: var(--t-sm); font-family: var(--body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin: 0; }
+.sec-head .btn { min-height: 34px; padding: 4px 12px; font-size: var(--t-sm); }
+.guide-list { display: grid; gap: var(--s2); }
+.guide-row {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: var(--s3); align-items: center;
+  width: 100%; text-align: left; padding: var(--s3) var(--s4);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); cursor: pointer; color: var(--ink);
+}
+.guide-row:hover { border-color: var(--accent); }
+.guide-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-sm); background: var(--care-soft); color: var(--care); }
+.guide-icon svg { width: 22px; height: 22px; }
+.guide-row .doc-text .brief { white-space: normal; }
+
+.guide-view { display: grid; gap: var(--s4); }
+.guide-view .back { justify-self: start; }
+.guide-view h2 { font-size: var(--t-xl); overflow-wrap: anywhere; margin: 0; }
+.guide-facts { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--t-sm); color: var(--muted); margin: 0; }
+.guide-facts strong { color: var(--ink); font-weight: 600; }
+.guide-uses { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; padding: var(--s3) var(--s4); background: var(--care-soft); border-radius: var(--r-md); font-size: var(--t-sm); }
+.guide-uses svg { width: 18px; height: 18px; color: var(--care); flex: none; }
+.guide-sheet { display: grid; gap: var(--s4); padding: var(--s4) var(--s5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); }
+.guide-sheet section { display: grid; gap: var(--s2); }
+.guide-sheet h3 { font-size: var(--t-md); margin: 0; }
+.guide-sheet ul, .guide-sheet ol { margin: 0; padding-left: 1.4em; display: grid; gap: 6px; }
+.guide-sheet li { overflow-wrap: anywhere; }
+.guide-sheet ol li::marker { font-weight: 700; color: var(--accent); }
+.guide-sheet .changed { background: var(--accent-soft); border-radius: var(--r-sm); margin-inline: calc(var(--s2) * -1); padding: var(--s2); }
+.guide-sheet .changed h3::after { content: " · changed"; color: var(--accent); font-size: var(--t-xs); font-weight: 600; }
+.guide-history { font-size: var(--t-sm); color: var(--muted); }
+.guide-history summary { cursor: pointer; }
+.guide-history ul { margin: var(--s2) 0 0; padding-left: 1.2em; display: grid; gap: 4px; }
+
+.revise-box, .gather, .guide-form { display: grid; gap: var(--s3); padding: var(--s4); background: var(--surface); border: 1px solid var(--accent); border-radius: var(--r-md); }
+.revise-box h3, .gather h3, .guide-form h3 { font-size: var(--t-lg); margin: 0; }
+.revise-box textarea, .guide-form textarea { min-height: 4.5em; resize: vertical; }
+.guide-form textarea.tall { min-height: 9em; }
+.revise-box .row, .gather .row, .guide-form .row { display: flex; justify-content: flex-end; gap: var(--s2); flex-wrap: wrap; }
+.revise-box .hint, .gather .hint, .guide-form .hint { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+.revise-box .error:empty, .gather .error:empty, .guide-form .error:empty { display: none; }
+.revise-box .error, .gather .error, .guide-form .error { color: var(--sick); font-size: var(--t-sm); margin: 0; }
+.change-line { margin: 0; font-weight: 600; color: var(--accent); }
+label.check-line { display: flex; align-items: center; gap: var(--s2); color: var(--ink); font-size: var(--t-sm); }
+label.check-line input[type="checkbox"] { width: auto; }
+label.check-line input[type="time"] { width: auto; }
+
+.gather-find { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.gather-find input { flex: 1 1 200px; }
+.found-list { display: grid; gap: var(--s2); max-height: 50vh; overflow-y: auto; }
+.found { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s2) var(--s3); align-items: start; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); cursor: pointer; }
+.found input { width: auto; margin-top: 4px; }
+.found .found-when { display: block; font-size: var(--t-xs); color: var(--muted); font-weight: 600; }
+.found .found-text { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--t-sm); max-height: 9em; overflow-y: auto; }
+.found:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+
+.guide-offer { display: grid; gap: var(--s2); padding: var(--s3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); }
+.guide-offer .offer-head { font-size: var(--t-sm); font-weight: 600; }
+.guide-offer textarea { min-height: 4em; resize: vertical; font-size: var(--t-sm); }
+.guide-offer label { font-size: var(--t-xs); color: var(--muted); display: grid; gap: 2px; }
+.tag.guide { background: var(--care-soft); color: var(--care); }
+.occ-how, .sched-how { font-size: var(--t-xs); }
+#guidePane[hidden], #schedMain[hidden] { display: none; }
+#schedMain { display: grid; gap: var(--s5); }
+#guideShareSlot:empty, #reviseSlot:empty { display: none; }
+
+@media (max-width: 599px) {
+  .guide-sheet { padding: var(--s4); }
+  .guide-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .guide-row .doc-date { grid-column: 2; }
+}

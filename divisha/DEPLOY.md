@@ -110,8 +110,9 @@ Screen (iOS 16.4 or later).
 
 ## Share links
 
-**Share routine** in Schedule, and **Share** on a document, make links that
-open without signing in. Each link shows only that one thing. About Divisha
+**Share routine** in Schedule, **Share** on a guide, and **Share** on a
+document make links that open without signing in. Routine and guide links
+always show the latest version. Each link shows only that one thing. About Divisha
 lists all of them under **Shared links**, each with **Turn off**. Viewers
 can't make links.
 

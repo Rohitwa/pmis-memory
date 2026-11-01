@@ -29,6 +29,7 @@ async function context(opts = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 }, acceptDownloads: true, ...opts });
   if (process.env.PDFJS_DIR) {
     await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/**", r => r.fulfill({ path: `${process.env.PDFJS_DIR}/${r.request().url().split("/").pop()}`, contentType: "text/javascript" }));
+    await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/jspdf/**", r => r.fulfill({ path: `${process.env.PDFJS_DIR}/jspdf.umd.min.js`, contentType: "text/javascript" }));
   }
   return ctx;
 }
@@ -81,7 +82,7 @@ await A.click(".sections a[data-view=look]");
 await A.waitForSelector(".tiles .tile");
 
 await R.fill("#composerText", "Fever 38.4 since evening, gave 5 ml crocin");
-await R.keyboard.press("Enter");
+await R.click("#sendBtn");
 await R.waitForSelector(".note-card .note-row");
 check(await R.locator(".note-card .note-row").count() === 2, "Claude's reply streams in with a card of 2 entries");
 const first = mock().at(-1);
@@ -103,7 +104,7 @@ check(await A.isVisible(".entry .by:has-text('Rohit')"), "with Rohit's name on t
 // ── Attachments and documents ──
 await R.setInputFiles("#attachInput", [{ name: "rx.png", mimeType: "image/png", buffer: PNG }, { name: "discharge.pdf", mimeType: "application/pdf", buffer: PDF }]);
 await R.fill("#composerText", "Papers from today");
-await R.keyboard.press("Enter");
+await R.click("#sendBtn");
 await R.waitForSelector(".note-card .doc-offer", { timeout: 60000 });
 const withPics = mock().at(-1);
 const pics = withPics.body.messages.at(-1).content.filter(b => b.type === "image");
@@ -278,6 +279,59 @@ await R.keyboard.press("Escape");
 const gone = await stranger.goto(routineUrl);
 check(gone.status() === 404 && await stranger.isVisible("text=isn't available"), "a link that's turned off stops working");
 check((await raw(V, "POST", "/api/shares", JSON.stringify({ kind: "routine" }))).status === 403, "a viewer can't make share links");
+
+// ── Guides: made from chats, downloaded as a PDF, shared, and in the routine ──
+await R.click(".sections a[data-view=talk]");
+await R.fill("#composerText", "Kaadha recipe: 1 cup paani, 4 tulsi leaves, small piece of adrak. Boil, simmer 5 min, strain.");
+await R.click("#sendBtn");
+await R.waitForSelector("#sendBtn:not([hidden])");
+await R.fill("#composerText", "Kadha 8 baje dena hai");
+await R.click("#sendBtn");
+await R.waitForSelector("#sendBtn:not([hidden])");
+await R.click(".sections a[data-view=schedule]");
+await R.click("#gatherBtn");
+await R.fill("#gTopic", "kadha");
+await R.click("[data-act=guide-find]");
+await R.waitForSelector(".found");
+check(await R.locator(".found input:checked").count() === 2, "Make from chats finds both kadha messages on the server");
+await R.click("[data-act=guide-write]");
+await R.waitForSelector(".guide-form");
+const guideCall = mock().at(-1);
+check(guideCall.body.system && /Write the guide for: kadha/.test(JSON.stringify(guideCall.body.messages)) && guideCall.body.output_config?.effort === "medium",
+  "Claude writes the guide as JSON, at medium effort");
+check(await R.isChecked("#gfAdd") && await R.inputValue("#gfTime") === "08:00", "with 8 am offered for her schedule");
+await R.click("[data-act=guide-form-save]");
+await R.waitForSelector(".guide-view h2:has-text('How to make Kadha')");
+check(await R.waitForSelector(".guide-uses:has-text('every day at 8 am')", { timeout: 8000 }).then(() => true, () => false), "the guide is saved, and Kadha is in her schedule at 8 am");
+const [gdl] = await Promise.all([R.waitForEvent("download"), R.click("[data-act=guide-pdf]")]);
+const gpdfPath = await gdl.path();
+const gpdf = readFileSync(gpdfPath);
+check(gdl.suggestedFilename() === "how-to-make-kadha.pdf" && gpdf.subarray(0, 5).toString() === "%PDF-" && gpdf.includes("Boil the paani with tulsi and adrak."),
+  `Download PDF saves the guide as a PDF (${gdl.suggestedFilename()}, ${gpdf.length} bytes)`);
+await R.click("[data-act=guide-revise]");
+await R.fill("#grText", "Give it at 8 AM");
+await R.click("[data-act=guide-revise-go]");
+await R.waitForSelector(".revise-box .change-line");
+await R.click("[data-act=guide-revise-save]");
+await R.waitForSelector(".guide-history summary:has-text('changed 1 time')");
+check(true, "Change with Claude updates the guide");
+await R.click("[data-act=guide-share]");
+await R.waitForSelector("#guideShareSlot .share-box");
+await R.click("#guideShareSlot [data-act=share-create]");
+await R.waitForSelector("#guideShareSlot #shareUrl");
+const guideUrl = await R.inputValue("#guideShareSlot #shareUrl");
+await stranger.goto(guideUrl);
+check(await stranger.isVisible("h1:has-text('How to make Kadha')") && await stranger.isVisible(".sheet li:has-text('Boil the paani with tulsi and adrak.')") && await stranger.isVisible("text=Give it at 8 am."),
+  "a guide link shows the latest version, without an account");
+check(await stranger.isVisible(".uses:has-text('every day at 8 am')") && await stranger.isVisible("button:has-text('Save as PDF')"), "with when she gets it, and Save as PDF");
+await stranger.screenshot({ path: `${SHOTS}/e2e-09-guide-page.png`, fullPage: true });
+const routine2 = JSON.parse((await raw(R, "POST", "/api/shares", JSON.stringify({ kind: "routine", days: 7 }))).body);
+await stranger.goto(routine2.url);
+check(await stranger.isVisible(".row:has-text('Kadha') .how summary:has-text('How to make Kadha')") && await stranger.isVisible(".row:has-text('Kadha') .how li:has-text('Cool till warm.')"),
+  "the routine page shows each item's guide steps under it");
+await stranger.screenshot({ path: `${SHOTS}/e2e-10-routine-with-guide.png`, fullPage: true });
+check((await raw(V, "POST", "/api/shares", JSON.stringify({ kind: "guide", target: "x" }))).status === 403, "a viewer can't share a guide");
+check((await raw(R, "POST", "/api/shares", JSON.stringify({ kind: "guide", target: "nope" }))).status === 404, "a guide that doesn't exist can't be shared");
 
 // "Send the file" hands the real file to the phone's share sheet.
 const sCtx = await context();
