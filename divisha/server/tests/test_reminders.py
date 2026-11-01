@@ -85,6 +85,8 @@ class RemindersTest(unittest.TestCase):
         s = {"id": "v", "what": "Dr Mehta follow-up", "details": ""}
         self.assertEqual(message(s, {"key": "2026-11-03 10:00", "date": "2026-11-03", "time": "10:00"}, datetime(2026, 11, 2, 10, 0))["body"], "Tomorrow at 10 am")
         self.assertEqual(message(s, {"key": "2026-11-02 10:00", "date": "2026-11-02", "time": "10:00"}, datetime(2026, 11, 2, 10, 0))["body"], "Now, 10 am")
+        # Just before midnight, a time soon after it is still "in N minutes".
+        self.assertEqual(message(s, {"key": "2026-11-03 00:11", "date": "2026-11-03", "time": "00:11"}, datetime(2026, 11, 2, 23, 41))["body"], "In 30 minutes, at 12:11 am")
         self.assertEqual(message(s, {"key": "2026-11-02", "date": "2026-11-02", "time": ""}, datetime(2026, 11, 2, 9, 0))["body"], "Today")
 
 

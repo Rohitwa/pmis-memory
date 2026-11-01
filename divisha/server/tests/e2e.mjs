@@ -25,8 +25,13 @@ const PNG = Buffer.from((await painter.evaluate(() => {
 await painter.setContent(`<h1>Discharge summary</h1><p>Chest infection.</p><div style="page-break-before:always"><h1>Page 2</h1></div>`);
 const PDF = await painter.pdf({ format: "A5" });
 
+// The reminder test needs "30 minutes from now" to stay on today's date, so the
+// test phone and browser use a time zone where it isn't nearly midnight.
+const hourIn = (tz) => Number(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", hourCycle: "h23" }).format(new Date()));
+const TZ = ["Asia/Kolkata", "Europe/London", "America/New_York", "Asia/Tokyo"].find(tz => hourIn(tz) >= 1 && hourIn(tz) <= 22);
+
 async function context(opts = {}) {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 }, acceptDownloads: true, ...opts });
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 }, acceptDownloads: true, timezoneId: TZ, ...opts });
   if (process.env.PDFJS_DIR) {
     await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/**", r => r.fulfill({ path: `${process.env.PDFJS_DIR}/${r.request().url().split("/").pop()}`, contentType: "text/javascript" }));
     await ctx.route("https://cdnjs.cloudflare.com/ajax/libs/jspdf/**", r => r.fulfill({ path: `${process.env.PDFJS_DIR}/jspdf.umd.min.js`, contentType: "text/javascript" }));
@@ -185,11 +190,11 @@ await R.goto(BASE + "/#schedule");
 await R.waitForSelector("#messages[data-state=ready]", { state: "attached" });
 await R.waitForSelector("#reminderBar .reminder-bar");
 check(await R.isVisible("[data-act=rem-on]") && await R.isVisible("#shareRoutineBtn"), "Schedule offers reminders on this phone, and sharing the routine");
-check((await raw(R, "POST", "/api/push/subscribe", JSON.stringify({ subscription: { endpoint: "http://127.0.0.1:8798/phone/rohit", keys: { p256dh: b64u(phone.getPublicKey()), auth: b64u(phoneAuth) } }, tz: "Asia/Kolkata" }))).status === 200,
+check((await raw(R, "POST", "/api/push/subscribe", JSON.stringify({ subscription: { endpoint: "http://127.0.0.1:8798/phone/rohit", keys: { p256dh: b64u(phone.getPublicKey()), auth: b64u(phoneAuth) } }, tz: TZ }))).status === 200,
   "a phone signs up for reminders");
 const kolkata = (offsetMin) => {
   const d = new Date(Date.now() + offsetMin * 60000);
-  const f = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(d).map(p => [p.type, p.value]));
+  const f = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(d).map(p => [p.type, p.value]));
   return { date: `${f.year}-${f.month}-${f.day}`, time: `${f.hour}:${f.minute}` };
 };
 const due = kolkata(30);

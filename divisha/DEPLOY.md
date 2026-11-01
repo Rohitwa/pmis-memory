@@ -85,6 +85,8 @@ browser bar, and it opens even without a connection (it then says it's offline).
 - **Android (Chrome):** open the site, sign in, then tap the ⋮ menu and **Install app** (or **Add to Home screen**, then **Install**).
 - **iPhone (Safari):** open the site, sign in, tap **Share**, then **Add to Home Screen**.
 
+The icon is an anime-style drawing of Divisha (`server/static/icons/icon.svg` is the drawing; the PNGs are made from it). After an icon change, Android updates an installed app's icon within about a day; removing the app and installing it again shows it at once.
+
 Long-pressing the icon on Android offers shortcuts to Talk, Documents and
 Time-based analysis. Signing out also clears the app's saved copy on that
 device. The diary, Claude's replies and document files are never stored in that

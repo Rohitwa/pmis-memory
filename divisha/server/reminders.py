@@ -39,12 +39,13 @@ def message(s: dict, occ: dict, now_local: datetime, *, snoozed: bool = False) -
         at = datetime.fromisoformat(f"{occ['date']}T{occ['time']}")
         minutes = round((at - now_local).total_seconds() / 60)
         clock = time_text(occ["time"])
-        if at.date() > now_local.date():
-            when = f"Tomorrow at {clock}"
-        elif minutes <= 1:
+        # Soon reads as "in N minutes", even just past midnight.
+        if minutes <= 1:
             when = f"Now, {clock}"
         elif minutes < 60:
             when = f"In {minutes} minutes, at {clock}"
+        elif at.date() > now_local.date():
+            when = f"Tomorrow at {clock}"
         else:
             when = f"Today at {clock}"
     else:

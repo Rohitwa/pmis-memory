@@ -44,10 +44,16 @@ async function serveBlob(r) {
   return r.fulfill({ body: PNG, contentType: "image/png" });
 }
 
-// The example data is relative to today. Early in a month, "this month" in
-// Time-based analysis would be nearly empty, so the pages' clock runs two
-// weeks behind then. Everything in the app reads time through Date.
-const CLOCK_SHIFT = new Date().getDate() < 8 ? -14 * 864e5 : 0;
+// The example data is relative to today, and some screens depend on the time
+// of day (what's due soon, what's late). So the pages' clock is set to 11 am,
+// and early in a month (when "this month" would be nearly empty) to two weeks
+// earlier. Everything in the app reads time through Date.
+const CLOCK_SHIFT = (() => {
+  const now = new Date(), at = new Date(now);
+  if (now.getDate() < 8) at.setDate(now.getDate() - 14);
+  at.setHours(11, 0, 0, 0);
+  return at - now;
+})();
 const nowShifted = () => new Date(Date.now() + CLOCK_SHIFT);
 
 async function page(opts, url = base, { pdfjs = true } = {}) {
