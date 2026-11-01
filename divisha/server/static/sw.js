@@ -2,8 +2,8 @@
 // The app's own files are fetched fresh when online and kept as a fallback.
 // The diary, Claude and document files are never stored here: they always
 // come from the server, so nothing private sits in this cache.
-const CACHE = "divisha-shell-v3";
-const SHELL = new Set(["/", "/style.css", "/screens.js", "/diary.js", "/helper.js", "/claude-shim.js"]);
+const CACHE = "divisha-shell-v4";
+const SHELL = new Set(["/", "/style.css", "/screens.js", "/diary.js", "/helper.js", "/claude-shim.js", "/avatar.jpg"]);
 
 self.addEventListener("install", () => self.skipWaiting());
 

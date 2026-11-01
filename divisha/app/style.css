@@ -100,7 +100,7 @@ svg { width: 20px; height: 20px; flex: none; }
 }
 .brand { min-width: 0; flex: 1; display: flex; align-items: center; gap: var(--s3); }
 .brand-text { min-width: 0; }
-.avatar { flex: none; width: 46px; height: 46px; border-radius: 50%; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent-soft); }
+.avatar { flex: none; width: 46px; height: 46px; border-radius: 50%; object-fit: cover; background: var(--accent-soft); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent-soft); }
 @media (max-width: 599px) { .avatar { width: 38px; height: 38px; } }
 .brand h1 { font-size: var(--t-xl); font-weight: 700; color: var(--accent); letter-spacing: -0.01em; }
 .age-line { margin: 0; font-size: var(--t-sm); color: var(--muted); }

@@ -43,7 +43,7 @@ STATIC = HERE / "static"
 COOKIE = "dw_session"
 COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "0") == "1"
 DAILY_CLAUDE_LIMIT = int(os.environ.get("DAILY_CLAUDE_LIMIT", "150"))
-APP_FILES = {"style.css": "text/css", "screens.js": "text/javascript", "diary.js": "text/javascript", "helper.js": "text/javascript"}
+APP_FILES = {"style.css": "text/css", "screens.js": "text/javascript", "diary.js": "text/javascript", "helper.js": "text/javascript", "avatar.jpg": "image/jpeg"}
 UPLOAD_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"}
 MAX_UPLOAD = 20 * 1024 * 1024
 
@@ -192,14 +192,14 @@ def service_worker():
     return FileResponse(STATIC / "sw.js", media_type="text/javascript", headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"})
 
 
-ICONS = {"icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "badge-96.png", "icon.svg"}
+ICONS = {"icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "badge-96.png"}
 
 
 @app.get("/icons/{name}")
 def icon(name: str):
     if name not in ICONS:
         raise HTTPException(404)
-    return FileResponse(STATIC / "icons" / name, media_type="image/svg+xml" if name.endswith(".svg") else "image/png",
+    return FileResponse(STATIC / "icons" / name, media_type="image/png",
                         headers={"Cache-Control": "public, max-age=604800"})
 
 
