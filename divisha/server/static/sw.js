@@ -2,7 +2,7 @@
 // The app's own files are fetched fresh when online and kept as a fallback.
 // The diary, Claude and document files are never stored here: they always
 // come from the server, so nothing private sits in this cache.
-const CACHE = "divisha-shell-v4";
+const CACHE = "divisha-shell-v5";
 const SHELL = new Set(["/", "/style.css", "/screens.js", "/diary.js", "/helper.js", "/claude-shim.js", "/avatar.jpg"]);
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -47,7 +47,7 @@ self.addEventListener("push", (event) => {
     requireInteraction: isItem,
     silent: false,
     vibrate: [200, 100, 200],
-    icon: "/icons/icon-192.png",
+    icon: "/icons/icon-192.png?v=2",
     badge: "/icons/badge-96.png",
     data: { url: m.url || "/#schedule", scheduleId: m.scheduleId, key: m.key },
     actions: isItem ? [{ action: "done", title: "Done" }, { action: "snooze", title: "Snooze 10 min" }] : [],

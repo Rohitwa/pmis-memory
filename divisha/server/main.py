@@ -51,8 +51,8 @@ MAX_UPLOAD = 20 * 1024 * 1024
 APP_HEAD = ('<link rel="manifest" href="/manifest.webmanifest">'
             '<meta name="theme-color" content="#f6f5f9" media="(prefers-color-scheme: light)">'
             '<meta name="theme-color" content="#15131b" media="(prefers-color-scheme: dark)">'
-            '<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">'
-            '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">'
+            '<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=2">'
+            '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=2">'
             '<meta name="apple-mobile-web-app-title" content="Divisha">')
 
 # The same wrapper claude.ai puts around the page, plus the adapter script.
@@ -200,7 +200,7 @@ def icon(name: str):
     if name not in ICONS:
         raise HTTPException(404)
     return FileResponse(STATIC / "icons" / name, media_type="image/png",
-                        headers={"Cache-Control": "public, max-age=604800"})
+                        headers={"Cache-Control": "public, max-age=86400"})   # a day; the ?v= in links changes with the icon
 
 
 # ─── Reminders on phones ─────────────────────────────────────────────────
